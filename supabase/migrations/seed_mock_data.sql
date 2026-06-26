@@ -28,3 +28,21 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.students (id, roll_number, department_id, current_semester, batch_year)
 VALUES ('00000000-0000-0000-0000-000000000003', 'CS23001', '00000000-0000-0000-0000-000000000010', 3, 2023)
 ON CONFLICT (id) DO NOTHING;
+
+-- Alice
+INSERT INTO public.profiles (id, first_name, last_name, email, role)
+VALUES ('00000000-0000-0000-0000-000000000004', 'Alice', 'Johnson', 'alice@test.com', 'student')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.students (id, roll_number, department_id, current_semester, batch_year)
+VALUES ('00000000-0000-0000-0000-000000000004', 'CS23002', '00000000-0000-0000-0000-000000000010', 3, 2023)
+ON CONFLICT (id) DO NOTHING;
+
+-- Bob
+INSERT INTO public.profiles (id, first_name, last_name, email, role)
+VALUES ('00000000-0000-0000-0000-000000000005', 'Bob', 'Williams', 'bob@test.com', 'student')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.students (id, roll_number, department_id, current_semester, batch_year)
+VALUES ('00000000-0000-0000-0000-000000000005', 'CS23003', '00000000-0000-0000-0000-000000000010', 3, 2023)
+ON CONFLICT (id) DO NOTHING;

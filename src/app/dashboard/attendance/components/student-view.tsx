@@ -4,15 +4,23 @@ import { useState, useEffect, useRef } from "react";
 import { Html5QrcodeScanner, Html5QrcodeScanType } from "html5-qrcode";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, MapPin, ScanLine, CheckCircle2, XCircle } from "lucide-react";
-import { markAttendance } from "@/app/actions/attendance";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, MapPin, ScanLine, CheckCircle2, XCircle, KeyRound } from "lucide-react";
+import { markAttendance, markAttendanceByPin } from "@/app/actions/attendance";
 
-const MOCK_STUDENT_ID = "00000000-0000-0000-0000-000000000003";
+const MOCK_STUDENTS = [
+  { id: "00000000-0000-0000-0000-000000000003", name: "Jane Smith" },
+  { id: "00000000-0000-0000-0000-000000000004", name: "Alice Johnson" },
+  { id: "00000000-0000-0000-0000-000000000005", name: "Bob Williams" },
+];
 
 export function StudentView() {
-  const [scanning, setScanning] = useState(false);
+  const [activeStudent, setActiveStudent] = useState(MOCK_STUDENTS[0].id);
+  const [mode, setMode] = useState<"idle" | "scan" | "pin">("idle");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [pin, setPin] = useState("");
   
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
@@ -25,10 +33,9 @@ export function StudentView() {
   }, []);
 
   const startScanner = () => {
-    setScanning(true);
+    setMode("scan");
     setResult(null);
     
-    // Give UI a tick to mount the div
     setTimeout(() => {
       const scanner = new Html5QrcodeScanner(
         "qr-reader",
@@ -37,27 +44,24 @@ export function StudentView() {
           qrbox: { width: 250, height: 250 },
           supportedScanTypes: [Html5QrcodeScanType.SCAN_TYPE_CAMERA]
         },
-        /* verbose= */ false
+        false
       );
       
       scannerRef.current = scanner;
       
       scanner.render(
         async (decodedText) => {
-          // Pause scanner to prevent multiple rapid fires
           scanner.pause(true);
-          await handleScan(decodedText);
+          await handleScan(decodedText, false);
           scanner.clear();
-          setScanning(false);
+          setMode("idle");
         },
-        (error) => {
-          // Ignore general scan errors (happens when no QR in frame)
-        }
+        () => {} // Ignore read errors
       );
     }, 100);
   };
 
-  const handleScan = async (qrToken: string) => {
+  const handleScan = async (token: string, isPin: boolean) => {
     setLoading(true);
 
     if (!navigator.geolocation) {
@@ -69,18 +73,20 @@ export function StudentView() {
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
-        const res = await markAttendance(
-          qrToken,
-          MOCK_STUDENT_ID,
-          latitude,
-          longitude
-        );
+        
+        let res;
+        if (isPin) {
+          res = await markAttendanceByPin(token, activeStudent, latitude, longitude);
+        } else {
+          res = await markAttendance(token, activeStudent, latitude, longitude);
+        }
 
         setResult({
           success: res.success,
           message: res.success ? res.message! : res.error!,
         });
         setLoading(false);
+        setPin(""); // Clear pin
       },
       (err) => {
         setResult({ success: false, message: `Location access denied. (${err.message})` });
@@ -88,6 +94,11 @@ export function StudentView() {
       },
       { enableHighAccuracy: true }
     );
+  };
+
+  const submitPin = () => {
+    if (pin.length !== 6) return;
+    handleScan(pin, true);
   };
 
   if (result) {
@@ -103,10 +114,10 @@ export function StudentView() {
               <XCircle className="w-8 h-8" />
             </div>
           )}
-          <h2 className="text-xl font-bold mb-2">{result.success ? "Attendance Recorded" : "Scan Failed"}</h2>
+          <h2 className="text-xl font-bold mb-2">{result.success ? "Attendance Recorded" : "Failed"}</h2>
           <p className="text-muted-foreground mb-8">{result.message}</p>
-          <Button onClick={() => setResult(null)} variant="outline" className="border-white/10">
-            Scan Another
+          <Button onClick={() => { setResult(null); setMode("idle"); }} variant="outline" className="border-white/10">
+            Back
           </Button>
         </CardContent>
       </Card>
@@ -120,9 +131,25 @@ export function StudentView() {
           <ScanLine className="w-5 h-5 text-primary" />
           Mark Attendance
         </CardTitle>
-        <CardDescription>Scan the QR code displayed by your professor.</CardDescription>
+        <CardDescription>Select your identity and check in for class.</CardDescription>
       </CardHeader>
-      <CardContent className="flex flex-col items-center">
+      <CardContent className="flex flex-col items-center space-y-6">
+        
+        {/* Mock User Selector */}
+        <div className="w-full bg-black/20 p-4 rounded-xl border border-white/5 space-y-2">
+          <label className="text-xs text-muted-foreground uppercase tracking-wider font-semibold">Testing As (Mock User)</label>
+          <Select value={activeStudent} onValueChange={(val) => val && setActiveStudent(val)}>
+            <SelectTrigger className="w-full bg-transparent border-white/10">
+              <SelectValue placeholder="Select a student" />
+            </SelectTrigger>
+            <SelectContent className="glass-panel border-white/10">
+              {MOCK_STUDENTS.map(student => (
+                <SelectItem key={student.id} value={student.id}>{student.name}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground space-y-4">
             <Loader2 className="w-10 h-10 animate-spin text-primary" />
@@ -130,7 +157,7 @@ export function StudentView() {
               <MapPin className="w-4 h-4" /> Verifying location...
             </p>
           </div>
-        ) : scanning ? (
+        ) : mode === "scan" ? (
           <div className="w-full relative rounded-2xl overflow-hidden border-2 border-primary/20">
             <div id="qr-reader" className="w-full bg-black/50" />
             <Button 
@@ -138,20 +165,45 @@ export function StudentView() {
               className="absolute top-2 right-2 z-10 bg-black/50 hover:bg-black/80"
               onClick={() => {
                 if (scannerRef.current) scannerRef.current.clear();
-                setScanning(false);
+                setMode("idle");
               }}
             >
               Cancel
             </Button>
           </div>
-        ) : (
-          <div className="py-8 w-full flex flex-col items-center">
-            <div className="w-48 h-48 border-2 border-dashed border-white/20 rounded-3xl flex items-center justify-center mb-8 relative">
-              <div className="absolute inset-4 border border-primary/30 rounded-2xl animate-[ping_3s_ease-in-out_infinite]" />
-              <ScanLine className="w-12 h-12 text-muted-foreground" />
+        ) : mode === "pin" ? (
+          <div className="w-full max-w-xs space-y-4 animate-in zoom-in-95">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Enter 6-Digit PIN</label>
+              <Input 
+                value={pin}
+                onChange={(e) => setPin(e.target.value.toUpperCase())}
+                placeholder="000000"
+                className="text-center text-2xl tracking-widest h-14 bg-black/20 border-white/10"
+                maxLength={6}
+              />
             </div>
-            <Button onClick={startScanner} size="lg" className="w-full max-w-xs font-semibold">
-              Open Scanner
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={() => setMode("idle")}>Cancel</Button>
+              <Button className="flex-1" onClick={submitPin} disabled={pin.length !== 6}>Submit</Button>
+            </div>
+          </div>
+        ) : (
+          <div className="py-4 w-full flex flex-col items-center gap-4">
+            <Button onClick={startScanner} size="lg" className="w-full max-w-xs font-semibold h-14 text-lg">
+              <ScanLine className="w-5 h-5 mr-2" />
+              Scan QR Code
+            </Button>
+            
+            <div className="flex items-center gap-4 w-full max-w-xs text-muted-foreground my-2">
+              <div className="flex-1 h-[1px] bg-white/10" />
+              <span className="text-xs uppercase font-medium">OR</span>
+              <div className="flex-1 h-[1px] bg-white/10" />
+            </div>
+
+            <Button onClick={() => setMode("pin")} variant="outline" size="lg" className="w-full max-w-xs h-14 border-white/10">
+              <KeyRound className="w-5 h-5 mr-2 text-muted-foreground" />
+              Enter PIN Code
             </Button>
           </div>
         )}

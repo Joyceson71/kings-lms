@@ -15,6 +15,7 @@ CREATE TABLE public.attendance_sessions (
     longitude DOUBLE PRECISION NOT NULL,
     radius_meters INTEGER DEFAULT 50 NOT NULL,
     qr_token UUID DEFAULT uuid_generate_v4() UNIQUE NOT NULL,
+    pin_code VARCHAR(6) UNIQUE NOT NULL,
     is_active BOOLEAN DEFAULT true NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc', now()) NOT NULL

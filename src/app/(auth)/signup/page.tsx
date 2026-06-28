@@ -68,11 +68,13 @@ export default function SignupPage() {
   };
 
   return (
-    <Card className="border-zinc-800 bg-zinc-900/50 backdrop-blur-xl text-zinc-100 shadow-2xl">
+    <Card className="border-border/50 bg-card/40 backdrop-blur-2xl text-foreground shadow-2xl overflow-hidden ring-1 ring-white/10 relative transition-all duration-500">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-        <CardDescription className="text-zinc-400">
-          Enter your details below to create your account
+        <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
+          Create an account
+        </CardTitle>
+        <CardDescription className="text-muted-foreground text-base">
+          Join the Kings EC Platform today.
         </CardDescription>
       </CardHeader>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -82,50 +84,50 @@ export default function SignupPage() {
               {error}
             </div>
           )}
-          <div className="space-y-2">
-            <Label htmlFor="fullName" className="text-zinc-300">Full Name</Label>
+          <div className="space-y-2 group">
+            <Label htmlFor="fullName" className="text-foreground/90 transition-colors group-focus-within:text-primary">Full Name</Label>
             <Input
               id="fullName"
               placeholder="John Doe"
               {...register('fullName')}
-              className="bg-zinc-800/50 border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-indigo-500"
+              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
             />
             {errors.fullName && (
               <p className="text-xs text-red-500 font-medium">{errors.fullName.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-zinc-300">Email</Label>
+          <div className="space-y-2 group">
+            <Label htmlFor="email" className="text-foreground/90 transition-colors group-focus-within:text-primary">Email Address</Label>
             <Input
               id="email"
               type="email"
               placeholder="student@kingsecc.in"
               {...register('email')}
-              className="bg-zinc-800/50 border-zinc-700 text-zinc-100 placeholder:text-zinc-500 focus-visible:ring-indigo-500"
+              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
             />
             {errors.email && (
               <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="password" className="text-zinc-300">Password</Label>
+          <div className="space-y-2 group">
+            <Label htmlFor="password" className="text-foreground/90 transition-colors group-focus-within:text-primary">Password</Label>
             <Input
               id="password"
               type="password"
               {...register('password')}
-              className="bg-zinc-800/50 border-zinc-700 text-zinc-100 focus-visible:ring-indigo-500"
+              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
             />
             {errors.password && (
               <p className="text-xs text-red-500 font-medium">{errors.password.message}</p>
             )}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword" className="text-zinc-300">Confirm Password</Label>
+          <div className="space-y-2 group">
+            <Label htmlFor="confirmPassword" className="text-foreground/90 transition-colors group-focus-within:text-primary">Confirm Password</Label>
             <Input
               id="confirmPassword"
               type="password"
               {...register('confirmPassword')}
-              className="bg-zinc-800/50 border-zinc-700 text-zinc-100 focus-visible:ring-indigo-500"
+              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
             />
             {errors.confirmPassword && (
               <p className="text-xs text-red-500 font-medium">{errors.confirmPassword.message}</p>
@@ -135,14 +137,14 @@ export default function SignupPage() {
         <CardFooter className="flex flex-col space-y-4">
           <Button 
             type="submit" 
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium transition-colors"
+            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg group"
             disabled={isLoading}
           >
             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create account'}
           </Button>
-          <div className="text-sm text-center text-zinc-400">
+          <div className="text-sm text-center text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+            <Link href="/login" className="text-foreground hover:text-primary transition-colors font-medium hover:underline underline-offset-4">
               Sign in
             </Link>
           </div>

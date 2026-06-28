@@ -28,13 +28,13 @@ export function Sidebar() {
   };
 
   return (
-    <div className="flex h-full w-64 flex-col bg-zinc-950 border-r border-zinc-800">
+    <div className="flex h-full w-64 flex-col bg-sidebar border-r border-sidebar-border">
       <div className="flex h-16 shrink-0 items-center px-6">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-indigo-600 flex items-center justify-center">
-            <BookOpen className="h-5 w-5 text-white" />
+          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+            <BookOpen className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">Kings EC</span>
+          <span className="text-xl font-bold text-sidebar-foreground tracking-tight">Kings EC</span>
         </Link>
       </div>
       <div className="flex flex-1 flex-col overflow-y-auto px-4 py-4">
@@ -47,14 +47,14 @@ export function Sidebar() {
                 href={item.href}
                 className={cn(
                   isActive
-                    ? 'bg-zinc-800/80 text-indigo-400'
-                    : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-white',
+                    ? 'bg-sidebar-accent text-sidebar-accent-foreground'
+                    : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground',
                   'group flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors'
                 )}
               >
                 <item.icon
                   className={cn(
-                    isActive ? 'text-indigo-400' : 'text-zinc-500 group-hover:text-zinc-300',
+                    isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground/70',
                     'mr-3 h-5 w-5 flex-shrink-0 transition-colors'
                   )}
                   aria-hidden="true"
@@ -67,9 +67,9 @@ export function Sidebar() {
         <div className="mt-auto">
           <button
             onClick={handleLogout}
-            className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-zinc-400 hover:bg-zinc-800/50 hover:text-white transition-colors"
+            className="group flex w-full items-center rounded-md px-3 py-2 text-sm font-medium text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground transition-colors"
           >
-            <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-zinc-500 group-hover:text-zinc-300 transition-colors" />
+            <LogOut className="mr-3 h-5 w-5 flex-shrink-0 text-sidebar-foreground/50 group-hover:text-sidebar-accent-foreground/70 transition-colors" />
             Logout
           </button>
         </div>

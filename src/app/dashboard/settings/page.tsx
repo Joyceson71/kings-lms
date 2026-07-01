@@ -12,6 +12,7 @@ import {
   Save, Camera, Mail, Phone, MapPin, Book, CheckCircle,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/lib/hooks/use-user';
 
 type SettingsTab = 'profile' | 'notifications' | 'security' | 'appearance';
 
@@ -53,6 +54,7 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: () => void 
 }
 
 export default function SettingsPage() {
+  const { profile, displayName, role } = useUser();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [notifications, setNotifications] = useState(notificationSettings);
   const [saved, setSaved] = useState(false);
@@ -122,15 +124,17 @@ export default function SettingsPage() {
                   {/* Avatar section */}
                   <div className="flex items-center gap-5">
                     <div className="relative">
-                      <Avatar name="Joyceson D" size="xl" ring="violet" glow />
+                      <Avatar name={displayName} size="xl" ring="violet" glow />
                       <button className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-primary border-2 border-background flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg">
                         <Camera className="h-3.5 w-3.5 text-white" />
                       </button>
                     </div>
                     <div>
-                      <p className="text-base font-bold text-foreground">Joyceson D</p>
-                      <p className="text-sm text-muted-foreground">Faculty · Computer Science</p>
-                      <Badge variant="faculty" className="mt-2">Faculty</Badge>
+                      <p className="text-base font-bold text-foreground">{displayName}</p>
+                      <p className="text-sm text-muted-foreground capitalize">{role} · ECE Department</p>
+                      <Badge variant={role === 'faculty' ? 'faculty' : role === 'admin' ? 'admin' : 'student'} className="mt-2 capitalize">
+                        {role}
+                      </Badge>
                     </div>
                   </div>
 
@@ -140,14 +144,14 @@ export default function SettingsPage() {
                       <Label htmlFor="settings-name" className="text-sm font-medium">Full Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-name" defaultValue="Joyceson D" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-name" defaultValue={displayName} className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="settings-email" className="text-sm font-medium">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-email" type="email" defaultValue="joyceson.d@kingsecc.in" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-email" type="email" defaultValue={profile?.email ?? ''} className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
@@ -161,7 +165,7 @@ export default function SettingsPage() {
                       <Label htmlFor="settings-dept" className="text-sm font-medium">Department</Label>
                       <div className="relative">
                         <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-dept" defaultValue="Computer Science & Engineering" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-dept" defaultValue="Electronics & Communication Engineering" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
@@ -175,7 +179,7 @@ export default function SettingsPage() {
                       <Label htmlFor="settings-courses" className="text-sm font-medium">Courses Handling</Label>
                       <div className="relative">
                         <Book className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-courses" defaultValue="CS-301, CS-302, CS-303" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-courses" defaultValue="EC-301, EC-302, EC-303" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                   </div>

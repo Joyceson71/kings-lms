@@ -10,16 +10,16 @@ import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine }
 const isFaculty = true; // Mock — will be from Supabase user role
 
 const historyRecords = [
-  { course: 'CS-301', name: 'Data Structures', date: 'Jul 1, 2026', status: 'Present', pct: 94 },
-  { course: 'CS-302', name: 'Database Systems', date: 'Jun 30, 2026', status: 'Present', pct: 88 },
-  { course: 'ENG-101', name: 'Engineering Math', date: 'Jun 29, 2026', status: 'Absent', pct: 65 },
-  { course: 'CS-301', name: 'Data Structures', date: 'Jun 28, 2026', status: 'Present', pct: 94 },
-  { course: 'CS-303', name: 'Computer Networks', date: 'Jun 27, 2026', status: 'Late', pct: 72 },
+  { course: 'EC-301', name: 'Signals and Systems', date: 'Jul 1, 2026', status: 'Present', pct: 94 },
+  { course: 'EC-302', name: 'Digital Signal Processing', date: 'Jun 30, 2026', status: 'Present', pct: 88 },
+  { course: 'ENG-101', name: 'Network Analysis', date: 'Jun 29, 2026', status: 'Absent', pct: 65 },
+  { course: 'EC-301', name: 'Signals and Systems', date: 'Jun 28, 2026', status: 'Present', pct: 94 },
+  { course: 'EC-303', name: 'Analog Circuits', date: 'Jun 27, 2026', status: 'Late', pct: 72 },
 ];
 
 const activeSessions = [
-  { course: 'CS-301: Data Structures', started: '15 mins ago', room: 'Room 402', present: 32, total: 45 },
-  { course: 'CS-302: Database Systems', started: '5 mins ago', room: 'Room 205', present: 18, total: 40 },
+  { course: 'EC-301: Signals and Systems', started: '15 mins ago', room: 'Room 402', present: 32, total: 45 },
+  { course: 'EC-302: Digital Signal Processing', started: '5 mins ago', room: 'Room 205', present: 18, total: 40 },
 ];
 
 const overallStats = [

@@ -53,7 +53,7 @@ const allUsers: ManagedUser[] = [
 
 const recentActivity = [
   { icon: UserCheck, message: 'New faculty account created: Prof. R. Kumar', time: '5m ago', color: 'text-emerald-400' },
-  { icon: BookOpen, message: 'Course CS-305 added to the system', time: '1h ago', color: 'text-sky-400' },
+  { icon: BookOpen, message: 'Course EC-305 added to the system', time: '1h ago', color: 'text-sky-400' },
   { icon: UserX, message: 'Student account suspended (attendance < 50%)', time: '2h ago', color: 'text-red-400' },
   { icon: Lock, message: 'Password reset request: priya.n@kingsecc.in', time: '3h ago', color: 'text-amber-400' },
   { icon: Globe, message: 'System backup completed successfully', time: '6h ago', color: 'text-violet-400' },

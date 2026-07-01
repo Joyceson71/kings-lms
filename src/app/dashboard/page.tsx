@@ -40,25 +40,25 @@ const attendanceData = [
 ];
 
 const upcomingSessions = [
-  { course: 'Advanced Data Structures', code: 'CS-301', faculty: 'Dr. Smith', time: '10:00 AM', room: 'Room 402', status: 'upcoming' },
-  { course: 'Database Management', code: 'CS-302', faculty: 'Prof. Meera', time: '11:30 AM', room: 'Room 205', status: 'live' },
-  { course: 'Engineering Mathematics', code: 'MA-101', faculty: 'Dr. Kumar', time: '2:00 PM', room: 'Room 301', status: 'upcoming' },
+  { course: 'Signals and Systems', code: 'EC-301', faculty: 'Dr. Smith', time: '10:00 AM', room: 'Room 402', status: 'upcoming' },
+  { course: 'Digital Signal Processing', code: 'EC-302', faculty: 'Prof. Meera', time: '11:30 AM', room: 'Room 205', status: 'live' },
+  { course: 'Network Analysis', code: 'EC-101', faculty: 'Dr. Kumar', time: '2:00 PM', room: 'Room 301', status: 'upcoming' },
 ];
 
 const topCourses = [
-  { name: 'Data Structures', attendance: 94, color: 'emerald' as const },
-  { name: 'Database Systems', attendance: 88, color: 'violet' as const },
-  { name: 'Engineering Math', attendance: 76, color: 'gold' as const },
-  { name: 'Computer Networks', attendance: 65, color: 'red' as const },
+  { name: 'Signals and Systems', attendance: 94, color: 'emerald' as const },
+  { name: 'Digital Signal Processing', attendance: 88, color: 'violet' as const },
+  { name: 'Network Analysis', attendance: 76, color: 'gold' as const },
+  { name: 'Analog Circuits', attendance: 65, color: 'red' as const },
 ];
 
 // Student: per-course attendance
 const studentCourses = [
-  { name: 'CS-301 Data Structures', attendance: 94, color: 'emerald' as const, status: 'safe' },
-  { name: 'CS-302 Database Systems', attendance: 88, color: 'emerald' as const, status: 'safe' },
-  { name: 'MA-101 Eng. Math', attendance: 74, color: 'gold' as const, status: 'watch' },
-  { name: 'CS-303 Networks', attendance: 62, color: 'red' as const, status: 'danger' },
-  { name: 'ENG-201 Tech Comm', attendance: 82, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-301 Signals and Systems', attendance: 94, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-302 Digital Signal Processing', attendance: 88, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-101 Network Analysis', attendance: 74, color: 'gold' as const, status: 'watch' },
+  { name: 'EC-303 Analog Circuits', attendance: 62, color: 'red' as const, status: 'danger' },
+  { name: 'EC-201 Electromagnetic Fields', attendance: 82, color: 'emerald' as const, status: 'safe' },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -241,7 +241,7 @@ export default function DashboardPage() {
               <div className="mt-4 p-3 rounded-xl border border-red-500/20 bg-red-500/5">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                  <p className="text-xs text-red-400 font-medium">CS-303 attendance is below 75% minimum!</p>
+                  <p className="text-xs text-red-400 font-medium">EC-303 attendance is below 75% minimum!</p>
                 </div>
               </div>
             )}

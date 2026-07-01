@@ -10,14 +10,14 @@ import { Search, Filter, UserPlus, Mail, MoreVertical } from 'lucide-react';
 import { useState } from 'react';
 
 const students = [
-  { id: 1, name: 'Arun Krishnamurthy', roll: 'KEC2024001', email: 'arun.k@kingsecc.in', course: 'CS-301', attendance: 94, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
-  { id: 2, name: 'Priya Nair', roll: 'KEC2024002', email: 'priya.n@kingsecc.in', course: 'CS-302', attendance: 88, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
-  { id: 3, name: 'Rahul Varma', roll: 'KEC2024003', email: 'rahul.v@kingsecc.in', course: 'MA-101', attendance: 62, role: 'student' as const, status: 'inactive' as const, year: '2nd Year' },
-  { id: 4, name: 'Deepa Menon', roll: 'KEC2024004', email: 'deepa.m@kingsecc.in', course: 'CS-303', attendance: 97, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
-  { id: 5, name: 'Suresh Iyer', roll: 'KEC2024005', email: 'suresh.i@kingsecc.in', course: 'ENG-201', attendance: 75, role: 'student' as const, status: 'active' as const, year: '2nd Year' },
-  { id: 6, name: 'Lakshmi Devi', roll: 'KEC2024006', email: 'lakshmi.d@kingsecc.in', course: 'CS-304', attendance: 91, role: 'student' as const, status: 'active' as const, year: '4th Year' },
-  { id: 7, name: 'Karthik Rajan', roll: 'KEC2024007', email: 'karthik.r@kingsecc.in', course: 'CS-301', attendance: 58, role: 'student' as const, status: 'inactive' as const, year: '3rd Year' },
-  { id: 8, name: 'Ananya Singh', roll: 'KEC2024008', email: 'ananya.s@kingsecc.in', course: 'MA-101', attendance: 83, role: 'student' as const, status: 'active' as const, year: '1st Year' },
+  { id: 1, name: 'Arun Krishnamurthy', roll: 'KEC2024001', email: 'arun.k@kingsecc.in', course: 'EC-301', attendance: 94, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
+  { id: 2, name: 'Priya Nair', roll: 'KEC2024002', email: 'priya.n@kingsecc.in', course: 'EC-302', attendance: 88, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
+  { id: 3, name: 'Rahul Varma', roll: 'KEC2024003', email: 'rahul.v@kingsecc.in', course: 'EC-101', attendance: 62, role: 'student' as const, status: 'inactive' as const, year: '2nd Year' },
+  { id: 4, name: 'Deepa Menon', roll: 'KEC2024004', email: 'deepa.m@kingsecc.in', course: 'EC-303', attendance: 97, role: 'student' as const, status: 'active' as const, year: '3rd Year' },
+  { id: 5, name: 'Suresh Iyer', roll: 'KEC2024005', email: 'suresh.i@kingsecc.in', course: 'EC-201', attendance: 75, role: 'student' as const, status: 'active' as const, year: '2nd Year' },
+  { id: 6, name: 'Lakshmi Devi', roll: 'KEC2024006', email: 'lakshmi.d@kingsecc.in', course: 'EC-304', attendance: 91, role: 'student' as const, status: 'active' as const, year: '4th Year' },
+  { id: 7, name: 'Karthik Rajan', roll: 'KEC2024007', email: 'karthik.r@kingsecc.in', course: 'EC-301', attendance: 58, role: 'student' as const, status: 'inactive' as const, year: '3rd Year' },
+  { id: 8, name: 'Ananya Singh', roll: 'KEC2024008', email: 'ananya.s@kingsecc.in', course: 'EC-101', attendance: 83, role: 'student' as const, status: 'active' as const, year: '1st Year' },
 ];
 
 export default function StudentsPage() {

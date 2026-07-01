@@ -15,12 +15,12 @@ import {
 } from 'lucide-react';
 
 const courseAttendanceData = [
-  { course: 'CS-301', present: 94, absent: 6 },
-  { course: 'CS-302', present: 88, absent: 12 },
-  { course: 'MA-101', present: 76, absent: 24 },
-  { course: 'CS-303', present: 65, absent: 35 },
-  { course: 'ENG-201', present: 82, absent: 18 },
-  { course: 'CS-304', present: 90, absent: 10 },
+  { course: 'EC-301', present: 94, absent: 6 },
+  { course: 'EC-302', present: 88, absent: 12 },
+  { course: 'EC-101', present: 76, absent: 24 },
+  { course: 'EC-303', present: 65, absent: 35 },
+  { course: 'EC-201', present: 82, absent: 18 },
+  { course: 'EC-304', present: 90, absent: 10 },
 ];
 
 // For student: personal per-session data

@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap, ChevronLeft, ChevronRight,
-  ClipboardList, ShieldCheck, BarChart2,
+  ClipboardList, ShieldCheck, BarChart2, Library,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -27,6 +27,7 @@ const navigation: NavItem[] = [
   { name: 'Attendance', href: '/dashboard/attendance', icon: CheckCircle },
   { name: 'Courses', href: '/dashboard/courses', icon: BookOpen },
   { name: 'Assignments', href: '/dashboard/assignments', icon: ClipboardList },
+  { name: 'Resources', href: '/dashboard/resources', icon: Library },
   // Faculty + Admin only
   { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['faculty', 'admin'] },
   // Admin only

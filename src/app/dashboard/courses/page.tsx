@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { BookOpen, Users, Clock, Star, Search, Filter, Plus, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { CourseModal } from '@/components/courses/course-modal';
 
 const courses = [
   {
     id: 1,
-    code: 'CS-301',
-    title: 'Advanced Data Structures',
+    code: 'EC-301',
+    title: 'Signals and Systems',
     faculty: 'Dr. A. Smith',
     students: 45,
     sessions: 24,
@@ -26,8 +27,8 @@ const courses = [
   },
   {
     id: 2,
-    code: 'CS-302',
-    title: 'Database Management Systems',
+    code: 'EC-302',
+    title: 'Digital Signal Processing Systems',
     faculty: 'Prof. M. Raj',
     students: 40,
     sessions: 20,
@@ -41,8 +42,8 @@ const courses = [
   },
   {
     id: 3,
-    code: 'MA-101',
-    title: 'Engineering Mathematics I',
+    code: 'EC-101',
+    title: 'Network Analysis I',
     faculty: 'Dr. K. Prasad',
     students: 120,
     sessions: 28,
@@ -56,8 +57,8 @@ const courses = [
   },
   {
     id: 4,
-    code: 'CS-303',
-    title: 'Computer Networks',
+    code: 'EC-303',
+    title: 'Analog Circuits',
     faculty: 'Prof. R. Kumar',
     students: 38,
     sessions: 16,
@@ -71,7 +72,7 @@ const courses = [
   },
   {
     id: 5,
-    code: 'ENG-201',
+    code: 'EC-201',
     title: 'Technical Communication',
     faculty: 'Ms. P. Nair',
     students: 55,
@@ -86,8 +87,8 @@ const courses = [
   },
   {
     id: 6,
-    code: 'CS-304',
-    title: 'Operating Systems',
+    code: 'EC-304',
+    title: 'Microprocessors',
     faculty: 'Dr. S. Ramesh',
     students: 42,
     sessions: 10,
@@ -103,6 +104,8 @@ const courses = [
 
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
+  const [activeCourse, setActiveCourse] = useState<any>(null);
+
   const filtered = courses.filter(
     (c) =>
       c.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -157,8 +160,9 @@ export default function CoursesPage() {
           >
             <TiltCard intensity={10}>
               <div
-                className="glass-card rounded-2xl overflow-hidden h-full flex flex-col"
+                className="glass-card rounded-2xl overflow-hidden h-full flex flex-col cursor-pointer hover:border-primary/50 transition-colors"
                 style={{ boxShadow: `0 4px 24px ${course.glow}` }}
+                onClick={() => setActiveCourse(course)}
               >
                 {/* Top color bar */}
                 <div className={`h-1 bg-gradient-to-r ${course.color}`} />
@@ -248,6 +252,13 @@ export default function CoursesPage() {
           <p className="text-muted-foreground">No courses match your search.</p>
         </div>
       )}
+
+      {/* Interactive Modal Workspace */}
+      <CourseModal 
+        isOpen={!!activeCourse} 
+        onClose={() => setActiveCourse(null)} 
+        course={activeCourse} 
+      />
     </div>
   );
 }

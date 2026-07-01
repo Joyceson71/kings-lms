@@ -18,6 +18,7 @@ const breadcrumbMap: Record<string, string> = {
   '/dashboard/attendance': 'Attendance',
   '/dashboard/courses': 'Courses',
   '/dashboard/assignments': 'Assignments',
+  '/dashboard/resources': 'Resources',
   '/dashboard/students': 'Students',
   '/dashboard/admin': 'Admin Panel',
   '/dashboard/reports': 'Reports',

@@ -10,25 +10,44 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2 } from 'lucide-react';
+import { TiltCard } from '@/components/ui/tilt-card';
+import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
   email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-  confirmPassword: z.string()
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
-  path: ["confirmPassword"],
+  path: ['confirmPassword'],
 });
 
 type SignupFormValues = z.infer<typeof signupSchema>;
+
+function getPasswordStrength(password: string): { score: number; label: string; color: string } {
+  if (!password) return { score: 0, label: '', color: '' };
+  let score = 0;
+  if (password.length >= 8) score++;
+  if (password.length >= 12) score++;
+  if (/[A-Z]/.test(password)) score++;
+  if (/[0-9]/.test(password)) score++;
+  if (/[^A-Za-z0-9]/.test(password)) score++;
+
+  if (score <= 1) return { score, label: 'Weak', color: 'bg-red-500' };
+  if (score <= 2) return { score, label: 'Fair', color: 'bg-amber-500' };
+  if (score <= 3) return { score, label: 'Good', color: 'bg-yellow-400' };
+  if (score <= 4) return { score, label: 'Strong', color: 'bg-emerald-500' };
+  return { score, label: 'Excellent', color: 'bg-emerald-400' };
+}
 
 export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [watchedPassword, setWatchedPassword] = useState('');
   const supabase = createClient();
 
   const {
@@ -37,7 +56,10 @@ export default function SignupPage() {
     formState: { errors },
   } = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
+    mode: 'onBlur',
   });
+
+  const passwordStrength = getPasswordStrength(watchedPassword);
 
   const onSubmit = async (data: SignupFormValues) => {
     setIsLoading(true);
@@ -47,9 +69,7 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
         options: {
-          data: {
-            full_name: data.fullName,
-          },
+          data: { full_name: data.fullName },
         },
       });
 
@@ -58,98 +78,218 @@ export default function SignupPage() {
         return;
       }
 
-      router.push('/dashboard');
+      router.replace('/dashboard');
       router.refresh();
-    } catch (_err) {
-      setError('An unexpected error occurred');
+    } catch {
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card className="border-border/50 bg-card/40 backdrop-blur-2xl text-foreground shadow-2xl overflow-hidden ring-1 ring-white/10 relative transition-all duration-500">
-      <CardHeader className="space-y-1">
-        <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-br from-foreground to-muted-foreground bg-clip-text text-transparent">
-          Create an account
-        </CardTitle>
-        <CardDescription className="text-muted-foreground text-base">
-          Join the Kings EC Platform today.
-        </CardDescription>
-      </CardHeader>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
+    <TiltCard intensity={6}>
+      <div className="glass-card rounded-2xl overflow-hidden relative">
+        {/* Top gradient line */}
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70" />
+
+        {/* Inner glow */}
+        <div
+          className="absolute inset-0 rounded-2xl pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, oklch(0.65 0.26 285 / 0.06) 0%, transparent 70%)' }}
+        />
+
+        <div className="p-8 relative z-10">
+          {/* Header */}
+          <div className="mb-6">
+            <h2 className="text-2xl font-black tracking-tight mb-1.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              Create account
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Join the Kings EC Platform today.
+            </p>
+          </div>
+
+          {/* Error */}
           {error && (
-            <div className="p-3 text-sm font-medium text-red-500 bg-red-500/10 rounded-md border border-red-500/20">
-              {error}
+            <div className="mb-5 flex items-start gap-3 p-3.5 text-sm font-medium text-red-400 bg-red-950/40 rounded-xl border border-red-900/50 animate-slide-in-up">
+              <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+              <span>{error}</span>
             </div>
           )}
-          <div className="space-y-2 group">
-            <Label htmlFor="fullName" className="text-foreground/90 transition-colors group-focus-within:text-primary">Full Name</Label>
-            <Input
-              id="fullName"
-              placeholder="John Doe"
-              {...register('fullName')}
-              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
-            />
-            {errors.fullName && (
-              <p className="text-xs text-red-500 font-medium">{errors.fullName.message}</p>
-            )}
-          </div>
-          <div className="space-y-2 group">
-            <Label htmlFor="email" className="text-foreground/90 transition-colors group-focus-within:text-primary">Email Address</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="student@kingsecc.in"
-              {...register('email')}
-              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
-            />
-            {errors.email && (
-              <p className="text-xs text-red-500 font-medium">{errors.email.message}</p>
-            )}
-          </div>
-          <div className="space-y-2 group">
-            <Label htmlFor="password" className="text-foreground/90 transition-colors group-focus-within:text-primary">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              {...register('password')}
-              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
-            />
-            {errors.password && (
-              <p className="text-xs text-red-500 font-medium">{errors.password.message}</p>
-            )}
-          </div>
-          <div className="space-y-2 group">
-            <Label htmlFor="confirmPassword" className="text-foreground/90 transition-colors group-focus-within:text-primary">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              {...register('confirmPassword')}
-              className="bg-background/50 border-border/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-primary focus-visible:border-primary h-12 transition-all"
-            />
-            {errors.confirmPassword && (
-              <p className="text-xs text-red-500 font-medium">{errors.confirmPassword.message}</p>
-            )}
-          </div>
-        </CardContent>
-        <CardFooter className="flex flex-col space-y-4">
-          <Button 
-            type="submit" 
-            className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg group"
-            disabled={isLoading}
-          >
-            {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : 'Create account'}
-          </Button>
-          <div className="text-sm text-center text-muted-foreground">
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+            {/* Full name */}
+            <div className="space-y-1.5">
+              <Label htmlFor="fullName" className="text-sm font-medium text-foreground/90">Full Name</Label>
+              <div className="relative group">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                <Input
+                  id="fullName"
+                  placeholder="John Doe"
+                  autoComplete="name"
+                  {...register('fullName')}
+                  className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                />
+              </div>
+              {errors.fullName && (
+                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.fullName.message}
+                </p>
+              )}
+            </div>
+
+            {/* Email */}
+            <div className="space-y-1.5">
+              <Label htmlFor="email" className="text-sm font-medium text-foreground/90">Email Address</Label>
+              <div className="relative group">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="student@kingsecc.in"
+                  autoComplete="email"
+                  {...register('email')}
+                  className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                />
+              </div>
+              {errors.email && (
+                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
+
+            {/* Password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-sm font-medium text-foreground/90">Password</Label>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Min. 8 characters"
+                  autoComplete="new-password"
+                  {...register('password', {
+                    onChange: (e) => setWatchedPassword(e.target.value),
+                  })}
+                  className="pl-10 pr-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+
+              {/* Password strength indicator */}
+              {watchedPassword && (
+                <div className="space-y-1.5">
+                  <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <div
+                        key={i}
+                        className={`h-1 flex-1 rounded-full transition-all duration-300 ${
+                          i <= passwordStrength.score ? passwordStrength.color : 'bg-secondary'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Strength:{' '}
+                    <span className={`font-semibold ${
+                      passwordStrength.score <= 1 ? 'text-red-400' :
+                      passwordStrength.score <= 2 ? 'text-amber-400' :
+                      passwordStrength.score <= 3 ? 'text-yellow-400' :
+                      'text-emerald-400'
+                    }`}>
+                      {passwordStrength.label}
+                    </span>
+                  </p>
+                </div>
+              )}
+
+              {errors.password && (
+                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.password.message}
+                </p>
+              )}
+            </div>
+
+            {/* Confirm password */}
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-sm font-medium text-foreground/90">Confirm Password</Label>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                <Input
+                  id="confirmPassword"
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  placeholder="Repeat your password"
+                  autoComplete="new-password"
+                  {...register('confirmPassword')}
+                  className="pl-10 pr-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
+                  aria-label={showConfirmPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              {errors.confirmPassword && (
+                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {errors.confirmPassword.message}
+                </p>
+              )}
+            </div>
+
+            {/* Submit */}
+            <div className="pt-2">
+              <Button
+                type="submit"
+                id="signup-submit-btn"
+                className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] group"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Creating account…</span>
+                  </div>
+                ) : (
+                  <span className="flex items-center justify-center gap-2">
+                    Create account
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                )}
+              </Button>
+            </div>
+          </form>
+
+          {/* Sign in link */}
+          <p className="mt-6 text-sm text-center text-muted-foreground">
             Already have an account?{' '}
-            <Link href="/login" className="text-foreground hover:text-primary transition-colors font-medium hover:underline underline-offset-4">
+            <Link
+              href="/login"
+              className="text-primary hover:text-primary/80 font-semibold transition-colors hover:underline underline-offset-4"
+            >
               Sign in
             </Link>
-          </div>
-        </CardFooter>
-      </form>
-    </Card>
+          </p>
+        </div>
+
+        {/* Bottom line */}
+        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      </div>
+    </TiltCard>
   );
 }

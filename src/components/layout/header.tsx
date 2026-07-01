@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Bell, Search, ChevronRight, Settings, LogOut, User } from 'lucide-react';
+import { Bell, Search, ChevronRight, Settings, LogOut, User, Menu } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -11,6 +11,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
 import { cn } from '@/lib/utils';
+import { useSidebar } from '@/components/layout/sidebar-provider';
 
 const breadcrumbMap: Record<string, string> = {
   '/dashboard': 'Overview',
@@ -36,6 +37,7 @@ export function Header() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const { profile, loading, displayName, role } = useUser();
+  const { setIsOpen } = useSidebar();
 
   const handleLogout = async () => {
     setShowUserMenu(false);
@@ -55,14 +57,22 @@ export function Header() {
         WebkitBackdropFilter: 'blur(20px)',
       }}
     >
-      <div className="flex flex-1 items-center justify-between px-6 gap-4">
-        {/* Left: Breadcrumb */}
-        <div className="flex items-center gap-2 text-sm min-w-0">
-          <Link href="/dashboard" className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+      <div className="flex flex-1 items-center justify-between px-4 sm:px-6 gap-2 sm:gap-4">
+        {/* Left: Hamburger + Breadcrumb */}
+        <div className="flex items-center gap-2 sm:gap-3 text-sm min-w-0">
+          <button
+            className="md:hidden p-1.5 -ml-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary"
+            onClick={() => setIsOpen(true)}
+            aria-label="Open sidebar"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          
+          <Link href="/dashboard" className="hidden sm:block text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
             Kings EC
           </Link>
-          <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" />
-          <span className="font-semibold text-foreground truncate">{pageTitle}</span>
+          <ChevronRight className="hidden sm:block h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" />
+          <span className="font-semibold text-foreground truncate text-base sm:text-sm">{pageTitle}</span>
         </div>
 
         {/* Center: Search */}
@@ -85,19 +95,19 @@ export function Header() {
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Notifications */}
           <button
             id="notifications-btn"
             type="button"
-            className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-secondary/50 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]"
+            className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-secondary/50 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]"
             aria-label="View notifications"
           >
             <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary animate-status-pulse shadow-[0_0_6px_oklch(0.65_0.26_285/0.8)]" />
+            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary animate-status-pulse shadow-[0_0_6px_oklch(0.65_0.26_285/0.8)]" />
           </button>
 
-          <div className="h-6 w-px bg-border/50" />
+          <div className="h-5 sm:h-6 w-px bg-border/50 mx-0.5 sm:mx-1" />
 
           {/* User menu */}
           <div className="relative">
@@ -105,7 +115,7 @@ export function Header() {
               id="user-menu-btn"
               type="button"
               onClick={() => setShowUserMenu(!showUserMenu)}
-              className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-secondary/60 transition-all duration-200"
+              className="flex items-center gap-2 sm:gap-2.5 rounded-xl p-1 sm:px-2 sm:py-1.5 hover:bg-secondary/60 transition-all duration-200"
               aria-expanded={showUserMenu}
               aria-label="User menu"
             >

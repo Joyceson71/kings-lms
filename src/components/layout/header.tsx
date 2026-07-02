@@ -7,11 +7,12 @@ import { Bell, Search, ChevronRight, Settings, LogOut, User, Menu } from 'lucide
 import { Input } from '@/components/ui/input';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { createClient } from '@/lib/supabase/client';
+import { signOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
 import { cn } from '@/lib/utils';
 import { useSidebar } from '@/components/layout/sidebar-provider';
+import { NotificationsPopover } from '@/components/ui/notifications-popover';
 
 const breadcrumbMap: Record<string, string> = {
   '/dashboard': 'Overview',
@@ -34,17 +35,16 @@ const roleBadgeVariant = {
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [searchFocused, setSearchFocused] = useState(false);
   const { profile, loading, displayName, role } = useUser();
   const { setIsOpen } = useSidebar();
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     setShowUserMenu(false);
-    await supabase.auth.signOut();
+    signOut();
     router.replace('/login');
-    router.refresh();
   };
 
   const pageTitle = breadcrumbMap[pathname] ?? 'Dashboard';
@@ -98,15 +98,24 @@ export function Header() {
         {/* Right: Actions */}
         <div className="flex items-center gap-1.5 sm:gap-2">
           {/* Notifications */}
-          <button
-            id="notifications-btn"
-            type="button"
-            className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-secondary/50 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]"
-            aria-label="View notifications"
-          >
-            <Bell className="h-4 w-4" />
-            <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary animate-status-pulse shadow-[0_0_6px_oklch(0.65_0.26_285/0.8)]" />
-          </button>
+          <div className="relative">
+            <button
+              id="notifications-btn"
+              type="button"
+              onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
+              className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-secondary/50 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]"
+              aria-label="View notifications"
+            >
+              <Bell className="h-4 w-4" />
+              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary animate-status-pulse shadow-[0_0_6px_oklch(0.65_0.26_285/0.8)]" />
+            </button>
+            {showNotifications && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowNotifications(false)} />
+                <NotificationsPopover onClose={() => setShowNotifications(false)} />
+              </>
+            )}
+          </div>
 
           <div className="h-5 sm:h-6 w-px bg-border/50 mx-0.5 sm:mx-1" />
 
@@ -115,7 +124,7 @@ export function Header() {
             <button
               id="user-menu-btn"
               type="button"
-              onClick={() => setShowUserMenu(!showUserMenu)}
+              onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
               className="flex items-center gap-2 sm:gap-2.5 rounded-xl p-1 sm:px-2 sm:py-1.5 hover:bg-secondary/60 transition-all duration-200"
               aria-expanded={showUserMenu}
               aria-label="User menu"

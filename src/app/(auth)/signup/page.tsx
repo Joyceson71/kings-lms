@@ -6,12 +6,11 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TiltCard } from '@/components/ui/tilt-card';
-import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle } from 'lucide-react';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -48,7 +47,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [watchedPassword, setWatchedPassword] = useState('');
-  const supabase = createClient();
+  const [success, setSuccess] = useState(false);
 
   const {
     register,
@@ -65,27 +64,66 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-        options: {
-          data: { full_name: data.fullName },
-        },
-      });
-
-      if (authError) {
-        setError(authError.message);
+      // Prevent registering with reserved admin email
+      if (data.email.trim().toLowerCase() === 'joycesondanielraj28@gmail.com') {
+        setError('This email address is reserved. Please use a different email.');
+        setIsLoading(false);
         return;
       }
 
-      router.replace('/dashboard');
-      router.refresh();
+      // Simulate brief network delay for UX
+      await new Promise((resolve) => setTimeout(resolve, 800));
+
+      // Save new user to localStorage (demo registration)
+      const stored = localStorage.getItem('kings_lms_registered_users');
+      const users: Array<{ email: string; password: string; fullName: string }> = stored ? JSON.parse(stored) : [];
+
+      const existing = users.find((u) => u.email.toLowerCase() === data.email.trim().toLowerCase());
+      if (existing) {
+        setError('An account with this email already exists. Please sign in instead.');
+        setIsLoading(false);
+        return;
+      }
+
+      users.push({ email: data.email.trim().toLowerCase(), password: data.password, fullName: data.fullName });
+      localStorage.setItem('kings_lms_registered_users', JSON.stringify(users));
+
+      setSuccess(true);
+      setTimeout(() => {
+        router.replace('/login');
+      }, 2000);
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <TiltCard intensity={6}>
+        <div className="glass-card rounded-2xl overflow-hidden relative">
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70" />
+          <div className="p-8 text-center space-y-4">
+            <div className="flex justify-center">
+              <div className="h-16 w-16 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
+                <CheckCircle className="h-9 w-9 text-emerald-400" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              Account Created!
+            </h2>
+            <p className="text-muted-foreground text-sm">
+              Your account has been registered. Redirecting you to the login page…
+            </p>
+            <div className="h-1 w-full bg-secondary rounded-full overflow-hidden">
+              <div className="h-full bg-emerald-400 animate-[shimmer_2s_linear_forwards] w-0" style={{ animation: 'grow 2s linear forwards' }} />
+            </div>
+          </div>
+        </div>
+      </TiltCard>
+    );
+  }
 
   return (
     <TiltCard intensity={6}>

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { createClient } from '@/lib/supabase/client';
+import { signIn } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,7 +52,7 @@ const roles: { key: Role; label: string; icon: React.ElementType; color: string;
 const demoCredentials: Record<Role, { email: string; password: string; note: string }> = {
   student: { email: 'student@kingsecc.in', password: 'student123', note: 'Student demo account' },
   faculty: { email: 'faculty@kingsecc.in', password: 'faculty123', note: 'Faculty demo account' },
-  admin: { email: 'admin@kingsecc.in', password: 'admin123', note: 'Administrator demo account' },
+  admin: { email: 'joycesondanielraj28@gmail.com', password: 'admin@712521', note: 'Administrator account' },
 };
 
 export default function LoginPage() {
@@ -62,7 +62,6 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>('student');
   const [showDemo, setShowDemo] = useState(false);
-  const supabase = createClient();
 
   const {
     register,
@@ -84,25 +83,19 @@ export default function LoginPage() {
     setIsLoading(true);
     setError(null);
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email,
-        password: data.password,
-      });
+      const { user, error: authError } = signIn(data.email, data.password);
 
-      if (authError) {
-        // Friendlier error messages for students
-        if (authError.message.toLowerCase().includes('invalid')) {
-          setError('Invalid email or password. Please check your credentials and try again.');
-        } else if (authError.message.toLowerCase().includes('email not confirmed')) {
-          setError('Please verify your email address before signing in. Check your inbox.');
-        } else {
-          setError(authError.message);
-        }
+      if (authError || !user) {
+        setError(authError ?? 'Invalid email or password. Please check your credentials and try again.');
         return;
       }
 
-      router.replace('/dashboard');
-      router.refresh();
+      // Redirect based on role
+      if (user.role === 'admin') {
+        router.replace('/dashboard/admin');
+      } else {
+        router.replace('/dashboard');
+      }
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -199,7 +192,7 @@ export default function LoginPage() {
                   placeholder={
                     selectedRole === 'student' ? 'student@kingsecc.in' :
                     selectedRole === 'faculty' ? 'faculty@kingsecc.in' :
-                    'admin@kingsecc.in'
+                    'joycesondanielraj28@gmail.com'
                   }
                   autoComplete="email"
                   {...register('email')}

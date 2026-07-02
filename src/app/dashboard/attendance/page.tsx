@@ -5,9 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/ui/avatar';
+import { useUser } from '@/lib/hooks/use-user';
 import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine } from 'lucide-react';
-
-const isFaculty = true; // Mock — will be from Supabase user role
 
 const historyRecords = [
   { course: 'EC-301', name: 'Signals and Systems', date: 'Jul 1, 2026', status: 'Present', pct: 94 },
@@ -29,6 +28,8 @@ const overallStats = [
 ];
 
 export default function AttendancePage() {
+  const { isFaculty, isStudent } = useUser();
+
   return (
     <div className="space-y-8">
       {/* Page header */}
@@ -52,8 +53,8 @@ export default function AttendancePage() {
         )}
       </div>
 
-      {/* Quick stats row */}
-      {!isFaculty && (
+      {/* Quick stats row (students only) */}
+      {isStudent && (
         <div className="grid grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
           {overallStats.map((stat) => (
             <TiltCard key={stat.label} intensity={10}>
@@ -167,11 +168,11 @@ export default function AttendancePage() {
                         'bg-amber-500/10'
                       }`}>
                         {record.status === 'Present' ? (
-                          <CheckCircle className="h-4.5 w-4.5 text-emerald-400" />
+                          <CheckCircle className="h-4 w-4 text-emerald-400" />
                         ) : record.status === 'Absent' ? (
-                          <XCircle className="h-4.5 w-4.5 text-red-400" />
+                          <XCircle className="h-4 w-4 text-red-400" />
                         ) : (
-                          <Clock className="h-4.5 w-4.5 text-amber-400" />
+                          <Clock className="h-4 w-4 text-amber-400" />
                         )}
                       </div>
                       <div>

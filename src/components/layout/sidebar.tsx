@@ -5,14 +5,14 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap, ChevronLeft, ChevronRight,
-  ClipboardList, ShieldCheck, BarChart2, Library,
+  ClipboardList, ShieldCheck, BarChart2, Library, Trophy, Calendar as CalendarIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { createClient } from '@/lib/supabase/client';
+import { signOut } from '@/lib/auth';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '@/lib/hooks/use-user';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSidebar } from '@/components/layout/sidebar-provider';
 
 type NavItem = {
@@ -28,6 +28,8 @@ const navigation: NavItem[] = [
   { name: 'Courses', href: '/dashboard/courses', icon: BookOpen },
   { name: 'Assignments', href: '/dashboard/assignments', icon: ClipboardList },
   { name: 'Resources', href: '/dashboard/resources', icon: Library },
+  { name: 'Leaderboard', href: '/dashboard/leaderboard', icon: Trophy, roles: ['student'] },
+  { name: 'Calendar', href: '/dashboard/calendar', icon: CalendarIcon },
   // Faculty + Admin only
   { name: 'Students', href: '/dashboard/students', icon: Users, roles: ['faculty', 'admin'] },
   // Admin only
@@ -49,15 +51,13 @@ const roleBadgeVariant = {
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const supabase = createClient();
   const [collapsed, setCollapsed] = useState(false);
   const { profile, loading, displayName, role } = useUser();
   const { isOpen, setIsOpen } = useSidebar();
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
+  const handleLogout = () => {
+    signOut();
     router.replace('/login');
-    router.refresh();
   };
 
   // Filter nav items based on role

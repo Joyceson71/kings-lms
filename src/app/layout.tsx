@@ -1,5 +1,6 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Outfit, Geist_Mono } from "next/font/google";
+import { AIAssistant } from "@/components/layout/ai-assistant";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,6 +20,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   display: "swap",
 });
+
+export const viewport: Viewport = {
+  themeColor: "#100424", // matches deep cosmic dark background
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
 
 export const metadata: Metadata = {
   title: "Kings EC Platform | Campus Learning & Management System",
@@ -48,6 +56,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         {children}
+        <AIAssistant />
       </body>
     </html>
   );

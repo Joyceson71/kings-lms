@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
   Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
-  Zap, Calendar, ClipboardList, GraduationCap, AlertTriangle, Star,
+  Zap, Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
@@ -64,6 +64,11 @@ const studentCourses = [
   { name: 'EC-101 Network Analysis', attendance: 74, color: 'gold' as const, status: 'watch' },
   { name: 'EC-303 Analog Circuits', attendance: 62, color: 'red' as const, status: 'danger' },
   { name: 'EC-201 Electromagnetic Fields', attendance: 82, color: 'emerald' as const, status: 'safe' },
+];
+
+const recentAnnouncements = [
+  { title: 'System Maintenance Scheduled', type: 'Global', date: 'Today', isGlobal: true },
+  { title: 'Midterm Exam Schedule Released', type: 'Course', date: 'Yesterday', isGlobal: false }
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -254,10 +259,50 @@ export default function DashboardPage() {
         </TiltCard>
       </div>
 
-      {/* Today's sessions */}
-      <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '550ms', animationFillMode: 'forwards' }}>
-        <TiltCard intensity={3} glareEffect={false}>
-          <div className="glass-card rounded-2xl p-6">
+      {/* Announcements and Today's sessions row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '550ms', animationFillMode: 'forwards' }}>
+        
+        {/* Recent Announcements Widget */}
+        <div className="lg:col-span-1">
+          <TiltCard intensity={3} glareEffect={false}>
+            <div className="glass-card rounded-2xl p-6 h-full flex flex-col">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Updates</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Latest announcements</p>
+                </div>
+                <div className="h-8 w-8 rounded-full bg-amber-500/10 flex items-center justify-center">
+                  <Megaphone className="h-4 w-4 text-amber-500" />
+                </div>
+              </div>
+              <div className="space-y-4 flex-1">
+                {recentAnnouncements.map((ann, i) => (
+                  <div key={i} className="group cursor-pointer">
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className={ann.isGlobal ? 'bg-amber-500/20 text-amber-500 border-amber-500/30 text-[9px] px-1.5' : 'text-[9px] px-1.5'}>
+                        {ann.type}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground">{ann.date}</span>
+                    </div>
+                    <p className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors leading-tight">
+                      {ann.title}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 pt-3 border-t border-border/30">
+                <a href="/dashboard/announcements" className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 w-full">
+                  View all announcements →
+                </a>
+              </div>
+            </div>
+          </TiltCard>
+        </div>
+
+        {/* Today's sessions */}
+        <div className="lg:col-span-2">
+          <TiltCard intensity={3} glareEffect={false}>
+            <div className="glass-card rounded-2xl p-6 h-full">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Today&apos;s Sessions</h2>
@@ -307,6 +352,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </TiltCard>
+        </div>
       </div>
     </div>
   );

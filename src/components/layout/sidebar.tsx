@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap, ChevronLeft, ChevronRight,
-  ClipboardList, ShieldCheck, BarChart2, Library, Trophy, Calendar as CalendarIcon
+  ClipboardList, ShieldCheck, BarChart2, Library, Trophy, Calendar as CalendarIcon, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/lib/auth';
@@ -24,6 +24,7 @@ type NavItem = {
 
 const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { name: 'Announcements', href: '/dashboard/announcements', icon: Bell },
   { name: 'Attendance', href: '/dashboard/attendance', icon: CheckCircle },
   { name: 'Courses', href: '/dashboard/courses', icon: BookOpen },
   { name: 'Assignments', href: '/dashboard/assignments', icon: ClipboardList },

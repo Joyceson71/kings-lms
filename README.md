@@ -115,8 +115,10 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 ```
 
-### 3.5. Google OAuth Setup (Optional but Recommended)
-To enable the "Continue with Google" buttons on the Login and Signup pages:
+### 3.5. OAuth Setup (Google & GitHub)
+To enable the "Continue with Google" and "Continue with GitHub" buttons on the Login and Signup pages, you need to configure OAuth providers in Supabase.
+
+**Google Setup:**
 1. Go to your [Google Cloud Console](https://console.cloud.google.com/).
 2. Create a new project and navigate to **APIs & Services > Credentials**.
 3. Create new **OAuth 2.0 Client IDs** (Web application).
@@ -124,6 +126,22 @@ To enable the "Continue with Google" buttons on the Login and Signup pages:
 5. Copy the **Client ID** and **Client Secret**.
 6. Go to your [Supabase Dashboard](https://app.supabase.com) > **Authentication > Providers > Google**.
 7. Enable Google and paste the Client ID and Client Secret. Click **Save**.
+
+**GitHub Setup:**
+1. Go to your GitHub account **Settings > Developer Settings > OAuth Apps**.
+2. Click **New OAuth App**.
+3. Set the **Homepage URL** to your app's domain (or `http://localhost:3000` for local dev).
+4. Set the **Authorization callback URL** to your Supabase callback (e.g., `https://<project-id>.supabase.co/auth/v1/callback`).
+5. Copy the **Client ID** and generate a **Client Secret**.
+6. Go to your [Supabase Dashboard](https://app.supabase.com) > **Authentication > Providers > GitHub**.
+7. Enable GitHub and paste the Client ID and Client Secret. Click **Save**.
+
+**How to Validate Auth:**
+- Ensure your local dev server is running (`npm run dev`).
+- Click the "Continue with Google" or "Continue with GitHub" button on the login/signup page.
+- You should be redirected to the provider's consent screen.
+- After consenting, you should be redirected back to the `/dashboard` page automatically.
+- Check the `profiles` table in Supabase to ensure a row was created for the new user!
 
 > ⚠️ **Never commit `.env.local` to version control.** The `.gitignore` already excludes it.
 

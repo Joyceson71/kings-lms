@@ -12,6 +12,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  // Rescue stray OAuth callbacks (e.g. if Supabase redirects to / or /dashboard)
+  const code = request.nextUrl.searchParams.get('code');
+  if (code && !pathname.startsWith('/api/auth/callback')) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/api/auth/callback';
+    url.searchParams.set('next', pathname === '/' ? '/dashboard' : pathname);
+    return NextResponse.redirect(url);
+  }
 
   const isAuthPage =
     pathname === '/login' ||

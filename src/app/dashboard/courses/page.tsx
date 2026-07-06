@@ -8,6 +8,7 @@ import { BookOpen, Users, Clock, Star, Search, Filter, Plus, ArrowRight } from '
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { CourseModal } from '@/components/courses/course-modal';
+import { AddCourseModal } from '@/components/courses/add-course-modal';
 
 const courses = [
   {
@@ -105,8 +106,10 @@ const courses = [
 export default function CoursesPage() {
   const [search, setSearch] = useState('');
   const [activeCourse, setActiveCourse] = useState<any>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [localCourses, setLocalCourses] = useState<any[]>(courses);
 
-  const filtered = courses.filter(
+  const filtered = localCourses.filter(
     (c) =>
       c.title.toLowerCase().includes(search.toLowerCase()) ||
       c.code.toLowerCase().includes(search.toLowerCase()) ||
@@ -121,10 +124,11 @@ export default function CoursesPage() {
           <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
             <span className="gradient-text">Courses</span>
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">{courses.length} courses enrolled this semester</p>
+          <p className="text-muted-foreground text-sm mt-1">{localCourses.length} courses enrolled this semester</p>
         </div>
         <Button
           id="add-course-btn"
+          onClick={() => setIsAddModalOpen(true)}
           className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
         >
           <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
@@ -258,6 +262,28 @@ export default function CoursesPage() {
         isOpen={!!activeCourse} 
         onClose={() => setActiveCourse(null)} 
         course={activeCourse} 
+      />
+
+      <AddCourseModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onCourseAdded={(newCourse) => {
+          const fullCourse = {
+            ...newCourse,
+            code: `NEW-${Math.floor(100 + Math.random() * 900)}`,
+            faculty: 'You',
+            students: 0,
+            sessions: 0,
+            attendance: 0,
+            category: 'New Course',
+            color: 'from-emerald-500 to-teal-400',
+            glow: 'oklch(0.70 0.20 165 / 0.25)',
+            icon: '🆕',
+            status: 'upcoming',
+            rating: 0,
+          };
+          setLocalCourses((prev) => [fullCourse, ...prev]);
+        }}
       />
     </div>
   );

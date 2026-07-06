@@ -1,6 +1,7 @@
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
+import { OnboardingGuard } from '@/components/auth/onboarding-guard';
 
 export default function DashboardLayout({
   children,
@@ -23,7 +24,9 @@ export default function DashboardLayout({
             />
             <div className="relative z-10 p-3 sm:p-6">
               <div className="mx-auto max-w-7xl">
-                {children}
+                <OnboardingGuard>
+                  {children}
+                </OnboardingGuard>
               </div>
             </div>
           </main>

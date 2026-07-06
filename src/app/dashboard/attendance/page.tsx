@@ -216,7 +216,7 @@ function AttendanceContent() {
         throw logError;
       }
 
-      setScanSuccess(`Marked present for ${sessionData.courses?.title}`);
+      setScanSuccess(`Marked present for ${(sessionData.courses as any)?.title}`);
       
       // Fire confetti
       confetti({

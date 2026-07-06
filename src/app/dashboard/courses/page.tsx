@@ -15,7 +15,7 @@ export default async function CoursesPage() {
 
   const profile = await getProfile(supabase, user.id);
   if (!profile) {
-    redirect('/login');
+    redirect('/onboarding');
   }
 
   const allCourses = await getCourses(supabase);

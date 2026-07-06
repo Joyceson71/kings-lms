@@ -15,7 +15,7 @@ export default async function AssignmentsPage() {
 
   const profile = await getProfile(supabase, user.id);
   if (!profile) {
-    redirect('/login');
+    redirect('/onboarding');
   }
 
   // Get assignments based on role

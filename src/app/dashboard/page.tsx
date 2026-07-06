@@ -15,7 +15,7 @@ export default async function DashboardPage() {
 
   const profile = await getProfile(supabase, user.id);
   if (!profile) {
-    redirect('/login');
+    redirect('/onboarding');
   }
 
   const stats = await getDashboardStats(supabase, user.id, profile.role);

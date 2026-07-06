@@ -131,7 +131,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${getURL()}api/auth/callback`,
+          redirectTo: getURL(),
         },
       });
       if (error) throw error;
@@ -148,7 +148,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${getURL()}api/auth/callback`,
+          redirectTo: getURL(),
         },
       });
       if (error) throw error;

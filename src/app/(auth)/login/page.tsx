@@ -71,7 +71,7 @@ export default function LoginPage() {
     if (code) {
       supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
         if (!error) {
-          router.replace('/dashboard');
+          window.location.href = '/dashboard';
         } else {
           setError(error.message);
         }
@@ -81,13 +81,13 @@ export default function LoginPage() {
     // Check if we already have a session parsed from the URL or local storage
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && !code) {
-        router.replace('/dashboard');
+        window.location.href = '/dashboard';
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !code) {
-        router.replace('/dashboard');
+        window.location.href = '/dashboard';
       }
     });
     return () => subscription.unsubscribe();

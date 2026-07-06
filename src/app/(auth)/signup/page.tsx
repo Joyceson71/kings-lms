@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TiltCard } from '@/components/ui/tilt-card';
-import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle } from 'lucide-react';
+import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle, Building2, Hash, BookOpen, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
 
@@ -19,6 +19,10 @@ const signupSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirmPassword: z.string(),
+  department: z.enum(['ECE', 'CSE', 'IT', 'AIDS', 'AIML', 'RAA', 'MECH', 'BME'], { required_error: 'Please select a department' }),
+  year: z.string().min(1, { message: 'Please select a year' }),
+  college: z.string().min(2, { message: 'College name is required' }),
+  rollNumber: z.string().min(2, { message: 'Roll number is required' }),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -89,16 +93,24 @@ export default function SignupPage() {
 
       // Save new user to localStorage (demo registration)
       const stored = localStorage.getItem('kings_lms_registered_users');
-      const users: Array<{ email: string; password: string; fullName: string }> = stored ? JSON.parse(stored) : [];
+      const users: Array<any> = stored ? JSON.parse(stored) : [];
 
-      const existing = users.find((u) => u.email.toLowerCase() === data.email.trim().toLowerCase());
+      const existing = users.find((u: any) => u.email.toLowerCase() === data.email.trim().toLowerCase());
       if (existing) {
         setError('An account with this email already exists. Please sign in instead.');
         setIsLoading(false);
         return;
       }
 
-      users.push({ email: data.email.trim().toLowerCase(), password: data.password, fullName: data.fullName });
+      users.push({ 
+        email: data.email.trim().toLowerCase(), 
+        password: data.password, 
+        fullName: data.fullName,
+        department: data.department,
+        year: data.year,
+        college: data.college,
+        rollNumber: data.rollNumber
+      });
       localStorage.setItem('kings_lms_registered_users', JSON.stringify(users));
 
       setSuccess(true);
@@ -204,23 +216,123 @@ export default function SignupPage() {
           )}
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-            {/* Full name */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Full name */}
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName" className="text-sm font-medium text-foreground/90">Full Name</Label>
+                <div className="relative group">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                  <Input
+                    id="fullName"
+                    placeholder="John Doe"
+                    autoComplete="name"
+                    {...register('fullName')}
+                    className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                  />
+                </div>
+                {errors.fullName && (
+                  <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.fullName.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Roll Number */}
+              <div className="space-y-1.5">
+                <Label htmlFor="rollNumber" className="text-sm font-medium text-foreground/90">Roll Number</Label>
+                <div className="relative group">
+                  <Hash className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                  <Input
+                    id="rollNumber"
+                    placeholder="e.g. 21CS01"
+                    {...register('rollNumber')}
+                    className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                  />
+                </div>
+                {errors.rollNumber && (
+                  <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.rollNumber.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Department */}
+              <div className="space-y-1.5">
+                <Label htmlFor="department" className="text-sm font-medium text-foreground/90">Department</Label>
+                <div className="relative group">
+                  <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                  <select
+                    id="department"
+                    {...register('department')}
+                    className="w-full pl-10 pr-4 h-11 bg-background/40 border-border/60 text-foreground text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl outline-none appearance-none"
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-muted-foreground bg-background">Select Department</option>
+                    <option value="ECE" className="bg-background text-foreground">ECE</option>
+                    <option value="CSE" className="bg-background text-foreground">CSE</option>
+                    <option value="IT" className="bg-background text-foreground">IT</option>
+                    <option value="AIDS" className="bg-background text-foreground">AIDS</option>
+                    <option value="AIML" className="bg-background text-foreground">AIML</option>
+                    <option value="RAA" className="bg-background text-foreground">RAA</option>
+                    <option value="MECH" className="bg-background text-foreground">MECH</option>
+                    <option value="BME" className="bg-background text-foreground">BME</option>
+                  </select>
+                </div>
+                {errors.department && (
+                  <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.department.message}
+                  </p>
+                )}
+              </div>
+
+              {/* Year */}
+              <div className="space-y-1.5">
+                <Label htmlFor="year" className="text-sm font-medium text-foreground/90">Year of Study</Label>
+                <div className="relative group">
+                  <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                  <select
+                    id="year"
+                    {...register('year')}
+                    className="w-full pl-10 pr-4 h-11 bg-background/40 border-border/60 text-foreground text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl outline-none appearance-none"
+                    defaultValue=""
+                  >
+                    <option value="" disabled className="text-muted-foreground bg-background">Select Year</option>
+                    <option value="1" className="bg-background text-foreground">1st Year</option>
+                    <option value="2" className="bg-background text-foreground">2nd Year</option>
+                    <option value="3" className="bg-background text-foreground">3rd Year</option>
+                    <option value="4" className="bg-background text-foreground">4th Year</option>
+                  </select>
+                </div>
+                {errors.year && (
+                  <p className="text-xs text-red-400 font-medium flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {errors.year.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* College */}
             <div className="space-y-1.5">
-              <Label htmlFor="fullName" className="text-sm font-medium text-foreground/90">Full Name</Label>
+              <Label htmlFor="college" className="text-sm font-medium text-foreground/90">College</Label>
               <div className="relative group">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
+                <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
                 <Input
-                  id="fullName"
-                  placeholder="John Doe"
-                  autoComplete="name"
-                  {...register('fullName')}
+                  id="college"
+                  defaultValue="Kings Engineering College"
+                  {...register('college')}
                   className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
                 />
               </div>
-              {errors.fullName && (
+              {errors.college && (
                 <p className="text-xs text-red-400 font-medium flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
-                  {errors.fullName.message}
+                  {errors.college.message}
                 </p>
               )}
             </div>

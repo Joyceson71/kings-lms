@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS public.course_materials (
 );
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS on_course_materials_updated ON public.course_materials;
 CREATE TRIGGER on_course_materials_updated
     BEFORE UPDATE ON public.course_materials
     FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
@@ -21,26 +22,31 @@ CREATE TRIGGER on_course_materials_updated
 ALTER TABLE public.course_materials ENABLE ROW LEVEL SECURITY;
 
 -- Students can read materials for their courses
+DROP POLICY IF EXISTS "Students can view materials for enrolled courses." ON public.course_materials;
 CREATE POLICY "Students can view materials for enrolled courses." ON public.course_materials FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.course_enrollments WHERE course_id = public.course_materials.course_id AND student_id = auth.uid())
 );
 
 -- Faculty can read materials for their courses
+DROP POLICY IF EXISTS "Faculty can view materials for their courses." ON public.course_materials;
 CREATE POLICY "Faculty can view materials for their courses." ON public.course_materials FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND created_by = auth.uid())
 );
 
 -- Faculty can insert materials for their courses
+DROP POLICY IF EXISTS "Faculty can insert materials." ON public.course_materials;
 CREATE POLICY "Faculty can insert materials." ON public.course_materials FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND created_by = auth.uid())
 );
 
 -- Faculty can update materials for their courses
+DROP POLICY IF EXISTS "Faculty can update materials." ON public.course_materials;
 CREATE POLICY "Faculty can update materials." ON public.course_materials FOR UPDATE USING (
     EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND created_by = auth.uid())
 );
 
 -- Faculty can delete materials for their courses
+DROP POLICY IF EXISTS "Faculty can delete materials." ON public.course_materials;
 CREATE POLICY "Faculty can delete materials." ON public.course_materials FOR DELETE USING (
     EXISTS (SELECT 1 FROM public.courses WHERE id = course_id AND created_by = auth.uid())
 );
@@ -55,18 +61,22 @@ ON CONFLICT (id) DO UPDATE SET public = true;
 -- For a strict setup, we'd check auth.uid(), but Supabase storage policies can be complex with foreign keys.
 -- For this prototype, we'll allow authenticated users to upload and anyone to read (bucket is public).
 
+DROP POLICY IF EXISTS "Materials are publicly accessible." ON storage.objects;
 CREATE POLICY "Materials are publicly accessible."
 ON storage.objects FOR SELECT
 USING ( bucket_id = 'course_materials' );
 
+DROP POLICY IF EXISTS "Authenticated users can upload materials." ON storage.objects;
 CREATE POLICY "Authenticated users can upload materials."
 ON storage.objects FOR INSERT
 WITH CHECK ( bucket_id = 'course_materials' AND auth.role() = 'authenticated' );
 
+DROP POLICY IF EXISTS "Authenticated users can update their materials." ON storage.objects;
 CREATE POLICY "Authenticated users can update their materials."
 ON storage.objects FOR UPDATE
 USING ( bucket_id = 'course_materials' AND auth.uid() = owner );
 
+DROP POLICY IF EXISTS "Authenticated users can delete their materials." ON storage.objects;
 CREATE POLICY "Authenticated users can delete their materials."
 ON storage.objects FOR DELETE
 USING ( bucket_id = 'course_materials' AND auth.uid() = owner );

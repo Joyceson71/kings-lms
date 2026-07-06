@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Outfit, Geist_Mono } from "next/font/google";
 import { AIAssistant } from "@/components/layout/ai-assistant";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const inter = Inter({
@@ -50,14 +51,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      lang="en"
-      className={`${inter.variable} ${outfit.variable} ${geistMono.variable} h-full antialiased dark`}
-    >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
-        {children}
-        <AIAssistant />
-      </body>
-    </html>
+      <html
+        lang="en"
+        className={`${inter.variable} ${outfit.variable} ${geistMono.variable} h-full antialiased`}
+        suppressHydrationWarning
+      >
+        <body className="min-h-full flex flex-col bg-background text-foreground">
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            {children}
+            <AIAssistant />
+          </ThemeProvider>
+        </body>
+      </html>
   );
 }

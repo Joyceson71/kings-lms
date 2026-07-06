@@ -1,9 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Bell, CheckCircle2, Clock, AlertCircle, X } from 'lucide-react';
+import { Bell, CheckCircle2, Clock, AlertCircle, X, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
+import { getNotifications, markNotificationRead } from '@/lib/supabase/queries';
+import { useUser } from '@/lib/hooks/use-user';
+import { useEffect, useState } from 'react';
 
 type Notification = {
   id: string;
@@ -42,16 +45,42 @@ const INITIAL_NOTIFICATIONS: Notification[] = [
 ];
 
 export function NotificationsPopover({ onClose }: { onClose: () => void }) {
-  const [notifications, setNotifications] = useState(INITIAL_NOTIFICATIONS);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { profile } = useUser();
+
+  useEffect(() => {
+    async function loadNotifications() {
+      if (!profile?.id) return;
+      const supabase = createClient();
+      const notifs = await getNotifications(supabase, profile.id);
+      setNotifications(notifs.map((n: any) => ({
+        id: n.id,
+        title: n.title,
+        message: n.message,
+        time: new Date(n.created_at).toLocaleDateString(),
+        type: n.type === 'error' ? 'warning' : n.type,
+        read: n.is_read,
+      })));
+      setIsLoading(false);
+    }
+    loadNotifications();
+  }, [profile]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
     setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+    const supabase = createClient();
+    await markNotificationRead(supabase, id);
   };
 
-  const markAllAsRead = () => {
+  const markAllAsRead = async () => {
     setNotifications(notifications.map(n => ({ ...n, read: true })));
+    const supabase = createClient();
+    for (const n of notifications.filter(notif => !notif.read)) {
+      await markNotificationRead(supabase, n.id);
+    }
   };
 
   return (
@@ -82,7 +111,11 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="max-h-[350px] overflow-y-auto scrollbar-thin">
-        {notifications.length === 0 ? (
+        {isLoading ? (
+          <div className="flex justify-center items-center py-10">
+            <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          </div>
+        ) : notifications.length === 0 ? (
           <div className="p-6 text-center text-muted-foreground text-xs">
             No notifications yet
           </div>

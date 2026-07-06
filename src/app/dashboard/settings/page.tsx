@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
+import { useTheme } from 'next-themes';
+import { createClient } from '@/lib/supabase/client';
 
 type SettingsTab = 'profile' | 'notifications' | 'security' | 'appearance';
 
@@ -58,6 +60,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
   const [notifications, setNotifications] = useState(notificationSettings);
   const [saved, setSaved] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const handleSave = () => {
     setSaved(true);
@@ -247,24 +250,35 @@ export default function SettingsPage() {
                   </div>
                   <div className="space-y-4">
                     <p className="text-sm font-medium text-foreground">Theme</p>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                       {[
-                        { id: 'dark', label: 'Dark (Default)', preview: 'from-gray-900 to-slate-800', active: true },
-                        { id: 'light', label: 'Light', preview: 'from-gray-100 to-white', active: false },
-                      ].map((theme) => (
-                        <button
-                          key={theme.id}
-                          id={`theme-${theme.id}`}
-                          className={cn(
-                            'p-4 rounded-xl border-2 text-left transition-all duration-200',
-                            theme.active ? 'border-primary' : 'border-border/40 hover:border-border'
-                          )}
-                        >
-                          <div className={`h-10 rounded-lg bg-gradient-to-br ${theme.preview} mb-2 shadow-sm`} />
-                          <p className={`text-sm font-medium ${theme.active ? 'text-primary' : 'text-foreground'}`}>{theme.label}</p>
-                          {theme.active && <Badge variant="default" className="mt-1 text-[10px] px-1.5">Active</Badge>}
-                        </button>
-                      ))}
+                        { id: 'dark', label: 'Dark', preview: 'from-gray-900 to-slate-800' },
+                        { id: 'light', label: 'Light', preview: 'from-gray-100 to-white' },
+                        { id: 'system', label: 'System', preview: 'from-gray-400 to-gray-500' },
+                      ].map((t) => {
+                        const active = theme === t.id;
+                        return (
+                          <button
+                            key={t.id}
+                            id={`theme-${t.id}`}
+                            onClick={async () => {
+                              setTheme(t.id);
+                              if (profile?.id) {
+                                const supabase = createClient();
+                                await supabase.from('profiles').update({ theme: t.id }).eq('id', profile.id);
+                              }
+                            }}
+                            className={cn(
+                              'p-4 rounded-xl border-2 text-left transition-all duration-200',
+                              active ? 'border-primary' : 'border-border/40 hover:border-border'
+                            )}
+                          >
+                            <div className={`h-10 rounded-lg bg-gradient-to-br ${t.preview} mb-2 shadow-sm`} />
+                            <p className={`text-sm font-medium ${active ? 'text-primary' : 'text-foreground'}`}>{t.label}</p>
+                            {active && <Badge variant="default" className="mt-1 text-[10px] px-1.5">Active</Badge>}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>

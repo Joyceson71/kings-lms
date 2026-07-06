@@ -17,9 +17,10 @@ export function QRDisplayModal({ isOpen, onClose, token, courseName }: QRDisplay
   useEffect(() => {
     if (isOpen && token) {
       // Build a secure URL for the QR code to represent
-      // It can just be the token, or a full URL like: https://kingsecc.in/attend?t={token}
       const baseUrl = window.location.origin;
-      setQrValue(`${baseUrl}/dashboard/attendance?token=${token}`);
+      // We pass the session token as the session param, which is how it was implemented in attendance page before
+      // Ideally we would pass session ID, but token is safer if it's uniquely queryable. Let's stick with token= or session=token
+      setQrValue(`${baseUrl}/attend?session=${token}`);
     }
   }, [isOpen, token]);
 

@@ -115,6 +115,16 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 ```
 
+### 3.5. Google OAuth Setup (Optional but Recommended)
+To enable the "Continue with Google" buttons on the Login and Signup pages:
+1. Go to your [Google Cloud Console](https://console.cloud.google.com/).
+2. Create a new project and navigate to **APIs & Services > Credentials**.
+3. Create new **OAuth 2.0 Client IDs** (Web application).
+4. Add your Supabase project's callback URL (e.g., `https://<project-id>.supabase.co/auth/v1/callback`) to the **Authorized redirect URIs**.
+5. Copy the **Client ID** and **Client Secret**.
+6. Go to your [Supabase Dashboard](https://app.supabase.com) > **Authentication > Providers > Google**.
+7. Enable Google and paste the Client ID and Client Secret. Click **Save**.
+
 > ⚠️ **Never commit `.env.local` to version control.** The `.gitignore` already excludes it.
 
 ---

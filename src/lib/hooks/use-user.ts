@@ -13,12 +13,38 @@ export interface UserProfile {
   avatar_url: string | null;
 }
 
+import { createClient } from '@/lib/supabase/client';
+
 export function useUser() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    function loadUser() {
+    async function loadUser() {
+      // 1. Check Supabase Auth (for Google/Real Users)
+      const supabase = createClient();
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        // Fetch role from profiles table
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+
+        setProfile({
+          id: session.user.id,
+          email: session.user.email || '',
+          full_name: profileData?.full_name || session.user.user_metadata?.full_name || null,
+          role: profileData?.role || 'student', // Default to student if not found
+          avatar_url: profileData?.avatar_url || session.user.user_metadata?.avatar_url || null,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // 2. Fallback to Local Demo Auth
       const user: LocalUser | null = getCurrentUser();
       if (user) {
         setProfile({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/hooks/use-user';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
@@ -10,13 +10,15 @@ import { Input } from '@/components/ui/input';
 import { 
   FileText, Download, Upload, Search, Filter, 
   ExternalLink, File, FileArchive, FileImage, 
-  PlaySquare, MoreVertical, Plus 
+  PlaySquare, MoreVertical, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
+import { UploadModal } from '@/components/resources/upload-modal';
 
 // Helper for icons based on resource type
 const getIconForType = (type: string) => {
-  switch (type.toLowerCase()) {
+  switch (type?.toLowerCase()) {
     case 'pdf': return FileText;
     case 'video': return PlaySquare;
     case 'archive': return FileArchive;
@@ -27,44 +29,82 @@ const getIconForType = (type: string) => {
 };
 
 const getBadgeForType = (type: string) => {
-  switch (type.toLowerCase()) {
-    case 'pdf': return 'destructive'; // Red-ish for PDF
-    case 'video': return 'warning'; // Amber for Video
-    case 'archive': return 'secondary'; // Gray for Archive
-    case 'link': return 'active'; // Blue for Link
+  switch (type?.toLowerCase()) {
+    case 'pdf': return 'destructive'; 
+    case 'video': return 'warning'; 
+    case 'archive': return 'secondary'; 
+    case 'link': return 'active'; 
     default: return 'default';
   }
 };
 
-// Dummy Data with ECE subjects
-const MOCK_RESOURCES = [
-  { id: 1, title: 'Signals & Systems - Lecture 1', course: 'EC-301', type: 'PDF', size: '2.4 MB', uploadedBy: 'Prof. Joyceson D.', date: 'Aug 14, 2026', tags: ['Lecture', 'Unit 1'] },
-  { id: 2, title: 'Digital Signal Processing Formula Sheet', course: 'EC-302', type: 'PDF', size: '1.1 MB', uploadedBy: 'Dr. A. Smith', date: 'Aug 18, 2026', tags: ['Reference', 'Cheat Sheet'] },
-  { id: 3, title: 'Analog Circuits Lab Manual', course: 'EC-303', type: 'Archive', size: '15.8 MB', uploadedBy: 'Prof. M. Raj', date: 'Jul 22, 2026', tags: ['Lab', 'Manual'] },
-  { id: 4, title: 'Microprocessors Architecture Deep Dive', course: 'EC-304', type: 'Video', size: '142 MB', uploadedBy: 'Dr. Kumar', date: 'Aug 05, 2026', tags: ['Lecture Recording'] },
-  { id: 5, title: 'Communication Systems Assignment 1 Guidelines', course: 'EC-305', type: 'PDF', size: '0.8 MB', uploadedBy: 'Dr. Smith', date: 'Aug 20, 2026', tags: ['Assignment'] },
-  { id: 6, title: 'Network Analysis Theorems Visualized', course: 'EC-101', type: 'Link', size: '--', uploadedBy: 'Prof. M. Raj', date: 'Sep 01, 2026', tags: ['Interactive', 'Reference'] },
-  { id: 7, title: 'Electromagnetic Fields - Maxwell Equations', course: 'EC-201', type: 'PDF', size: '4.5 MB', uploadedBy: 'Dr. Kumar', date: 'Aug 10, 2026', tags: ['Notes', 'Unit 3'] },
-];
-
-const filters = ['All', 'EC-301', 'EC-302', 'EC-303', 'EC-304', 'EC-305', 'EC-101', 'EC-201'];
-
 export default function ResourcesPage() {
-  const { isStudent } = useUser();
+  const { isStudent, profile, loading: userLoading } = useUser();
+  const supabase = createClient();
+  
+  const [resources, setResources] = useState<any[]>([]);
+  const [myCourses, setMyCourses] = useState<any[]>([]);
+  const [filters, setFilters] = useState<string[]>(['All']);
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  
   const [viewerUrl, setViewerUrl] = useState<{url: string, title: string, type: string} | null>(null);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchData = async () => {
+    setIsLoading(true);
+    
+    // Fetch materials (RLS ensures users only see what they are allowed to)
+    const { data: materialsData, error: materialsError } = await supabase
+      .from('course_materials')
+      .select('*, courses(title, code), profiles(full_name)')
+      .order('created_at', { ascending: false });
+
+    if (!materialsError && materialsData) {
+      setResources(materialsData);
+      
+      // Extract unique course codes for filters
+      const uniqueCourses = Array.from(new Set(materialsData.map((r: any) => r.courses?.code))).filter(Boolean);
+      setFilters(['All', ...(uniqueCourses as string[])]);
+    }
+
+    // Fetch courses for the faculty upload modal
+    if (!isStudent && profile?.id) {
+      const { data: coursesData } = await supabase
+        .from('courses')
+        .select('id, title, code')
+        .eq('created_by', profile.id);
+        
+      if (coursesData) {
+        setMyCourses(coursesData);
+      }
+    }
+    
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
+    if (!userLoading) {
+      fetchData();
+    }
+  }, [userLoading, isStudent, profile?.id]);
 
   // Filter logic
-  const filteredResources = MOCK_RESOURCES.filter(resource => {
-    const matchesSearch = resource.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          resource.course.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = activeFilter === 'All' || resource.course === activeFilter;
+  const filteredResources = resources.filter(resource => {
+    const courseCode = resource.courses?.code || '';
+    const title = resource.title || '';
+    
+    const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          courseCode.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = activeFilter === 'All' || courseCode === activeFilter;
+    
     return matchesSearch && matchesFilter;
   });
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-12 relative">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
@@ -77,8 +117,9 @@ export default function ResourcesPage() {
         </div>
         
         {/* Upload Button (hidden for students) */}
-        {!isStudent && (
+        {!isStudent && !userLoading && (
           <Button 
+            onClick={() => setIsUploadOpen(true)}
             id="upload-resource-btn"
             className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_oklch(0.65_0.26_285/0.3)] gap-2 rounded-xl h-10 w-full sm:w-auto"
           >
@@ -119,8 +160,13 @@ export default function ResourcesPage() {
         </div>
       </div>
 
-      {/* Resources Grid */}
-      {filteredResources.length > 0 ? (
+      {/* Loading State */}
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : filteredResources.length > 0 ? (
+        /* Resources Grid */
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
           {filteredResources.map((resource, i) => {
             const Icon = getIconForType(resource.type);
@@ -130,7 +176,7 @@ export default function ResourcesPage() {
               <div 
                 key={resource.id} 
                 className="animate-slide-in-up opacity-0"
-                style={{ animationDelay: `${200 + (i * 60)}ms`, animationFillMode: 'forwards' }}
+                style={{ animationDelay: `${200 + (Math.min(i, 10) * 60)}ms`, animationFillMode: 'forwards' }}
               >
                 <TiltCard intensity={2} glareEffect={false}>
                   <div className="glass-card rounded-2xl p-5 h-full flex flex-col group border border-border/40 hover:border-primary/30 transition-colors">
@@ -143,7 +189,7 @@ export default function ResourcesPage() {
                         </div>
                         <div>
                           <Badge variant="secondary" className="mb-1 text-[10px] uppercase font-bold tracking-wider">
-                            {resource.course}
+                            {resource.courses?.code}
                           </Badge>
                           <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2" title={resource.title}>
                             {resource.title}
@@ -165,7 +211,7 @@ export default function ResourcesPage() {
                         <Badge variant={badgeVariant} className="text-[9px] px-1.5 py-0">
                           {resource.type}
                         </Badge>
-                        {resource.tags.map(tag => (
+                        {(resource.tags || []).map((tag: string) => (
                           <Badge key={tag} variant="outline" className="text-[9px] px-1.5 py-0 border-border/50 text-muted-foreground">
                             {tag}
                           </Badge>
@@ -174,8 +220,10 @@ export default function ResourcesPage() {
                       
                       <div className="flex items-center justify-between text-xs text-muted-foreground border-t border-border/30 pt-3">
                         <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-foreground/80">{resource.uploadedBy}</span>
-                          <span className="text-[10px]">{resource.date}</span>
+                          <span className="font-medium text-foreground/80">{resource.profiles?.full_name || 'Unknown'}</span>
+                          <span className="text-[10px]">
+                            {new Date(resource.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
                         </div>
                         
                         {/* Download / Action button */}
@@ -183,11 +231,17 @@ export default function ResourcesPage() {
                           size="sm" 
                           variant="ghost" 
                           className="h-8 px-2.5 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors group/btn"
-                          onClick={() => setViewerUrl({
-                            url: 'https://kings-lms.demo/resource/' + resource.id, // Dummy URL for demo
-                            title: resource.title,
-                            type: resource.type.toLowerCase() === 'link' ? 'web' : resource.type
-                          })}
+                          onClick={() => {
+                            if (resource.type === 'Link') {
+                                window.open(resource.file_path, '_blank');
+                            } else {
+                                setViewerUrl({
+                                  url: resource.file_path,
+                                  title: resource.title,
+                                  type: 'pdf' // The resource viewer currently works best with PDF/images in iframe
+                                });
+                            }
+                          }}
                         >
                           <span className="mr-1.5 font-medium">{resource.size}</span>
                           {resource.type === 'Link' ? (
@@ -212,15 +266,19 @@ export default function ResourcesPage() {
           </div>
           <h3 className="text-lg font-bold text-foreground">No resources found</h3>
           <p className="text-sm text-muted-foreground mt-1 max-w-sm">
-            We couldn&apos;t find any materials matching your search criteria. Try clearing your filters.
+            {searchQuery || activeFilter !== 'All' 
+              ? "We couldn't find any materials matching your search criteria. Try clearing your filters."
+              : "No study materials have been uploaded yet."}
           </p>
-          <Button 
-            variant="outline" 
-            className="mt-6 border-border/40 rounded-xl"
-            onClick={() => { setSearchQuery(''); setActiveFilter('All'); }}
-          >
-            Clear Filters
-          </Button>
+          {(searchQuery || activeFilter !== 'All') && (
+            <Button 
+              variant="outline" 
+              className="mt-6 border-border/40 rounded-xl"
+              onClick={() => { setSearchQuery(''); setActiveFilter('All'); }}
+            >
+              Clear Filters
+            </Button>
+          )}
         </div>
       )}
 
@@ -234,6 +292,14 @@ export default function ResourcesPage() {
           type={viewerUrl.type}
         />
       )}
+
+      {/* Upload Modal */}
+      <UploadModal 
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        courses={myCourses}
+        onSuccess={fetchData}
+      />
     </div>
   );
 }

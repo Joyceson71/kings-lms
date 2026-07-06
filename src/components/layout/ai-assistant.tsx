@@ -14,13 +14,7 @@ type Message = {
   content: string;
 };
 
-const MOCK_RESPONSES = [
-  "I'd be happy to help with that! In Signals and Systems, the Fourier transform allows us to analyze signals in the frequency domain.",
-  "Your next assignment for 'Digital Signal Processing' is due in 3 days. I recommend starting with the IIR filter design section.",
-  "Great question! A Binary Tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.",
-  "According to your attendance records, you are currently at 87%. Keep it up!",
-  "I couldn't find a direct answer in your course materials, but I can suggest reading Chapter 4 of 'Network Analysis' for more context.",
-];
+// Removed MOCK_RESPONSES
 
 export function AIAssistant() {
   const [isOpen, setIsOpen] = useState(false);
@@ -40,29 +34,52 @@ export function AIAssistant() {
     scrollToBottom();
   }, [messages, isTyping]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!input.trim()) return;
 
     const userMessage: Message = { id: Date.now().toString(), type: 'user', content: input };
-    setMessages((prev) => [...prev, userMessage]);
+    const currentMessages = [...messages, userMessage];
+    
+    setMessages(currentMessages);
     setInput('');
     setIsTyping(true);
 
-    // Mock AI response delay
-    setTimeout(() => {
-      const randomResponse = MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
-      const botMessage: Message = { id: (Date.now() + 1).toString(), type: 'bot', content: randomResponse };
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: currentMessages }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch response');
+      }
+
+      const botMessage: Message = { id: (Date.now() + 1).toString(), type: 'bot', content: data.reply };
       setMessages((prev) => [...prev, botMessage]);
+    } catch (error: any) {
+      console.error('Chat error:', error);
+      const errorMessage: Message = { 
+        id: (Date.now() + 1).toString(), 
+        type: 'bot', 
+        content: error.message === 'Gemini API key is missing. Please add GEMINI_API_KEY to your .env.local file.'
+          ? "⚠️ Looks like the AI isn't configured yet! Please ask your administrator to add a GEMINI_API_KEY to the environment variables."
+          : "Sorry, I ran into an error connecting to my brain. Please try again later."
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
       setIsTyping(false);
-    }, 1500);
+    }
   };
 
   if (!isStudent) return null; // Only show for students for now
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
       {isOpen && (
-        <div className="mb-4 w-[350px] sm:w-[400px] animate-in slide-in-from-bottom-5 fade-in-20 duration-300">
+        <div className="mb-4 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px] animate-in slide-in-from-bottom-5 fade-in-20 duration-300">
           <TiltCard intensity={5} glareEffect={false}>
             <div className="glass-card rounded-2xl overflow-hidden border border-primary/20 shadow-[0_8px_32px_oklch(0.65_0.26_285/0.2)] flex flex-col h-[500px]">
               {/* Header */}
@@ -148,7 +165,7 @@ export function AIAssistant() {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "h-14 w-14 rounded-full flex items-center justify-center text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 group",
+          "h-12 w-12 sm:h-14 sm:w-14 rounded-full flex items-center justify-center text-primary-foreground shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 group",
           isOpen ? "bg-secondary text-foreground border border-border" : "bg-primary shadow-[0_8px_24px_oklch(0.65_0.26_285/0.5)]"
         )}
       >

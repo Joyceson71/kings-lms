@@ -19,7 +19,7 @@ const signupSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
   confirmPassword: z.string(),
-  department: z.enum(['ECE', 'CSE', 'IT', 'AIDS', 'AIML', 'RAA', 'MECH', 'BME'], { required_error: 'Please select a department' }),
+  department: z.string().min(1, { message: 'Please select a department' }),
   year: z.string().min(1, { message: 'Please select a year' }),
   college: z.string().min(2, { message: 'College name is required' }),
   rollNumber: z.string().min(2, { message: 'Roll number is required' }),

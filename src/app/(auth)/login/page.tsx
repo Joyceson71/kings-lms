@@ -66,9 +66,16 @@ export default function LoginPage() {
 
   useEffect(() => {
     const supabase = createClient();
+    
+    // Check if we already have a session parsed from the URL or local storage
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        router.replace('/dashboard');
+      }
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session) {
-        document.cookie = 'kings_lms_auth=true; path=/; max-age=604800; SameSite=Lax';
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
         router.replace('/dashboard');
       }
     });

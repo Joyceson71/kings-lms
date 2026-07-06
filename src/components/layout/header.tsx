@@ -175,6 +175,16 @@ export function Header() {
                       <User className="h-4 w-4" />
                       Profile
                     </Link>
+                    {(!profile?.department || !profile?.college) && (
+                      <Link
+                        href="/onboarding"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 transition-colors font-medium"
+                      >
+                        <Settings className="h-4 w-4" />
+                        Complete Profile
+                      </Link>
+                    )}
                     <Link
                       href="/dashboard/settings"
                       onClick={() => setShowUserMenu(false)}

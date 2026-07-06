@@ -14,11 +14,10 @@ export default async function DashboardPage() {
   }
 
   const profile = await getProfile(supabase, user.id);
-  if (!profile) {
-    redirect('/onboarding');
-  }
+  // Default to student if profile not yet completed fully or fetching failed
+  const userRole = profile?.role || 'student';
 
-  const stats = await getDashboardStats(supabase, user.id, profile.role);
+  const stats = await getDashboardStats(supabase, user.id, userRole);
 
   // In a real app we would fetch the grouped attendance data here,
   // but for now we'll pass the stats to the client component.

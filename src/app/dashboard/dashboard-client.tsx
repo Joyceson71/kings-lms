@@ -104,7 +104,7 @@ function SkeletonCard() {
 /* ─── Main ──────────────────────────────────────── */
 export default function DashboardClient({ stats, profile }: { stats: any; profile: any }) {
   const { loading, displayName } = useUser();
-  const isStudent = profile.role === 'student';
+  const isStudent = profile?.role === 'student' || !profile?.role;
 
   const displayStats = isStudent ? [
     { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% min', changeType: 'positive' as const, color: 'from-emerald-500 to-teal-400', glow: 'oklch(0.70 0.20 165 / 0.3)', bgIcon: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },

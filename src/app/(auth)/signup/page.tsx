@@ -58,27 +58,30 @@ export default function SignupPage() {
   useEffect(() => {
     const supabase = createClient();
     
-    const code = new URLSearchParams(window.location.search).get('code');
-    if (code) {
-      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
-        if (!error) {
-          window.location.href = '/dashboard';
-        } else {
-          setError(error.message);
-        }
-      });
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    const code = searchParams.get('code');
+    const urlError = searchParams.get('error') || hashParams.get('error');
+    const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
+
+    if (urlError) {
+      setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+      return;
     }
 
     // Check if we already have a session parsed from the URL or local storage
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session && !code) {
+      if (session) {
         window.location.href = '/dashboard';
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !code) {
-        window.location.href = '/dashboard';
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+        // Add a tiny delay to ensure cookies are written before hard navigating
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 100);
       }
     });
     return () => subscription.unsubscribe();

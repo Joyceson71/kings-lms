@@ -11,9 +11,9 @@ export default function Home() {
     const hash = window.location.hash;
     const search = window.location.search;
 
-    // Handle PKCE flow
-    if (search.includes('code=')) {
-      window.location.href = `/login${search}`;
+    // Handle PKCE flow or OAuth errors
+    if (search.includes('code=') || search.includes('error=') || hash.includes('error=')) {
+      window.location.href = `/login${search}${hash}`;
       return;
     }
 

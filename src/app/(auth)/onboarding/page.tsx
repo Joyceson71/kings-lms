@@ -49,13 +49,16 @@ export default function OnboardingPage() {
 
       const { error: updateError } = await supabase
         .from('profiles')
-        .update({
+        .upsert({
+          id: user.id,
           department: data.department,
           year_of_study: parseInt(data.year, 10),
           college: data.college,
           roll_number: data.rollNumber,
-        })
-        .eq('id', user.id);
+          full_name: user.user_metadata?.full_name || 'Student',
+          avatar_url: user.user_metadata?.avatar_url,
+          role: 'student',
+        });
 
       if (updateError) throw updateError;
 

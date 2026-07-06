@@ -31,7 +31,7 @@ export function useUser() {
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         setProfile({
           id: session.user.id,

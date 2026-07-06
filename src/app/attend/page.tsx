@@ -44,7 +44,7 @@ function AttendClient() {
         .from('course_sessions')
         .select('*, courses(title)')
         .eq('qr_token', sid)
-        .single();
+        .maybeSingle();
 
       if (sessionError || !session) {
         throw new Error('Invalid or expired attendance session.');

@@ -24,7 +24,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
           .from('profiles')
           .select('department, roll_number, college, year_of_study')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
         // If the user's profile is missing required details, redirect to onboarding
         if (!profile?.department || !profile?.college) {

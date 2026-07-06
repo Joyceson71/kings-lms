@@ -18,7 +18,7 @@ export default async function StudentsPage() {
     .from('profiles')
     .select('role')
     .eq('id', user.id)
-    .single();
+    .maybeSingle();
 
   if (!profile || profile.role === 'student') {
     redirect('/dashboard');

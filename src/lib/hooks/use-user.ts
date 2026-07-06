@@ -11,6 +11,8 @@ export interface UserProfile {
   full_name: string | null;
   role: UserRole;
   avatar_url: string | null;
+  department?: string | null;
+  college?: string | null;
 }
 
 import { createClient } from '@/lib/supabase/client';
@@ -39,6 +41,8 @@ export function useUser() {
           full_name: profileData?.full_name || session.user.user_metadata?.full_name || null,
           role: profileData?.role || 'student', // Default to student if not found
           avatar_url: profileData?.avatar_url || session.user.user_metadata?.avatar_url || null,
+          department: profileData?.department || null,
+          college: profileData?.college || null,
         });
         setLoading(false);
         return;

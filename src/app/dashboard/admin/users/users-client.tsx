@@ -22,6 +22,12 @@ const systemHealth = [
   { name: 'Storage', value: 64, icon: HardDrive, color: 'amber' as any },
   { name: 'CDN', value: 100, icon: Globe, color: 'emerald' as any },
 ];
+
+const recentActivity = [
+  { icon: UserCheck, color: 'text-emerald-400', message: 'New user "Sarah Jenkins" registered', time: '10 mins ago' },
+  { icon: Database, color: 'text-indigo-400', message: 'Database backup completed automatically', time: '2 hours ago' },
+  { icon: ShieldCheck, color: 'text-amber-400', message: 'Admin role granted to "Mike Davis"', time: '4 hours ago' },
+];
 export default function AdminUsersClient({ initialUsers }: { initialUsers: any[] }) {
   const router = useRouter();
 

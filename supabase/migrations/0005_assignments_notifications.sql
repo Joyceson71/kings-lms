@@ -10,6 +10,14 @@ CREATE TABLE IF NOT EXISTS public.assignments (
   created_at timestamptz default now()
 );
 
+-- Ensure all columns exist in case the table was created earlier with a different schema
+ALTER TABLE public.assignments 
+  ADD COLUMN IF NOT EXISTS course_id uuid references public.courses(id) on delete cascade,
+  ADD COLUMN IF NOT EXISTS title text,
+  ADD COLUMN IF NOT EXISTS description text,
+  ADD COLUMN IF NOT EXISTS due_date timestamptz,
+  ADD COLUMN IF NOT EXISTS created_by uuid references public.profiles(id);
+
 -- RLS Policies for assignments
 ALTER TABLE public.assignments ENABLE ROW LEVEL SECURITY;
 
@@ -42,6 +50,17 @@ CREATE TABLE IF NOT EXISTS public.assignment_submissions (
   UNIQUE(assignment_id, student_id)
 );
 
+-- Ensure all columns exist in case the table was created earlier with a different schema
+ALTER TABLE public.assignment_submissions 
+  ADD COLUMN IF NOT EXISTS assignment_id uuid references public.assignments(id) on delete cascade,
+  ADD COLUMN IF NOT EXISTS student_id uuid references public.profiles(id),
+  ADD COLUMN IF NOT EXISTS status text default 'pending',
+  ADD COLUMN IF NOT EXISTS file_url text,
+  ADD COLUMN IF NOT EXISTS grade numeric(5,2),
+  ADD COLUMN IF NOT EXISTS feedback text,
+  ADD COLUMN IF NOT EXISTS submitted_at timestamptz,
+  ADD COLUMN IF NOT EXISTS graded_at timestamptz;
+
 -- RLS Policies for assignment_submissions
 ALTER TABLE public.assignment_submissions ENABLE ROW LEVEL SECURITY;
 
@@ -70,6 +89,14 @@ CREATE TABLE IF NOT EXISTS public.notifications (
   is_read boolean not null default false,
   created_at timestamptz default now()
 );
+
+-- Ensure all columns exist in case the table was created earlier with a different schema
+ALTER TABLE public.notifications 
+  ADD COLUMN IF NOT EXISTS user_id uuid references public.profiles(id) on delete cascade,
+  ADD COLUMN IF NOT EXISTS title text,
+  ADD COLUMN IF NOT EXISTS message text,
+  ADD COLUMN IF NOT EXISTS type text default 'info',
+  ADD COLUMN IF NOT EXISTS is_read boolean default false;
 
 -- RLS Policies for notifications
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;

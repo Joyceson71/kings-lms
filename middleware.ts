@@ -1,18 +1,36 @@
+import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-/**
- * Middleware: Protect dashboard routes and redirect auth pages.
- *
- * Auth state is stored in localStorage (client-side), which middleware
- * can't read directly. We use a cookie `kings_lms_auth` set by the client
- * as a session flag. If the cookie is absent, redirect to /login.
- *
- * The cookie is set after successful login by the client.
- */
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: { headers: request.headers },
+  });
 
-export function middleware(request: NextRequest) {
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            request.cookies.set(name, value);
+          });
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          });
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
+        },
+      },
+    }
+  );
+
   const { pathname } = request.nextUrl;
-  
+
   // Rescue stray OAuth callbacks (e.g. if Supabase redirects to / or /dashboard)
   const code = request.nextUrl.searchParams.get('code');
   if (code && !pathname.startsWith('/api/auth/callback')) {
@@ -22,6 +40,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
+  // Check actual session state
+  const { data: { user } } = await supabase.auth.getUser();
+  const isLoggedIn = !!user;
+
   const isAuthPage =
     pathname === '/login' ||
     pathname === '/signup' ||
@@ -30,25 +52,19 @@ export function middleware(request: NextRequest) {
 
   const isDashboardPage = pathname.startsWith('/dashboard');
 
-  // Check for our auth cookie (set by client after login)
-  const authCookie = request.cookies.get('kings_lms_auth');
-  const isLoggedIn = authCookie?.value === 'true';
-
-  // Redirect unauthenticated users away from dashboard
   if (!isLoggedIn && isDashboardPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
   }
 
-  // Redirect authenticated users away from auth pages
   if (isLoggedIn && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  return response;
 }
 
 export const config = {

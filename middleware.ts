@@ -31,15 +31,6 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Rescue stray OAuth callbacks (e.g. if Supabase redirects to / or /dashboard)
-  const code = request.nextUrl.searchParams.get('code');
-  if (code && !pathname.startsWith('/api/auth/callback')) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/api/auth/callback';
-    url.searchParams.set('next', pathname === '/' ? '/dashboard' : pathname);
-    return NextResponse.redirect(url);
-  }
-
   // Check actual session state
   const { data: { user } } = await supabase.auth.getUser();
   const isLoggedIn = !!user;

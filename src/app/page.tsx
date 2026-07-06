@@ -13,7 +13,7 @@ export default function Home() {
 
     // Handle PKCE flow
     if (search.includes('code=')) {
-      window.location.href = `/api/auth/callback${search}&next=/dashboard`;
+      window.location.href = `/login${search}`;
       return;
     }
 

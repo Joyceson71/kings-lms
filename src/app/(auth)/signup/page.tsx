@@ -58,15 +58,26 @@ export default function SignupPage() {
   useEffect(() => {
     const supabase = createClient();
     
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      supabase.auth.exchangeCodeForSession(code).then(({ error }) => {
+        if (!error) {
+          router.replace('/dashboard');
+        } else {
+          setError(error.message);
+        }
+      });
+    }
+
     // Check if we already have a session parsed from the URL or local storage
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
+      if (session && !code) {
         router.replace('/dashboard');
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !code) {
         router.replace('/dashboard');
       }
     });
@@ -138,7 +149,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: getURL(),
+          redirectTo: `${getURL()}signup`,
         },
       });
       if (error) throw error;
@@ -155,7 +166,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: getURL(),
+          redirectTo: `${getURL()}signup`,
         },
       });
       if (error) throw error;

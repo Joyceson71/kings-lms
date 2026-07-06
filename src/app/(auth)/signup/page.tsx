@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { getURL } from '@/lib/utils';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -118,7 +119,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${getURL()}dashboard`,
         },
       });
       if (error) throw error;
@@ -135,7 +136,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${getURL()}dashboard`,
         },
       });
       if (error) throw error;

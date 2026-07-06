@@ -15,7 +15,7 @@ import {
   Loader2, ArrowRight, Eye, EyeOff, AlertCircle,
   Mail, Lock, GraduationCap, Users, ShieldCheck, ChevronDown,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getURL } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 const loginSchema = z.object({
@@ -139,7 +139,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${getURL()}dashboard`,
         },
       });
       if (error) throw error;

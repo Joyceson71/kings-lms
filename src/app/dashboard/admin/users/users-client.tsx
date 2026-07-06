@@ -16,7 +16,12 @@ import {
 } from 'lucide-react';
 
 // Removed hardcoded users and stats
-
+const systemHealth = [
+  { name: 'Database', value: 98, icon: Database, color: 'emerald' as any },
+  { name: 'API Server', value: 95, icon: Server, color: 'emerald' as any },
+  { name: 'Storage', value: 64, icon: HardDrive, color: 'amber' as any },
+  { name: 'CDN', value: 100, icon: Globe, color: 'emerald' as any },
+];
 export default function AdminUsersClient({ initialUsers }: { initialUsers: any[] }) {
   const router = useRouter();
 

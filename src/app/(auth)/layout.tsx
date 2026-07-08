@@ -1,146 +1,84 @@
 import { Suspense } from 'react';
-import { GraduationCap, BookOpen, Sparkles } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className="relative flex min-h-screen items-center justify-center p-4 overflow-hidden"
-      style={{ background: 'oklch(0.09 0.02 265)' }}
+      className="relative flex min-h-screen"
+      style={{ background: '#0a0a0b' }}
     >
-      {/* Deep background grid */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `
-            linear-gradient(oklch(1 0 0 / 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, oklch(1 0 0 / 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '48px 48px',
-        }}
-      />
+      {/* Subtle grid */}
+      <div className="absolute inset-0 bg-grid pointer-events-none" />
 
-      {/* Ambient orbs */}
+      {/* Left column — branding (hidden on mobile) */}
       <div
-        className="absolute top-[-20%] left-[-10%] w-[55%] h-[55%] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.65 0.26 285 / 0.14) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-          animation: 'orbFloat1 14s ease-in-out infinite',
-        }}
-      />
-      <div
-        className="absolute bottom-[-15%] right-[-8%] w-[50%] h-[50%] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.65 0.2 220 / 0.1) 0%, transparent 70%)',
-          filter: 'blur(80px)',
-          animation: 'orbFloat2 18s ease-in-out infinite',
-        }}
-      />
-      <div
-        className="absolute top-[45%] right-[12%] w-[28%] h-[28%] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.75 0.16 85 / 0.08) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-          animation: 'orbFloat1 10s ease-in-out infinite reverse',
-        }}
-      />
-
-      {/* Vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse at 50% 50%, transparent 40%, oklch(0.06 0.01 265 / 0.7) 100%)',
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-[420px]">
-        {/* Brand */}
-        <div className="mb-8 text-center" style={{ animation: 'slideUp 0.5s ease forwards' }}>
-          <div className="flex justify-center mb-5">
-            <div className="relative">
-              <div
-                className="h-16 w-16 rounded-[22px] flex items-center justify-center"
-                style={{
-                  background: 'linear-gradient(135deg, oklch(0.65 0.26 285) 0%, oklch(0.55 0.28 300) 100%)',
-                  boxShadow: '0 0 40px oklch(0.65 0.26 285 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.2)',
-                }}
-              >
-                <GraduationCap className="h-9 w-9 text-white" />
-              </div>
-              <div
-                className="absolute -top-2 -right-2 h-5 w-5 rounded-full flex items-center justify-center"
-                style={{ background: 'oklch(0.75 0.16 85)', boxShadow: '0 0 12px oklch(0.75 0.16 85 / 0.7)' }}
-              >
-                <Sparkles className="h-3 w-3 text-white" />
-              </div>
-              <div
-                className="absolute -bottom-1 -left-1 h-3.5 w-3.5 rounded-full"
-                style={{ background: 'oklch(0.70 0.20 165)', boxShadow: '0 0 10px oklch(0.70 0.20 165 / 0.8)' }}
-              />
-            </div>
-          </div>
-
-          <h1
-            className="text-3xl font-black tracking-tight text-white mb-1.5"
-            style={{ fontFamily: 'Outfit, sans-serif' }}
+        className="hidden lg:flex lg:w-[420px] xl:w-[480px] flex-shrink-0 flex-col justify-between p-12"
+        style={{ borderRight: '1px solid #1a1a1d' }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div
+            className="h-8 w-8 rounded-lg flex items-center justify-center"
+            style={{ background: '#6366f1' }}
           >
-            Kings EC{' '}
-            <span
-              style={{
-                background: 'linear-gradient(90deg, oklch(0.78 0.18 285), oklch(0.75 0.16 85))',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
-              Platform
-            </span>
-          </h1>
-          <p className="text-sm text-white/40 flex items-center justify-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5" />
-            Campus Learning &amp; Management System
-          </p>
+            <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: '1.125rem', height: '1.125rem' }} />
+          </div>
+          <span className="text-[15px] font-semibold text-white tracking-tight">Kings EC Platform</span>
         </div>
 
-        {/* Auth slot — Suspense required for useSearchParams in children */}
-        <div style={{ animation: 'slideUp 0.5s ease 0.1s both' }}>
+        {/* Testimonial / quote */}
+        <div>
+          <blockquote className="text-zinc-400 text-[15px] leading-relaxed">
+            &ldquo;The campus learning platform that keeps all of Kings Engineering College
+            connected — from attendance to assignments, in one place.&rdquo;
+          </blockquote>
+          <div className="mt-6 flex items-center gap-3">
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-semibold"
+              style={{ background: '#312e81', color: '#a5b4fc' }}
+            >
+              KE
+            </div>
+            <div>
+              <p className="text-[13px] font-medium text-white">Kings Engineering College</p>
+              <p className="text-[12px] text-zinc-600">Campus Administration</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <p className="text-[12px] text-zinc-700">
+          © {new Date().getFullYear()} Kings Engineering College
+        </p>
+      </div>
+
+      {/* Right column — auth form */}
+      <div className="flex flex-1 flex-col items-center justify-center p-6">
+        {/* Mobile logo */}
+        <div className="lg:hidden flex items-center gap-2 mb-10">
+          <div
+            className="h-7 w-7 rounded-lg flex items-center justify-center"
+            style={{ background: '#6366f1' }}
+          >
+            <GraduationCap className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[14px] font-semibold text-white">Kings EC Platform</span>
+        </div>
+
+        <div className="w-full max-w-[360px]">
           <Suspense
             fallback={
-              <div className="flex items-center justify-center h-64">
-                <div className="h-8 w-8 rounded-full border-2 border-white/20 border-t-white/70 animate-spin" />
+              <div className="flex items-center justify-center h-48">
+                <div
+                  className="h-6 w-6 rounded-full border-2 border-zinc-800 border-t-indigo-500 animate-spin"
+                />
               </div>
             }
           >
             {children}
           </Suspense>
         </div>
-
-        <p
-          className="mt-6 text-center text-xs text-white/20"
-          style={{ animation: 'slideUp 0.5s ease 0.25s both' }}
-        >
-          © {new Date().getFullYear()} Kings Engineering College. All rights reserved.
-        </p>
       </div>
-
-      <style>{`
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(16px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes orbFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(3%, 4%) scale(1.06); }
-        }
-        @keyframes orbFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          50% { transform: translate(-4%, -3%) scale(1.04); }
-        }
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateY(-6px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
     </div>
   );
 }

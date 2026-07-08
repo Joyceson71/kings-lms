@@ -34,7 +34,7 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
   const formattedUsers = initialUsers.map(u => ({
     id: u.id,
     name: u.full_name || 'Unknown User',
-    email: u.email || 'N/A', // Assuming email might be fetched if we join auth or have it in profiles, wait, profiles doesn't have email in the schema usually! Oh actually I might need to fetch email via RPC or just mock it since profiles table doesn't have email.
+    email: u.email || 'N/A',
     role: u.role,
     status: u.status || 'active', // mock
     joined: new Date(u.created_at).toLocaleDateString(),

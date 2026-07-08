@@ -12,19 +12,12 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkProfile = async () => {
       try {
-        // Skip onboarding check for local-auth users (they have no Supabase profile)
-        const localAuth = document.cookie.includes('kings_lms_auth=true');
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
 
-        if (!user && localAuth) {
-          setIsLoading(false);
-          return; // Local-auth users skip onboarding
-        }
-
         if (!user) {
           setIsLoading(false);
-          return; // Middleware should catch this, but just in case
+          return; // Middleware will redirect unauthenticated users
         }
 
         const { data: profile } = await supabase
@@ -33,7 +26,6 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .maybeSingle();
 
-        // If the user's profile is missing required details, redirect to onboarding
         if (!profile?.department || !profile?.college) {
           router.replace('/onboarding');
         } else {

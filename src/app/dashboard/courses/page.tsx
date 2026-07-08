@@ -1,4 +1,3 @@
-import { getUserOrLocal } from '@/lib/supabase/get-user-or-local';
 import { createClient } from '@/lib/supabase/server';
 import CoursesClient from './courses-client';
 import { getCourses, getEnrolledCourses, getProfile } from '@/lib/supabase/queries';
@@ -7,28 +6,23 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default async function CoursesPage() {
-  const user = await getUserOrLocal();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  let profile = null;
-  let allCourses: any[] = [];
-  let enrolledCourses: any[] = [];
-
-  if (user.source === 'supabase') {
-    const supabase = await createClient();
-    profile = await getProfile(supabase, user.id);
-    if (!profile) {
-      redirect('/onboarding');
-    }
-    allCourses = await getCourses(supabase);
-    if (profile.role === 'student') {
-      enrolledCourses = await getEnrolledCourses(supabase, user.id);
-    }
+  const profile = await getProfile(supabase, user.id);
+  if (!profile) {
+    redirect('/onboarding');
   }
-  // For local-auth users the client-side useUser() hook provides the profile.
+
+  const allCourses = await getCourses(supabase);
+  let enrolledCourses: Awaited<ReturnType<typeof getEnrolledCourses>> = [];
+  if (profile.role === 'student') {
+    enrolledCourses = await getEnrolledCourses(supabase, user.id);
+  }
 
   return (
     <Suspense fallback={
@@ -36,8 +30,8 @@ export default async function CoursesPage() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
-      <CoursesClient 
-        allCourses={allCourses} 
+      <CoursesClient
+        allCourses={allCourses}
         enrolledCourses={enrolledCourses}
         profile={profile}
       />

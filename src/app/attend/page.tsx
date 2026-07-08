@@ -18,17 +18,7 @@ function AttendClient() {
   const [message, setMessage] = useState('Verifying your attendance...');
   const [courseName, setCourseName] = useState('');
 
-  useEffect(() => {
-    if (!sessionId) {
-      setStatus('error');
-      setMessage('Invalid QR code. No session ID found.');
-      return;
-    }
-
-    processAttendance(sessionId);
-  }, [sessionId]);
-
-  const processAttendance = async (sid: string) => {
+  async function processAttendance(sid: string) {
     try {
       const supabase = createClient();
       const { data: { user } } = await supabase.auth.getUser();
@@ -82,7 +72,17 @@ function AttendClient() {
       setStatus('error');
       setMessage(err.message || 'An unexpected error occurred.');
     }
-  };
+  }
+
+  useEffect(() => {
+    if (!sessionId) {
+      setStatus('error');
+      setMessage('Invalid QR code. No session ID found.');
+      return;
+    }
+
+    processAttendance(sessionId);
+  }, [sessionId]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">

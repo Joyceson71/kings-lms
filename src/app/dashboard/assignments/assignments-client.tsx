@@ -8,7 +8,7 @@ import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowR
 type AssignmentStatus = 'pending' | 'submitted' | 'graded';
 
 interface Assignment {
-  id: number;
+  id: string;
   title: string;
   course: string;
   code: string;

@@ -6,14 +6,13 @@ import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { signIn } from '@/lib/auth';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TiltCard } from '@/components/ui/tilt-card';
 import {
   Loader2, ArrowRight, Eye, EyeOff, AlertCircle,
-  Mail, Lock, GraduationCap, Users, ShieldCheck, ChevronDown,
+  Mail, Lock, GraduationCap, Users, ShieldCheck,
 } from 'lucide-react';
 import { cn, getURL } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
@@ -50,23 +49,16 @@ const roles: { key: Role; label: string; icon: React.ElementType; color: string;
   },
 ];
 
-const demoCredentials: Record<Role, { email: string; password: string; note: string }> = {
-  student: { email: 'student@kingsecc.in', password: 'student123', note: 'Student demo account' },
-  faculty: { email: 'faculty@kingsecc.in', password: 'faculty123', note: 'Faculty demo account' },
-  admin:   { email: 'admin@kingsecc.in',   password: '••••••••',   note: 'Contact admin for access' },
-};
-
 export default function LoginPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role>('student');
-  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
-    
+
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
     const urlError = searchParams.get('error') || hashParams.get('error');
@@ -77,7 +69,6 @@ export default function LoginPage() {
       return;
     }
 
-    // Check if we already have a session parsed from the URL or local storage
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         window.location.href = '/dashboard';
@@ -86,7 +77,6 @@ export default function LoginPage() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        // Add a tiny delay to ensure cookies are written before hard navigating
         setTimeout(() => {
           window.location.href = '/dashboard';
         }, 100);
@@ -105,30 +95,21 @@ export default function LoginPage() {
     mode: 'onBlur',
   });
 
-  const fillDemo = () => {
-    if (selectedRole === 'admin') return;
-    const creds = demoCredentials[selectedRole];
-    setValue('email', creds.email);
-    setValue('password', creds.password);
-  };
-
   const onSubmit = async (data: LoginFormValues) => {
     setIsLoading(true);
     setError(null);
     try {
-      const { user, error: authError } = signIn(data.email, data.password);
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email: data.email.trim(),
+        password: data.password,
+      });
 
-      if (authError || !user) {
-        setError(authError ?? 'Invalid email or password. Please check your credentials and try again.');
+      if (authError) {
+        setError(authError.message || 'Invalid email or password.');
         return;
       }
-
-      // Redirect based on role
-      if (user.role === 'admin') {
-        router.replace('/dashboard/admin');
-      } else {
-        router.replace('/dashboard');
-      }
+      // onAuthStateChange above will redirect to /dashboard
     } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
@@ -147,8 +128,8 @@ export default function LoginPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to sign in with Google');
       setIsLoading(false);
     }
   };
@@ -164,8 +145,8 @@ export default function LoginPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with GitHub');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to sign in with GitHub');
       setIsLoading(false);
     }
   };
@@ -336,42 +317,6 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
-
-          {/* Demo credentials */}
-          <div className="mt-4">
-            <button
-              type="button"
-              onClick={() => setShowDemo(!showDemo)}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors w-full justify-center"
-            >
-              <ChevronDown className={cn('h-3 w-3 transition-transform duration-200', showDemo ? 'rotate-180' : '')} />
-              {showDemo ? 'Hide' : 'Show'} demo credentials
-            </button>
-            {showDemo && (
-              <div className="mt-3 p-3 rounded-xl border border-border/40 bg-secondary/20 animate-slide-in-up">
-                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-                  {demoCredentials[selectedRole].note}
-                </p>
-                <div className="space-y-1 text-xs font-mono">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Email:</span>
-                    <span className="text-foreground">{demoCredentials[selectedRole].email}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Password:</span>
-                    <span className="text-foreground">{demoCredentials[selectedRole].password}</span>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={fillDemo}
-                  className="mt-2 text-[11px] text-primary hover:text-primary/80 font-semibold transition-colors"
-                >
-                  → Auto-fill credentials
-                </button>
-              </div>
-            )}
-          </div>
 
           {/* Divider */}
           <div className="relative my-5">

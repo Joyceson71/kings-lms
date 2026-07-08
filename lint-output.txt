@@ -1,0 +1,405 @@
+
+> kings-lms@0.1.0 lint
+> eslint
+
+
+/home/ghost/Projects/kings-lms/middleware.ts
+  18:57  warning  '_options' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/login/page.tsx
+  68:7  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/login/page.tsx:68:7
+  66 |
+  67 |     if (urlError) {
+> 68 |       setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  69 |       return;
+  70 |     }
+  71 |  react-hooks/set-state-in-effect
+  91:5  warning  'setValue' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/onboarding/page.tsx
+   3:20  warning  'useEffect' is defined but never used     @typescript-eslint/no-unused-vars
+  69:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/reset-password/page.tsx
+  49:19  error  Unexpected any. Specify a different type                         @typescript-eslint/no-explicit-any
+  71:17  error  `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/signup/page.tsx
+   67:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/signup/page.tsx:67:7
+  65 |
+  66 |     if (urlError) {
+> 67 |       setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+     |       ^^^^^^^^ Avoid calling setState() directly within an effect
+  68 |       return;
+  69 |     }
+  70 |  react-hooks/set-state-in-effect
+  156:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+  173:19  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/update-password/page.tsx
+  54:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/api/chat/route.ts
+  20:53  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  44:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx
+  19:10  warning  'courseName' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 @typescript-eslint/no-unused-vars
+  23:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx:23:7
+  21 |   useEffect(() => {
+  22 |     if (!sessionId) {
+> 23 |       setStatus('error');
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |       setMessage('Invalid QR code. No session ID found.');
+  25 |       return;
+  26 |     }                           react-hooks/set-state-in-effect
+  28:5   error    Error: Cannot access variable before it is declared
+
+`processAttendance` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx:28:5
+  26 |     }
+  27 |
+> 28 |     processAttendance(sessionId);
+     |     ^^^^^^^^^^^^^^^^^ `processAttendance` accessed before it is declared
+  29 |   }, [sessionId]);
+  30 |
+  31 |   const processAttendance = async (sid: string) => {
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx:31:3
+  29 |   }, [sessionId]);
+  30 |
+> 31 |   const processAttendance = async (sid: string) => {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |     try {
+     | ^^^^^^^^^
+> 33 |       const supabase = createClient();
+     …
+     | ^^^^^^^^^
+> 84 |     }
+     | ^^^^^^^^^
+> 85 |   };
+     | ^^^^^ `processAttendance` is declared here
+  86 |
+  87 |   return (
+  88 |     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">  react-hooks/immutability
+  29:6   warning  React Hook useEffect has a missing dependency: 'processAttendance'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            react-hooks/exhaustive-deps
+  80:19  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/admin/departments/page.tsx
+   4:10  warning  'Badge' is defined but never used                    @typescript-eslint/no-unused-vars
+  22:23  warning  'setDepartments' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/admin/users/users-client.tsx
+    4:10  warning  'AnimatedCounter' is defined but never used  @typescript-eslint/no-unused-vars
+   13:16  warning  'Users' is defined but never used            @typescript-eslint/no-unused-vars
+   13:51  warning  'Lock' is defined but never used             @typescript-eslint/no-unused-vars
+   14:14  warning  'UserX' is defined but never used            @typescript-eslint/no-unused-vars
+   14:21  warning  'TrendingUp' is defined but never used       @typescript-eslint/no-unused-vars
+   15:20  warning  'Cpu' is defined but never used              @typescript-eslint/no-unused-vars
+   20:70  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   21:70  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   22:68  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   23:63  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+   31:76  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  135:50  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/announcements/page.tsx
+  60:0  error  Parsing error: ',' expected
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx
+    9:10  warning  'Avatar' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   24:56  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+   25:56  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+   26:46  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+   44:7   error    Error: Cannot access variable before it is declared
+
+`fetchData` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx:44:7
+  42 |   useEffect(() => {
+  43 |     if (!userLoading && profile?.id) {
+> 44 |       fetchData();
+     |       ^^^^^^^^^ `fetchData` accessed before it is declared
+  45 |       
+  46 |       if (qrTokenFromUrl && isStudent) {
+  47 |         // Automatically try to mark attendance if a token is in URL
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx:53:3
+   51 |   }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);
+   52 |
+>  53 |   const fetchData = async () => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>  54 |     setIsLoading(true);
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+>  55 |     try {
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 129 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^
+> 130 |   };
+      | ^^^^^ `fetchData` is declared here
+  131 |
+  132 |   const handleCreateSession = async () => {
+  133 |     if (myCourses.length === 0) return alert('You must create a course first.');                                         react-hooks/immutability
+   48:9   error    Error: Cannot access variable before it is declared
+
+`handleScanSuccess` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx:48:9
+  46 |       if (qrTokenFromUrl && isStudent) {
+  47 |         // Automatically try to mark attendance if a token is in URL
+> 48 |         handleScanSuccess(qrTokenFromUrl);
+     |         ^^^^^^^^^^^^^^^^^ `handleScanSuccess` accessed before it is declared
+  49 |       }
+  50 |     }
+  51 |   }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx:168:3
+  166 |   };
+  167 |
+> 168 |   const handleScanSuccess = async (decodedText: string) => {
+      |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 169 |     setIsProcessingScan(true);
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 170 |     setScanError(null);
+      …
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 245 |     }
+      | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 246 |   };
+      | ^^^^^ `handleScanSuccess` is declared here
+  247 |
+  248 |   const openQRScanner = () => {
+  249 |     setScanError(null);  react-hooks/immutability
+   51:6   warning  React Hook useEffect has missing dependencies: 'fetchData' and 'handleScanSuccess'. Either include them or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    react-hooks/exhaustive-deps
+  227:68  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+  240:21  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  @typescript-eslint/no-explicit-any
+  329:49  warning  'i' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+  417:46  warning  'i' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/calendar/page.tsx
+  4:78  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/courses/courses-client.tsx
+  14:95   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:119  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  14:135  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  16:52   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  19:58   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  20:68   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  40:30   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  61:28   error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/dashboard-client.tsx
+   22:7   warning  'facultyStats' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   30:7   warning  'studentStats' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:70  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  105:84  error    Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/leaderboard/page.tsx
+   5:18  warning  'Medal' is defined but never used     @typescript-eslint/no-unused-vars
+   7:10  warning  'Progress' is defined but never used  @typescript-eslint/no-unused-vars
+  45:49  warning  'i' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/resources/page.tsx
+   45:46  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+   46:46  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+   69:70  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+   90:7   error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/resources/page.tsx:90:7
+  88 |   useEffect(() => {
+  89 |     if (!userLoading) {
+> 90 |       fetchData();
+     |       ^^^^^^^^^ Avoid calling setState() directly within an effect
+  91 |     }
+  92 |   }, [userLoading, isStudent, profile?.id]);
+  93 |  react-hooks/set-state-in-effect
+   92:6   warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       react-hooks/exhaustive-deps
+  173:68  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/settings/page.tsx
+  70:22  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/settings/page.tsx:70:22
+  68 |   // (displayName / profile?.email start as '' and are set after mount)
+  69 |   useEffect(() => {
+> 70 |     if (displayName) setNameValue(displayName);
+     |                      ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  71 |   }, [displayName]);
+  72 |   useEffect(() => {
+  73 |     if (profile?.email) setEmailValue(profile.email);  react-hooks/set-state-in-effect
+  73:25  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/settings/page.tsx:73:25
+  71 |   }, [displayName]);
+  72 |   useEffect(() => {
+> 73 |     if (profile?.email) setEmailValue(profile.email);
+     |                         ^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  74 |   }, [profile?.email]);
+  75 |
+  76 |   const handleSave = () => {                                                                                     react-hooks/set-state-in-effect
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/students/students-client.tsx
+  11:80  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/app/error.tsx
+  4:10  warning  'useRouter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/not-found.tsx
+   3:10  warning  'useRouter' is defined but never used                            @typescript-eslint/no-unused-vars
+   6:27  warning  'Search' is defined but never used                               @typescript-eslint/no-unused-vars
+  32:24  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+  32:44  error    `'` can be escaped with `&apos;`, `&lsquo;`, `&#39;`, `&rsquo;`  react/no-unescaped-entities
+
+/home/ghost/Projects/kings-lms/src/components/attendance/qr-display.tsx
+  23:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/components/attendance/qr-display.tsx:23:7
+  21 |       // We pass the session token as the session param, which is how it was implemented in attendance page before
+  22 |       // Ideally we would pass session ID, but token is safer if it's uniquely queryable. Let's stick with token= or session=token
+> 23 |       setQrValue(`${baseUrl}/attend?session=${token}`);
+     |       ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  24 |     }
+  25 |   }, [isOpen, token]);
+  26 |  react-hooks/set-state-in-effect
+
+/home/ghost/Projects/kings-lms/src/components/attendance/qr-scanner.tsx
+  45:9  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/courses/add-course-modal.tsx
+  23:27  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  79:19  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/components/courses/course-modal.tsx
+  12:11  error  Unexpected any. Specify a different type                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  22:7   error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/components/courses/course-modal.tsx:22:7
+  20 |   useEffect(() => {
+  21 |     if (isOpen) {
+> 22 |       setActiveTab('overview');
+     |       ^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  23 |       // Mock some completed modules based on course ID so it looks realistic
+  24 |       setCompletedModules([1, 2]);
+  25 |     }  react-hooks/set-state-in-effect
+
+/home/ghost/Projects/kings-lms/src/components/courses/study-timer.tsx
+  20:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/components/courses/study-timer.tsx:20:7
+  18 |       }, 1000);
+  19 |     } else if (timeLeft === 0) {
+> 20 |       setIsActive(false);
+     |       ^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  21 |       // Automatically switch modes
+  22 |       if (mode === 'focus') {
+  23 |         setMode('break');  react-hooks/set-state-in-effect
+
+/home/ghost/Projects/kings-lms/src/components/courses/web-resources.tsx
+  75:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/home/ghost/Projects/kings-lms/src/components/layout/ai-assistant.tsx
+  27:11  warning  'displayName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  62:21  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/components/layout/sidebar-provider.tsx
+  19:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/home/ghost/Projects/kings-lms/src/components/layout/sidebar-provider.tsx:19:5
+  17 |   // Close sidebar on route change
+  18 |   useEffect(() => {
+> 19 |     setIsOpen(false);
+     |     ^^^^^^^^^ Avoid calling setState() directly within an effect
+  20 |   }, [pathname]);
+  21 |
+  22 |   return (  react-hooks/set-state-in-effect
+
+/home/ghost/Projects/kings-lms/src/components/layout/sidebar.tsx
+  56:11  warning  'profile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/resources/upload-modal.tsx
+    4:44  warning  'FileText' is defined but never used      @typescript-eslint/no-unused-vars
+  131:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/components/ui/notifications-popover.tsx
+   3:10  warning  'Bell' is defined but never used                            @typescript-eslint/no-unused-vars
+  20:7   warning  'INITIAL_NOTIFICATIONS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  48:54  error    Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+  57:39  error    Unexpected any. Specify a different type                    @typescript-eslint/no-explicit-any
+
+/home/ghost/Projects/kings-lms/src/lib/supabase/queries.ts
+  139:44  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  190:26  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  324:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 95 problems (61 errors, 34 warnings)
+

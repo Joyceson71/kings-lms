@@ -8,10 +8,10 @@ import {
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy, Calendar as CalendarIcon, Bell
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { signOut } from '@/lib/auth';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useUser } from '@/lib/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
 import { useState } from 'react';
 import { useSidebar } from '@/components/layout/sidebar-provider';
 
@@ -56,8 +56,9 @@ export function Sidebar() {
   const { profile, loading, displayName, role } = useUser();
   const { isOpen, setIsOpen } = useSidebar();
 
-  const handleLogout = () => {
-    signOut();
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.replace('/login');
   };
 

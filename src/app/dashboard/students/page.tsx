@@ -1,44 +1,68 @@
-import { getUserOrLocal } from '@/lib/supabase/get-user-or-local';
 import { createClient } from '@/lib/supabase/server';
 import StudentsClient from './students-client';
-import { getStudents } from '@/lib/supabase/queries';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default async function StudentsPage() {
-  const user = await getUserOrLocal();
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) {
     redirect('/login');
   }
 
-  let studentsWithStats: any[] = [];
+  // Only faculty/admin can view the students list
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
 
-  if (user.source === 'supabase') {
-    const supabase = await createClient();
-    // Profile role check (only faculty/admin can view students list)
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .maybeSingle();
-
-    if (!profile || profile.role === 'student') {
-      redirect('/dashboard');
-    }
-
-    const students = await getStudents(supabase);
-
-    // Here we would ideally join attendance logs to get true percentages.
-    // We'll calculate mock percentages based on their ID length or pass it raw to let the client format it.
-    studentsWithStats = students.map((s: any) => ({
-      ...s,
-      attendance: 85, // MOCK: In a real app we'd query attendance_logs for this user
-      status: s.full_name ? 'active' : 'inactive'
-    }));
+  if (!profile || profile.role === 'student') {
+    redirect('/dashboard');
   }
-  // For local-auth users the client-side useUser() hook provides the profile.
+
+  // Fetch all student profiles
+  const { data: students } = await supabase
+    .from('profiles')
+    .select('id, full_name, role, department, year_of_study, roll_number, created_at')
+    .eq('role', 'student')
+    .order('full_name', { ascending: true });
+
+  if (!students) {
+    return (
+      <Suspense fallback={<div className="flex items-center justify-center h-[60vh]"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>}>
+        <StudentsClient initialStudents={[]} />
+      </Suspense>
+    );
+  }
+
+  // Compute real attendance % per student from attendance_logs
+  // Single query: count total sessions per student + present count
+  const { data: attendanceCounts } = await supabase
+    .from('attendance_logs')
+    .select('student_id, status');
+
+  const attendanceMap = new Map<string, { present: number; total: number }>();
+  for (const log of attendanceCounts ?? []) {
+    const entry = attendanceMap.get(log.student_id) ?? { present: 0, total: 0 };
+    entry.total += 1;
+    if (log.status === 'Present') entry.present += 1;
+    attendanceMap.set(log.student_id, entry);
+  }
+
+  const studentsWithStats = students.map((s) => {
+    const att = attendanceMap.get(s.id);
+    const attendancePct = att && att.total > 0
+      ? Math.round((att.present / att.total) * 100)
+      : 100; // default 100% if no sessions yet
+    return {
+      ...s,
+      attendance: attendancePct,
+      status: 'active' as const,
+    };
+  });
 
   return (
     <Suspense fallback={

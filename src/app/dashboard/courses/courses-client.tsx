@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, Clock, Star, Search, Filter, Plus, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CourseModal } from '@/components/courses/course-modal';
 import { AddCourseModal } from '@/components/courses/add-course-modal';
 import { createClient } from '@/lib/supabase/client';
@@ -19,8 +19,44 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
   const [localAllCourses, setLocalAllCourses] = useState<any[]>(allCourses);
   const [localEnrolledCourses, setLocalEnrolledCourses] = useState<any[]>(enrolledCourses);
   const [enrolling, setEnrolling] = useState<string | null>(null);
+  const [attendanceStats, setAttendanceStats] = useState<Record<string, number>>({});
 
   const isStudent = profile.role === 'student';
+
+  useEffect(() => {
+    if (isStudent && profile.id) {
+      const fetchAttendance = async () => {
+        const supabase = createClient();
+        
+        // Fetch all attendance logs for this student
+        const { data: logs } = await supabase
+          .from('attendance_logs')
+          .select('status, course_sessions(course_id)')
+          .eq('student_id', profile.id);
+          
+        if (logs) {
+          const stats: Record<string, { present: number, total: number }> = {};
+          
+          logs.forEach((log: any) => {
+            const courseId = log.course_sessions?.course_id;
+            if (courseId) {
+              if (!stats[courseId]) stats[courseId] = { present: 0, total: 0 };
+              stats[courseId].total += 1;
+              if (log.status === 'Present') stats[courseId].present += 1;
+            }
+          });
+          
+          const pct: Record<string, number> = {};
+          Object.keys(stats).forEach(courseId => {
+            pct[courseId] = Math.round((stats[courseId].present / stats[courseId].total) * 100);
+          });
+          setAttendanceStats(pct);
+        }
+      };
+      
+      fetchAttendance();
+    }
+  }, [isStudent, profile.id]);
 
   const formatCourse = (c: any) => ({
     id: c.id,
@@ -29,7 +65,7 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
     faculty: c.profiles?.full_name || 'Instructor',
     students: c.course_enrollments?.[0]?.count || 0,
     sessions: 0,
-    attendance: 100, // mock
+    attendance: attendanceStats[c.id] !== undefined ? attendanceStats[c.id] : 100,
     category: 'Course',
     color: 'from-emerald-500 to-teal-400',
     glow: 'oklch(0.70 0.20 165 / 0.25)',

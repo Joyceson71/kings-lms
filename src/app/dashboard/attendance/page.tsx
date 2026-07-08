@@ -19,7 +19,7 @@ function AttendanceContent() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const qrTokenFromUrl = searchParams.get('token');
-  
+
   // Data State
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [historyRecords, setHistoryRecords] = useState<any[]>([]);
@@ -42,7 +42,7 @@ function AttendanceContent() {
   useEffect(() => {
     if (!userLoading && profile?.id) {
       fetchData();
-      
+
       if (qrTokenFromUrl && isStudent) {
         // Automatically try to mark attendance if a token is in URL
         handleScanSuccess(qrTokenFromUrl);
@@ -50,7 +50,7 @@ function AttendanceContent() {
     }
   }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);
 
-  const fetchData = async () => {
+  async function fetchData() {
     setIsLoading(true);
     try {
       if (isFaculty) {
@@ -59,7 +59,7 @@ function AttendanceContent() {
           .from('courses')
           .select('id, title, code')
           .eq('created_by', profile?.id);
-        
+
         if (coursesData) setMyCourses(coursesData);
 
         // Faculty: Get their active sessions
@@ -69,7 +69,7 @@ function AttendanceContent() {
           .eq('created_by', profile?.id)
           .eq('status', 'active')
           .order('created_at', { ascending: false });
-        
+
         if (sessionsData) setActiveSessions(sessionsData);
 
         // Faculty: Recent history
@@ -78,25 +78,25 @@ function AttendanceContent() {
           .select('*, profiles(full_name), course_sessions(courses(title, code))')
           .order('marked_at', { ascending: false })
           .limit(10);
-        
+
         if (historyData) setHistoryRecords(historyData);
-        
+
       } else if (isStudent) {
         // Student: Get active sessions for enrolled courses
         const { data: enrollments } = await supabase
           .from('course_enrollments')
           .select('course_id')
           .eq('student_id', profile?.id);
-          
+
         const courseIds = enrollments?.map(e => e.course_id) || [];
-        
+
         if (courseIds.length > 0) {
           const { data: sessionsData } = await supabase
             .from('course_sessions')
             .select('*, courses(title, code)')
             .in('course_id', courseIds)
             .eq('status', 'active');
-            
+
           if (sessionsData) setActiveSessions(sessionsData);
         }
 
@@ -106,12 +106,20 @@ function AttendanceContent() {
           .select('*, course_sessions(courses(title, code))')
           .eq('student_id', profile?.id)
           .order('marked_at', { ascending: false });
-          
+
         if (historyData) {
           setHistoryRecords(historyData);
           const attendedCount = historyData.filter(h => h.status === 'Present').length;
-          // Just mock total for now until we have session totals
-          setStats({ attended: attendedCount, total: attendedCount + 2 }); 
+          let totalSessions = attendedCount;
+          if (courseIds.length > 0) {
+            const { count } = await supabase
+              .from('course_sessions')
+              .select('*', { count: 'exact', head: true })
+              .in('course_id', courseIds);
+            if (count !== null) totalSessions = count;
+          }
+
+          setStats({ attended: attendedCount, total: totalSessions });
         }
       }
     } catch (error) {
@@ -123,12 +131,12 @@ function AttendanceContent() {
 
   const handleCreateSession = async () => {
     if (myCourses.length === 0) return alert('You must create a course first.');
-    
+
     setIsCreatingSession(true);
     try {
       const courseId = myCourses[0].id; // For simplicity, picking first course
-      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
+      const token = crypto.randomUUID();
+
       const { data, error } = await supabase
         .from('course_sessions')
         .insert({
@@ -139,9 +147,9 @@ function AttendanceContent() {
         })
         .select('*, courses(title, code)')
         .single();
-        
+
       if (error) throw error;
-      
+
       if (data) {
         setActiveSessions([data, ...activeSessions]);
         // Open QR directly
@@ -157,7 +165,7 @@ function AttendanceContent() {
     }
   };
 
-  const handleScanSuccess = async (decodedText: string) => {
+  async function handleScanSuccess(decodedText: string) {
     setIsProcessingScan(true);
     setScanError(null);
     setScanSuccess(null);
@@ -217,7 +225,7 @@ function AttendanceContent() {
       }
 
       setScanSuccess(`Marked present for ${(sessionData.courses as any)?.title}`);
-      
+
       // Fire confetti
       confetti({
         particleCount: 100,
@@ -237,7 +245,7 @@ function AttendanceContent() {
     }
   };
 
-  const openQRScanner = () => {
+  function openQRScanner() {
     setScanError(null);
     setScanSuccess(null);
     setIsScannerOpen(true);
@@ -329,7 +337,7 @@ function AttendanceContent() {
                             </div>
                             <div>
                               <h3 className="text-sm font-semibold text-foreground">{session.courses?.code}: {session.courses?.title}</h3>
-                              <p className="text-xs text-muted-foreground">Started {new Date(session.started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {session.room}</p>
+                              <p className="text-xs text-muted-foreground">Started {new Date(session.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.room}</p>
                             </div>
                           </div>
                           <Button
@@ -412,11 +420,10 @@ function AttendanceContent() {
                     className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/20 hover:bg-background/40 hover:border-border/60 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        record.status === 'Present' ? 'bg-emerald-500/10' :
-                        record.status === 'Absent' ? 'bg-red-500/10' :
-                        'bg-amber-500/10'
-                      }`}>
+                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${record.status === 'Present' ? 'bg-emerald-500/10' :
+                          record.status === 'Absent' ? 'bg-red-500/10' :
+                            'bg-amber-500/10'
+                        }`}>
                         {record.status === 'Present' ? (
                           <CheckCircle className="h-4 w-4 text-emerald-400" />
                         ) : record.status === 'Absent' ? (
@@ -457,13 +464,13 @@ function AttendanceContent() {
         </div>
       </div>
 
-      <QRDisplayModal 
-        isOpen={isQRDisplayOpen} 
-        onClose={() => setIsQRDisplayOpen(false)} 
+      <QRDisplayModal
+        isOpen={isQRDisplayOpen}
+        onClose={() => setIsQRDisplayOpen(false)}
         token={selectedQRToken}
         courseName={selectedCourseName}
       />
-      
+
       <QRScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
@@ -478,7 +485,7 @@ function AttendanceContent() {
 
 export default function AttendancePage() {
   return (
-    <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8"/></div>}>
+    <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>}>
       <AttendanceContent />
     </Suspense>
   );

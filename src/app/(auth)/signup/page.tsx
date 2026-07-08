@@ -101,45 +101,27 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // Prevent registering with reserved admin email
-      const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'admin@kingsecc.in').toLowerCase();
-      if (data.email.trim().toLowerCase() === adminEmail) {
-        setError('This email address is reserved. Please use a different email.');
-        setIsLoading(false);
-        return;
-      }
-
-      // Simulate brief network delay for UX
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Save new user to localStorage (demo registration)
-      const stored = localStorage.getItem('kings_lms_registered_users');
-      const users: Array<any> = stored ? JSON.parse(stored) : [];
-
-      const existing = users.find((u: any) => u.email.toLowerCase() === data.email.trim().toLowerCase());
-      if (existing) {
-        setError('An account with this email already exists. Please sign in instead.');
-        setIsLoading(false);
-        return;
-      }
-
-      users.push({ 
-        email: data.email.trim().toLowerCase(), 
-        password: data.password, 
-        fullName: data.fullName,
-        department: data.department,
-        year: data.year,
-        college: data.college,
-        rollNumber: data.rollNumber
-      });
-      localStorage.setItem('kings_lms_registered_users', JSON.stringify(users));
-
-      // Also persist to Supabase if the user has a real session
       const supabase = createClient();
-      const { data: { user: sbUser } } = await supabase.auth.getUser();
+
+      // Sign up via Supabase Auth — this is now the single source of truth
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: data.email.trim(),
+        password: data.password,
+        options: {
+          data: { full_name: data.fullName },
+        },
+      });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      const sbUser = signUpData.user;
       if (sbUser) {
         await supabase.from('profiles').upsert({
           id: sbUser.id,
+          email: data.email.trim().toLowerCase(),
           full_name: data.fullName,
           role: 'student',
           department: data.department,

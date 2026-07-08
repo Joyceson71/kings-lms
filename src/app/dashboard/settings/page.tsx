@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
@@ -61,6 +61,17 @@ export default function SettingsPage() {
   const [notifications, setNotifications] = useState(notificationSettings);
   const [saved, setSaved] = useState(false);
   const { theme, setTheme } = useTheme();
+  const [nameValue, setNameValue] = useState('');
+  const [emailValue, setEmailValue] = useState('');
+
+  // Sync controlled inputs once the hook has hydrated the profile
+  // (displayName / profile?.email start as '' and are set after mount)
+  useEffect(() => {
+    if (displayName) setNameValue(displayName);
+  }, [displayName]);
+  useEffect(() => {
+    if (profile?.email) setEmailValue(profile.email);
+  }, [profile?.email]);
 
   const handleSave = () => {
     setSaved(true);
@@ -147,14 +158,25 @@ export default function SettingsPage() {
                       <Label htmlFor="settings-name" className="text-sm font-medium">Full Name</Label>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-name" defaultValue={displayName} className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input
+                          id="settings-name"
+                          value={nameValue || displayName}
+                          onChange={(e) => setNameValue(e.target.value)}
+                          className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl"
+                        />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="settings-email" className="text-sm font-medium">Email</Label>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-email" type="email" defaultValue={profile?.email ?? ''} className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input
+                          id="settings-email"
+                          type="email"
+                          value={emailValue || (profile?.email ?? '')}
+                          onChange={(e) => setEmailValue(e.target.value)}
+                          className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl"
+                        />
                       </div>
                     </div>
                     <div className="space-y-1.5">

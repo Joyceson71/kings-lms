@@ -7,10 +7,10 @@ import { Bell, Search, ChevronRight, Settings, LogOut, User, Menu } from 'lucide
 import { Input } from '@/components/ui/input';
 import { Avatar } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { signOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
 import { cn } from '@/lib/utils';
+import { createClient } from '@/lib/supabase/client';
 import { useSidebar } from '@/components/layout/sidebar-provider';
 import { NotificationsPopover } from '@/components/ui/notifications-popover';
 
@@ -41,9 +41,10 @@ export function Header() {
   const { profile, loading, displayName, role } = useUser();
   const { setIsOpen } = useSidebar();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setShowUserMenu(false);
-    signOut();
+    const supabase = createClient();
+    await supabase.auth.signOut();
     router.replace('/login');
   };
 

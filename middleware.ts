@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
+          cookiesToSet.forEach(({ name, value, options: _options }) => {
             request.cookies.set(name, value);
           });
           response = NextResponse.next({
@@ -33,7 +33,9 @@ export async function middleware(request: NextRequest) {
 
   // Check actual session state
   const { data: { user } } = await supabase.auth.getUser();
-  const isLoggedIn = !!user;
+  // Fallback: also honour the local-auth cookie set by lib/auth.ts
+  const localAuthCookie = request.cookies.get('kings_lms_auth');
+  const isLoggedIn = !!user || (localAuthCookie?.value === 'true');
 
   const isAuthPage =
     pathname === '/login' ||
@@ -41,7 +43,10 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/login') ||
     pathname.startsWith('/signup');
 
-  const isDashboardPage = pathname.startsWith('/dashboard');
+  const isDashboardPage =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/attend') ||
+    pathname === '/onboarding';
 
   if (!isLoggedIn && isDashboardPage) {
     const url = request.nextUrl.clone();

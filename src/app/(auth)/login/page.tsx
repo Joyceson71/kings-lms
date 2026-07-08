@@ -53,7 +53,7 @@ const roles: { key: Role; label: string; icon: React.ElementType; color: string;
 const demoCredentials: Record<Role, { email: string; password: string; note: string }> = {
   student: { email: 'student@kingsecc.in', password: 'student123', note: 'Student demo account' },
   faculty: { email: 'faculty@kingsecc.in', password: 'faculty123', note: 'Faculty demo account' },
-  admin: { email: 'joycesondanielraj28@gmail.com', password: 'admin@712521', note: 'Administrator account' },
+  admin:   { email: 'admin@kingsecc.in',   password: '••••••••',   note: 'Contact admin for access' },
 };
 
 export default function LoginPage() {
@@ -69,7 +69,6 @@ export default function LoginPage() {
     
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const code = searchParams.get('code');
     const urlError = searchParams.get('error') || hashParams.get('error');
     const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
 
@@ -107,6 +106,7 @@ export default function LoginPage() {
   });
 
   const fillDemo = () => {
+    if (selectedRole === 'admin') return;
     const creds = demoCredentials[selectedRole];
     setValue('email', creds.email);
     setValue('password', creds.password);
@@ -143,7 +143,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/login`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;
@@ -160,7 +160,7 @@ export default function LoginPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/login`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;
@@ -278,7 +278,7 @@ export default function LoginPage() {
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password" className="text-sm font-medium text-foreground/90">Password</Label>
-                <Link href="#" className="text-xs text-primary hover:text-primary/80 transition-colors hover:underline underline-offset-4 font-medium">
+                <Link href="/reset-password" className="text-xs text-primary hover:text-primary/80 transition-colors hover:underline underline-offset-4 font-medium">
                   Forgot password?
                 </Link>
               </div>

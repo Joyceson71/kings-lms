@@ -60,7 +60,6 @@ export default function SignupPage() {
     
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const code = searchParams.get('code');
     const urlError = searchParams.get('error') || hashParams.get('error');
     const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
 
@@ -134,6 +133,17 @@ export default function SignupPage() {
       });
       localStorage.setItem('kings_lms_registered_users', JSON.stringify(users));
 
+      // Also persist to Supabase if the user has a real session
+      const supabase = createClient();
+      const { data: { user: sbUser } } = await supabase.auth.getUser();
+      if (sbUser) {
+        await supabase.from('profiles').upsert({
+          id: sbUser.id,
+          full_name: data.fullName,
+          role: 'student',
+        });
+      }
+
       setSuccess(true);
       setTimeout(() => {
         router.replace('/login');
@@ -152,7 +162,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${getURL()}signup`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;
@@ -169,7 +179,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${getURL()}signup`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;

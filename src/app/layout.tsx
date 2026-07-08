@@ -1,29 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Outfit, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import { AIAssistant } from "@/components/layout/ai-assistant";
 import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
-const inter = Inter({
+const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
 });
 
-const outfit = Outfit({
+const spaceGrotesk = Space_Grotesk({
   variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
 });
 
-const geistMono = Geist_Mono({
+const jetbrainsMono = JetBrains_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
   display: "swap",
 });
 
 export const viewport: Viewport = {
-  themeColor: "#100424", // matches deep cosmic dark background
+  themeColor: "#07090f", // Midnight Obsidian background
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -53,7 +53,7 @@ export default function RootLayout({
   return (
       <html
         lang="en"
-        className={`${inter.variable} ${outfit.variable} ${geistMono.variable} h-full antialiased`}
+        className={`${plusJakarta.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} h-full antialiased`}
         suppressHydrationWarning
       >
         <body className="min-h-full flex flex-col bg-background text-foreground">

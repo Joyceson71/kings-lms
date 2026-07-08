@@ -15,29 +15,32 @@ import { useSidebar } from '@/components/layout/sidebar-provider';
 import { NotificationsPopover } from '@/components/ui/notifications-popover';
 
 const breadcrumbMap: Record<string, string> = {
-  '/dashboard': 'Overview',
-  '/dashboard/attendance': 'Attendance',
-  '/dashboard/courses': 'Courses',
-  '/dashboard/assignments': 'Assignments',
-  '/dashboard/resources': 'Resources',
-  '/dashboard/students': 'Students',
-  '/dashboard/admin': 'Admin Panel',
-  '/dashboard/reports': 'Reports',
-  '/dashboard/settings': 'Settings',
+  '/dashboard':              'Overview',
+  '/dashboard/attendance':   'Attendance',
+  '/dashboard/courses':      'Courses',
+  '/dashboard/assignments':  'Assignments',
+  '/dashboard/resources':    'Resources',
+  '/dashboard/students':     'Students',
+  '/dashboard/admin':        'Admin Panel',
+  '/dashboard/reports':      'Reports',
+  '/dashboard/settings':     'Settings',
+  '/dashboard/announcements':'Announcements',
+  '/dashboard/leaderboard':  'Leaderboard',
+  '/dashboard/calendar':     'Calendar',
 };
 
 const roleBadgeVariant = {
   student: 'student' as const,
   faculty: 'faculty' as const,
-  admin: 'admin' as const,
+  admin:   'admin'   as const,
 };
 
 export function Header() {
   const pathname = usePathname();
   const router = useRouter();
-  const [showUserMenu, setShowUserMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu]       = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchFocused, setSearchFocused] = useState(false);
+  const [searchFocused, setSearchFocused]     = useState(false);
   const { profile, loading, displayName, role } = useUser();
   const { setIsOpen } = useSidebar();
 
@@ -52,63 +55,84 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-16 flex-shrink-0 items-center border-b border-border/60"
+      className="sticky top-0 z-30 flex h-[60px] flex-shrink-0 items-center"
       style={{
-        background: 'oklch(0.08 0.015 265 / 0.88)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        background: 'oklch(0.07 0.012 255 / 0.9)',
+        backdropFilter: 'blur(24px)',
+        WebkitBackdropFilter: 'blur(24px)',
+        borderBottom: '1px solid oklch(1 0 0 / 0.055)',
       }}
     >
-      <div className="flex flex-1 items-center justify-between px-4 sm:px-6 gap-2 sm:gap-4">
+      <div className="flex flex-1 items-center justify-between px-4 sm:px-5 gap-3">
+
         {/* Left: Hamburger + Breadcrumb */}
-        <div className="flex items-center gap-2 sm:gap-3 text-sm min-w-0">
+        <div className="flex items-center gap-2 text-sm min-w-0">
           <button
-            className="md:hidden p-1.5 -ml-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-secondary"
+            className="md:hidden p-1.5 -ml-1 text-white/40 hover:text-white/75 transition-colors rounded-lg"
             onClick={() => setIsOpen(true)}
             aria-label="Open sidebar"
+            style={{ background: 'oklch(1 0 0 / 0)' }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'oklch(1 0 0 / 0.06)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'oklch(1 0 0 / 0)')}
           >
             <Menu className="h-5 w-5" />
           </button>
-          
-          <Link href="/dashboard" className="hidden sm:block text-muted-foreground hover:text-foreground transition-colors flex-shrink-0">
+
+          <Link
+            href="/dashboard"
+            className="hidden sm:block text-white/35 hover:text-white/65 transition-colors text-[13px] flex-shrink-0"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          >
             Kings EC
           </Link>
-          <ChevronRight className="hidden sm:block h-3.5 w-3.5 text-muted-foreground/50 flex-shrink-0" />
-          <span className="font-semibold text-foreground truncate text-base sm:text-sm">{pageTitle}</span>
+          <ChevronRight className="hidden sm:block h-3 w-3 text-white/20 flex-shrink-0" />
+          <span
+            className="font-semibold text-white/90 truncate text-sm"
+            style={{ fontFamily: 'Space Grotesk, sans-serif' }}
+          >
+            {pageTitle}
+          </span>
         </div>
 
         {/* Center: Search */}
-        <div className="hidden md:flex flex-1 max-w-md">
-          <div className={cn('relative w-full transition-all duration-300', searchFocused ? 'scale-[1.01]' : '')}>
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none z-10" />
-            <Input
+        <div className="hidden md:flex flex-1 max-w-sm">
+          <div className={cn('relative w-full transition-all duration-200', searchFocused ? 'scale-[1.01]' : '')}>
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/25 pointer-events-none z-10" />
+            <input
               id="header-search"
               type="search"
               placeholder="Search courses, students, sessions…"
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className={cn(
-                'pl-9 h-9 rounded-xl bg-secondary/50 border-border/40 text-foreground placeholder:text-muted-foreground/50',
-                'focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all duration-200',
-                searchFocused && 'shadow-[0_0_20px_oklch(0.65_0.26_285/0.2)] bg-secondary/70'
-              )}
+              className="w-full pl-9 pr-3 h-8 rounded-xl text-[13px] text-white/80 placeholder:text-white/25 outline-none transition-all duration-200"
+              style={{
+                background: 'oklch(1 0 0 / 0.05)',
+                border: `1px solid ${searchFocused ? 'oklch(0.72 0.19 195 / 0.5)' : 'oklch(1 0 0 / 0.07)'}`,
+                boxShadow: searchFocused ? '0 0 0 3px oklch(0.72 0.19 195 / 0.1)' : 'none',
+                fontFamily: 'Plus Jakarta Sans, sans-serif',
+              }}
             />
           </div>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className="flex items-center gap-1.5">
+
           {/* Notifications */}
           <div className="relative">
             <button
               id="notifications-btn"
               type="button"
               onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
-              className="relative flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-secondary/50 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-secondary transition-all duration-200 hover:shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]"
+              className="relative flex h-8 w-8 items-center justify-center rounded-xl text-white/40 hover:text-white/75 transition-all duration-150"
+              style={{ background: 'oklch(1 0 0 / 0.05)', border: '1px solid oklch(1 0 0 / 0.07)' }}
               aria-label="View notifications"
             >
-              <Bell className="h-4 w-4" />
-              <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-primary animate-status-pulse shadow-[0_0_6px_oklch(0.65_0.26_285/0.8)]" />
+              <Bell className="h-3.5 w-3.5" />
+              <span
+                className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full animate-status-pulse"
+                style={{ background: 'oklch(0.72 0.19 195)', boxShadow: '0 0 6px oklch(0.72 0.19 195 / 0.9)' }}
+              />
             </button>
             {showNotifications && (
               <>
@@ -118,33 +142,37 @@ export function Header() {
             )}
           </div>
 
-          <div className="h-5 sm:h-6 w-px bg-border/50 mx-0.5 sm:mx-1" />
+          {/* Divider */}
+          <div className="h-5 w-px mx-0.5" style={{ background: 'oklch(1 0 0 / 0.08)' }} />
 
-          {/* User menu */}
+          {/* User menu trigger */}
           <div className="relative">
             <button
               id="user-menu-btn"
               type="button"
               onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
-              className="flex items-center gap-2 sm:gap-2.5 rounded-xl p-1 sm:px-2 sm:py-1.5 hover:bg-secondary/60 transition-all duration-200"
+              className="flex items-center gap-2 rounded-xl p-1 pl-1 pr-2 transition-all duration-150"
+              style={{ background: showUserMenu ? 'oklch(1 0 0 / 0.07)' : 'transparent' }}
+              onMouseEnter={(e) => (e.currentTarget.style.background = 'oklch(1 0 0 / 0.06)')}
+              onMouseLeave={(e) => (e.currentTarget.style.background = showUserMenu ? 'oklch(1 0 0 / 0.07)' : 'transparent')}
               aria-expanded={showUserMenu}
               aria-label="User menu"
             >
               {loading ? (
-                <div className="h-7 w-7 rounded-full bg-secondary animate-pulse" />
+                <div className="h-7 w-7 rounded-full animate-pulse" style={{ background: 'oklch(0.15 0.02 255)' }} />
               ) : (
                 <Avatar name={displayName} size="sm" ring="violet" glow />
               )}
               <div className="hidden sm:block text-left">
                 {loading ? (
                   <div className="space-y-1">
-                    <div className="h-2.5 w-20 rounded-full bg-secondary animate-pulse" />
-                    <div className="h-2 w-12 rounded-full bg-secondary animate-pulse" />
+                    <div className="h-2.5 w-20 rounded-full animate-pulse" style={{ background: 'oklch(0.15 0.02 255)' }} />
+                    <div className="h-2 w-12 rounded-full animate-pulse" style={{ background: 'oklch(0.15 0.02 255)' }} />
                   </div>
                 ) : (
                   <>
-                    <p className="text-xs font-semibold text-foreground leading-none">{displayName}</p>
-                    <Badge variant={roleBadgeVariant[role]} className="mt-0.5 px-1.5 py-0 text-[10px]">
+                    <p className="text-[12px] font-semibold text-white/85 leading-none">{displayName}</p>
+                    <Badge variant={roleBadgeVariant[role]} className="mt-0.5 px-1.5 py-0 text-[9px] h-3.5">
                       {role.charAt(0).toUpperCase() + role.slice(1)}
                     </Badge>
                   </>
@@ -157,50 +185,59 @@ export function Header() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
                 <div
-                  className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-border/60 shadow-xl z-50 overflow-hidden animate-slide-in-up"
-                  style={{ background: 'oklch(0.11 0.02 265)', backdropFilter: 'blur(20px)' }}
+                  className="absolute right-0 top-full mt-2 w-52 rounded-2xl overflow-hidden z-50 animate-slide-in-up"
+                  style={{
+                    background: 'oklch(0.10 0.016 255)',
+                    border: '1px solid oklch(1 0 0 / 0.09)',
+                    boxShadow: '0 20px 60px oklch(0 0 0 / 0.6), 0 0 0 1px oklch(1 0 0 / 0.04)',
+                    backdropFilter: 'blur(24px)',
+                  }}
                 >
-                  <div className="p-3 border-b border-border/50">
-                    <p className="text-sm font-semibold text-foreground truncate">{displayName}</p>
-                    <p className="text-xs text-muted-foreground truncate">{profile?.email ?? '—'}</p>
-                    <Badge variant={roleBadgeVariant[role]} dot className="mt-1.5">
+                  {/* Profile header */}
+                  <div className="p-3.5" style={{ borderBottom: '1px solid oklch(1 0 0 / 0.07)' }}>
+                    <p className="text-[13px] font-semibold text-white/90 truncate">{displayName}</p>
+                    <p className="text-[11px] text-white/35 truncate mt-0.5">{profile?.email ?? '—'}</p>
+                    <Badge variant={roleBadgeVariant[role]} dot className="mt-2 text-[10px] h-4 px-2">
                       {role.charAt(0).toUpperCase() + role.slice(1)}
                     </Badge>
                   </div>
+
+                  {/* Menu items */}
                   <div className="p-1.5 space-y-0.5">
-                    <Link
-                      href="/dashboard/settings"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-secondary/60 transition-colors"
-                    >
-                      <User className="h-4 w-4" />
-                      Profile
-                    </Link>
-                    {(!profile?.department || !profile?.college) && (
+                    {[
+                      { href: '/dashboard/settings', icon: User, label: 'Profile' },
+                      { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
+                    ].map(({ href, icon: Icon, label }) => (
                       <Link
-                        href="/onboarding"
+                        key={label}
+                        href={href}
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-emerald-400 hover:text-emerald-300 hover:bg-emerald-950/30 transition-colors font-medium"
+                        className="flex items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] text-white/60 transition-all duration-100"
+                        onMouseEnter={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = 'oklch(1 0 0 / 0.06)';
+                          (e.currentTarget as HTMLElement).style.color = 'oklch(0.96 0.006 250)';
+                        }}
+                        onMouseLeave={(e) => {
+                          (e.currentTarget as HTMLElement).style.background = '';
+                          (e.currentTarget as HTMLElement).style.color = '';
+                        }}
                       >
-                        <Settings className="h-4 w-4" />
-                        Complete Profile
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
                       </Link>
-                    )}
-                    <Link
-                      href="/dashboard/settings"
-                      onClick={() => setShowUserMenu(false)}
-                      className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-foreground/80 hover:text-foreground hover:bg-secondary/60 transition-colors"
-                    >
-                      <Settings className="h-4 w-4" />
-                      Settings
-                    </Link>
-                    <div className="border-t border-border/50 my-1" />
+                    ))}
+
+                    <div className="my-1" style={{ borderTop: '1px solid oklch(1 0 0 / 0.07)' }} />
+
                     <button
                       onClick={handleLogout}
                       id="header-logout-btn"
-                      className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-red-400 hover:bg-red-950/30 transition-colors"
+                      className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-[13px] transition-all duration-100"
+                      style={{ color: 'oklch(0.65 0.22 20)' }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'oklch(0.60 0.22 20 / 0.1)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = '')}
                     >
-                      <LogOut className="h-4 w-4" />
+                      <LogOut className="h-3.5 w-3.5" />
                       Logout
                     </button>
                   </div>
@@ -211,7 +248,11 @@ export function Header() {
         </div>
       </div>
 
-      <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      {/* Bottom accent line */}
+      <div
+        className="absolute bottom-0 inset-x-0 h-px pointer-events-none"
+        style={{ background: 'linear-gradient(90deg, transparent, oklch(0.72 0.19 195 / 0.2), oklch(0.80 0.15 80 / 0.15), transparent)' }}
+      />
     </header>
   );
 }

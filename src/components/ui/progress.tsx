@@ -10,19 +10,19 @@ interface ProgressProps {
 }
 
 const variantStyles = {
-  default: 'from-primary/80 via-primary to-violet-400',
+  default: 'from-cyan-600 via-cyan-400 to-teal-300',
   emerald: 'from-emerald-600 via-emerald-500 to-emerald-400',
-  gold: 'from-amber-600 via-amber-500 to-amber-300',
-  violet: 'from-violet-700 via-violet-500 to-fuchsia-400',
-  red: 'from-red-700 via-red-500 to-rose-400',
+  gold:    'from-amber-600 via-amber-500 to-amber-300',
+  violet:  'from-cyan-600 via-cyan-400 to-teal-300',
+  red:     'from-red-700 via-red-500 to-rose-400',
 };
 
 const glowStyles = {
-  default: 'shadow-[0_0_10px_oklch(0.65_0.26_285/0.5)]',
-  emerald: 'shadow-[0_0_10px_oklch(0.7_0.2_165/0.5)]',
-  gold: 'shadow-[0_0_10px_oklch(0.78_0.16_85/0.5)]',
-  violet: 'shadow-[0_0_10px_oklch(0.65_0.22_295/0.5)]',
-  red: 'shadow-[0_0_10px_oklch(0.62_0.22_25/0.5)]',
+  default: 'shadow-[0_0_10px_oklch(0.72_0.19_195/0.5)]',
+  emerald: 'shadow-[0_0_10px_oklch(0.72_0.20_165/0.5)]',
+  gold:    'shadow-[0_0_10px_oklch(0.80_0.15_80/0.5)]',
+  violet:  'shadow-[0_0_10px_oklch(0.72_0.19_195/0.5)]',
+  red:     'shadow-[0_0_10px_oklch(0.60_0.22_20/0.5)]',
 };
 
 const sizeStyles = {

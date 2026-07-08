@@ -6,10 +6,25 @@ import { cn } from '@/lib/utils';
 import { WebResources } from './web-resources';
 import { StudyTimer } from './study-timer';
 
+interface CourseData {
+  id: string | number;
+  title: string;
+  code: string;
+  faculty: string;
+  students: number;
+  category: string;
+  status: string;
+  rating: number;
+  sessions: number;
+  color: string;
+  glow: string;
+  icon: React.ReactNode;
+}
+
 interface CourseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  course: any;
+  course: CourseData | null;
 }
 
 export function CourseModal({ isOpen, onClose, course }: CourseModalProps) {
@@ -19,9 +34,11 @@ export function CourseModal({ isOpen, onClose, course }: CourseModalProps) {
   // Reset state when modal opens for a new course
   useEffect(() => {
     if (isOpen) {
-      setActiveTab('overview');
-      // Mock some completed modules based on course ID so it looks realistic
-      setCompletedModules([1, 2]);
+      setTimeout(() => {
+        setActiveTab('overview');
+        // Mock some completed modules based on course ID so it looks realistic
+        setCompletedModules([1, 2]);
+      }, 0);
     }
   }, [isOpen, course?.id]);
 

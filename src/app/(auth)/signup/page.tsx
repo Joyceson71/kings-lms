@@ -60,12 +60,13 @@ export default function SignupPage() {
     
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const code = searchParams.get('code');
     const urlError = searchParams.get('error') || hashParams.get('error');
     const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
 
     if (urlError) {
-      setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+      setTimeout(() => {
+        setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+      }, 0);
       return;
     }
 
@@ -114,9 +115,9 @@ export default function SignupPage() {
 
       // Save new user to localStorage (demo registration)
       const stored = localStorage.getItem('kings_lms_registered_users');
-      const users: Array<any> = stored ? JSON.parse(stored) : [];
+      const users: Array<Record<string, unknown>> = stored ? JSON.parse(stored) : [];
 
-      const existing = users.find((u: any) => u.email.toLowerCase() === data.email.trim().toLowerCase());
+      const existing = users.find((u) => typeof u.email === 'string' && u.email.toLowerCase() === data.email.trim().toLowerCase());
       if (existing) {
         setError('An account with this email already exists. Please sign in instead.');
         setIsLoading(false);
@@ -156,8 +157,9 @@ export default function SignupPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up with Google');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to sign up with Google';
+      setError(errorMsg);
       setIsLoading(false);
     }
   };
@@ -173,8 +175,9 @@ export default function SignupPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign up with GitHub');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to sign up with GitHub';
+      setError(errorMsg);
       setIsLoading(false);
     }
   };

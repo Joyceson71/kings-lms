@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, UploadCloud, Link as LinkIcon, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, UploadCloud, Link as LinkIcon, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -128,9 +128,9 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
       setTitle('');
       setFile(null);
       setLinkUrl('');
-    } catch (err: any) {
+    } catch (err) {
       console.error('Upload error:', err);
-      setError(err.message || 'An error occurred during upload.');
+      setError(err instanceof Error ? err.message : 'An error occurred during upload.');
     } finally {
       setIsUploading(false);
     }

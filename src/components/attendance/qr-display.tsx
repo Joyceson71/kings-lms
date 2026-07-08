@@ -12,19 +12,9 @@ interface QRDisplayModalProps {
 }
 
 export function QRDisplayModal({ isOpen, onClose, token, courseName }: QRDisplayModalProps) {
-  const [qrValue, setQrValue] = useState('');
-
-  useEffect(() => {
-    if (isOpen && token) {
-      // Build a secure URL for the QR code to represent
-      const baseUrl = window.location.origin;
-      // We pass the session token as the session param, which is how it was implemented in attendance page before
-      // Ideally we would pass session ID, but token is safer if it's uniquely queryable. Let's stick with token= or session=token
-      setQrValue(`${baseUrl}/attend?session=${token}`);
-    }
-  }, [isOpen, token]);
-
   if (!isOpen) return null;
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+  const qrValue = `${baseUrl}/attend?session=${token}`;
 
   return (
     <>

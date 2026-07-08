@@ -15,7 +15,7 @@ import {
   Loader2, ArrowRight, Eye, EyeOff, AlertCircle,
   Mail, Lock, GraduationCap, Users, ShieldCheck, ChevronDown,
 } from 'lucide-react';
-import { cn, getURL } from '@/lib/utils';
+import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 
 const loginSchema = z.object({
@@ -69,12 +69,13 @@ export default function LoginPage() {
     
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const code = searchParams.get('code');
     const urlError = searchParams.get('error') || hashParams.get('error');
     const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
 
     if (urlError) {
-      setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+      setTimeout(() => {
+        setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+      }, 0);
       return;
     }
 
@@ -147,8 +148,9 @@ export default function LoginPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with Google');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to sign in with Google';
+      setError(errorMsg);
       setIsLoading(false);
     }
   };
@@ -164,8 +166,9 @@ export default function LoginPage() {
         },
       });
       if (error) throw error;
-    } catch (err: any) {
-      setError(err.message || 'Failed to sign in with GitHub');
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Failed to sign in with GitHub';
+      setError(errorMsg);
       setIsLoading(false);
     }
   };

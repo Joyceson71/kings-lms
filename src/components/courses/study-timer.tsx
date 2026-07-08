@@ -16,16 +16,18 @@ export function StudyTimer() {
       interval = setInterval(() => {
         setTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      setIsActive(false);
-      // Automatically switch modes
-      if (mode === 'focus') {
-        setMode('break');
-        setTimeLeft(5 * 60);
-      } else {
-        setMode('focus');
-        setTimeLeft(25 * 60);
-      }
+    } else if (timeLeft === 0 && isActive) {
+      setTimeout(() => {
+        setIsActive(false);
+        // Automatically switch modes
+        if (mode === 'focus') {
+          setMode('break');
+          setTimeLeft(5 * 60);
+        } else {
+          setMode('focus');
+          setTimeLeft(25 * 60);
+        }
+      }, 0);
     }
     return () => clearInterval(interval);
   }, [isActive, timeLeft, mode]);

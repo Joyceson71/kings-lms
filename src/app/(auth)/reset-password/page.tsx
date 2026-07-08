@@ -46,8 +46,8 @@ export default function ResetPasswordPage() {
       if (resetError) throw resetError;
 
       setSuccess(true);
-    } catch (err: any) {
-      setError(err.message || 'An unexpected error occurred. Please try again.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -68,7 +68,7 @@ export default function ResetPasswordPage() {
               Check your email
             </h2>
             <p className="text-muted-foreground text-sm max-w-[280px] mx-auto">
-              We've sent you a password reset link. Please check your inbox and spam folder.
+              We&apos;ve sent you a password reset link. Please check your inbox and spam folder.
             </p>
             <Button
               variant="outline"

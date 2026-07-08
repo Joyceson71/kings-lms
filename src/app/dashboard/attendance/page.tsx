@@ -6,7 +6,6 @@ import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
 import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2 } from 'lucide-react';
@@ -38,17 +37,6 @@ function AttendanceContent() {
   const [scanSuccess, setScanSuccess] = useState<string | null>(null);
 
   const [isCreatingSession, setIsCreatingSession] = useState(false);
-
-  useEffect(() => {
-    if (!userLoading && profile?.id) {
-      fetchData();
-      
-      if (qrTokenFromUrl && isStudent) {
-        // Automatically try to mark attendance if a token is in URL
-        handleScanSuccess(qrTokenFromUrl);
-      }
-    }
-  }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);
 
   const fetchData = async () => {
     setIsLoading(true);
@@ -149,8 +137,8 @@ function AttendanceContent() {
         setSelectedCourseName(data.courses?.title || 'Unknown Course');
         setIsQRDisplayOpen(true);
       }
-    } catch (error) {
-      console.error('Error creating session:', error);
+    } catch (err) {
+      console.error('Failed to create session:', err);
       alert('Failed to create session');
     } finally {
       setIsCreatingSession(false);
@@ -229,9 +217,9 @@ function AttendanceContent() {
       // Refresh data
       fetchData();
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Scanning error:', error);
-      setScanError(error.message || 'Failed to mark attendance.');
+      setScanError(error instanceof Error ? error.message : 'Failed to mark attendance.');
     } finally {
       setIsProcessingScan(false);
     }
@@ -242,6 +230,18 @@ function AttendanceContent() {
     setScanSuccess(null);
     setIsScannerOpen(true);
   };
+
+  useEffect(() => {
+    if (!userLoading && profile?.id) {
+      fetchData();
+      
+      if (qrTokenFromUrl && isStudent) {
+        // Automatically try to mark attendance if a token is in URL
+        handleScanSuccess(qrTokenFromUrl);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);
 
   if (isLoading) {
     return (
@@ -318,7 +318,7 @@ function AttendanceContent() {
                   {activeSessions.length === 0 && (
                     <p className="text-sm text-muted-foreground text-center py-4">No active sessions. Create one above.</p>
                   )}
-                  {activeSessions.map((session, i) => {
+                  {activeSessions.map((session) => {
                     const presentCount = session.attendance_logs?.length || 0;
                     return (
                       <div key={session.id} className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4">
@@ -406,7 +406,7 @@ function AttendanceContent() {
                 {historyRecords.length === 0 && (
                   <p className="text-sm text-muted-foreground text-center py-4">No recent attendance records.</p>
                 )}
-                {historyRecords.map((record, i) => (
+                {historyRecords.map((record) => (
                   <div
                     key={record.id}
                     className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/20 hover:bg-background/40 hover:border-border/60 transition-all duration-200"

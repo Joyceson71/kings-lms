@@ -16,73 +16,68 @@ function AttendClient() {
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your attendance...');
-  const [courseName, setCourseName] = useState('');
 
   useEffect(() => {
+    const processAttendance = async (sid: string) => {
+      try {
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+          router.push(`/login?redirectTo=/attend?session=${sid}`);
+          return;
+        }
+
+        const { data: session, error: sessionError } = await supabase
+          .from('course_sessions')
+          .select('*, courses(title)')
+          .eq('qr_token', sid)
+          .maybeSingle();
+
+        if (sessionError || !session) {
+          throw new Error('Invalid or expired attendance session.');
+        }
+        
+        if (session.status !== 'active') {
+          throw new Error('This attendance session is closed.');
+        }
+
+        const { success, error: markError } = await markAttendance(supabase, session.id, user.id);
+
+        if (!success) {
+          if (markError?.includes('duplicate key') || markError?.includes('23505')) {
+            throw new Error('You have already marked your attendance for this session.');
+          }
+          throw new Error(markError || 'Failed to mark attendance.');
+        }
+
+        setStatus('success');
+        setMessage(`Successfully marked present for ${session.courses?.title || 'the course'}.`);
+        
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 },
+          colors: ['#38bdf8', '#3ecf8e']
+        });
+
+      } catch (err) {
+        console.error(err);
+        setStatus('error');
+        setMessage(err instanceof Error ? err.message : 'An unexpected error occurred.');
+      }
+    };
+
     if (!sessionId) {
-      setStatus('error');
-      setMessage('Invalid QR code. No session ID found.');
+      setTimeout(() => {
+        setStatus('error');
+        setMessage('Invalid QR code. No session ID found.');
+      }, 0);
       return;
     }
 
     processAttendance(sessionId);
-  }, [sessionId]);
-
-  const processAttendance = async (sid: string) => {
-    try {
-      const supabase = createClient();
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        // Redirect to login but remember where to return
-        router.push(`/login?redirectTo=/attend?session=${sid}`);
-        return;
-      }
-
-      // 1. Get session details
-      const { data: session, error: sessionError } = await supabase
-        .from('course_sessions')
-        .select('*, courses(title)')
-        .eq('qr_token', sid)
-        .maybeSingle();
-
-      if (sessionError || !session) {
-        throw new Error('Invalid or expired attendance session.');
-      }
-      
-      if (session.status !== 'active') {
-        throw new Error('This attendance session is closed.');
-      }
-
-      setCourseName(session.courses?.title || 'Course');
-
-      // 2. Mark attendance via queries using the real session ID
-      const { success, error: markError } = await markAttendance(supabase, session.id, user.id);
-
-      if (!success) {
-        if (markError?.includes('duplicate key') || markError?.includes('23505')) {
-          throw new Error('You have already marked your attendance for this session.');
-        }
-        throw new Error(markError || 'Failed to mark attendance.');
-      }
-
-      // Success
-      setStatus('success');
-      setMessage(`Successfully marked present for ${session.courses?.title || 'the course'}.`);
-      
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#38bdf8', '#3ecf8e']
-      });
-
-    } catch (err: any) {
-      console.error(err);
-      setStatus('error');
-      setMessage(err.message || 'An unexpected error occurred.');
-    }
-  };
+  }, [sessionId, router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">

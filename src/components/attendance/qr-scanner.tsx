@@ -42,7 +42,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
       // Pause scanner while processing to avoid duplicate scans
       html5QrcodeScanner.pause(true);
       onScanSuccess(decodedText);
-    }, (error) => {
+    }, () => {
       // Ignore routine scan errors (not finding a code immediately)
     });
 

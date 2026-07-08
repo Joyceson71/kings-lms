@@ -20,7 +20,7 @@ type AddCourseFormValues = z.infer<typeof addCourseSchema>;
 interface AddCourseModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCourseAdded: (course: any) => void;
+  onCourseAdded: (course: Record<string, unknown>) => void;
 }
 
 export function AddCourseModal({ isOpen, onClose, onCourseAdded }: AddCourseModalProps) {
@@ -76,8 +76,8 @@ export function AddCourseModal({ isOpen, onClose, onCourseAdded }: AddCourseModa
       onCourseAdded(newCourse);
       reset();
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to create course');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create course');
     } finally {
       setIsLoading(false);
     }

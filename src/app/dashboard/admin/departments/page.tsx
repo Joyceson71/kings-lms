@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,7 +33,7 @@ export default function AdminDepartmentsPage() {
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Building2 className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-3xl font-black tracking-tight" >
               <span className="gradient-text">Departments</span>
             </h1>
           </div>
@@ -59,8 +58,7 @@ export default function AdminDepartmentsPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
         {filtered.map(dept => (
-          <TiltCard key={dept.id} intensity={5}>
-            <div className="glass-card rounded-2xl p-5 border border-border/40 hover:border-primary/30 transition-all duration-200">
+          <div key={dept.id} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5 border border-border/40 hover:border-primary/30 transition-all duration-200">
               <div className="flex items-start justify-between mb-4">
                 <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
                   <span className="font-bold text-primary">{dept.id}</span>
@@ -75,7 +73,7 @@ export default function AdminDepartmentsPage() {
                 </div>
               </div>
               
-              <h3 className="text-lg font-bold text-foreground leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+              <h3 className="text-lg font-bold text-foreground leading-tight" >
                 {dept.name}
               </h3>
               
@@ -93,7 +91,7 @@ export default function AdminDepartmentsPage() {
                 </div>
               </div>
             </div>
-          </TiltCard>
+          
         ))}
       </div>
     </div>

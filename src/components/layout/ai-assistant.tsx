@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
@@ -80,8 +79,7 @@ export function AIAssistant() {
     <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 flex flex-col items-end">
       {isOpen && (
         <div className="mb-4 w-[calc(100vw-2rem)] sm:w-[400px] max-w-[400px] animate-in slide-in-from-bottom-5 fade-in-20 duration-300">
-          <TiltCard intensity={5} glareEffect={false}>
-            <div className="glass-card rounded-2xl overflow-hidden border border-primary/20 shadow-[0_8px_32px_oklch(0.65_0.26_285/0.2)] flex flex-col h-[500px]">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden border border-primary/20 shadow-[0_8px_32px_oklch(0.65_0.26_285/0.2)] flex flex-col h-[500px]">
               {/* Header */}
               <div className="flex items-center justify-between p-4 bg-primary/10 border-b border-primary/10">
                 <div className="flex items-center gap-2">
@@ -89,7 +87,7 @@ export function AIAssistant() {
                     <Bot className="h-4 w-4 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5" >
                       Course AI <Sparkles className="h-3 w-3 text-amber-400" />
                     </h3>
                     <p className="text-[10px] text-muted-foreground">Always ready to help</p>
@@ -157,7 +155,7 @@ export function AIAssistant() {
                 </form>
               </div>
             </div>
-          </TiltCard>
+          
         </div>
       )}
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -10,6 +9,8 @@ import {
   Zap, Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
+
 const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
 const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
@@ -17,22 +18,6 @@ const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: fa
 const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
 const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
-
-/* ─── Faculty / Admin stats ─────────────────────── */
-const facultyStats = [
-  { name: 'Total Students', value: '1,024', icon: Users, change: '+12%', changeType: 'positive' as const, color: 'from-violet-600 to-fuchsia-500', glow: 'oklch(0.65 0.26 285 / 0.3)', bgIcon: 'bg-violet-500/10', iconColor: 'text-violet-400' },
-  { name: 'Active Courses', value: '42', icon: BookOpen, change: '+4 this sem', changeType: 'positive' as const, color: 'from-sky-500 to-cyan-400', glow: 'oklch(0.65 0.2 220 / 0.3)', bgIcon: 'bg-sky-500/10', iconColor: 'text-sky-400' },
-  { name: 'Avg. Attendance', value: '89%', icon: CheckCircle, change: '+2.1% this week', changeType: 'positive' as const, color: 'from-emerald-500 to-teal-400', glow: 'oklch(0.70 0.20 165 / 0.3)', bgIcon: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-  { name: 'Live Sessions', value: '8', icon: Clock, change: 'Running now', changeType: 'neutral' as const, color: 'from-amber-500 to-orange-400', glow: 'oklch(0.75 0.16 85 / 0.3)', bgIcon: 'bg-amber-500/10', iconColor: 'text-amber-400' },
-];
-
-/* ─── Student personal stats ─────────────────────── */
-const studentStats = [
-  { name: 'My Attendance', value: '87%', icon: CheckCircle, change: '↑ Above 75% min', changeType: 'positive' as const, color: 'from-emerald-500 to-teal-400', glow: 'oklch(0.70 0.20 165 / 0.3)', bgIcon: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-  { name: 'Enrolled Courses', value: '6', icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, color: 'from-sky-500 to-cyan-400', glow: 'oklch(0.65 0.2 220 / 0.3)', bgIcon: 'bg-sky-500/10', iconColor: 'text-sky-400' },
-  { name: 'Pending Tasks', value: '3', icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, color: 'from-amber-500 to-orange-400', glow: 'oklch(0.75 0.16 85 / 0.3)', bgIcon: 'bg-amber-500/10', iconColor: 'text-amber-400' },
-  { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, color: 'from-violet-600 to-fuchsia-500', glow: 'oklch(0.65 0.26 285 / 0.3)', bgIcon: 'bg-violet-500/10', iconColor: 'text-violet-400' },
-];
 
 const attendanceData = [
   { day: 'Mon', attendance: 72, target: 80 },
@@ -57,7 +42,6 @@ const topCourses = [
   { name: 'Analog Circuits', attendance: 65, color: 'red' as const },
 ];
 
-// Student: per-course attendance
 const studentCourses = [
   { name: 'EC-301 Signals and Systems', attendance: 94, color: 'emerald' as const, status: 'safe' },
   { name: 'EC-302 Digital Signal Processing', attendance: 88, color: 'emerald' as const, status: 'safe' },
@@ -75,295 +59,269 @@ const recentAnnouncements = [
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-card rounded-xl p-3 border border-border/60 shadow-xl">
-        <p className="text-xs text-muted-foreground mb-1">{label}</p>
-        <p className="text-sm font-bold text-foreground">{payload[0]?.value}% attendance</p>
+      <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+        <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
+        <p className="text-[13px] font-medium text-white">{payload[0]?.value}% attendance</p>
       </div>
     );
   }
   return null;
 };
 
-/* ─── Skeleton card ─────────────────────────────── */
 function SkeletonCard() {
   return (
-    <div className="glass-card rounded-2xl p-5 animate-pulse">
+    <div className="rounded-xl p-4 animate-pulse" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
       <div className="flex items-center justify-between mb-4">
-        <div className="h-10 w-10 rounded-xl bg-secondary" />
-        <div className="h-4 w-4 rounded bg-secondary" />
+        <div className="h-8 w-8 rounded-md" style={{ background: '#1a1a1d' }} />
+        <div className="h-4 w-4 rounded" style={{ background: '#1a1a1d' }} />
       </div>
       <div className="space-y-2">
-        <div className="h-3 w-20 rounded-full bg-secondary" />
-        <div className="h-8 w-16 rounded bg-secondary" />
-        <div className="h-3 w-24 rounded-full bg-secondary" />
+        <div className="h-3 w-20 rounded" style={{ background: '#1a1a1d' }} />
+        <div className="h-8 w-16 rounded" style={{ background: '#1a1a1d' }} />
+        <div className="h-3 w-24 rounded" style={{ background: '#1a1a1d' }} />
       </div>
     </div>
   );
 }
 
-/* ─── Main ──────────────────────────────────────── */
 export default function DashboardClient({ stats, profile }: { stats: any; profile: any }) {
   const { loading, displayName } = useUser();
   const isStudent = profile?.role === 'student' || !profile?.role;
 
   const displayStats = isStudent ? [
-    { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% min', changeType: 'positive' as const, color: 'from-emerald-500 to-teal-400', glow: 'oklch(0.70 0.20 165 / 0.3)', bgIcon: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-    { name: 'Enrolled Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, color: 'from-sky-500 to-cyan-400', glow: 'oklch(0.65 0.2 220 / 0.3)', bgIcon: 'bg-sky-500/10', iconColor: 'text-sky-400' },
-    { name: 'Pending Tasks', value: stats.pendingAssignments.toString(), icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, color: 'from-amber-500 to-orange-400', glow: 'oklch(0.75 0.16 85 / 0.3)', bgIcon: 'bg-amber-500/10', iconColor: 'text-amber-400' },
-    { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, color: 'from-violet-600 to-fuchsia-500', glow: 'oklch(0.65 0.26 285 / 0.3)', bgIcon: 'bg-violet-500/10', iconColor: 'text-violet-400' },
+    { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% min', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
+    { name: 'Enrolled Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10' },
+    { name: 'Pending Tasks', value: stats.pendingAssignments.toString(), icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10' },
+    { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, iconColor: 'text-violet-400', bgIcon: 'bg-violet-500/10' },
   ] : [
-    { name: 'Total Students', value: stats.totalStudents.toString(), icon: Users, change: 'Total enrolled', changeType: 'positive' as const, color: 'from-violet-600 to-fuchsia-500', glow: 'oklch(0.65 0.26 285 / 0.3)', bgIcon: 'bg-violet-500/10', iconColor: 'text-violet-400' },
-    { name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'Offered this sem', changeType: 'positive' as const, color: 'from-sky-500 to-cyan-400', glow: 'oklch(0.65 0.2 220 / 0.3)', bgIcon: 'bg-sky-500/10', iconColor: 'text-sky-400' },
-    { name: 'Avg. Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: 'Across all courses', changeType: 'positive' as const, color: 'from-emerald-500 to-teal-400', glow: 'oklch(0.70 0.20 165 / 0.3)', bgIcon: 'bg-emerald-500/10', iconColor: 'text-emerald-400' },
-    { name: 'Submissions to Grade', value: stats.pendingAssignments.toString(), icon: Clock, change: 'Pending review', changeType: 'neutral' as const, color: 'from-amber-500 to-orange-400', glow: 'oklch(0.75 0.16 85 / 0.3)', bgIcon: 'bg-amber-500/10', iconColor: 'text-amber-400' },
+    { name: 'Total Students', value: stats.totalStudents.toString(), icon: Users, change: 'Total enrolled', changeType: 'positive' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10' },
+    { name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'Offered this sem', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
+    { name: 'Avg. Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: 'Across all courses', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
+    { name: 'Submissions to Grade', value: stats.pendingAssignments.toString(), icon: Clock, change: 'Pending review', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10' },
   ];
 
   return (
-    <div className="space-y-8">
-      {/* Page header */}
-      <div className="flex items-center justify-between animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
+    <div className="space-y-6 max-w-6xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            <span className="gradient-text">
-              {loading ? 'Dashboard' : isStudent ? 'My Dashboard' : 'Dashboard Overview'}
-            </span>
+          <h1 className="text-xl font-semibold tracking-tight text-white">
+            {loading ? 'Dashboard' : isStudent ? 'My Dashboard' : 'Dashboard Overview'}
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm flex items-center gap-1.5">
-            <Zap className="h-3.5 w-3.5 text-amber-400" />
+          <p className="text-zinc-400 mt-1 text-[13px] flex items-center gap-1.5">
             {loading
               ? 'Loading your dashboard…'
-              : `Welcome back, ${displayName.split(' ')[0]}! Here's what's happening today.`}
+              : `Welcome back, ${displayName.split(' ')[0]}. Here's what's happening.`}
           </p>
         </div>
         <div className="flex items-center gap-2">
           {!isStudent && <Badge variant="active" dot>Live</Badge>}
           {isStudent && <Badge variant="student" dot>Student</Badge>}
-          <span className="text-xs text-muted-foreground hidden sm:block">
-            {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
-          </span>
         </div>
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {loading
           ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-fade-in opacity-0" style={{ animationDelay: `${i * 60}ms`, animationFillMode: 'forwards' }}>
+              <div key={i} className="animate-fade-in opacity-0" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}>
                 <SkeletonCard />
               </div>
             ))
           : displayStats.map((stat, i) => (
               <div
                 key={stat.name}
-                className="animate-slide-in-up opacity-0"
-                style={{ animationDelay: `${(i + 1) * 80}ms`, animationFillMode: 'forwards' }}
+                className="rounded-xl p-4 animate-slide-in-up opacity-0"
+                style={{
+                  background: '#111113',
+                  border: '1px solid #1f1f23',
+                  animationDelay: `${(i + 1) * 60}ms`,
+                  animationFillMode: 'forwards'
+                }}
               >
-                <TiltCard intensity={10}>
-                  <div
-                    className="glass-card rounded-2xl p-5 relative overflow-hidden"
-                    style={{ boxShadow: `0 4px 24px ${stat.glow}, 0 1px 0 oklch(1 0 0 / 0.06) inset` }}
-                  >
-                    <div className={`absolute top-0 inset-x-0 h-0.5 bg-gradient-to-r ${stat.color} opacity-60`} />
-                    <div className="absolute -right-4 -top-4 opacity-5">
-                      <stat.icon className="h-24 w-24" />
-                    </div>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className={`h-10 w-10 rounded-xl ${stat.bgIcon} flex items-center justify-center`}>
-                        <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
-                      </div>
-                      <ArrowUpRight className="h-4 w-4 text-muted-foreground/40 hover:text-primary transition-colors cursor-pointer" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">{stat.name}</p>
-                      <p className="text-3xl font-black text-foreground tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                        <AnimatedCounter target={stat.value} duration={1200} />
-                      </p>
-                      <p className={`text-xs mt-2 font-medium flex items-center gap-1 ${stat.changeType === 'positive' ? 'text-emerald-400' : 'text-muted-foreground/60'}`}>
-                        {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
-                        {stat.change}
-                      </p>
-                    </div>
+                <div className="flex items-center justify-between mb-3">
+                  <div className={`h-8 w-8 rounded-md ${stat.bgIcon} flex items-center justify-center`}>
+                    <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
                   </div>
-                </TiltCard>
+                  <ArrowUpRight className="h-4 w-4 text-zinc-600 hover:text-white transition-colors cursor-pointer" />
+                </div>
+                <div>
+                  <p className="text-[12px] font-medium text-zinc-500 mb-0.5">{stat.name}</p>
+                  <p className="text-2xl font-semibold text-white tracking-tight">
+                    {/* Animated counter still works fine */}
+                    <AnimatedCounter target={stat.value} duration={800} />
+                  </p>
+                  <p className={`text-[11px] mt-2 font-medium flex items-center gap-1 ${stat.changeType === 'positive' ? 'text-emerald-400' : 'text-zinc-500'}`}>
+                    {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
+                    {stat.change}
+                  </p>
+                </div>
               </div>
             ))}
       </div>
 
       {/* Charts row */}
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
+        
         {/* Attendance chart */}
         <div className="lg:col-span-2">
-          <TiltCard intensity={4} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                    {isStudent ? 'My Attendance Trend' : 'Attendance Trend'}
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    {isStudent ? 'Your attendance over the past 7 days' : 'Last 7 days across all courses'}
-                  </p>
-                </div>
-                <Badge variant="success" dot>This Week</Badge>
+          <div className="rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-[14px] font-semibold text-white">
+                  {isStudent ? 'Attendance Trend' : 'Overall Attendance'}
+                </h2>
+                <p className="text-[12px] text-zinc-500 mt-0.5">
+                  {isStudent ? 'Your attendance over the past 7 days' : 'Last 7 days across all courses'}
+                </p>
               </div>
-              <div className="h-56">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={attendanceData} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                    <defs>
-                      <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="oklch(0.65 0.26 285)" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="oklch(0.65 0.26 285)" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="oklch(1 0 0 / 0.05)" vertical={false} />
-                    <XAxis dataKey="day" tick={{ fontSize: 11, fill: 'oklch(0.60 0.03 265)' }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[50, 100]} tick={{ fontSize: 11, fill: 'oklch(0.60 0.03 265)' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Area type="monotone" dataKey="attendance" stroke="oklch(0.65 0.26 285)" strokeWidth={2.5} fill="url(#attendanceGrad)"
-                      dot={{ fill: 'oklch(0.65 0.26 285)', r: 4, strokeWidth: 2, stroke: 'oklch(0.08 0.015 265)' }}
-                      activeDot={{ r: 6, fill: 'oklch(0.65 0.26 285)', stroke: 'oklch(0.08 0.015 265)', strokeWidth: 2 }}
-                    />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
+              <Badge variant="secondary">7 days</Badge>
             </div>
-          </TiltCard>
+            <div className="h-56">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={attendanceData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
+                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
+                  <YAxis domain={[50, 100]} tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2a2a2e', strokeWidth: 1 }} />
+                  <Area
+                    type="monotone"
+                    dataKey="attendance"
+                    stroke="#6366f1"
+                    strokeWidth={2}
+                    fill="url(#attendanceGrad)"
+                    activeDot={{ r: 4, fill: '#6366f1', stroke: '#111113', strokeWidth: 2 }}
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
         </div>
 
         {/* Courses attendance */}
-        <TiltCard intensity={6}>
-          <div className="glass-card rounded-2xl p-6 h-full">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                {isStudent ? 'My Courses' : 'Course Attendance'}
-              </h2>
-            </div>
-            <div className="space-y-4">
-              {(isStudent ? studentCourses : topCourses).map((course) => (
-                <div key={course.name}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <div className="flex items-center gap-1.5 mr-2 min-w-0">
-                      {isStudent && 'status' in course && course.status === 'danger' && (
-                        <AlertTriangle className="h-3 w-3 text-red-400 flex-shrink-0" />
-                      )}
-                      <p className="text-sm font-medium text-foreground truncate">{course.name}</p>
-                    </div>
-                    <span className={`text-xs font-bold flex-shrink-0 ${
-                      course.attendance >= 80 ? 'text-emerald-400' :
-                      course.attendance >= 75 ? 'text-amber-400' : 'text-red-400'
-                    }`}>{course.attendance}%</span>
-                  </div>
-                  <Progress value={course.attendance} variant={course.color} size="sm" />
-                </div>
-              ))}
-            </div>
-
-            {/* Student: shortage warning */}
-            {isStudent && (
-              <div className="mt-4 p-3 rounded-xl border border-red-500/20 bg-red-500/5">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                  <p className="text-xs text-red-400 font-medium">EC-303 attendance is below 75% minimum!</p>
-                </div>
-              </div>
-            )}
+        <div className="rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[14px] font-semibold text-white">
+              {isStudent ? 'My Courses' : 'Course Performance'}
+            </h2>
           </div>
-        </TiltCard>
+          <div className="space-y-4">
+            {(isStudent ? studentCourses : topCourses).map((course) => (
+              <div key={course.name}>
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-1.5 mr-2 min-w-0">
+                    {isStudent && 'status' in course && course.status === 'danger' && (
+                      <AlertTriangle className="h-3 w-3 text-red-400 flex-shrink-0" />
+                    )}
+                    <p className="text-[13px] font-medium text-white truncate">{course.name}</p>
+                  </div>
+                  <span className={`text-[12px] font-medium flex-shrink-0 ${
+                    course.attendance >= 80 ? 'text-emerald-400' :
+                    course.attendance >= 75 ? 'text-amber-400' : 'text-red-400'
+                  }`}>{course.attendance}%</span>
+                </div>
+                <Progress value={course.attendance} variant={course.color} size="sm" />
+              </div>
+            ))}
+          </div>
+
+          {/* Student: shortage warning */}
+          {isStudent && (
+            <div className="mt-5 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
+                <p className="text-[12px] text-red-400 font-medium">EC-303 attendance is below 75% minimum!</p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Announcements and Today's sessions row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '550ms', animationFillMode: 'forwards' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
         
         {/* Recent Announcements Widget */}
-        <div className="lg:col-span-1">
-          <TiltCard intensity={3} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6 h-full flex flex-col">
-              <div className="flex items-center justify-between mb-5">
-                <div>
-                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Updates</h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">Latest announcements</p>
-                </div>
-                <div className="h-8 w-8 rounded-full bg-amber-500/10 flex items-center justify-center">
-                  <Megaphone className="h-4 w-4 text-amber-500" />
-                </div>
-              </div>
-              <div className="space-y-4 flex-1">
-                {recentAnnouncements.map((ann, i) => (
-                  <div key={i} className="group cursor-pointer">
-                    <div className="flex items-center justify-between mb-1">
-                      <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className={ann.isGlobal ? 'bg-amber-500/20 text-amber-500 border-amber-500/30 text-[9px] px-1.5' : 'text-[9px] px-1.5'}>
-                        {ann.type}
-                      </Badge>
-                      <span className="text-[10px] text-muted-foreground">{ann.date}</span>
-                    </div>
-                    <p className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors leading-tight">
-                      {ann.title}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <div className="mt-4 pt-3 border-t border-border/30">
-                <a href="/dashboard/announcements" className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors flex items-center justify-center gap-1 w-full">
-                  View all announcements →
-                </a>
-              </div>
+        <div className="lg:col-span-1 rounded-xl p-5 flex flex-col" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-[14px] font-semibold text-white">Updates</h2>
             </div>
-          </TiltCard>
+            <Megaphone className="h-4 w-4 text-zinc-500" />
+          </div>
+          <div className="space-y-4 flex-1">
+            {recentAnnouncements.map((ann, i) => (
+              <div key={i} className="group cursor-pointer">
+                <div className="flex items-center gap-2 mb-1">
+                  <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className={ann.isGlobal ? 'text-[9px] px-1.5' : 'text-[9px] px-1.5'}>
+                    {ann.type}
+                  </Badge>
+                  <span className="text-[10px] text-zinc-500">{ann.date}</span>
+                </div>
+                <p className="text-[13px] font-medium text-white group-hover:text-indigo-400 transition-colors leading-snug">
+                  {ann.title}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 pt-3" style={{ borderTop: '1px solid #1a1a1d' }}>
+            <Link href="/dashboard/announcements" className="text-[12px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1 w-full">
+              View all updates
+            </Link>
+          </div>
         </div>
 
         {/* Today's sessions */}
-        <div className="lg:col-span-2">
-          <TiltCard intensity={3} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6 h-full">
-            <div className="flex items-center justify-between mb-5">
-              <div>
-                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Today&apos;s Sessions</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Classes scheduled for today</p>
-              </div>
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Calendar className="h-3.5 w-3.5" />
-                {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {upcomingSessions.map((session, i) => (
-                <div
-                  key={i}
-                  className={`flex flex-col gap-2.5 p-4 rounded-xl border transition-all duration-200 hover:-translate-y-0.5 cursor-pointer ${
-                    session.status === 'live'
-                      ? 'border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50'
-                      : 'border-border/40 bg-background/20 hover:border-primary/30 hover:bg-primary/5'
-                  }`}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-mono font-semibold text-muted-foreground">{session.code}</span>
-                    {session.status === 'live' ? (
-                      <Badge variant="active" dot className="text-[10px] px-1.5">Live</Badge>
-                    ) : (
-                      <Badge variant="secondary" className="text-[10px] px-1.5">Soon</Badge>
-                    )}
-                  </div>
-                  <p className="text-sm font-semibold text-foreground leading-tight">{session.course}</p>
-                  <div className="text-xs text-muted-foreground space-y-0.5">
-                    {!isStudent && <p>{session.faculty}</p>}
-                    <div className="flex items-center justify-between">
-                      <span className="font-medium text-foreground/80">{session.time}</span>
-                      <span>{session.room}</span>
-                    </div>
-                  </div>
-                  {isStudent && session.status === 'live' && (
-                    <div className="mt-1">
-                      <button className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1">
-                        <GraduationCap className="h-3 w-3" />
-                        Mark attendance →
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+        <div className="lg:col-span-2 rounded-xl p-5" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="text-[14px] font-semibold text-white">Today&apos;s Sessions</h2>
+            <div className="flex items-center gap-1.5 text-[12px] text-zinc-500">
+              <Calendar className="h-3.5 w-3.5" />
+              {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
             </div>
           </div>
-        </TiltCard>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {upcomingSessions.map((session, i) => (
+              <div
+                key={i}
+                className={`flex flex-col gap-2 p-3.5 rounded-lg border transition-all duration-150 cursor-pointer ${
+                  session.status === 'live'
+                    ? 'border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-500/50'
+                    : 'border-[#2a2a2e] bg-[#161618] hover:border-indigo-500/30 hover:bg-[#1a1a1d]'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-mono text-zinc-400">{session.code}</span>
+                  {session.status === 'live' ? (
+                    <Badge variant="active" dot className="text-[9px] px-1.5">Live</Badge>
+                  ) : (
+                    <Badge variant="secondary" className="text-[9px] px-1.5">Soon</Badge>
+                  )}
+                </div>
+                <p className="text-[13px] font-medium text-white leading-tight">{session.course}</p>
+                <div className="text-[12px] text-zinc-500 space-y-0.5 mt-auto pt-2">
+                  {!isStudent && <p>{session.faculty}</p>}
+                  <div className="flex items-center justify-between">
+                    <span className="text-zinc-400">{session.time}</span>
+                    <span>{session.room}</span>
+                  </div>
+                </div>
+                {isStudent && session.status === 'live' && (
+                  <div className="mt-2 pt-2 border-t border-emerald-500/20">
+                    <button className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 w-full">
+                      <GraduationCap className="h-3.5 w-3.5" />
+                      Mark attendance
+                    </button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

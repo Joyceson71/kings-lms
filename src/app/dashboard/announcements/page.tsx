@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -107,7 +106,7 @@ export default function AnnouncementsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Announcements</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Stay updated with the latest news and notices</p>
@@ -155,10 +154,9 @@ export default function AnnouncementsPage() {
             className="animate-slide-in-up opacity-0"
             style={{ animationDelay: `${(i + 1) * 60}ms`, animationFillMode: 'forwards' }}
           >
-            <TiltCard intensity={5}>
-              <div
-                className="glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row cursor-pointer hover:border-primary/50 transition-colors"
-                style={{ boxShadow: `0 4px 24px ${announcement.glow}` }}
+            <div
+                className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden flex flex-col md:flex-row cursor-pointer hover:border-primary/50 transition-colors"
+                style={{  }}
               >
                 {/* Left color bar */}
                 <div className={`w-full md:w-2 bg-gradient-to-b ${announcement.color} h-2 md:h-auto`} />
@@ -186,7 +184,7 @@ export default function AnnouncementsPage() {
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-foreground mb-3 leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <h3 className="text-xl font-bold text-foreground mb-3 leading-tight" >
                       {announcement.title}
                     </h3>
                     
@@ -215,7 +213,7 @@ export default function AnnouncementsPage() {
                   </div>
                 </div>
               </div>
-            </TiltCard>
+            
           </div>
         ))}
       </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
@@ -35,7 +34,7 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Students</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">{formattedStudents.length} students enrolled</p>
@@ -56,12 +55,11 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
           { label: 'At Risk', value: formattedStudents.filter(s => s.attendance < 75).length, color: 'text-amber-400' },
           { label: 'Inactive', value: formattedStudents.filter(s => s.status === 'inactive').length, color: 'text-red-400' },
         ].map((s) => (
-          <TiltCard key={s.label} intensity={12}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className={`text-2xl font-black ${s.color}`} style={{ fontFamily: 'Outfit, sans-serif' }}>{s.value.toLocaleString()}</p>
+          <div key={s.label} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className={`text-2xl font-black ${s.color}`} >{s.value.toLocaleString()}</p>
               <p className="text-xs text-muted-foreground mt-1">{s.label}</p>
             </div>
-          </TiltCard>
+          
         ))}
       </div>
 
@@ -85,8 +83,7 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
 
       {/* Student table */}
       <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}>
-        <TiltCard intensity={2} glareEffect={false}>
-          <div className="glass-card rounded-2xl overflow-hidden">
+        <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden">
             {/* Table header */}
             <div className="grid grid-cols-[1fr_auto_auto_auto_auto] gap-4 px-5 py-3 border-b border-border/50 bg-secondary/20">
               <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Student</span>
@@ -155,7 +152,7 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
               </div>
             )}
           </div>
-        </TiltCard>
+        
       </div>
     </div>
   );

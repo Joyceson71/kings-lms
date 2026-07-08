@@ -4,7 +4,6 @@ import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { markAttendance } from '@/lib/supabase/queries';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -90,14 +89,13 @@ function AttendClient() {
       <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-emerald-500/20 blur-[120px] rounded-full pointer-events-none" />
 
-      <TiltCard intensity={10}>
-        <div className="glass-card rounded-3xl p-8 max-w-md w-full relative z-10 flex flex-col items-center text-center">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-3xl p-8 max-w-md w-full relative z-10 flex flex-col items-center text-center">
           {status === 'loading' && (
             <>
               <div className="h-16 w-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
                 <Loader2 className="h-8 w-8 text-primary animate-spin" />
               </div>
-              <h2 className="text-2xl font-black mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>Please wait</h2>
+              <h2 className="text-2xl font-black mb-2" >Please wait</h2>
               <p className="text-muted-foreground text-sm">{message}</p>
             </>
           )}
@@ -107,7 +105,7 @@ function AttendClient() {
               <div className="h-16 w-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-6 animate-in zoom-in">
                 <CheckCircle className="h-8 w-8 text-emerald-500" />
               </div>
-              <h2 className="text-2xl font-black mb-2 text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Attendance Recorded!</h2>
+              <h2 className="text-2xl font-black mb-2 text-foreground" >Attendance Recorded!</h2>
               <p className="text-emerald-400 text-sm font-medium mb-8">{message}</p>
               
               <Button 
@@ -124,7 +122,7 @@ function AttendClient() {
               <div className="h-16 w-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-6 animate-in zoom-in">
                 <XCircle className="h-8 w-8 text-red-500" />
               </div>
-              <h2 className="text-2xl font-black mb-2 text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Scan Failed</h2>
+              <h2 className="text-2xl font-black mb-2 text-foreground" >Scan Failed</h2>
               <p className="text-red-400 text-sm font-medium mb-8">{message}</p>
               
               <Button 
@@ -137,7 +135,7 @@ function AttendClient() {
             </>
           )}
         </div>
-      </TiltCard>
+      
     </div>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
@@ -66,7 +65,7 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
         <div>
           <div className="flex items-center gap-2 mb-1">
             <ShieldCheck className="h-6 w-6 text-amber-400" />
-            <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-3xl font-black tracking-tight" >
               <span className="gradient-text-gold">Admin Panel</span>
             </h1>
           </div>
@@ -92,11 +91,10 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* User management table */}
         <div className="lg:col-span-2 animate-slide-in-up opacity-0" style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={2} glareEffect={false}>
-            <div className="glass-card rounded-2xl overflow-hidden">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between p-5 border-b border-border/50">
                 <div>
-                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>User Management</h2>
+                  <h2 className="text-lg font-bold text-foreground" >User Management</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">All registered users — manage roles & status</p>
                 </div>
                 <Button
@@ -153,16 +151,15 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                 ))}
               </div>
             </div>
-          </TiltCard>
+          
         </div>
 
         {/* Right column */}
         <div className="space-y-5 animate-slide-in-up opacity-0" style={{ animationDelay: '450ms', animationFillMode: 'forwards' }}>
           {/* System health */}
-          <TiltCard intensity={6}>
-            <div className="glass-card rounded-2xl p-5">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-base font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>System Health</h2>
+                <h2 className="text-base font-bold text-foreground" >System Health</h2>
                 <div className="h-2 w-2 rounded-full bg-emerald-400 animate-status-pulse shadow-[0_0_8px_oklch(0.7_0.2_165/0.8)]" />
               </div>
               <div className="space-y-4">
@@ -188,12 +185,11 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                 <p className="text-[10px] text-muted-foreground mt-0.5">Last checked: just now</p>
               </div>
             </div>
-          </TiltCard>
+          
 
           {/* Recent activity */}
-          <TiltCard intensity={5}>
-            <div className="glass-card rounded-2xl p-5">
-              <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>Recent Activity</h2>
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
+              <h2 className="text-base font-bold text-foreground mb-4" >Recent Activity</h2>
               <div className="space-y-3">
                 {recentActivity.map((activity, i) => (
                   <div key={i} className="flex items-start gap-3">
@@ -208,15 +204,14 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                 ))}
               </div>
             </div>
-          </TiltCard>
+          
         </div>
       </div>
 
       {/* Quick actions */}
       <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '600ms', animationFillMode: 'forwards' }}>
-        <TiltCard intensity={3} glareEffect={false}>
-          <div className="glass-card rounded-2xl p-5">
-            <h2 className="text-base font-bold text-foreground mb-4" style={{ fontFamily: 'Outfit, sans-serif' }}>Quick Actions</h2>
+        <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
+            <h2 className="text-base font-bold text-foreground mb-4" >Quick Actions</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { label: 'Add Course', icon: BookOpen, id: 'admin-add-course' },
@@ -237,7 +232,7 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
               ))}
             </div>
           </div>
-        </TiltCard>
+        
       </div>
     </div>
   );

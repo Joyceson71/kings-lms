@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -264,7 +263,7 @@ function AttendanceContent() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Attendance</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -287,37 +286,33 @@ function AttendanceContent() {
       {/* Quick stats row (students only) */}
       {isStudent && (
         <div className="grid grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{stats.attended}</p>
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{stats.attended}</p>
               <p className="text-xs text-muted-foreground mt-1">Sessions Attended</p>
               <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="emerald" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{Math.max(0, stats.total - stats.attended)}</p>
+          
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{Math.max(0, stats.total - stats.attended)}</p>
               <p className="text-xs text-muted-foreground mt-1">Sessions Missed</p>
               <Progress value={0} variant="red" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0)}%</p>
+          
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0)}%</p>
               <p className="text-xs text-muted-foreground mt-1">Overall Rate</p>
               <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="gold" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
+          
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Active sessions / QR scan */}
         <div className="space-y-4 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={5} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Active Sessions</h2>
+                <h2 className="text-lg font-bold text-foreground" >Active Sessions</h2>
                 <Badge variant="active" dot>Live</Badge>
               </div>
 
@@ -378,7 +373,7 @@ function AttendanceContent() {
                     <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring" />
                     <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring delay-700 opacity-60" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <h3 className="text-lg font-bold text-foreground mb-2" >
                     Ready to Mark Attendance?
                   </h3>
                   <p className="text-sm text-muted-foreground max-w-xs mb-5">
@@ -395,15 +390,14 @@ function AttendanceContent() {
                 </div>
               )}
             </div>
-          </TiltCard>
+          
         </div>
 
         {/* Attendance history */}
         <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={5} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Recent History</h2>
+                <h2 className="text-lg font-bold text-foreground" >Recent History</h2>
                 <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground gap-1.5">
                   <BarChart2 className="h-3.5 w-3.5" />
                   Full Report
@@ -460,7 +454,7 @@ function AttendanceContent() {
                 View Full History
               </Button>
             </div>
-          </TiltCard>
+          
         </div>
       </div>
 

@@ -9,7 +9,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle, Building2, Hash, BookOpen, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
@@ -178,8 +177,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <TiltCard intensity={6}>
-        <div className="glass-card rounded-2xl overflow-hidden relative">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70" />
           <div className="p-8 text-center space-y-4">
             <div className="flex justify-center">
@@ -187,7 +185,7 @@ export default function SignupPage() {
                 <CheckCircle className="h-9 w-9 text-emerald-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight" >
               Account Created!
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -198,13 +196,12 @@ export default function SignupPage() {
             </div>
           </div>
         </div>
-      </TiltCard>
+      
     );
   }
 
   return (
-    <TiltCard intensity={6}>
-      <div className="glass-card rounded-2xl overflow-hidden relative">
+    <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
         {/* Top gradient line */}
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70" />
 
@@ -217,7 +214,7 @@ export default function SignupPage() {
         <div className="p-8 relative z-10">
           {/* Header */}
           <div className="mb-6">
-            <h2 className="text-2xl font-black tracking-tight mb-1.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight mb-1.5" >
               Create account
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -547,6 +544,6 @@ export default function SignupPage() {
         {/* Bottom line */}
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
-    </TiltCard>
+    
   );
 }

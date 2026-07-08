@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -88,7 +87,7 @@ export default function SettingsPage() {
     <div className="space-y-8">
       {/* Header */}
       <div className="animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
-        <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+        <h1 className="text-3xl font-black tracking-tight" >
           <span className="gradient-text">Settings</span>
         </h1>
         <p className="text-muted-foreground text-sm mt-1">Manage your profile, preferences, and account security.</p>
@@ -97,8 +96,7 @@ export default function SettingsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-6">
         {/* Sidebar tabs */}
         <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={4} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-3 space-y-1">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-3 space-y-1">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
                 return (
@@ -119,19 +117,18 @@ export default function SettingsPage() {
                 );
               })}
             </div>
-          </TiltCard>
+          
         </div>
 
         {/* Content panel */}
         <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={3} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6 md:p-8">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6 md:p-8">
 
               {/* Profile tab */}
               {activeTab === 'profile' && (
                 <div className="space-y-8">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>Profile Information</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-1" >Profile Information</h2>
                     <p className="text-sm text-muted-foreground">Update your personal details and academic info.</p>
                   </div>
 
@@ -215,7 +212,7 @@ export default function SettingsPage() {
               {activeTab === 'notifications' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>Notification Preferences</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-1" >Notification Preferences</h2>
                     <p className="text-sm text-muted-foreground">Choose which events you want to be notified about.</p>
                   </div>
                   <div className="space-y-4">
@@ -236,7 +233,7 @@ export default function SettingsPage() {
               {activeTab === 'security' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>Security Settings</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-1" >Security Settings</h2>
                     <p className="text-sm text-muted-foreground">Manage your password and account security.</p>
                   </div>
                   <div className="space-y-5">
@@ -267,7 +264,7 @@ export default function SettingsPage() {
               {activeTab === 'appearance' && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-xl font-bold text-foreground mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>Appearance</h2>
+                    <h2 className="text-xl font-bold text-foreground mb-1" >Appearance</h2>
                     <p className="text-sm text-muted-foreground">Customize how Kings EC Platform looks for you.</p>
                   </div>
                   <div className="space-y-4">
@@ -326,7 +323,7 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-          </TiltCard>
+          
         </div>
       </div>
     </div>

@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/hooks/use-user';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ResourceViewer } from '@/components/ui/resource-viewer';
@@ -108,7 +107,7 @@ export default function ResourcesPage() {
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Study Materials</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -178,8 +177,7 @@ export default function ResourcesPage() {
                 className="animate-slide-in-up opacity-0"
                 style={{ animationDelay: `${200 + (Math.min(i, 10) * 60)}ms`, animationFillMode: 'forwards' }}
               >
-                <TiltCard intensity={2} glareEffect={false}>
-                  <div className="glass-card rounded-2xl p-5 h-full flex flex-col group border border-border/40 hover:border-primary/30 transition-colors">
+                <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5 h-full flex flex-col group border border-border/40 hover:border-primary/30 transition-colors">
                     
                     {/* Card Header */}
                     <div className="flex justify-between items-start mb-4">
@@ -254,7 +252,7 @@ export default function ResourcesPage() {
                     </div>
 
                   </div>
-                </TiltCard>
+                
               </div>
             );
           })}

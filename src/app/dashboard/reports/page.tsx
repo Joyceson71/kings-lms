@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/hooks/use-user';
@@ -60,7 +59,7 @@ type DateRange = typeof dateRanges[number];
 const BarTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="glass-card rounded-xl p-3 border border-border/60 shadow-xl">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-xl p-3 border border-border/60 shadow-xl">
         <p className="text-xs text-muted-foreground mb-1 font-mono">{label}</p>
         {payload.map((p: { name: string; value: number; color: string }, i: number) => (
           <p key={i} className="text-sm font-bold" style={{ color: p.color }}>{p.name}: {p.value}%</p>
@@ -80,7 +79,7 @@ export default function ReportsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Reports</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -137,11 +136,10 @@ export default function ReportsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '140ms', animationFillMode: 'forwards' }}>
         {/* Main bar chart */}
         <div className="lg:col-span-2">
-          <TiltCard intensity={3} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <h2 className="text-lg font-bold text-foreground" >
                     {isStudent ? 'Weekly Sessions Attended' : 'Course-wise Attendance'}
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">{dateRange}</p>
@@ -172,13 +170,12 @@ export default function ReportsPage() {
                 </ResponsiveContainer>
               </div>
             </div>
-          </TiltCard>
+          
         </div>
 
         {/* Pie chart */}
-        <TiltCard intensity={5}>
-          <div className="glass-card rounded-2xl p-6">
-            <h2 className="text-lg font-bold text-foreground mb-5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+        <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
+            <h2 className="text-lg font-bold text-foreground mb-5" >
               Overall Breakdown
             </h2>
             <div className="flex justify-center">
@@ -228,7 +225,7 @@ export default function ReportsPage() {
               </div>
             </div>
           </div>
-        </TiltCard>
+        
       </div>
 
       {/* Summary cards */}
@@ -239,28 +236,26 @@ export default function ReportsPage() {
           { label: 'Missed', value: '7', icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10', trend: 'down' },
           { label: 'On Time Rate', value: '94%', icon: TrendingUp, color: 'text-sky-400', bg: 'bg-sky-500/10' },
         ].map((card) => (
-          <TiltCard key={card.label} intensity={12}>
-            <div className="glass-card rounded-2xl p-4">
+          <div key={card.label} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4">
               <div className={`h-9 w-9 rounded-xl ${card.bg} flex items-center justify-center mb-3`}>
                 <card.icon className={`h-4.5 w-4.5 ${card.color}`} />
               </div>
-              <p className="text-2xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{card.value}</p>
+              <p className="text-2xl font-black text-foreground" >{card.value}</p>
               <div className="flex items-center gap-1 mt-1">
                 {'trend' in card && card.trend === 'up' && <TrendingUp className="h-3 w-3 text-emerald-400" />}
                 {'trend' in card && card.trend === 'down' && <TrendingDown className="h-3 w-3 text-red-400" />}
                 <p className="text-xs text-muted-foreground">{card.label}</p>
               </div>
             </div>
-          </TiltCard>
+          
         ))}
       </div>
 
       {/* Downloadable reports (faculty/admin only) */}
       {!isStudent && (
         <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '380ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={2} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
-              <h2 className="text-lg font-bold text-foreground mb-5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
+              <h2 className="text-lg font-bold text-foreground mb-5" >
                 Generated Reports
               </h2>
               <div className="divide-y divide-border/30">
@@ -289,7 +284,7 @@ export default function ReportsPage() {
                 ))}
               </div>
             </div>
-          </TiltCard>
+          
         </div>
       )}
     </div>

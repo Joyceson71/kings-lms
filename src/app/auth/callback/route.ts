@@ -6,6 +6,8 @@ import type { NextRequest } from 'next/server';
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
+  // Where to redirect after successful auth (default to dashboard)
+  const next = searchParams.get('next') ?? '/dashboard';
 
   if (code) {
     const cookieStore = await cookies();
@@ -14,7 +16,9 @@ export async function GET(request: NextRequest) {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          getAll() { return cookieStore.getAll(); },
+          getAll() {
+            return cookieStore.getAll();
+          },
           setAll(cookiesToSet) {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
@@ -23,11 +27,16 @@ export async function GET(request: NextRequest) {
         },
       }
     );
+
     const { error } = await supabase.auth.exchangeCodeForSession(code);
+
     if (!error) {
-      return NextResponse.redirect(`${origin}/dashboard`);
+      // Redirect to the intended destination (or dashboard)
+      const redirectTo = next.startsWith('/') ? `${origin}${next}` : `${origin}/dashboard`;
+      return NextResponse.redirect(redirectTo);
     }
   }
 
+  // Something went wrong — send back to login with an error
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
 }

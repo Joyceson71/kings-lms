@@ -1,341 +1,324 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { TiltCard } from '@/components/ui/tilt-card';
-import {
-  Loader2, ArrowRight, Eye, EyeOff, AlertCircle,
-  Mail, Lock, GraduationCap, Users, ShieldCheck,
-} from 'lucide-react';
-import { cn, getURL } from '@/lib/utils';
+import { AlertCircle, Eye, EyeOff, Loader2, ArrowRight, GraduationCap, Users, ShieldCheck, Mail, Lock } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { cn } from '@/lib/utils';
 
-const loginSchema = z.object({
-  email: z.string().email({ message: 'Please enter a valid email address' }),
-  password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
-});
-
-type LoginFormValues = z.infer<typeof loginSchema>;
 type Role = 'student' | 'faculty' | 'admin';
 
-const roles: { key: Role; label: string; icon: React.ElementType; color: string; activeClass: string }[] = [
+const roles: {
+  key: Role;
+  label: string;
+  icon: React.ElementType;
+  pill: string;
+  gradient: string;
+  glow: string;
+}[] = [
   {
     key: 'student',
     label: 'Student',
     icon: GraduationCap,
-    color: 'text-sky-400',
-    activeClass: 'border-sky-500/60 bg-sky-500/10 text-sky-300',
+    pill: 'border-sky-500/50 bg-sky-500/10 text-sky-300 shadow-[0_0_16px_oklch(0.65_0.2_220/0.2)]',
+    gradient: 'from-sky-600 to-cyan-500',
+    glow: 'hover:shadow-[0_8px_32px_oklch(0.65_0.2_220/0.45)]',
   },
   {
     key: 'faculty',
     label: 'Faculty',
     icon: Users,
-    color: 'text-violet-400',
-    activeClass: 'border-violet-500/60 bg-violet-500/10 text-violet-300',
+    pill: 'border-violet-500/50 bg-violet-500/10 text-violet-300 shadow-[0_0_16px_oklch(0.65_0.26_285/0.2)]',
+    gradient: 'from-violet-600 to-purple-500',
+    glow: 'hover:shadow-[0_8px_32px_oklch(0.65_0.26_285/0.45)]',
   },
   {
     key: 'admin',
     label: 'Admin',
     icon: ShieldCheck,
-    color: 'text-amber-400',
-    activeClass: 'border-amber-500/60 bg-amber-500/10 text-amber-300',
+    pill: 'border-amber-500/50 bg-amber-500/10 text-amber-300 shadow-[0_0_16px_oklch(0.75_0.16_85/0.2)]',
+    gradient: 'from-amber-600 to-orange-500',
+    glow: 'hover:shadow-[0_8px_32px_oklch(0.75_0.16_85/0.45)]',
   },
 ];
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function LoginForm() {
+  const searchParams = useSearchParams();
+  const nextPath = searchParams.get('next') || '/dashboard';
+
+  const [role, setRole] = useState<Role>('student');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<Role>('student');
+  const [isPending, startTransition] = useTransition();
 
-  useEffect(() => {
-    const supabase = createClient();
+  const activeRole = roles.find((r) => r.key === role)!;
 
-    const searchParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    const urlError = searchParams.get('error') || hashParams.get('error');
-    const urlErrorDesc = searchParams.get('error_description') || hashParams.get('error_description');
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-    if (urlError) {
-      setError(urlErrorDesc ? decodeURIComponent(urlErrorDesc.replace(/\+/g, ' ')) : urlError);
+    if (!email || !password) {
+      setError('Please enter your email and password.');
       return;
     }
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        window.location.href = '/dashboard';
+    startTransition(async () => {
+      try {
+        const supabase = createClient();
+        const { error: authError } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+
+        if (authError) {
+          setError(
+            authError.message === 'Invalid login credentials'
+              ? 'Incorrect email or password. Please try again.'
+              : authError.message
+          );
+          return;
+        }
+
+        // Hard redirect — lets the server (middleware) re-evaluate auth state
+        // with the freshly-set session cookie rather than relying on client routing.
+        window.location.href = nextPath;
+      } catch {
+        setError('Something went wrong. Please try again.');
       }
     });
+  };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session) {
-        setTimeout(() => {
-          window.location.href = '/dashboard';
-        }, 100);
-      }
+  const handleOAuth = async (provider: 'google' | 'github') => {
+    const supabase = createClient();
+    await supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback?next=${nextPath}`,
+      },
     });
-    return () => subscription.unsubscribe();
-  }, [router]);
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
-    mode: 'onBlur',
-  });
-
-  const onSubmit = async (data: LoginFormValues) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      const supabase = createClient();
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: data.email.trim(),
-        password: data.password,
-      });
-
-      if (authError) {
-        setError(authError.message || 'Invalid email or password.');
-        return;
-      }
-      // onAuthStateChange above will redirect to /dashboard
-    } catch {
-      setError('An unexpected error occurred. Please try again.');
-    } finally {
-      setIsLoading(false);
-    }
   };
-
-  const handleGoogleLogin = async () => {
-    try {
-      setIsLoading(true);
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${getURL()}auth/callback`,
-        },
-      });
-      if (error) throw error;
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to sign in with Google');
-      setIsLoading(false);
-    }
-  };
-
-  const handleGithubLogin = async () => {
-    try {
-      setIsLoading(true);
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${getURL()}auth/callback`,
-        },
-      });
-      if (error) throw error;
-    } catch (err: unknown) {
-      setError((err as Error).message || 'Failed to sign in with GitHub');
-      setIsLoading(false);
-    }
-  };
-
-  const activeRole = roles.find((r) => r.key === selectedRole)!;
 
   return (
-    <TiltCard intensity={8}>
-      <div className="glass-card rounded-2xl overflow-hidden relative">
-        {/* Top gradient line — colour changes by role */}
+    <div className="relative w-full">
+      {/* Glass card */}
+      <div
+        className="relative rounded-3xl border border-white/8 overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, oklch(0.14 0.025 265 / 0.95) 0%, oklch(0.12 0.02 265 / 0.98) 100%)',
+          backdropFilter: 'blur(24px)',
+          boxShadow: '0 32px 80px oklch(0 0 0 / 0.5), inset 0 1px 0 oklch(1 0 0 / 0.06)',
+        }}
+      >
+        {/* Top accent line — morphs with role */}
         <div
           className={cn(
-            'absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent to-transparent opacity-80 transition-all duration-500',
-            selectedRole === 'student' ? 'via-sky-400' :
-            selectedRole === 'faculty' ? 'via-primary' :
-            'via-amber-400'
+            'absolute top-0 inset-x-0 h-[2px] bg-gradient-to-r transition-all duration-500',
+            role === 'student' ? 'from-transparent via-sky-400 to-transparent' :
+            role === 'faculty' ? 'from-transparent via-violet-400 to-transparent' :
+            'from-transparent via-amber-400 to-transparent'
           )}
         />
 
-        {/* Inner glow */}
-        <div
-          className="absolute inset-0 rounded-2xl pointer-events-none transition-all duration-500"
-          style={{
-            background: selectedRole === 'student'
-              ? 'radial-gradient(ellipse at 50% 0%, oklch(0.65 0.2 220 / 0.06) 0%, transparent 70%)'
-              : selectedRole === 'admin'
-              ? 'radial-gradient(ellipse at 50% 0%, oklch(0.75 0.16 85 / 0.06) 0%, transparent 70%)'
-              : 'radial-gradient(ellipse at 50% 0%, oklch(0.65 0.26 285 / 0.08) 0%, transparent 70%)',
-          }}
-        />
-
-        <div className="p-8 relative z-10">
+        <div className="p-8 space-y-6">
           {/* Role selector */}
-          <div className="mb-6">
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
-              I am a…
-            </p>
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-white/30 mb-3">Sign in as</p>
             <div className="grid grid-cols-3 gap-2">
-              {roles.map((role) => {
-                const Icon = role.icon;
-                const isSelected = selectedRole === role.key;
+              {roles.map((r) => {
+                const Icon = r.icon;
+                const isActive = role === r.key;
                 return (
                   <button
-                    key={role.key}
+                    key={r.key}
                     type="button"
-                    id={`role-${role.key}`}
-                    onClick={() => { setSelectedRole(role.key); setError(null); }}
+                    id={`role-${r.key}`}
+                    onClick={() => { setRole(r.key); setError(null); }}
                     className={cn(
-                      'flex flex-col items-center gap-1 sm:gap-1.5 py-2 sm:py-2.5 px-1 sm:px-2 rounded-xl border text-[10px] sm:text-xs font-semibold transition-all duration-200',
-                      isSelected
-                        ? role.activeClass
-                        : 'border-border/40 text-muted-foreground hover:border-border hover:text-foreground bg-transparent'
+                      'flex flex-col items-center gap-1.5 py-3 px-2 rounded-2xl border text-xs font-semibold transition-all duration-300',
+                      isActive
+                        ? r.pill
+                        : 'border-white/8 text-white/40 hover:border-white/20 hover:text-white/60 hover:bg-white/4'
                     )}
-                    aria-pressed={isSelected}
                   >
-                    <Icon className={cn('h-4 w-4', isSelected ? '' : 'text-muted-foreground/60')} />
-                    {role.label}
+                    <Icon className="h-4 w-4" />
+                    {r.label}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Header */}
-          <div className="mb-5">
-            <h2 className="text-2xl font-black tracking-tight mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          {/* Heading */}
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-white" style={{ fontFamily: 'Outfit, sans-serif' }}>
               Welcome back
             </h2>
-            <p className="text-muted-foreground text-sm">
-              Sign in as <span className={cn('font-semibold', activeRole.color)}>{activeRole.label}</span> to access your portal.
+            <p className="text-sm text-white/45 mt-0.5">
+              Access your{' '}
+              <span className={cn(
+                'font-semibold',
+                role === 'student' ? 'text-sky-400' :
+                role === 'faculty' ? 'text-violet-400' : 'text-amber-400'
+              )}>
+                {activeRole.label.toLowerCase()}
+              </span>
+              {' '}portal.
             </p>
           </div>
 
-          {/* Error banner */}
+          {/* Error */}
           {error && (
-            <div className="mb-5 flex items-start gap-3 p-3.5 text-sm font-medium text-red-400 bg-red-950/40 rounded-xl border border-red-900/50 animate-slide-in-up">
+            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-medium animate-[fadeSlideIn_0.2s_ease_forwards]">
               <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
             {/* Email */}
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-medium text-foreground/90">Email Address</Label>
-              <div className="relative group">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
-                <Input
+              <label htmlFor="email" className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                Email
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25 pointer-events-none" />
+                <input
                   id="email"
                   type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder={
-                    selectedRole === 'student' ? 'student@kingsecc.in' :
-                    selectedRole === 'faculty' ? 'faculty@kingsecc.in' :
-                    'admin@kingsecc.in'
+                    role === 'student' ? 'student@kingsecc.in' :
+                    role === 'faculty' ? 'faculty@kingsecc.in' : 'admin@kingsecc.in'
                   }
                   autoComplete="email"
-                  {...register('email')}
-                  className="pl-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                  disabled={isPending}
+                  className="w-full pl-10 pr-4 h-11 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all duration-200 disabled:opacity-50"
+                  style={{
+                    background: 'oklch(0.10 0.015 265 / 0.8)',
+                    border: '1px solid oklch(1 0 0 / 0.09)',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = role === 'student' ? 'oklch(0.65 0.2 220 / 0.7)' :
+                      role === 'faculty' ? 'oklch(0.65 0.26 285 / 0.7)' : 'oklch(0.75 0.16 85 / 0.7)';
+                    e.currentTarget.style.boxShadow = role === 'student' ? '0 0 0 3px oklch(0.65 0.2 220 / 0.12)' :
+                      role === 'faculty' ? '0 0 0 3px oklch(0.65 0.26 285 / 0.12)' : '0 0 0 3px oklch(0.75 0.16 85 / 0.12)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'oklch(1 0 0 / 0.09)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
               </div>
-              {errors.email && (
-                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.email.message}
-                </p>
-              )}
             </div>
 
             {/* Password */}
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-medium text-foreground/90">Password</Label>
-                <Link href="/reset-password" className="text-xs text-primary hover:text-primary/80 transition-colors hover:underline underline-offset-4 font-medium">
+                <label htmlFor="password" className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                  Password
+                </label>
+                <Link
+                  href="/reset-password"
+                  className="text-xs text-white/35 hover:text-white/60 transition-colors"
+                >
                   Forgot password?
                 </Link>
               </div>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10" />
-                <Input
+              <div className="relative">
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/25 pointer-events-none" />
+                <input
                   id="password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPw ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   autoComplete="current-password"
-                  {...register('password')}
-                  className="pl-10 pr-10 h-11 bg-background/40 border-border/60 text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl"
+                  disabled={isPending}
+                  className="w-full pl-10 pr-10 h-11 rounded-xl text-sm text-white placeholder:text-white/20 outline-none transition-all duration-200 disabled:opacity-50"
+                  style={{
+                    background: 'oklch(0.10 0.015 265 / 0.8)',
+                    border: '1px solid oklch(1 0 0 / 0.09)',
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = role === 'student' ? 'oklch(0.65 0.2 220 / 0.7)' :
+                      role === 'faculty' ? 'oklch(0.65 0.26 285 / 0.7)' : 'oklch(0.75 0.16 85 / 0.7)';
+                    e.currentTarget.style.boxShadow = role === 'student' ? '0 0 0 3px oklch(0.65 0.2 220 / 0.12)' :
+                      role === 'faculty' ? '0 0 0 3px oklch(0.65 0.26 285 / 0.12)' : '0 0 0 3px oklch(0.75 0.16 85 / 0.12)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'oklch(1 0 0 / 0.09)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  onClick={() => setShowPw(!showPw)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors"
+                  aria-label={showPw ? 'Hide password' : 'Show password'}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              {errors.password && (
-                <p className="text-xs text-red-400 font-medium flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3" />
-                  {errors.password.message}
-                </p>
-              )}
             </div>
 
             {/* Submit */}
-            <Button
-              type="submit"
+            <button
               id="login-submit-btn"
+              type="submit"
+              disabled={isPending}
               className={cn(
-                'w-full h-11 text-white font-semibold transition-all duration-200 rounded-xl hover:-translate-y-0.5 group',
-                selectedRole === 'student'
-                  ? 'bg-sky-600 hover:bg-sky-500 hover:shadow-[0_8px_24px_oklch(0.65_0.2_220/0.4)]'
-                  : selectedRole === 'admin'
-                  ? 'bg-amber-600 hover:bg-amber-500 hover:shadow-[0_8px_24px_oklch(0.75_0.16_85/0.4)]'
-                  : 'bg-primary hover:bg-primary/90 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)]'
+                'relative w-full h-12 rounded-2xl font-bold text-sm text-white transition-all duration-300 overflow-hidden group',
+                'disabled:opacity-60 disabled:cursor-not-allowed',
+                activeRole.glow,
+                'hover:-translate-y-0.5 active:translate-y-0'
               )}
-              disabled={isLoading}
+              style={{
+                background: `linear-gradient(135deg, var(--tw-gradient-from), var(--tw-gradient-to))`,
+              }}
             >
-              {isLoading ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span>Signing in…</span>
-                </div>
-              ) : (
-                <span className="flex items-center justify-center gap-2">
-                  Sign in as {activeRole.label}
-                  <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                </span>
-              )}
-            </Button>
+              {/* Gradient bg applied via inline */}
+              <span
+                className={cn(
+                  'absolute inset-0 bg-gradient-to-r transition-opacity duration-300',
+                  activeRole.gradient,
+                )}
+              />
+              <span className="relative z-10 flex items-center justify-center gap-2">
+                {isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Signing in…
+                  </>
+                ) : (
+                  <>
+                    Sign in as {activeRole.label}
+                    <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform duration-200" />
+                  </>
+                )}
+              </span>
+            </button>
           </form>
 
           {/* Divider */}
-          <div className="relative my-5">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-border/40" />
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-3 text-xs text-muted-foreground" style={{ background: 'oklch(0.11 0.02 265)' }}>OR</span>
-            </div>
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-white/8" />
+            <span className="text-xs text-white/25 font-medium">or continue with</span>
+            <div className="flex-1 h-px bg-white/8" />
           </div>
 
-          {/* OAuth Providers */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <Button
+          {/* OAuth */}
+          <div className="grid grid-cols-2 gap-3">
+            <button
               type="button"
-              variant="outline"
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full h-11 rounded-xl border-border/60 hover:bg-secondary/40 font-semibold gap-2"
+              onClick={() => handleOAuth('google')}
+              disabled={isPending}
+              className="flex items-center justify-center gap-2.5 h-11 rounded-2xl border text-sm font-semibold text-white/70 transition-all duration-200 hover:text-white hover:bg-white/6 hover:border-white/20 disabled:opacity-50"
+              style={{ border: '1px solid oklch(1 0 0 / 0.09)', background: 'oklch(1 0 0 / 0.03)' }}
             >
               <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
                 <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -344,33 +327,30 @@ export default function LoginPage() {
                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
               </svg>
               Google
-            </Button>
-            
-            <Button
+            </button>
+            <button
               type="button"
-              variant="outline"
-              onClick={handleGithubLogin}
-              disabled={isLoading}
-              className="w-full h-11 rounded-xl border-border/60 hover:bg-secondary/40 font-semibold gap-2"
+              onClick={() => handleOAuth('github')}
+              disabled={isPending}
+              className="flex items-center justify-center gap-2.5 h-11 rounded-2xl border text-sm font-semibold text-white/70 transition-all duration-200 hover:text-white hover:bg-white/6 hover:border-white/20 disabled:opacity-50"
+              style={{ border: '1px solid oklch(1 0 0 / 0.09)', background: 'oklch(1 0 0 / 0.03)' }}
             >
-              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-foreground" aria-hidden="true">
+              <svg viewBox="0 0 24 24" className="h-4 w-4 fill-white" aria-hidden="true">
                 <path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 21.795 24 17.298 24 12c0-6.627-5.373-12-12-12" />
               </svg>
               GitHub
-            </Button>
+            </button>
           </div>
 
-          {/* Sign up */}
-          <p className="text-sm text-center text-muted-foreground">
+          {/* Sign up link */}
+          <p className="text-center text-sm text-white/35">
             Don&apos;t have an account?{' '}
-            <Link href="/signup" className="text-primary hover:text-primary/80 font-semibold transition-colors hover:underline underline-offset-4">
+            <Link href="/signup" className="text-white/70 hover:text-white font-semibold transition-colors hover:underline underline-offset-4">
               Create account
             </Link>
           </p>
         </div>
-
-        <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
-    </TiltCard>
+    </div>
   );
 }

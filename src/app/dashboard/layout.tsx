@@ -1,12 +1,29 @@
+import { redirect } from 'next/navigation';
+import { createClient } from '@/lib/supabase/server';
 import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
-import { OnboardingGuard } from '@/components/auth/onboarding-guard';
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  // Server-side auth + onboarding check — no client-side race conditions
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Check if profile is complete (department + college are required)
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('department, college')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (!profile?.department || !profile?.college) {
+    redirect('/onboarding');
+  }
+
   return (
     <SidebarProvider>
       <div className="flex h-screen overflow-hidden bg-background">
@@ -23,9 +40,7 @@ export default function DashboardLayout({
             />
             <div className="relative z-10 p-3 sm:p-6">
               <div className="mx-auto max-w-7xl">
-                <OnboardingGuard>
-                  {children}
-                </OnboardingGuard>
+                {children}
               </div>
             </div>
           </main>

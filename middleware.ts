@@ -2,9 +2,9 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({
-    request: { headers: request.headers },
-  });
+  // `supabaseResponse` must be the response returned from middleware so that
+  // any refreshed session cookies set by Supabase are forwarded to the browser.
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -15,44 +15,50 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options: _options }) => {
-            request.cookies.set(name, value);
-          });
-          response = NextResponse.next({
-            request: { headers: request.headers },
-          });
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set(name, value, options);
-          });
+          // Write cookies onto the mutated request first so subsequent
+          // server-side reads in this same request see the fresh values.
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          // Recreate the response so it carries the new request (with cookies).
+          supabaseResponse = NextResponse.next({ request });
+          // Write the cookies onto the outgoing response so the browser stores them.
+          cookiesToSet.forEach(({ name, value, options }) =>
+            supabaseResponse.cookies.set(name, value, options)
+          );
         },
       },
     }
   );
 
-  const { pathname } = request.nextUrl;
+  // IMPORTANT: do not add any logic between createServerClient and getUser().
+  // A simple mistake here will make it very hard to debug auth issues.
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  // Check actual session state
-  const { data: { user } } = await supabase.auth.getUser();
-  // Fallback: also honour the local-auth cookie set by lib/auth.ts
-  const localAuthCookie = request.cookies.get('kings_lms_auth');
-  const isLoggedIn = !!user || (localAuthCookie?.value === 'true');
+  const { pathname } = request.nextUrl;
+  const isLoggedIn = !!user;
 
   const isAuthPage =
     pathname === '/login' ||
     pathname === '/signup' ||
-    pathname.startsWith('/login') ||
-    pathname.startsWith('/signup');
+    pathname.startsWith('/login/') ||
+    pathname.startsWith('/signup/');
 
-  const isDashboardPage =
+  // Protect dashboard and attendance pages.
+  // /onboarding is intentionally excluded — it is the post-login profile-setup
+  // page reached when a profile doesn't exist yet, so it must stay accessible.
+  const isProtectedPage =
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/attend') ||
-    pathname === '/onboarding';
+    pathname.startsWith('/attend');
 
-  if (!isLoggedIn && isDashboardPage) {
+  if (!isLoggedIn && isProtectedPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
+    // Forward any cookies Supabase just set so they survive the redirect.
     const redirectResponse = NextResponse.redirect(url);
-    response.cookies.getAll().forEach((cookie) => {
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value);
     });
     return redirectResponse;
@@ -61,14 +67,17 @@ export async function middleware(request: NextRequest) {
   if (isLoggedIn && isAuthPage) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
+    // Forward any cookies Supabase just set so they survive the redirect.
     const redirectResponse = NextResponse.redirect(url);
-    response.cookies.getAll().forEach((cookie) => {
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
       redirectResponse.cookies.set(cookie.name, cookie.value);
     });
     return redirectResponse;
   }
 
-  return response;
+  // IMPORTANT: return supabaseResponse (not a new NextResponse) so that the
+  // session cookies Supabase set are included in the response to the browser.
+  return supabaseResponse;
 }
 
 export const config = {

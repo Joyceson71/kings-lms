@@ -259,7 +259,7 @@ export default function LoginPage() {
                   placeholder={
                     selectedRole === 'student' ? 'student@kingsecc.in' :
                     selectedRole === 'faculty' ? 'faculty@kingsecc.in' :
-                    'joycesondanielraj28@gmail.com'
+                    'admin@kingsecc.in'
                   }
                   autoComplete="email"
                   {...register('email')}

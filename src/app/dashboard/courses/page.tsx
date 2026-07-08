@@ -1,3 +1,4 @@
+import { getUserOrLocal } from '@/lib/supabase/get-user-or-local';
 import { createClient } from '@/lib/supabase/server';
 import CoursesClient from './courses-client';
 import { getCourses, getEnrolledCourses, getProfile } from '@/lib/supabase/queries';
@@ -6,24 +7,28 @@ import { Suspense } from 'react';
 import { Loader2 } from 'lucide-react';
 
 export default async function CoursesPage() {
-  const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const user = await getUserOrLocal();
 
   if (!user) {
     redirect('/login');
   }
 
-  const profile = await getProfile(supabase, user.id);
-  if (!profile) {
-    redirect('/onboarding');
-  }
-
-  const allCourses = await getCourses(supabase);
-  
+  let profile = null;
+  let allCourses: any[] = [];
   let enrolledCourses: any[] = [];
-  if (profile.role === 'student') {
-    enrolledCourses = await getEnrolledCourses(supabase, user.id);
+
+  if (user.source === 'supabase') {
+    const supabase = await createClient();
+    profile = await getProfile(supabase, user.id);
+    if (!profile) {
+      redirect('/onboarding');
+    }
+    allCourses = await getCourses(supabase);
+    if (profile.role === 'student') {
+      enrolledCourses = await getEnrolledCourses(supabase, user.id);
+    }
   }
+  // For local-auth users the client-side useUser() hook provides the profile.
 
   return (
     <Suspense fallback={

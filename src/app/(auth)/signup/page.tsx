@@ -102,7 +102,8 @@ export default function SignupPage() {
     setError(null);
     try {
       // Prevent registering with reserved admin email
-      if (data.email.trim().toLowerCase() === 'joycesondanielraj28@gmail.com') {
+      const adminEmail = (process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'admin@kingsecc.in').toLowerCase();
+      if (data.email.trim().toLowerCase() === adminEmail) {
         setError('This email address is reserved. Please use a different email.');
         setIsLoading(false);
         return;
@@ -141,6 +142,10 @@ export default function SignupPage() {
           id: sbUser.id,
           full_name: data.fullName,
           role: 'student',
+          department: data.department,
+          year_of_study: parseInt(data.year, 10),
+          college: data.college,
+          roll_number: data.rollNumber,
         });
       }
 

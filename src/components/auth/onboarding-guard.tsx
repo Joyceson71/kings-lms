@@ -12,8 +12,15 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkProfile = async () => {
       try {
+        // Skip onboarding check for local-auth users (they have no Supabase profile)
+        const localAuth = document.cookie.includes('kings_lms_auth=true');
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user && localAuth) {
+          setIsLoading(false);
+          return; // Local-auth users skip onboarding
+        }
 
         if (!user) {
           setIsLoading(false);

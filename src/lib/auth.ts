@@ -13,14 +13,14 @@ export interface LocalUser {
   avatar_url: string | null;
 }
 
-/** The single admin account. */
+/** The single admin account. Credentials are read from env vars — never hardcode them here. */
 const ADMIN_ACCOUNT = {
-  email: 'joycesondanielraj28@gmail.com',
-  password: 'admin@712521',
+  email: process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'admin@kingsecc.in',
+  password: process.env.NEXT_PUBLIC_ADMIN_PASSWORD ?? '',
   user: {
     id: 'admin-001',
-    email: 'joycesondanielraj28@gmail.com',
-    full_name: 'Joyceson Daniel Raj',
+    email: process.env.NEXT_PUBLIC_ADMIN_EMAIL ?? 'admin@kingsecc.in',
+    full_name: 'Administrator',
     role: 'admin' as UserRole,
     avatar_url: null,
   },

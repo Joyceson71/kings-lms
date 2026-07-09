@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getCurrentUser, type LocalUser, type UserRole } from '@/lib/auth';
+import type { UserRole } from '@/lib/auth';
+import { createClient } from '@/lib/supabase/client';
 
 export type { UserRole };
 
@@ -15,20 +16,16 @@ export interface UserProfile {
   college?: string | null;
 }
 
-import { createClient } from '@/lib/supabase/client';
-
 export function useUser() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadUser() {
-      // 1. Check Supabase Auth (for Google/Real Users)
       const supabase = createClient();
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (session?.user) {
-        // Fetch role from profiles table
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
@@ -39,24 +36,10 @@ export function useUser() {
           id: session.user.id,
           email: session.user.email || '',
           full_name: profileData?.full_name || session.user.user_metadata?.full_name || null,
-          role: profileData?.role || 'student', // Default to student if not found
+          role: profileData?.role || 'student',
           avatar_url: profileData?.avatar_url || session.user.user_metadata?.avatar_url || null,
           department: profileData?.department || null,
           college: profileData?.college || null,
-        });
-        setLoading(false);
-        return;
-      }
-
-      // 2. Fallback to Local Demo Auth
-      const user: LocalUser | null = getCurrentUser();
-      if (user) {
-        setProfile({
-          id: user.id,
-          email: user.email,
-          full_name: user.full_name,
-          role: user.role,
-          avatar_url: user.avatar_url,
         });
       } else {
         setProfile(null);
@@ -66,10 +49,11 @@ export function useUser() {
 
     loadUser();
 
-    // Re-sync when storage changes (multi-tab)
-    const handler = () => loadUser();
-    window.addEventListener('storage', handler);
-    return () => window.removeEventListener('storage', handler);
+    const supabase = createClient();
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadUser();
+    });
+    return () => subscription.unsubscribe();
   }, []);
 
   const displayName = profile?.full_name ?? profile?.email?.split('@')[0] ?? 'User';

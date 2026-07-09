@@ -12,7 +12,6 @@ export default async function AdminUsersPage() {
     redirect('/login');
   }
 
-  // Check if admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('role')
@@ -23,7 +22,6 @@ export default async function AdminUsersPage() {
     redirect('/dashboard');
   }
 
-  // Fetch all users
   const { data: users } = await supabase
     .from('profiles')
     .select('*')

@@ -3,6 +3,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 // ---- Type Definitions ----
 export type Profile = {
   id: string;
+  email: string | null;
   full_name: string | null;
   role: 'student' | 'faculty' | 'admin';
   avatar_url: string | null;

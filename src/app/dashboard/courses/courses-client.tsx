@@ -1,12 +1,11 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Users, Clock, Star, Search, Filter, Plus, ArrowRight } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CourseModal } from '@/components/courses/course-modal';
 import { AddCourseModal } from '@/components/courses/add-course-modal';
 import { createClient } from '@/lib/supabase/client';
@@ -19,8 +18,44 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
   const [localAllCourses, setLocalAllCourses] = useState<any[]>(allCourses);
   const [localEnrolledCourses, setLocalEnrolledCourses] = useState<any[]>(enrolledCourses);
   const [enrolling, setEnrolling] = useState<string | null>(null);
+  const [attendanceStats, setAttendanceStats] = useState<Record<string, number>>({});
 
   const isStudent = profile.role === 'student';
+
+  useEffect(() => {
+    if (isStudent && profile.id) {
+      const fetchAttendance = async () => {
+        const supabase = createClient();
+        
+        // Fetch all attendance logs for this student
+        const { data: logs } = await supabase
+          .from('attendance_logs')
+          .select('status, course_sessions(course_id)')
+          .eq('student_id', profile.id);
+          
+        if (logs) {
+          const stats: Record<string, { present: number, total: number }> = {};
+          
+          logs.forEach((log: any) => {
+            const courseId = log.course_sessions?.course_id;
+            if (courseId) {
+              if (!stats[courseId]) stats[courseId] = { present: 0, total: 0 };
+              stats[courseId].total += 1;
+              if (log.status === 'Present') stats[courseId].present += 1;
+            }
+          });
+          
+          const pct: Record<string, number> = {};
+          Object.keys(stats).forEach(courseId => {
+            pct[courseId] = Math.round((stats[courseId].present / stats[courseId].total) * 100);
+          });
+          setAttendanceStats(pct);
+        }
+      };
+      
+      fetchAttendance();
+    }
+  }, [isStudent, profile.id]);
 
   const formatCourse = (c: any) => ({
     id: c.id,
@@ -29,10 +64,8 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
     faculty: c.profiles?.full_name || 'Instructor',
     students: c.course_enrollments?.[0]?.count || 0,
     sessions: 0,
-    attendance: 100, // mock
+    attendance: attendanceStats[c.id] !== undefined ? attendanceStats[c.id] : 100,
     category: 'Course',
-    color: 'from-emerald-500 to-teal-400',
-    glow: 'oklch(0.70 0.20 165 / 0.25)',
     icon: '📚',
     status: 'active' as const,
     rating: 0,
@@ -65,14 +98,14 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            <span className="gradient-text">{isStudent ? 'My Courses' : 'Courses'}</span>
+          <h1 className="text-xl font-semibold tracking-tight text-white">
+            {isStudent ? 'My Courses' : 'Courses'}
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
+          <p className="text-zinc-400 text-[13px] mt-1">
             {isStudent 
               ? `${localEnrolledCourses.length} courses enrolled` 
               : `${localAllCourses.length} total courses offered`}
@@ -82,9 +115,9 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
           <Button
             id="add-course-btn"
             onClick={() => setIsAddModalOpen(true)}
-            className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
+            className="group"
           >
-            <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
+            <Plus className="mr-1.5 h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-300" />
             Add Course
           </Button>
         )}
@@ -93,135 +126,129 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
       {/* Search & filter */}
       <div className="flex gap-3 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
         <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500 pointer-events-none" />
           <Input
             id="course-search"
             placeholder="Search courses…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 h-10 bg-secondary/40 border-border/40 rounded-xl focus-visible:ring-1 focus-visible:ring-primary"
+            className="pl-9"
           />
         </div>
-        <Button variant="outline" className="h-10 border-border/40 rounded-xl gap-2 text-muted-foreground hover:text-foreground">
+        <Button variant="outline" className="gap-2 text-zinc-400">
           <Filter className="h-4 w-4" />
           Filter
         </Button>
       </div>
 
       {/* Course grid */}
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
         {filtered.map((course, i) => (
           <div
             key={course.id}
             className="animate-slide-in-up opacity-0"
             style={{ animationDelay: `${(i + 1) * 60}ms`, animationFillMode: 'forwards' }}
           >
-            <TiltCard intensity={10}>
-              <div
-                className="glass-card rounded-2xl overflow-hidden h-full flex flex-col cursor-pointer hover:border-primary/50 transition-colors"
-                style={{ boxShadow: `0 4px 24px ${course.glow}` }}
-                onClick={() => setActiveCourse(course)}
-              >
-                {/* Top color bar */}
-                <div className={`h-1 bg-gradient-to-r ${course.color}`} />
-
-                <div className="p-5 flex flex-col flex-1">
-                  {/* Icon + status */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className={`h-12 w-12 rounded-2xl bg-gradient-to-br ${course.color} flex items-center justify-center text-2xl shadow-lg`}>
-                      {course.icon}
-                    </div>
-                    {isStudent && enrolledIds.has(course.id) ? (
-                      <Badge variant="success" dot>Enrolled</Badge>
-                    ) : (
-                      <Badge variant={course.status === 'active' ? 'active' : 'secondary'} dot>
-                        {course.status === 'active' ? 'Active' : 'Upcoming'}
-                      </Badge>
-                    )}
+            <div
+              className="rounded-xl overflow-hidden h-full flex flex-col cursor-pointer hover:border-indigo-500/50 transition-colors group"
+              style={{ background: '#111113', border: '1px solid #1f1f23' }}
+              onClick={() => setActiveCourse(course)}
+            >
+              <div className="p-4 flex flex-col flex-1">
+                {/* Icon + status */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="h-10 w-10 rounded-lg flex items-center justify-center text-xl" style={{ background: '#1a1a1d', border: '1px solid #2a2a2e' }}>
+                    {course.icon}
                   </div>
+                  {isStudent && enrolledIds.has(course.id) ? (
+                    <Badge variant="success" dot>Enrolled</Badge>
+                  ) : (
+                    <Badge variant={course.status === 'active' ? 'active' : 'secondary'} dot>
+                      {course.status === 'active' ? 'Active' : 'Upcoming'}
+                    </Badge>
+                  )}
+                </div>
 
-                  {/* Title */}
-                  <div className="mb-3">
-                    <span className="text-[11px] font-mono text-muted-foreground">{course.code}</span>
-                    <h3 className="text-base font-bold text-foreground mt-0.5 leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
-                      {course.title}
-                    </h3>
-                    <p className="text-xs text-muted-foreground mt-1">{course.faculty}</p>
+                {/* Title */}
+                <div className="mb-4">
+                  <span className="text-[11px] font-mono text-zinc-500">{course.code}</span>
+                  <h3 className="text-[14px] font-semibold text-white mt-0.5 leading-snug">
+                    {course.title}
+                  </h3>
+                  <p className="text-[12px] text-zinc-400 mt-1">{course.faculty}</p>
+                </div>
+
+                {/* Stats row */}
+                <div className="grid grid-cols-3 gap-2 mb-4">
+                  <div className="text-center p-2 rounded-md" style={{ background: '#0a0a0b', border: '1px solid #1a1a1d' }}>
+                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                      <Users className="h-3 w-3 text-zinc-500" />
+                      <span className="text-[12px] font-semibold text-white">{course.students}</span>
+                    </div>
+                    <p className="text-[10px] text-zinc-500">Students</p>
                   </div>
-
-                  {/* Stats row */}
-                  <div className="grid grid-cols-3 gap-3 mb-4">
-                    <div className="text-center p-2 rounded-lg bg-background/30">
-                      <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <Users className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs font-bold text-foreground">{course.students}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Students</p>
+                  <div className="text-center p-2 rounded-md" style={{ background: '#0a0a0b', border: '1px solid #1a1a1d' }}>
+                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                      <Clock className="h-3 w-3 text-zinc-500" />
+                      <span className="text-[12px] font-semibold text-white">{course.sessions}</span>
                     </div>
-                    <div className="text-center p-2 rounded-lg bg-background/30">
-                      <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <Clock className="h-3 w-3 text-muted-foreground" />
-                        <span className="text-xs font-bold text-foreground">{course.sessions}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Sessions</p>
-                    </div>
-                    <div className="text-center p-2 rounded-lg bg-background/30">
-                      <div className="flex items-center justify-center gap-1 mb-0.5">
-                        <Star className="h-3 w-3 text-amber-400" />
-                        <span className="text-xs font-bold text-foreground">{course.rating}</span>
-                      </div>
-                      <p className="text-[10px] text-muted-foreground">Rating</p>
-                    </div>
+                    <p className="text-[10px] text-zinc-500">Sessions</p>
                   </div>
-
-                  {/* Attendance */}
-                  <div className="mb-4">
-                    <div className="flex justify-between mb-1.5 text-xs">
-                      <span className="text-muted-foreground">Attendance</span>
-                      <span className={`font-semibold ${
-                        course.attendance >= 80 ? 'text-emerald-400' :
-                        course.attendance >= 70 ? 'text-amber-400' : 'text-red-400'
-                      }`}>{course.attendance}%</span>
+                  <div className="text-center p-2 rounded-md" style={{ background: '#0a0a0b', border: '1px solid #1a1a1d' }}>
+                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                      <Star className="h-3 w-3 text-amber-400" />
+                      <span className="text-[12px] font-semibold text-white">{course.rating}</span>
                     </div>
-                    <Progress
-                      value={course.attendance}
-                      variant={course.attendance >= 80 ? 'emerald' : course.attendance >= 70 ? 'gold' : 'red'}
-                      size="md"
-                    />
-                  </div>
-
-                  {/* Footer */}
-                  <div className="mt-auto pt-3 border-t border-border/30">
-                    {isStudent && !enrolledIds.has(course.id) ? (
-                      <Button
-                        onClick={(e) => { e.stopPropagation(); handleEnroll(course.id); }}
-                        disabled={enrolling === course.id}
-                        className="w-full h-9 bg-primary/20 text-primary hover:bg-primary/30 rounded-xl font-medium"
-                      >
-                        {enrolling === course.id ? 'Enrolling...' : 'Enroll Now'}
-                      </Button>
-                    ) : (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="w-full h-8 text-xs text-muted-foreground hover:text-foreground hover:bg-primary/10 group rounded-xl"
-                      >
-                        View Course
-                        <ArrowRight className="ml-1 h-3 w-3 group-hover:translate-x-1 transition-transform" />
-                      </Button>
-                    )}
+                    <p className="text-[10px] text-zinc-500">Rating</p>
                   </div>
                 </div>
+
+                {/* Attendance */}
+                <div className="mb-4 mt-auto">
+                  <div className="flex justify-between mb-1.5 text-[11px]">
+                    <span className="text-zinc-400">Attendance</span>
+                    <span className={`font-semibold ${
+                      course.attendance >= 80 ? 'text-emerald-400' :
+                      course.attendance >= 70 ? 'text-amber-400' : 'text-red-400'
+                    }`}>{course.attendance}%</span>
+                  </div>
+                  <Progress
+                    value={course.attendance}
+                    variant={course.attendance >= 80 ? 'emerald' : course.attendance >= 70 ? 'gold' : 'red'}
+                    size="sm"
+                  />
+                </div>
+
+                {/* Footer */}
+                <div className="pt-3" style={{ borderTop: '1px solid #1a1a1d' }}>
+                  {isStudent && !enrolledIds.has(course.id) ? (
+                    <Button
+                      onClick={(e) => { e.stopPropagation(); handleEnroll(course.id); }}
+                      disabled={enrolling === course.id}
+                      className="w-full text-[12px] h-8"
+                    >
+                      {enrolling === course.id ? 'Enrolling...' : 'Enroll Now'}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="ghost"
+                      className="w-full text-[12px] h-8 text-zinc-400 group-hover:text-white"
+                    >
+                      View Course
+                      <ArrowRight className="ml-1.5 h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </TiltCard>
+            </div>
           </div>
         ))}
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-16">
-          <BookOpen className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
-          <p className="text-muted-foreground">No courses match your search.</p>
+        <div className="text-center py-16" style={{ border: '1px dashed #1f1f23', borderRadius: '12px' }}>
+          <BookOpen className="h-8 w-8 text-zinc-600 mx-auto mb-3" />
+          <p className="text-[13px] text-zinc-400">No courses match your search.</p>
         </div>
       )}
 

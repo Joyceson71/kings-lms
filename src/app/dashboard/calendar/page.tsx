@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Use
 import { Button } from '@/components/ui/button';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { TiltCard } from '@/components/ui/tilt-card';
 
 const SCHEDULE = [
   { id: 1, title: 'Signals and Systems', time: '10:00 AM - 11:30 AM', type: 'Lecture', room: 'Room 402', color: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20', dayOffset: 0 },
@@ -26,7 +25,7 @@ export default function CalendarPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up flex-shrink-0">
         <div>
-          <h1 className="text-3xl font-black tracking-tight flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-2" >
             <CalendarIcon className="h-7 w-7 text-primary" />
             <span className="gradient-text">Schedule</span>
           </h1>
@@ -57,7 +56,7 @@ export default function CalendarPage() {
               <p className={cn(
                 "text-2xl font-black mt-1",
                 isSameDay(day, new Date()) ? "text-primary drop-shadow-[0_0_8px_oklch(0.65_0.26_285/0.5)]" : "text-foreground"
-              )} style={{ fontFamily: 'Outfit, sans-serif' }}>
+              )} >
                 {format(day, 'd')}
               </p>
             </div>
@@ -72,13 +71,12 @@ export default function CalendarPage() {
             return (
               <div key={colIndex} className="border-r border-border/50 last:border-r-0 p-3 flex flex-col gap-3">
                 {daysEvents.map((event) => (
-                  <TiltCard key={event.id} intensity={5} glareEffect={false}>
-                    <div className={cn(
+                  <div key={event.id} className={cn(
                       "p-3 rounded-2xl border flex flex-col cursor-pointer transition-all hover:scale-[1.02]",
                       event.color
                     )}>
                       <p className="text-[10px] font-bold uppercase tracking-wider opacity-80 mb-1">{event.type}</p>
-                      <h4 className="font-bold text-sm leading-tight mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                      <h4 className="font-bold text-sm leading-tight mb-2" >
                         {event.title}
                       </h4>
                       <div className="mt-auto space-y-1.5 opacity-90 text-xs">
@@ -92,7 +90,7 @@ export default function CalendarPage() {
                         </div>
                       </div>
                     </div>
-                  </TiltCard>
+                  
                 ))}
               </div>
             );

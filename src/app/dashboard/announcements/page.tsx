@@ -1,14 +1,26 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Bell, Search, Filter, Plus, ArrowRight, Megaphone, Calendar as CalendarIcon, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/hooks/use-user';
+import { createClient } from '@/lib/supabase/client';
+import { Loader2 } from 'lucide-react';
 
-// Mock data for immediate beautiful UI rendering
+type AnnouncementType = {
+  id: string;
+  title: string;
+  content: string;
+  type: 'global' | 'course';
+  courseName?: string;
+  author: string;
+  date: string;
+  color: string;
+  glow: string;
+  icon: React.ReactNode;
+};
 const initialAnnouncements = [
   {
     id: '1',
@@ -48,8 +60,40 @@ const initialAnnouncements = [
 
 export default function AnnouncementsPage() {
   const [search, setSearch] = useState('');
-  const { role } = useUser();
-  const [announcements, setAnnouncements] = useState(initialAnnouncements);
+  const { role, profile } = useUser();
+  const [announcements, setAnnouncements] = useState<AnnouncementType[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!profile) return;
+    
+    async function fetchAnnouncements() {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*, courses(title), profiles(full_name)')
+        .order('created_at', { ascending: false });
+
+      if (data) {
+        const formatted = data.map((a: any) => ({
+          id: a.id,
+          title: a.title,
+          content: a.content,
+          type: a.course_id ? ('course' as const) : ('global' as const),
+          courseName: a.courses?.title,
+          author: a.profiles?.full_name || 'Administrator',
+          date: a.created_at,
+          color: a.course_id ? 'from-violet-600 to-fuchsia-500' : 'from-amber-500 to-orange-400',
+          glow: a.course_id ? 'oklch(0.65 0.26 285 / 0.25)' : 'oklch(0.75 0.16 85 / 0.25)',
+          icon: a.course_id ? <Bell className="h-6 w-6 text-white" /> : <Megaphone className="h-6 w-6 text-white" />,
+        }));
+        setAnnouncements(formatted);
+      }
+      setLoading(false);
+    }
+    
+    fetchAnnouncements();
+  }, [profile]);
 
   const filtered = announcements.filter(
     (a) =>
@@ -62,7 +106,7 @@ export default function AnnouncementsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Announcements</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">Stay updated with the latest news and notices</p>
@@ -78,7 +122,13 @@ export default function AnnouncementsPage() {
         )}
       </div>
 
-      {/* Search & filter */}
+      {loading ? (
+        <div className="flex justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <>
+          {/* Search & filter */}
       <div className="flex gap-3 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
@@ -104,10 +154,9 @@ export default function AnnouncementsPage() {
             className="animate-slide-in-up opacity-0"
             style={{ animationDelay: `${(i + 1) * 60}ms`, animationFillMode: 'forwards' }}
           >
-            <TiltCard intensity={5}>
-              <div
-                className="glass-card rounded-2xl overflow-hidden flex flex-col md:flex-row cursor-pointer hover:border-primary/50 transition-colors"
-                style={{ boxShadow: `0 4px 24px ${announcement.glow}` }}
+            <div
+                className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden flex flex-col md:flex-row cursor-pointer hover:border-primary/50 transition-colors"
+                style={{  }}
               >
                 {/* Left color bar */}
                 <div className={`w-full md:w-2 bg-gradient-to-b ${announcement.color} h-2 md:h-auto`} />
@@ -135,7 +184,7 @@ export default function AnnouncementsPage() {
                       </div>
                     </div>
 
-                    <h3 className="text-xl font-bold text-foreground mb-3 leading-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                    <h3 className="text-xl font-bold text-foreground mb-3 leading-tight" >
                       {announcement.title}
                     </h3>
                     
@@ -164,16 +213,18 @@ export default function AnnouncementsPage() {
                   </div>
                 </div>
               </div>
-            </TiltCard>
+            
           </div>
         ))}
       </div>
 
-      {filtered.length === 0 && (
+      {filtered.length === 0 && !loading && (
         <div className="text-center py-16">
           <Bell className="h-12 w-12 text-muted-foreground/30 mx-auto mb-3" />
           <p className="text-muted-foreground">No announcements match your search.</p>
         </div>
+      )}
+        </>
       )}
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -18,7 +17,7 @@ function AttendanceContent() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const qrTokenFromUrl = searchParams.get('token');
-  
+
   // Data State
   const [activeSessions, setActiveSessions] = useState<any[]>([]);
   const [historyRecords, setHistoryRecords] = useState<any[]>([]);
@@ -47,7 +46,7 @@ function AttendanceContent() {
           .from('courses')
           .select('id, title, code')
           .eq('created_by', profile?.id);
-        
+
         if (coursesData) setMyCourses(coursesData);
 
         // Faculty: Get their active sessions
@@ -57,7 +56,7 @@ function AttendanceContent() {
           .eq('created_by', profile?.id)
           .eq('status', 'active')
           .order('created_at', { ascending: false });
-        
+
         if (sessionsData) setActiveSessions(sessionsData);
 
         // Faculty: Recent history
@@ -66,25 +65,25 @@ function AttendanceContent() {
           .select('*, profiles(full_name), course_sessions(courses(title, code))')
           .order('marked_at', { ascending: false })
           .limit(10);
-        
+
         if (historyData) setHistoryRecords(historyData);
-        
+
       } else if (isStudent) {
         // Student: Get active sessions for enrolled courses
         const { data: enrollments } = await supabase
           .from('course_enrollments')
           .select('course_id')
           .eq('student_id', profile?.id);
-          
+
         const courseIds = enrollments?.map(e => e.course_id) || [];
-        
+
         if (courseIds.length > 0) {
           const { data: sessionsData } = await supabase
             .from('course_sessions')
             .select('*, courses(title, code)')
             .in('course_id', courseIds)
             .eq('status', 'active');
-            
+
           if (sessionsData) setActiveSessions(sessionsData);
         }
 
@@ -94,12 +93,20 @@ function AttendanceContent() {
           .select('*, course_sessions(courses(title, code))')
           .eq('student_id', profile?.id)
           .order('marked_at', { ascending: false });
-          
+
         if (historyData) {
           setHistoryRecords(historyData);
           const attendedCount = historyData.filter(h => h.status === 'Present').length;
-          // Just mock total for now until we have session totals
-          setStats({ attended: attendedCount, total: attendedCount + 2 }); 
+          let totalSessions = attendedCount;
+          if (courseIds.length > 0) {
+            const { count } = await supabase
+              .from('course_sessions')
+              .select('*', { count: 'exact', head: true })
+              .in('course_id', courseIds);
+            if (count !== null) totalSessions = count;
+          }
+
+          setStats({ attended: attendedCount, total: totalSessions });
         }
       }
     } catch (error) {
@@ -111,12 +118,12 @@ function AttendanceContent() {
 
   const handleCreateSession = async () => {
     if (myCourses.length === 0) return alert('You must create a course first.');
-    
+
     setIsCreatingSession(true);
     try {
       const courseId = myCourses[0].id; // For simplicity, picking first course
-      const token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      
+      const token = crypto.randomUUID();
+
       const { data, error } = await supabase
         .from('course_sessions')
         .insert({
@@ -127,9 +134,9 @@ function AttendanceContent() {
         })
         .select('*, courses(title, code)')
         .single();
-        
+
       if (error) throw error;
-      
+
       if (data) {
         setActiveSessions([data, ...activeSessions]);
         // Open QR directly
@@ -145,7 +152,7 @@ function AttendanceContent() {
     }
   };
 
-  const handleScanSuccess = async (decodedText: string) => {
+  async function handleScanSuccess(decodedText: string) {
     setIsProcessingScan(true);
     setScanError(null);
     setScanSuccess(null);
@@ -205,7 +212,7 @@ function AttendanceContent() {
       }
 
       setScanSuccess(`Marked present for ${(sessionData.courses as any)?.title}`);
-      
+
       // Fire confetti
       confetti({
         particleCount: 100,
@@ -225,7 +232,7 @@ function AttendanceContent() {
     }
   };
 
-  const openQRScanner = () => {
+  function openQRScanner() {
     setScanError(null);
     setScanSuccess(null);
     setIsScannerOpen(true);
@@ -256,7 +263,7 @@ function AttendanceContent() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight" >
             <span className="gradient-text">Attendance</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -279,37 +286,33 @@ function AttendanceContent() {
       {/* Quick stats row (students only) */}
       {isStudent && (
         <div className="grid grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{stats.attended}</p>
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{stats.attended}</p>
               <p className="text-xs text-muted-foreground mt-1">Sessions Attended</p>
               <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="emerald" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{Math.max(0, stats.total - stats.attended)}</p>
+          
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{Math.max(0, stats.total - stats.attended)}</p>
               <p className="text-xs text-muted-foreground mt-1">Sessions Missed</p>
               <Progress value={0} variant="red" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
-          <TiltCard intensity={10}>
-            <div className="glass-card rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>{Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0)}%</p>
+          
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
+              <p className="text-3xl font-black text-foreground" >{Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0)}%</p>
               <p className="text-xs text-muted-foreground mt-1">Overall Rate</p>
               <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="gold" size="sm" className="mt-3" />
             </div>
-          </TiltCard>
+          
         </div>
       )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
         {/* Active sessions / QR scan */}
         <div className="space-y-4 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={5} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Active Sessions</h2>
+                <h2 className="text-lg font-bold text-foreground" >Active Sessions</h2>
                 <Badge variant="active" dot>Live</Badge>
               </div>
 
@@ -329,7 +332,7 @@ function AttendanceContent() {
                             </div>
                             <div>
                               <h3 className="text-sm font-semibold text-foreground">{session.courses?.code}: {session.courses?.title}</h3>
-                              <p className="text-xs text-muted-foreground">Started {new Date(session.started_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})} • {session.room}</p>
+                              <p className="text-xs text-muted-foreground">Started {new Date(session.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.room}</p>
                             </div>
                           </div>
                           <Button
@@ -370,7 +373,7 @@ function AttendanceContent() {
                     <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring" />
                     <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring delay-700 opacity-60" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+                  <h3 className="text-lg font-bold text-foreground mb-2" >
                     Ready to Mark Attendance?
                   </h3>
                   <p className="text-sm text-muted-foreground max-w-xs mb-5">
@@ -387,15 +390,14 @@ function AttendanceContent() {
                 </div>
               )}
             </div>
-          </TiltCard>
+          
         </div>
 
         {/* Attendance history */}
         <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '250ms', animationFillMode: 'forwards' }}>
-          <TiltCard intensity={5} glareEffect={false}>
-            <div className="glass-card rounded-2xl p-6">
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-bold text-foreground" style={{ fontFamily: 'Outfit, sans-serif' }}>Recent History</h2>
+                <h2 className="text-lg font-bold text-foreground" >Recent History</h2>
                 <Button variant="ghost" size="sm" className="text-xs text-muted-foreground hover:text-foreground gap-1.5">
                   <BarChart2 className="h-3.5 w-3.5" />
                   Full Report
@@ -412,11 +414,10 @@ function AttendanceContent() {
                     className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/20 hover:bg-background/40 hover:border-border/60 transition-all duration-200"
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                        record.status === 'Present' ? 'bg-emerald-500/10' :
-                        record.status === 'Absent' ? 'bg-red-500/10' :
-                        'bg-amber-500/10'
-                      }`}>
+                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${record.status === 'Present' ? 'bg-emerald-500/10' :
+                          record.status === 'Absent' ? 'bg-red-500/10' :
+                            'bg-amber-500/10'
+                        }`}>
                         {record.status === 'Present' ? (
                           <CheckCircle className="h-4 w-4 text-emerald-400" />
                         ) : record.status === 'Absent' ? (
@@ -453,17 +454,17 @@ function AttendanceContent() {
                 View Full History
               </Button>
             </div>
-          </TiltCard>
+          
         </div>
       </div>
 
-      <QRDisplayModal 
-        isOpen={isQRDisplayOpen} 
-        onClose={() => setIsQRDisplayOpen(false)} 
+      <QRDisplayModal
+        isOpen={isQRDisplayOpen}
+        onClose={() => setIsQRDisplayOpen(false)}
         token={selectedQRToken}
         courseName={selectedCourseName}
       />
-      
+
       <QRScannerModal
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
@@ -478,7 +479,7 @@ function AttendanceContent() {
 
 export default function AttendancePage() {
   return (
-    <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8"/></div>}>
+    <Suspense fallback={<div className="p-8 flex justify-center"><Loader2 className="animate-spin text-primary w-8 h-8" /></div>}>
       <AttendanceContent />
     </Suspense>
   );

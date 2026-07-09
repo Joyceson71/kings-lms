@@ -1,6 +1,5 @@
 'use client';
 
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Badge } from '@/components/ui/badge';
 import { Trophy, Medal, Star, Flame, Crown, Target } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
@@ -26,7 +25,7 @@ export default function LeaderboardPage() {
     <div className="space-y-8 max-w-5xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up">
         <div>
-          <h1 className="text-3xl font-black tracking-tight flex items-center gap-2" style={{ fontFamily: 'Outfit, sans-serif' }}>
+          <h1 className="text-3xl font-black tracking-tight flex items-center gap-2" >
             <Trophy className="h-8 w-8 text-amber-400" />
             <span className="gradient-text">Leaderboard</span>
           </h1>
@@ -43,9 +42,8 @@ export default function LeaderboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-in-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
         {TOP_STUDENTS.slice(0, 3).map((student, i) => (
-          <TiltCard key={student.id} intensity={15}>
-            <div className={cn(
-              "glass-card rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden",
+          <div key={student.id} className={cn(
+              "bg-[#111113] border border-[#1f1f23] rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden",
               student.rank === 1 ? "border-amber-500/30 shadow-[0_0_30px_oklch(0.75_0.16_85/0.15)]" :
               student.rank === 2 ? "border-slate-300/30" : "border-amber-700/30"
             )}>
@@ -71,7 +69,7 @@ export default function LeaderboardPage() {
                 </div>
               </div>
               
-              <h3 className="font-bold text-lg mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>{student.name}</h3>
+              <h3 className="font-bold text-lg mb-1" >{student.name}</h3>
               <Badge variant="secondary" className="mb-4 bg-primary/10 text-primary border-primary/20">
                 {student.points} pts
               </Badge>
@@ -87,13 +85,13 @@ export default function LeaderboardPage() {
                 </div>
               </div>
             </div>
-          </TiltCard>
+          
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-slide-in-up" style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}>
-        <div className="lg:col-span-2 glass-card rounded-3xl p-6">
-          <h2 className="text-xl font-bold mb-6" style={{ fontFamily: 'Outfit, sans-serif' }}>Global Rankings</h2>
+        <div className="lg:col-span-2 bg-[#111113] border border-[#1f1f23] rounded-3xl p-6">
+          <h2 className="text-xl font-bold mb-6" >Global Rankings</h2>
           <div className="space-y-4">
             {TOP_STUDENTS.map((student) => (
               <div key={student.id} className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/30 border border-border/40 hover:bg-secondary/60 transition-colors">
@@ -111,8 +109,8 @@ export default function LeaderboardPage() {
           </div>
         </div>
 
-        <div className="glass-card rounded-3xl p-6 h-fit">
-          <h2 className="text-xl font-bold mb-6" style={{ fontFamily: 'Outfit, sans-serif' }}>My Badges</h2>
+        <div className="bg-[#111113] border border-[#1f1f23] rounded-3xl p-6 h-fit">
+          <h2 className="text-xl font-bold mb-6" >My Badges</h2>
           <div className="space-y-4">
             {BADGES.map((badge) => (
               <div key={badge.id} className="flex items-center gap-4 p-3 rounded-2xl border border-border/30 bg-background/40">

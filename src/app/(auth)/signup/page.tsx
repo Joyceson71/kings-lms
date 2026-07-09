@@ -9,7 +9,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle, Building2, Hash, BookOpen, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
@@ -103,37 +102,35 @@ export default function SignupPage() {
     setIsLoading(true);
     setError(null);
     try {
-      // Prevent registering with reserved admin email
-      if (data.email.trim().toLowerCase() === 'joycesondanielraj28@gmail.com') {
-        setError('This email address is reserved. Please use a different email.');
-        setIsLoading(false);
-        return;
-      }
+      const supabase = createClient();
 
-      // Simulate brief network delay for UX
-      await new Promise((resolve) => setTimeout(resolve, 800));
-
-      // Save new user to localStorage (demo registration)
-      const stored = localStorage.getItem('kings_lms_registered_users');
-      const users: Array<Record<string, unknown>> = stored ? JSON.parse(stored) : [];
-
-      const existing = users.find((u) => typeof u.email === 'string' && u.email.toLowerCase() === data.email.trim().toLowerCase());
-      if (existing) {
-        setError('An account with this email already exists. Please sign in instead.');
-        setIsLoading(false);
-        return;
-      }
-
-      users.push({ 
-        email: data.email.trim().toLowerCase(), 
-        password: data.password, 
-        fullName: data.fullName,
-        department: data.department,
-        year: data.year,
-        college: data.college,
-        rollNumber: data.rollNumber
+      // Sign up via Supabase Auth — this is now the single source of truth
+      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+        email: data.email.trim(),
+        password: data.password,
+        options: {
+          data: { full_name: data.fullName },
+        },
       });
-      localStorage.setItem('kings_lms_registered_users', JSON.stringify(users));
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      const sbUser = signUpData.user;
+      if (sbUser) {
+        await supabase.from('profiles').upsert({
+          id: sbUser.id,
+          email: data.email.trim().toLowerCase(),
+          full_name: data.fullName,
+          role: 'student',
+          department: data.department,
+          year_of_study: parseInt(data.year, 10),
+          college: data.college,
+          roll_number: data.rollNumber,
+        });
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -153,7 +150,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${getURL()}signup`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;
@@ -171,7 +168,7 @@ export default function SignupPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {
-          redirectTo: `${getURL()}signup`,
+          redirectTo: `${getURL()}auth/callback`,
         },
       });
       if (error) throw error;
@@ -184,8 +181,7 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <TiltCard intensity={6}>
-        <div className="glass-card rounded-2xl overflow-hidden relative">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70" />
           <div className="p-8 text-center space-y-4">
             <div className="flex justify-center">
@@ -193,7 +189,7 @@ export default function SignupPage() {
                 <CheckCircle className="h-9 w-9 text-emerald-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight" >
               Account Created!
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -204,13 +200,12 @@ export default function SignupPage() {
             </div>
           </div>
         </div>
-      </TiltCard>
+      
     );
   }
 
   return (
-    <TiltCard intensity={6}>
-      <div className="glass-card rounded-2xl overflow-hidden relative">
+    <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
         {/* Top gradient line */}
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-70" />
 
@@ -223,7 +218,7 @@ export default function SignupPage() {
         <div className="p-8 relative z-10">
           {/* Header */}
           <div className="mb-6">
-            <h2 className="text-2xl font-black tracking-tight mb-1.5" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight mb-1.5" >
               Create account
             </h2>
             <p className="text-muted-foreground text-sm">
@@ -553,6 +548,6 @@ export default function SignupPage() {
         {/* Bottom line */}
         <div className="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       </div>
-    </TiltCard>
+    
   );
 }

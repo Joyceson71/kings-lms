@@ -1,0 +1,118 @@
+
+> kings-lms@0.1.0 lint
+> eslint
+
+
+/home/ghost/Projects/kings-lms/middleware.ts
+  18:57  warning  '_options' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/login/page.tsx
+  91:5  warning  'setValue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/(auth)/onboarding/page.tsx
+  3:20  warning  'useEffect' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx
+  19:10  warning  'courseName' is assigned a value but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+  28:5   error    Error: Cannot access variable before it is declared
+
+`processAttendance` is accessed before it is declared, which prevents the earlier access from updating when this value changes over time.
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx:28:5
+  26 |     }
+  27 |
+> 28 |     processAttendance(sessionId);
+     |     ^^^^^^^^^^^^^^^^^ `processAttendance` accessed before it is declared
+  29 |   }, [sessionId]);
+  30 |
+  31 |   async function processAttendance(sid: string) {
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx:31:3
+  29 |   }, [sessionId]);
+  30 |
+> 31 |   async function processAttendance(sid: string) {
+     |   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> 32 |     try {
+     | ^^^^^^^^^
+> 33 |       const supabase = createClient();
+     …
+     | ^^^^^^^^^
+> 84 |     }
+     | ^^^^^^^^^
+> 85 |   };
+     | ^^^^ `processAttendance` is declared here
+  86 |
+  87 |   return (
+  88 |     <div className="min-h-screen flex items-center justify-center p-4 bg-background relative overflow-hidden">  react-hooks/immutability
+  29:6   warning  React Hook useEffect has a missing dependency: 'processAttendance'. Either include it or remove the dependency array                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  react-hooks/exhaustive-deps
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/admin/departments/page.tsx
+   4:10  warning  'Badge' is defined but never used                    @typescript-eslint/no-unused-vars
+  22:23  warning  'setDepartments' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/admin/users/users-client.tsx
+   4:10  warning  'AnimatedCounter' is defined but never used  @typescript-eslint/no-unused-vars
+  13:16  warning  'Users' is defined but never used            @typescript-eslint/no-unused-vars
+  13:51  warning  'Lock' is defined but never used             @typescript-eslint/no-unused-vars
+  14:14  warning  'UserX' is defined but never used            @typescript-eslint/no-unused-vars
+  14:21  warning  'TrendingUp' is defined but never used       @typescript-eslint/no-unused-vars
+  15:20  warning  'Cpu' is defined but never used              @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/announcements/page.tsx
+  25:7   warning  'initialAnnouncements' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  73:21  warning  'error' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx
+    9:10  warning  'Avatar' is defined but never used                                                                                                      @typescript-eslint/no-unused-vars
+   51:6   warning  React Hook useEffect has missing dependencies: 'fetchData' and 'handleScanSuccess'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  329:49  warning  'i' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+  417:46  warning  'i' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/calendar/page.tsx
+  4:78  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/dashboard-client.tsx
+  22:7  warning  'facultyStats' is assigned a value but never used                                                      @typescript-eslint/no-unused-vars
+  30:7  warning  'studentStats' is assigned a value but never used                                                      @typescript-eslint/no-unused-vars
+  74:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/leaderboard/page.tsx
+   5:18  warning  'Medal' is defined but never used     @typescript-eslint/no-unused-vars
+   7:10  warning  'Progress' is defined but never used  @typescript-eslint/no-unused-vars
+  45:49  warning  'i' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/reports/page.tsx
+  59:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-explicit-any')
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/resources/page.tsx
+  92:6  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ghost/Projects/kings-lms/src/app/error.tsx
+  4:10  warning  'useRouter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/not-found.tsx
+  3:10  warning  'useRouter' is defined but never used  @typescript-eslint/no-unused-vars
+  6:27  warning  'Search' is defined but never used     @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/attendance/qr-scanner.tsx
+  45:9  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/layout/ai-assistant.tsx
+  27:11  warning  'displayName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/layout/sidebar.tsx
+  56:11  warning  'profile' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/resources/upload-modal.tsx
+  4:44  warning  'FileText' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/ui/avatar.tsx
+  72:9  warning  Unused eslint-disable directive (no problems were reported from '@next/next/no-img-element')
+
+/home/ghost/Projects/kings-lms/src/components/ui/notifications-popover.tsx
+   3:10  warning  'Bell' is defined but never used                            @typescript-eslint/no-unused-vars
+  20:7   warning  'INITIAL_NOTIFICATIONS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 39 problems (1 error, 38 warnings)
+  0 errors and 3 warnings potentially fixable with the `--fix` option.
+

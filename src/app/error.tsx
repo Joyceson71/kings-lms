@@ -2,7 +2,6 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Button } from '@/components/ui/button';
 import { AlertOctagon, RotateCcw, Home } from 'lucide-react';
 
@@ -24,8 +23,7 @@ export default function Error({
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="w-full max-w-lg z-10 animate-slide-in-up">
-        <TiltCard intensity={15}>
-          <div className="glass-card rounded-3xl p-8 md:p-12 text-center relative overflow-hidden border-red-500/20">
+        <div className="bg-[#111113] border border-[#1f1f23] rounded-3xl p-8 md:p-12 text-center relative overflow-hidden border-red-500/20">
             <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-80" />
             
             <div className="flex justify-center mb-6">
@@ -34,7 +32,7 @@ export default function Error({
               </div>
             </div>
 
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" >
               Something went wrong
             </h2>
             <p className="text-muted-foreground mb-8 max-w-sm mx-auto text-sm">
@@ -52,7 +50,7 @@ export default function Error({
               </Button>
             </div>
           </div>
-        </TiltCard>
+        
       </div>
     </div>
   );

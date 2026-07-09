@@ -9,7 +9,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Loader2, Mail, CheckCircle, ArrowLeft, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
@@ -55,8 +54,7 @@ export default function ResetPasswordPage() {
 
   if (success) {
     return (
-      <TiltCard intensity={6}>
-        <div className="glass-card rounded-2xl overflow-hidden relative">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70" />
           <div className="p-8 text-center space-y-4">
             <div className="flex justify-center">
@@ -64,7 +62,7 @@ export default function ResetPasswordPage() {
                 <CheckCircle className="h-9 w-9 text-emerald-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight" >
               Check your email
             </h2>
             <p className="text-muted-foreground text-sm max-w-[280px] mx-auto">
@@ -79,13 +77,12 @@ export default function ResetPasswordPage() {
             </Button>
           </div>
         </div>
-      </TiltCard>
+      
     );
   }
 
   return (
-    <TiltCard intensity={4}>
-      <div className="glass-card rounded-2xl overflow-hidden relative">
+    <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
         <div className="p-8">
           <div className="text-center mb-8">
@@ -94,7 +91,7 @@ export default function ResetPasswordPage() {
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-2xl font-black tracking-tight" >
               Reset Password
             </h1>
             <p className="text-muted-foreground text-sm mt-1.5">
@@ -149,6 +146,6 @@ export default function ResetPasswordPage() {
           </div>
         </div>
       </div>
-    </TiltCard>
+    
   );
 }

@@ -14,13 +14,8 @@ export default async function DashboardPage() {
   }
 
   const profile = await getProfile(supabase, user.id);
-  // Default to student if profile not yet completed fully or fetching failed
   const userRole = profile?.role || 'student';
-
   const stats = await getDashboardStats(supabase, user.id, userRole);
-
-  // In a real app we would fetch the grouped attendance data here,
-  // but for now we'll pass the stats to the client component.
 
   return (
     <Suspense fallback={
@@ -28,7 +23,7 @@ export default async function DashboardPage() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
-      <DashboardClient 
+      <DashboardClient
         stats={stats}
         profile={profile}
       />

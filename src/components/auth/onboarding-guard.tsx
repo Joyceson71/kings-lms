@@ -17,7 +17,7 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
         if (!user) {
           setIsLoading(false);
-          return; // Middleware should catch this, but just in case
+          return; // Middleware will redirect unauthenticated users
         }
 
         const { data: profile } = await supabase
@@ -26,7 +26,6 @@ export function OnboardingGuard({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .maybeSingle();
 
-        // If the user's profile is missing required details, redirect to onboarding
         if (!profile?.department || !profile?.college) {
           router.replace('/onboarding');
         } else {

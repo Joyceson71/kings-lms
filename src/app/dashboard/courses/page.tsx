@@ -19,8 +19,7 @@ export default async function CoursesPage() {
   }
 
   const allCourses = await getCourses(supabase);
-  
-  let enrolledCourses: any[] = [];
+  let enrolledCourses: Awaited<ReturnType<typeof getEnrolledCourses>> = [];
   if (profile.role === 'student') {
     enrolledCourses = await getEnrolledCourses(supabase, user.id);
   }
@@ -31,8 +30,8 @@ export default async function CoursesPage() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
-      <CoursesClient 
-        allCourses={allCourses} 
+      <CoursesClient
+        allCourses={allCourses}
         enrolledCourses={enrolledCourses}
         profile={profile}
       />

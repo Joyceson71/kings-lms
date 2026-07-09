@@ -8,7 +8,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { Loader2, Lock, CheckCircle, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
@@ -60,8 +59,7 @@ export default function UpdatePasswordPage() {
 
   if (success) {
     return (
-      <TiltCard intensity={6}>
-        <div className="glass-card rounded-2xl overflow-hidden relative">
+      <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
           <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-emerald-400 to-transparent opacity-70" />
           <div className="p-8 text-center space-y-4">
             <div className="flex justify-center">
@@ -69,7 +67,7 @@ export default function UpdatePasswordPage() {
                 <CheckCircle className="h-9 w-9 text-emerald-400" />
               </div>
             </div>
-            <h2 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h2 className="text-2xl font-black tracking-tight" >
               Password Updated
             </h2>
             <p className="text-muted-foreground text-sm max-w-[280px] mx-auto">
@@ -77,13 +75,12 @@ export default function UpdatePasswordPage() {
             </p>
           </div>
         </div>
-      </TiltCard>
+      
     );
   }
 
   return (
-    <TiltCard intensity={4}>
-      <div className="glass-card rounded-2xl overflow-hidden relative">
+    <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden relative">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-primary to-transparent opacity-50" />
         <div className="p-8">
           <div className="text-center mb-8">
@@ -92,7 +89,7 @@ export default function UpdatePasswordPage() {
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
             </div>
-            <h1 className="text-2xl font-black tracking-tight" style={{ fontFamily: 'Outfit, sans-serif' }}>
+            <h1 className="text-2xl font-black tracking-tight" >
               Update Password
             </h1>
             <p className="text-muted-foreground text-sm mt-1.5">
@@ -159,6 +156,6 @@ export default function UpdatePasswordPage() {
           </form>
         </div>
       </div>
-    </TiltCard>
+    
   );
 }

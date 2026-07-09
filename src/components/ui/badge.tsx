@@ -2,28 +2,26 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const badgeVariants = cva(
-  'inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold transition-all duration-200 select-none',
+  'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium leading-none transition-colors select-none',
   {
     variants: {
       variant: {
-        default: 'bg-primary/15 text-primary border border-primary/30 shadow-[0_0_12px_oklch(0.65_0.26_285/0.2)]',
-        secondary: 'bg-secondary text-secondary-foreground border border-border/50',
-        destructive: 'bg-destructive/15 text-destructive border border-destructive/30',
-        success: 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_oklch(0.7_0.2_165/0.2)]',
-        warning: 'bg-amber-500/15 text-amber-400 border border-amber-500/30',
-        gold: 'bg-amber-400/10 text-amber-300 border border-amber-400/25 shadow-[0_0_12px_oklch(0.78_0.16_85/0.2)]',
-        outline: 'border border-border text-foreground',
-        ghost: 'text-muted-foreground hover:text-foreground',
-        active: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40',
-        inactive: 'bg-secondary text-muted-foreground border border-border/50',
-        faculty: 'bg-violet-500/15 text-violet-300 border border-violet-500/30',
-        student: 'bg-sky-500/15 text-sky-300 border border-sky-500/30',
-        admin: 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
+        default:     'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
+        secondary:   'bg-[#1a1a1d] text-zinc-500 border border-[#2a2a2e]',
+        destructive: 'bg-red-500/10 text-red-400 border border-red-500/20',
+        success:     'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+        warning:     'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+        gold:        'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+        outline:     'border border-[#2a2a2e] text-zinc-400 bg-transparent',
+        ghost:       'text-zinc-500 hover:text-zinc-300 bg-transparent',
+        active:      'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+        inactive:    'bg-[#1a1a1d] text-zinc-600 border border-[#2a2a2e]',
+        faculty:     'bg-violet-500/10 text-violet-400 border border-violet-500/20',
+        student:     'bg-sky-500/10 text-sky-400 border border-sky-500/20',
+        admin:       'bg-amber-500/10 text-amber-400 border border-amber-500/20',
       },
     },
-    defaultVariants: {
-      variant: 'default',
-    },
+    defaultVariants: { variant: 'default' },
   }
 );
 
@@ -40,10 +38,13 @@ export function Badge({ className, variant, dot, children, ...props }: BadgeProp
         <span
           className={cn(
             'h-1.5 w-1.5 rounded-full',
-            variant === 'success' || variant === 'active' ? 'bg-emerald-400 animate-status-pulse' :
-            variant === 'destructive' ? 'bg-destructive' :
-            variant === 'warning' ? 'bg-amber-400' :
-            'bg-primary'
+            variant === 'success' || variant === 'active'
+              ? 'bg-emerald-400 animate-status-pulse'
+              : variant === 'destructive'
+              ? 'bg-red-400'
+              : variant === 'warning' || variant === 'gold'
+              ? 'bg-amber-400'
+              : 'bg-indigo-400 animate-status-pulse',
           )}
         />
       )}

@@ -1,81 +1,83 @@
-'use client';
+import { Suspense } from 'react';
+import { GraduationCap } from 'lucide-react';
 
-import { ParticlesBg } from '@/components/ui/particles-bg';
-import { BookOpen, GraduationCap, Sparkles } from 'lucide-react';
-
-export default function AuthLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative flex min-h-screen items-center justify-center bg-background p-4 overflow-hidden">
-      {/* Particle canvas background */}
-      <div className="absolute inset-0">
-        <ParticlesBg count={80} />
-      </div>
+    <div
+      className="relative flex min-h-screen"
+      style={{ background: '#0a0a0b' }}
+    >
+      {/* Subtle grid */}
+      <div className="absolute inset-0 bg-grid pointer-events-none" />
 
-      {/* Ambient orbs */}
+      {/* Left column — branding (hidden on mobile) */}
       <div
-        className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] rounded-full pointer-events-none animate-orb-float-1"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.65 0.26 285 / 0.12) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-      <div
-        className="absolute bottom-[-15%] right-[-10%] w-[45%] h-[45%] rounded-full pointer-events-none animate-orb-float-2"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.75 0.16 85 / 0.09) 0%, transparent 70%)',
-          filter: 'blur(60px)',
-        }}
-      />
-      <div
-        className="absolute top-[40%] right-[10%] w-[25%] h-[25%] rounded-full pointer-events-none"
-        style={{
-          background: 'radial-gradient(circle, oklch(0.70 0.20 165 / 0.07) 0%, transparent 70%)',
-          filter: 'blur(50px)',
-          animation: 'orb-float-1 12s ease-in-out infinite reverse',
-        }}
-      />
-
-      {/* Grid overlay */}
-      <div className="absolute inset-0 bg-grid opacity-40 pointer-events-none" />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-md">
-        {/* Brand header */}
-        <div className="mb-8 text-center animate-slide-in-up" style={{ animationDelay: '0ms' }}>
-          {/* Logo mark */}
-          <div className="flex justify-center mb-4">
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-primary to-violet-600 flex items-center justify-center shadow-[0_0_30px_oklch(0.65_0.26_285/0.5)] animate-pulse-glow">
-                <GraduationCap className="h-9 w-9 text-white" />
-              </div>
-              {/* Sparkle decorations */}
-              <Sparkles className="absolute -top-2 -right-2 h-4 w-4 text-amber-400 animate-spin-slow" />
-              <div className="absolute -bottom-1 -left-1 h-3 w-3 rounded-full bg-emerald-400 glow-emerald animate-status-pulse" />
-            </div>
+        className="hidden lg:flex lg:w-[420px] xl:w-[480px] flex-shrink-0 flex-col justify-between p-12"
+        style={{ borderRight: '1px solid #1a1a1d' }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2.5">
+          <div
+            className="h-8 w-8 rounded-lg flex items-center justify-center"
+            style={{ background: '#6366f1' }}
+          >
+            <GraduationCap className="h-4.5 w-4.5 text-white" style={{ width: '1.125rem', height: '1.125rem' }} />
           </div>
-
-          <h1 className="text-3xl font-black tracking-tight mb-1" style={{ fontFamily: 'Outfit, sans-serif' }}>
-            <span className="gradient-text">Kings EC Platform</span>
-          </h1>
-          <p className="text-muted-foreground text-sm font-medium flex items-center justify-center gap-1.5">
-            <BookOpen className="h-3.5 w-3.5" />
-            Campus Learning &amp; Management System
-          </p>
+          <span className="text-[15px] font-semibold text-white tracking-tight">Kings EC Platform</span>
         </div>
 
-        {/* Auth card slot */}
-        <div className="animate-slide-in-up opacity-0" style={{ animationDelay: '150ms', animationFillMode: 'forwards' }}>
-          {children}
+        {/* Testimonial / quote */}
+        <div>
+          <blockquote className="text-zinc-400 text-[15px] leading-relaxed">
+            &ldquo;The campus learning platform that keeps all of Kings Engineering College
+            connected — from attendance to assignments, in one place.&rdquo;
+          </blockquote>
+          <div className="mt-6 flex items-center gap-3">
+            <div
+              className="h-8 w-8 rounded-full flex items-center justify-center text-[11px] font-semibold"
+              style={{ background: '#312e81', color: '#a5b4fc' }}
+            >
+              KE
+            </div>
+            <div>
+              <p className="text-[13px] font-medium text-white">Kings Engineering College</p>
+              <p className="text-[12px] text-zinc-600">Campus Administration</p>
+            </div>
+          </div>
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-muted-foreground/60 animate-fade-in opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
-          © {new Date().getFullYear()} Kings Engineering College. All rights reserved.
+        <p className="text-[12px] text-zinc-700">
+          © {new Date().getFullYear()} Kings Engineering College
         </p>
+      </div>
+
+      {/* Right column — auth form */}
+      <div className="flex flex-1 flex-col items-center justify-center p-6">
+        {/* Mobile logo */}
+        <div className="lg:hidden flex items-center gap-2 mb-10">
+          <div
+            className="h-7 w-7 rounded-lg flex items-center justify-center"
+            style={{ background: '#6366f1' }}
+          >
+            <GraduationCap className="h-4 w-4 text-white" />
+          </div>
+          <span className="text-[14px] font-semibold text-white">Kings EC Platform</span>
+        </div>
+
+        <div className="w-full max-w-[360px]">
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-48">
+                <div
+                  className="h-6 w-6 rounded-full border-2 border-zinc-800 border-t-indigo-500 animate-spin"
+                />
+              </div>
+            }
+          >
+            {children}
+          </Suspense>
+        </div>
       </div>
     </div>
   );

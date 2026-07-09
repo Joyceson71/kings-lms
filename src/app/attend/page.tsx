@@ -43,7 +43,6 @@ function AttendClient() {
         throw new Error('This attendance session is closed.');
       }
 
-      setCourseName(session.courses?.title || 'Course');
 
       // 2. Mark attendance via queries using the real session ID
       const { success, error: markError } = await markAttendance(supabase, session.id, user.id);

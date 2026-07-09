@@ -16,6 +16,7 @@ function AttendClient() {
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your attendance...');
 
+
   useEffect(() => {
     const processAttendance = async (sid: string) => {
       try {

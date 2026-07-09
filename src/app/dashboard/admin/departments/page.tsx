@@ -1,6 +1,5 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Building2, Plus, Edit2, Trash2, Users } from 'lucide-react';
@@ -18,7 +17,7 @@ const initialDepartments = [
 ];
 
 export default function AdminDepartmentsPage() {
-  const [departments, setDepartments] = useState(initialDepartments);
+  const [departments] = useState(initialDepartments);
   const [search, setSearch] = useState('');
 
   const filtered = departments.filter(d => 

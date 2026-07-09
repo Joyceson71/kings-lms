@@ -87,6 +87,7 @@ export default function ResourcesPage() {
   useEffect(() => {
     if (!userLoading) {
       fetchData();
+     
     }
   }, [userLoading, isStudent, profile?.id]);
 

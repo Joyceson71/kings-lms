@@ -52,7 +52,6 @@ export function Avatar({ name, src, size = 'md', ring = 'none', className }: Ava
       style={ring !== 'none' ? { boxShadow: ringStyle } : undefined}
     >
       {src ? (
-         
         <img src={src} alt={name ?? 'Avatar'} className="h-full w-full rounded-full object-cover" />
       ) : (
         <div

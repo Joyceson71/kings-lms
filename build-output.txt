@@ -1,0 +1,51 @@
+
+> kings-lms@0.1.0 build
+> next build
+
+▲ Next.js 16.2.9 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+✓ Compiled successfully in 10.5s
+  Running TypeScript ...
+  Finished TypeScript in 13.0s ...
+  Collecting page data using 7 workers ...
+  Generating static pages using 7 workers (0/26) ...
+  Generating static pages using 7 workers (6/26) 
+  Generating static pages using 7 workers (12/26) 
+  Generating static pages using 7 workers (19/26) 
+✓ Generating static pages using 7 workers (26/26) in 586ms
+  Finalizing page optimization ...
+
+Route (app)
+┌ ƒ /
+├ ○ /_not-found
+├ ƒ /api/chat
+├ ○ /attend
+├ ƒ /auth/callback
+├ ƒ /dashboard
+├ ƒ /dashboard/admin
+├ ƒ /dashboard/admin/departments
+├ ƒ /dashboard/admin/users
+├ ƒ /dashboard/announcements
+├ ƒ /dashboard/assignments
+├ ƒ /dashboard/attendance
+├ ƒ /dashboard/calendar
+├ ƒ /dashboard/courses
+├ ƒ /dashboard/leaderboard
+├ ƒ /dashboard/reports
+├ ƒ /dashboard/resources
+├ ƒ /dashboard/settings
+├ ƒ /dashboard/students
+├ ○ /login
+├ ○ /onboarding
+├ ○ /reset-password
+├ ○ /signup
+└ ○ /update-password
+
+
+ƒ Proxy (Middleware)
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

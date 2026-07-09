@@ -55,7 +55,7 @@ const recentReports = [
 const dateRanges = ['This Week', 'This Month', 'This Semester', 'Custom'] as const;
 type DateRange = typeof dateRanges[number];
 
- 
+
 const BarTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (

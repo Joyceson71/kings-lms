@@ -20,7 +20,7 @@ Features 3D animations, particle backgrounds, real-time attendance, and role-bas
 
 | Feature | Description |
 |---|---|
-| 🔐 **Auth System** | Supabase email/password auth with role-based access |
+| 🔐 **Auth System** | Supabase email/password auth exclusively (No split-brain local auth) |
 | 🎨 **Premium UI** | Glassmorphism, 3D tilt cards, particle canvas backgrounds |
 | 📊 **Dashboard** | Live stats with animated counters, Recharts area chart |
 | ✅ **Attendance** | QR-based session tracking for faculty + students |
@@ -301,7 +301,12 @@ npm run lint      # Lint with ESLint
 |---|---|---|
 | Login button permanently disabled (`!isValid` in `disabled` prop with `mode: 'onChange'`) | ✅ Fixed | Changed to `mode: 'onBlur'`, removed `!isValid` from `disabled` |
 | `router.push('/dashboard')` allows back-navigation to login after sign-in | ✅ Fixed | Changed to `router.replace('/dashboard')` |
-| Same fix applied to signup and logout | ✅ Fixed | All auth navigations use `router.replace` |
+| Split-brain auth bypassing Supabase with local cookies (`kings_lms_auth`) | ✅ Fixed | Purged legacy mock auth system; middleware strictly enforces Supabase sessions. |
+| Hardcoded admin credentials exposed in client environments | ✅ Fixed | Removed client-side mock credentials. Source of truth is now the `profiles` table. |
+| Mock data used for Announcements, Attendance & Course stats | ✅ Fixed | Replaced mock values with real `supabase` DB queries across all dashboard pages. |
+| Uncontrolled input component warnings in Settings page | ✅ Fixed | Applied controlled state fallback logic (`value={nameValue || ''}`). |
+| React Hook Temporal Dead Zone (TDF) errors | ✅ Fixed | Hoisted function declarations appropriately above `useEffect` blocks. |
+| Strict type check errors blocking Next.js production builds | ✅ Fixed | Resolved ambiguous types, missing JSX namespaces, and fixed assignments ID typing. |
 
 ---
 

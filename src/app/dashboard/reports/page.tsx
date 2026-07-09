@@ -55,7 +55,6 @@ const recentReports = [
 const dateRanges = ['This Week', 'This Month', 'This Semester', 'Custom'] as const;
 type DateRange = typeof dateRanges[number];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const BarTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (

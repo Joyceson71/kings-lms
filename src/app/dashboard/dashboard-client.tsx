@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
   Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
-  Zap, Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone
+  Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -55,7 +55,6 @@ const recentAnnouncements = [
   { title: 'Midterm Exam Schedule Released', type: 'Course', date: 'Yesterday', isGlobal: false }
 ];
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (

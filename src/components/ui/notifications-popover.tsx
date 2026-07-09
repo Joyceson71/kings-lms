@@ -1,6 +1,6 @@
 'use client';
 
-import { Bell, CheckCircle2, Clock, AlertCircle, X, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, AlertCircle, X, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';

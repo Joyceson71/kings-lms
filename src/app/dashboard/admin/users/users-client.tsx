@@ -1,6 +1,5 @@
 'use client';
 
-import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';

@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/ui/avatar';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
 import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2 } from 'lucide-react';
@@ -41,6 +40,7 @@ function AttendanceContent() {
   useEffect(() => {
     if (!userLoading && profile?.id) {
       fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
       if (qrTokenFromUrl && isStudent) {
         // Automatically try to mark attendance if a token is in URL

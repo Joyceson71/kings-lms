@@ -1,9 +1,8 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import { Trophy, Medal, Star, Flame, Crown, Target } from 'lucide-react';
+import { Trophy, Star, Flame, Crown, Target } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
-import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 const TOP_STUDENTS = [

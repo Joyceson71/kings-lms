@@ -87,6 +87,7 @@ export default function ResourcesPage() {
   useEffect(() => {
     if (!userLoading) {
       fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }
   }, [userLoading, isStudent, profile?.id]);
 

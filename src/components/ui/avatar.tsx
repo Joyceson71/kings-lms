@@ -52,8 +52,7 @@ export function Avatar({ name, src, size = 'md', ring = 'none', className }: Ava
       style={ring !== 'none' ? { boxShadow: ringStyle } : undefined}
     >
       {src ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={name ?? 'Avatar'} className="h-full w-full rounded-full object-cover" />
+                <img src={src} alt={name ?? 'Avatar'} className="h-full w-full rounded-full object-cover" />
       ) : (
         <div
           className="h-full w-full rounded-full flex items-center justify-center font-semibold"

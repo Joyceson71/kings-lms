@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { X, UploadCloud, Link as LinkIcon, FileText, CheckCircle2, Loader2 } from 'lucide-react';
+import { X, UploadCloud, Link as LinkIcon, CheckCircle2, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

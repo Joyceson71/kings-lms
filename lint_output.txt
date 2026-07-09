@@ -1,0 +1,50 @@
+
+> kings-lms@0.1.0 lint
+> eslint
+
+
+/home/ghost/Projects/kings-lms/src/app/attend/page.tsx
+  84:6  warning  React Hook useEffect has a missing dependency: 'processAttendance'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/admin/users/users-client.tsx
+  11:16  warning  'Users' is defined but never used       @typescript-eslint/no-unused-vars
+  11:51  warning  'Lock' is defined but never used        @typescript-eslint/no-unused-vars
+  12:14  warning  'UserX' is defined but never used       @typescript-eslint/no-unused-vars
+  12:21  warning  'TrendingUp' is defined but never used  @typescript-eslint/no-unused-vars
+  13:20  warning  'Cpu' is defined but never used         @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/announcements/page.tsx
+  24:7   warning  'initialAnnouncements' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  72:21  warning  'error' is assigned a value but never used                 @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/attendance/page.tsx
+   43:5   warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+   50:6   warning  React Hook useEffect has missing dependencies: 'fetchData' and 'handleScanSuccess'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+  324:49  warning  'i' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+  411:46  warning  'i' is defined but never used                                                                                                           @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/calendar/page.tsx
+  4:78  warning  'Users' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/leaderboard/page.tsx
+  43:49  warning  'i' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/app/dashboard/resources/page.tsx
+  90:5  warning  Unused eslint-disable directive (no problems were reported from 'react-hooks/exhaustive-deps')
+  92:6  warning  React Hook useEffect has a missing dependency: 'fetchData'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/home/ghost/Projects/kings-lms/src/app/not-found.tsx
+  4:27  warning  'Search' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/attendance/qr-scanner.tsx
+  45:9  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/layout/ai-assistant.tsx
+  26:11  warning  'displayName' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/home/ghost/Projects/kings-lms/src/components/ui/notifications-popover.tsx
+  20:7  warning  'INITIAL_NOTIFICATIONS' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+✖ 20 problems (0 errors, 20 warnings)
+  0 errors and 2 warnings potentially fixable with the `--fix` option.
+

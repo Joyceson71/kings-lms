@@ -15,7 +15,7 @@ function AttendClient() {
 
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('Verifying your attendance...');
-  const [courseName, setCourseName] = useState('');
+  
 
   async function processAttendance(sid: string) {
     try {

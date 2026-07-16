@@ -18,6 +18,11 @@ const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: fa
 const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
 const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
 const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
+const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false });
+const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false });
+const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false });
+const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false });
+const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false });
 
 const attendanceData = [
   { day: 'Mon', attendance: 72, target: 80 },
@@ -27,6 +32,25 @@ const attendanceData = [
   { day: 'Fri', attendance: 95, target: 80 },
   { day: 'Sat', attendance: 88, target: 80 },
   { day: 'Sun', attendance: 60, target: 80 },
+];
+
+const studentPerformanceData = [
+  { subject: 'EC-301', score: 85 },
+  { subject: 'EC-302', score: 78 },
+  { subject: 'EC-101', score: 92 },
+  { subject: 'EC-303', score: 68 },
+  { subject: 'EC-201', score: 88 },
+];
+
+const facultyPerformanceData = [
+  { subject: 'EC-301', score: 76 },
+  { subject: 'EC-302', score: 81 },
+];
+
+const taskStatusData = [
+  { name: 'Completed', value: 12, color: '#10b981' },
+  { name: 'Pending', value: 5, color: '#f59e0b' },
+  { name: 'Overdue', value: 2, color: '#ef4444' },
 ];
 
 const upcomingSessions = [
@@ -61,6 +85,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
       <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
         <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
         <p className="text-[13px] font-semibold text-white">{payload[0]?.value}% attendance</p>
+      </div>
+    );
+  }
+  return null;
+};
+
+const PerformanceTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+        <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
+        <p className="text-[13px] font-semibold text-white">{payload[0]?.value}% Avg Score</p>
       </div>
     );
   }
@@ -249,6 +285,93 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
               </div>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Advanced Analytics Row */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}>
+        
+        {/* Performance Bar Chart */}
+        <div className="lg:col-span-2 rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h2 className="text-[14px] font-semibold text-white">
+                {isStudent ? 'Academic Performance' : 'Class Averages'}
+              </h2>
+              <p className="text-[12px] text-zinc-500 mt-0.5">
+                {isStudent ? 'Your scores across enrolled courses' : 'Average scores across your courses'}
+              </p>
+            </div>
+          </div>
+          <div className="h-56">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={isStudent ? studentPerformanceData : facultyPerformanceData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }} barSize={32}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
+                <XAxis dataKey="subject" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
+                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                <Tooltip content={<PerformanceTooltip />} cursor={{ fill: '#161618' }} />
+                <Bar dataKey="score" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Tasks Doughnut Chart */}
+        <div className="rounded-xl p-5 h-full flex flex-col" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-[14px] font-semibold text-white">
+              {isStudent ? 'Tasks & Assignments' : 'Grading Progress'}
+            </h2>
+          </div>
+          <div className="flex-1 min-h-[220px] relative">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={taskStatusData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={80}
+                  paddingAngle={5}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  {taskStatusData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  content={({ active, payload }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+                          <p className="text-[13px] font-semibold" style={{ color: payload[0].payload.color }}>
+                            {payload[0].name}: {payload[0].value}
+                          </p>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+            {/* Center Label */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-2xl font-bold text-white">19</span>
+              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Total Tasks</span>
+            </div>
+          </div>
+          
+          {/* Custom Legend */}
+          <div className="flex justify-center gap-4 mt-2">
+            {taskStatusData.map((item) => (
+              <div key={item.name} className="flex items-center gap-1.5">
+                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
+                <span className="text-[11px] text-zinc-400">{item.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

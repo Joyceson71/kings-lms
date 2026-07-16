@@ -8,9 +8,8 @@ import { useUser } from '@/lib/hooks/use-user';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
-  ShieldCheck, Users, BookOpen, Activity, Server, Lock,
-  UserCheck, UserX, TrendingUp, MoreVertical, RefreshCw,
-  Database, Globe, Cpu, HardDrive,
+  ShieldCheck, UserCheck, MoreVertical, RefreshCw,
+  Database, Globe, HardDrive,
 } from 'lucide-react';
 
 // Removed hardcoded users and stats

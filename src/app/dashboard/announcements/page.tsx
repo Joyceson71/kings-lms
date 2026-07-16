@@ -21,44 +21,8 @@ type AnnouncementType = {
   glow: string;
   icon: React.ReactNode;
 };
-const initialAnnouncements = [
-  {
-    id: '1',
-    title: 'System Maintenance Scheduled',
-    content: 'The LMS will be down for scheduled maintenance on Sunday, July 15th from 2:00 AM to 4:00 AM UTC. Please ensure all assignments are submitted before this window.',
-    type: 'global',
-    author: 'System Administrator',
-    date: '2026-07-03T10:00:00Z',
-    color: 'from-amber-500 to-orange-400',
-    glow: 'oklch(0.75 0.16 85 / 0.25)',
-    icon: <Megaphone className="h-6 w-6 text-white" />
-  },
-  {
-    id: '2',
-    title: 'Midterm Exam Schedule Released',
-    content: 'The midterm examination schedule for all Engineering courses has been released. Please check the resources section of your respective courses for detailed timetables.',
-    type: 'course',
-    courseName: 'EC-301: Signals and Systems',
-    author: 'Dr. A. Smith',
-    date: '2026-07-02T14:30:00Z',
-    color: 'from-violet-600 to-fuchsia-500',
-    glow: 'oklch(0.65 0.26 285 / 0.25)',
-    icon: <Bell className="h-6 w-6 text-white" />
-  },
-  {
-    id: '3',
-    title: 'New Library Resources Available',
-    content: 'We have added over 500 new digital textbooks to the online library. You can now access the latest editions of major IEEE publications directly through the portal.',
-    type: 'global',
-    author: 'Librarian',
-    date: '2026-07-01T09:15:00Z',
-    color: 'from-emerald-500 to-teal-400',
-    glow: 'oklch(0.70 0.20 165 / 0.25)',
-    icon: <CalendarIcon className="h-6 w-6 text-white" />
-  }
-];
-
 export default function AnnouncementsPage() {
+
   const [search, setSearch] = useState('');
   const { role, profile } = useUser();
   const [announcements, setAnnouncements] = useState<AnnouncementType[]>([]);

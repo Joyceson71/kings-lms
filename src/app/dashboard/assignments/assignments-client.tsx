@@ -3,6 +3,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText } from 'lucide-react';
+import { useState } from 'react';
+import { SubmissionModal } from '@/components/assignments/submission-modal';
+import { CreateAssignmentModal } from '@/components/assignments/create-assignment-modal';
 
 type AssignmentStatus = 'pending' | 'submitted' | 'graded';
 
@@ -44,7 +47,22 @@ function isOverdue(due: string): boolean {
 }
 
 export default function AssignmentsClient({ initialAssignments, isFaculty }: { initialAssignments: Assignment[], isFaculty: boolean }) {
-  const grouped = (key: AssignmentStatus) => initialAssignments.filter((a) => a.status === key);
+  const [assignments, setAssignments] = useState(initialAssignments);
+  const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
+  const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+
+  const handleSubmissionSuccess = (assignmentId: string) => {
+    setAssignments(prev => prev.map(a => 
+      a.id === assignmentId ? { ...a, status: 'submitted' as AssignmentStatus } : a
+    ));
+  };
+
+  const handleCreateSuccess = () => {
+    window.location.reload();
+  };
+
+  const grouped = (key: AssignmentStatus) => assignments.filter((a) => a.status === key);
 
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
@@ -62,6 +80,7 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
           <Button
             id="add-assignment-btn"
             className="group"
+            onClick={() => setIsCreateModalOpen(true)}
           >
             <Plus className="mr-1.5 h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-300" />
             New Assignment
@@ -102,6 +121,12 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
                     key={assignment.id}
                     className="rounded-lg p-3 hover:border-indigo-500/50 transition-colors cursor-pointer group animate-fade-in opacity-0"
                     style={{ background: '#111113', border: '1px solid #1f1f23', animationDelay: `${(colIdx * 60) + (i * 40)}ms`, animationFillMode: 'forwards' }}
+                    onClick={() => {
+                      if (!isFaculty) {
+                        setSelectedAssignment(assignment);
+                        setIsSubmissionModalOpen(true);
+                      }
+                    }}
                   >
                     <div className="flex items-start justify-between mb-2.5">
                       <span className="text-lg leading-none">{assignment.icon}</span>
@@ -172,6 +197,19 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
           </div>
         </div>
       </div>
+      
+      {/* Modals */}
+      <SubmissionModal 
+        assignment={selectedAssignment}
+        isOpen={isSubmissionModalOpen}
+        onClose={() => setIsSubmissionModalOpen(false)}
+        onSuccess={handleSubmissionSuccess}
+      />
+      <CreateAssignmentModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }

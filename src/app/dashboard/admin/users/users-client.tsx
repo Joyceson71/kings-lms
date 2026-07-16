@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import {
   ShieldCheck, UserCheck, MoreVertical, RefreshCw,
-  Database, Globe, HardDrive,
+  Database, Globe, HardDrive, BookOpen, Server, Activity
 } from 'lucide-react';
 
 // Removed hardcoded users and stats

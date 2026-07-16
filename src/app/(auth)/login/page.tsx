@@ -19,6 +19,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPw, setShowPw]   = useState(false);
   const [error, setError]     = useState<string | null>(null);
+  const [loginType, setLoginType] = useState<'student' | 'faculty'>('student');
   const [isPending, startTransition] = useTransition();
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -65,13 +66,35 @@ export default function LoginPage() {
   return (
     <div>
       {/* Heading — stagger 0 */}
-      <div className="mb-8 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
+      <div className="mb-6 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <h1 className="text-[24px] font-bold tracking-tight text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
           Welcome back
         </h1>
         <p className="text-[13px] text-zinc-500 mt-1">
           Sign in to continue to Kings EC Platform
         </p>
+      </div>
+
+      {/* Tabs - stagger 0.5 */}
+      <div className="flex bg-[#111113] p-1 rounded-lg border border-[#1f1f23] mb-6 animate-slide-in-up opacity-0" style={{ animationDelay: '30ms', animationFillMode: 'forwards' }}>
+        <button
+          type="button"
+          onClick={() => { setLoginType('student'); setError(null); }}
+          className={`flex-1 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
+            loginType === 'student' ? 'bg-[#1f1f23] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          Student
+        </button>
+        <button
+          type="button"
+          onClick={() => { setLoginType('faculty'); setError(null); }}
+          className={`flex-1 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
+            loginType === 'faculty' ? 'bg-[#1f1f23] text-white shadow-sm' : 'text-zinc-500 hover:text-zinc-300'
+          }`}
+        >
+          Faculty / Admin
+        </button>
       </div>
 
       {/* Error */}
@@ -86,10 +109,11 @@ export default function LoginPage() {
       )}
 
       {/* OAuth — stagger 1 */}
-      <div
-        className="grid grid-cols-2 gap-2 mb-5 animate-slide-in-up opacity-0"
-        style={{ animationDelay: '60ms', animationFillMode: 'forwards' }}
-      >
+      {loginType === 'student' && (
+        <div
+          className="grid grid-cols-2 gap-2 mb-5 animate-slide-in-up opacity-0"
+          style={{ animationDelay: '60ms', animationFillMode: 'forwards' }}
+        >
         <button
           type="button"
           onClick={() => handleOAuth('google')}
@@ -115,17 +139,20 @@ export default function LoginPage() {
           </svg>
           GitHub
         </button>
-      </div>
+        </div>
+      )}
 
       {/* Divider — stagger 2 */}
-      <div
-        className="flex items-center gap-3 mb-5 animate-slide-in-up opacity-0"
-        style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
-      >
-        <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
-        <span className="text-[11px] text-zinc-600 font-medium">or continue with email</span>
-        <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
-      </div>
+      {loginType === 'student' && (
+        <div
+          className="flex items-center gap-3 mb-5 animate-slide-in-up opacity-0"
+          style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
+        >
+          <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
+          <span className="text-[11px] text-zinc-600 font-medium">or continue with email</span>
+          <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
+        </div>
+      )}
 
       {/* Form — stagger 3 */}
       <form
@@ -133,6 +160,16 @@ export default function LoginPage() {
         className="space-y-4 animate-slide-in-up opacity-0"
         style={{ animationDelay: '180ms', animationFillMode: 'forwards' }}
       >
+        {loginType === 'faculty' && (
+          <div
+            className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-[12px] text-indigo-400 mb-2"
+            style={{ background: 'rgb(99 102 241 / 0.08)', border: '1px solid rgb(99 102 241 / 0.2)' }}
+          >
+            <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+            <span>Faculty accounts are pre-created by the administration to prevent fraud. Please use your official credentials.</span>
+          </div>
+        )}
+
         {/* Email */}
         <div>
           <label htmlFor="email" className="block text-[12px] font-medium text-zinc-400 mb-1.5">
@@ -204,15 +241,17 @@ export default function LoginPage() {
       </form>
 
       {/* Sign up — stagger 4 */}
-      <p
-        className="mt-6 text-center text-[13px] text-zinc-600 animate-slide-in-up opacity-0"
-        style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
-      >
-        Don&apos;t have an account?{' '}
-        <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
-          Sign up
-        </Link>
-      </p>
+      {loginType === 'student' && (
+        <p
+          className="mt-6 text-center text-[13px] text-zinc-600 animate-slide-in-up opacity-0"
+          style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
+        >
+          Don&apos;t have an account?{' '}
+          <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+            Sign up
+          </Link>
+        </p>
+      )}
     </div>
   );
 }

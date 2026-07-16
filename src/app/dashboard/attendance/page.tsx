@@ -7,7 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
-import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2 } from 'lucide-react';
+import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle } from 'lucide-react';
 import { QRDisplayModal } from '@/components/attendance/qr-display';
 import { QRScannerModal } from '@/components/attendance/qr-scanner';
 import confetti from 'canvas-confetti';
@@ -263,7 +263,10 @@ function AttendanceContent() {
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl font-black tracking-tight" >
+          <h1
+            className="text-3xl font-black tracking-tight"
+            style={{ fontFamily: "'Outfit', sans-serif" }}
+          >
             <span className="gradient-text">Attendance</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
@@ -286,24 +289,50 @@ function AttendanceContent() {
       {/* Quick stats row (students only) */}
       {isStudent && (
         <div className="grid grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
-          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" >{stats.attended}</p>
-              <p className="text-xs text-muted-foreground mt-1">Sessions Attended</p>
-              <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="emerald" size="sm" className="mt-3" />
-            </div>
-          
-          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" >{Math.max(0, stats.total - stats.attended)}</p>
-              <p className="text-xs text-muted-foreground mt-1">Sessions Missed</p>
-              <Progress value={0} variant="red" size="sm" className="mt-3" />
-            </div>
-          
-          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center">
-              <p className="text-3xl font-black text-foreground" >{Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0)}%</p>
-              <p className="text-xs text-muted-foreground mt-1">Overall Rate</p>
-              <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="gold" size="sm" className="mt-3" />
-            </div>
-          
+          {/* Attended */}
+          <div
+            className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative"
+            style={{ borderTop: '2px solid rgb(16 185 129 / 0.6)' }}
+          >
+            <p className="text-3xl font-black text-foreground">{stats.attended}</p>
+            <p className="text-xs text-muted-foreground mt-1">Sessions Attended</p>
+            <Progress value={stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0} variant="emerald" size="sm" className="mt-3" />
+          </div>
+
+          {/* Missed */}
+          <div
+            className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative"
+            style={{ borderTop: '2px solid rgb(239 68 68 / 0.5)' }}
+          >
+            <p className="text-3xl font-black text-foreground">{Math.max(0, stats.total - stats.attended)}</p>
+            <p className="text-xs text-muted-foreground mt-1">Sessions Missed</p>
+            <Progress value={stats.total > 0 ? ((stats.total - stats.attended) / stats.total) * 100 : 0} variant="red" size="sm" className="mt-3" />
+          </div>
+
+          {/* Overall Rate */}
+          {(() => {
+            const rate = Math.round(stats.attended > 0 ? (stats.attended / stats.total) * 100 : 0);
+            const isLow = rate < 75;
+            return (
+              <div
+                className="border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative transition-all duration-300"
+                style={{
+                  background: '#111113',
+                  borderTop: `2px solid ${isLow ? 'rgb(239 68 68 / 0.6)' : 'rgb(245 158 11 / 0.6)'}`,
+                  boxShadow: isLow ? '0 0 20px rgb(239 68 68 / 0.12)' : 'none',
+                }}
+              >
+                <p className={`text-3xl font-black ${isLow ? 'text-red-400' : 'text-foreground'}`}>{rate}%</p>
+                <p className="text-xs text-muted-foreground mt-1">Overall Rate</p>
+                <Progress value={rate} variant={isLow ? 'red' : 'gold'} size="sm" className="mt-3" />
+                {isLow && (
+                  <p className="text-[10px] text-red-400 font-semibold mt-2 flex items-center justify-center gap-1">
+                    <AlertTriangle className="h-3 w-3" /> Below minimum
+                  </p>
+                )}
+              </div>
+            );
+          })()}
         </div>
       )}
 
@@ -365,15 +394,16 @@ function AttendanceContent() {
               ) : (
                 /* Student: QR scan CTA */
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  {/* Animated scan ring */}
+                  {/* Animated scan rings */}
                   <div className="relative mb-6">
                     <div className="h-24 w-24 rounded-2xl border-2 border-primary/40 flex items-center justify-center bg-primary/5">
                       <QrCode className="h-12 w-12 text-primary" />
                     </div>
                     <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring" />
-                    <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring delay-700 opacity-60" />
+                    <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring delay-500 opacity-70" />
+                    <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-scan-ring delay-1000 opacity-40" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2" >
+                  <h3 className="text-lg font-bold text-foreground mb-2" style={{ fontFamily: "'Outfit', sans-serif" }}>
                     Ready to Mark Attendance?
                   </h3>
                   <p className="text-sm text-muted-foreground max-w-xs mb-5">
@@ -404,46 +434,71 @@ function AttendanceContent() {
                 </Button>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-1">
                 {historyRecords.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">No recent attendance records.</p>
-                )}
-                {historyRecords.map((record) => (
-                  <div
-                    key={record.id}
-                    className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/20 hover:bg-background/40 hover:border-border/60 transition-all duration-200"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${record.status === 'Present' ? 'bg-emerald-500/10' :
-                          record.status === 'Absent' ? 'bg-red-500/10' :
-                            'bg-amber-500/10'
-                        }`}>
-                        {record.status === 'Present' ? (
-                          <CheckCircle className="h-4 w-4 text-emerald-400" />
-                        ) : record.status === 'Absent' ? (
-                          <XCircle className="h-4 w-4 text-red-400" />
-                        ) : (
-                          <Clock className="h-4 w-4 text-amber-400" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-muted-foreground">{record.course_sessions?.courses?.code}</span>
-                        </div>
-                        <p className="text-sm font-medium text-foreground">{isFaculty ? record.profiles?.full_name : record.course_sessions?.courses?.title}</p>
-                        <p className="text-xs text-muted-foreground/70">{new Date(record.marked_at).toLocaleDateString()}</p>
-                      </div>
+                  <div className="flex flex-col items-center justify-center py-10 text-center">
+                    <div className="h-12 w-12 rounded-xl bg-muted/30 flex items-center justify-center mb-3">
+                      <CheckCircle className="h-6 w-6 text-muted-foreground/40" />
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={record.status === 'Present' ? 'success' : record.status === 'Absent' ? 'destructive' : 'warning'}
-                        dot
-                      >
-                        {record.status}
-                      </Badge>
-                    </div>
+                    <p className="text-sm font-medium text-muted-foreground">No records yet</p>
+                    <p className="text-xs text-muted-foreground/60 mt-1">Your attendance history will appear here</p>
                   </div>
-                ))}
+                )}
+                {(() => {
+                  // Group records by date
+                  const groups: Record<string, typeof historyRecords> = {};
+                  historyRecords.forEach((record) => {
+                    const dateKey = new Date(record.marked_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+                    if (!groups[dateKey]) groups[dateKey] = [];
+                    groups[dateKey].push(record);
+                  });
+                  return Object.entries(groups).map(([date, records]) => (
+                    <div key={date}>
+                      {/* Date divider */}
+                      <div className="flex items-center gap-2 py-2 px-1">
+                        <div className="flex-1 h-px" style={{ background: '#1f1f23' }} />
+                        <span className="text-[10px] font-medium text-zinc-600 whitespace-nowrap">{date}</span>
+                        <div className="flex-1 h-px" style={{ background: '#1f1f23' }} />
+                      </div>
+                      <div className="space-y-2">
+                        {(records as any[]).map((record) => (
+                          <div
+                            key={record.id}
+                            className="flex items-center justify-between p-3 rounded-xl border border-border/30 bg-background/20 hover:bg-background/40 hover:border-border/60 transition-all duration-200"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`h-9 w-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                                record.status === 'Present' ? 'bg-emerald-500/10' :
+                                record.status === 'Absent' ? 'bg-red-500/10' :
+                                'bg-amber-500/10'
+                              }`}>
+                                {record.status === 'Present' ? (
+                                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                                ) : record.status === 'Absent' ? (
+                                  <XCircle className="h-4 w-4 text-red-400" />
+                                ) : (
+                                  <Clock className="h-4 w-4 text-amber-400" />
+                                )}
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-mono text-muted-foreground">{record.course_sessions?.courses?.code}</span>
+                                </div>
+                                <p className="text-sm font-medium text-foreground">{isFaculty ? record.profiles?.full_name : record.course_sessions?.courses?.title}</p>
+                              </div>
+                            </div>
+                            <Badge
+                              variant={record.status === 'Present' ? 'success' : record.status === 'Absent' ? 'destructive' : 'warning'}
+                              dot
+                            >
+                              {record.status}
+                            </Badge>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
 
               <Button

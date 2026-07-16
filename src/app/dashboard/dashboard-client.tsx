@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
   Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
-  Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone
+  Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone, Zap
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
@@ -55,13 +55,12 @@ const recentAnnouncements = [
   { title: 'Midterm Exam Schedule Released', type: 'Course', date: 'Yesterday', isGlobal: false }
 ];
 
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
       <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
         <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
-        <p className="text-[13px] font-medium text-white">{payload[0]?.value}% attendance</p>
+        <p className="text-[13px] font-semibold text-white">{payload[0]?.value}% attendance</p>
       </div>
     );
   }
@@ -70,15 +69,15 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 function SkeletonCard() {
   return (
-    <div className="rounded-xl p-4 animate-pulse" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+    <div className="rounded-xl p-4" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
       <div className="flex items-center justify-between mb-4">
-        <div className="h-8 w-8 rounded-md" style={{ background: '#1a1a1d' }} />
-        <div className="h-4 w-4 rounded" style={{ background: '#1a1a1d' }} />
+        <div className="h-8 w-8 rounded-lg skeleton" />
+        <div className="h-4 w-4 rounded skeleton" />
       </div>
       <div className="space-y-2">
-        <div className="h-3 w-20 rounded" style={{ background: '#1a1a1d' }} />
-        <div className="h-8 w-16 rounded" style={{ background: '#1a1a1d' }} />
-        <div className="h-3 w-24 rounded" style={{ background: '#1a1a1d' }} />
+        <div className="h-2.5 w-20 rounded skeleton" />
+        <div className="h-8 w-16 rounded skeleton" />
+        <div className="h-2.5 w-24 rounded skeleton" />
       </div>
     </div>
   );
@@ -89,15 +88,15 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
   const isStudent = profile?.role === 'student' || !profile?.role;
 
   const displayStats = isStudent ? [
-    { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% min', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
-    { name: 'Enrolled Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10' },
-    { name: 'Pending Tasks', value: stats.pendingAssignments.toString(), icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10' },
-    { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, iconColor: 'text-violet-400', bgIcon: 'bg-violet-500/10' },
+    { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% minimum', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
+    { name: 'Enrolled Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10', glowColor: 'rgb(99 102 241 / 0.15)' },
+    { name: 'Pending Tasks', value: stats.pendingAssignments.toString(), icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10', glowColor: 'rgb(245 158 11 / 0.15)' },
+    { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, iconColor: 'text-violet-400', bgIcon: 'bg-violet-500/10', glowColor: 'rgb(139 92 246 / 0.15)' },
   ] : [
-    { name: 'Total Students', value: stats.totalStudents.toString(), icon: Users, change: 'Total enrolled', changeType: 'positive' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10' },
-    { name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'Offered this sem', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
-    { name: 'Avg. Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: 'Across all courses', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10' },
-    { name: 'Submissions to Grade', value: stats.pendingAssignments.toString(), icon: Clock, change: 'Pending review', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10' },
+    { name: 'Total Students', value: stats.totalStudents.toString(), icon: Users, change: 'Total enrolled', changeType: 'positive' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10', glowColor: 'rgb(99 102 241 / 0.15)' },
+    { name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'Offered this sem', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
+    { name: 'Avg. Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: 'Across all courses', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
+    { name: 'Submissions to Grade', value: stats.pendingAssignments.toString(), icon: Clock, change: 'Pending review', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10', glowColor: 'rgb(245 158 11 / 0.15)' },
   ];
 
   return (
@@ -105,10 +104,13 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
       {/* Header */}
       <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-white">
+          <h1
+            className="text-xl font-bold tracking-tight text-white"
+            style={{ fontFamily: "'Outfit', sans-serif" }}
+          >
             {loading ? 'Dashboard' : isStudent ? 'My Dashboard' : 'Dashboard Overview'}
           </h1>
-          <p className="text-zinc-400 mt-1 text-[13px] flex items-center gap-1.5">
+          <p className="text-zinc-400 mt-1 text-[13px]">
             {loading
               ? 'Loading your dashboard…'
               : `Welcome back, ${displayName.split(' ')[0]}. Here's what's happening.`}
@@ -131,24 +133,31 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
           : displayStats.map((stat, i) => (
               <div
                 key={stat.name}
-                className="rounded-xl p-4 animate-slide-in-up opacity-0"
+                className="group rounded-xl p-4 animate-slide-in-up opacity-0 cursor-default transition-all duration-300 hover:-translate-y-0.5"
                 style={{
                   background: '#111113',
                   border: '1px solid #1f1f23',
                   animationDelay: `${(i + 1) * 60}ms`,
-                  animationFillMode: 'forwards'
+                  animationFillMode: 'forwards',
+                }}
+                onMouseEnter={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#2a2a2e';
+                  (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 20px ${stat.glowColor}`;
+                }}
+                onMouseLeave={e => {
+                  (e.currentTarget as HTMLElement).style.borderColor = '#1f1f23';
+                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
-                  <div className={`h-8 w-8 rounded-md ${stat.bgIcon} flex items-center justify-center`}>
+                  <div className={`h-9 w-9 rounded-lg ${stat.bgIcon} flex items-center justify-center transition-transform duration-200 group-hover:scale-110`}>
                     <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
                   </div>
-                  <ArrowUpRight className="h-4 w-4 text-zinc-600 hover:text-white transition-colors cursor-pointer" />
+                  <ArrowUpRight className="h-4 w-4 text-zinc-700 group-hover:text-zinc-400 transition-colors" />
                 </div>
                 <div>
                   <p className="text-[12px] font-medium text-zinc-500 mb-0.5">{stat.name}</p>
-                  <p className="text-2xl font-semibold text-white tracking-tight">
-                    {/* Animated counter still works fine */}
+                  <p className="text-2xl font-bold text-white tracking-tight">
                     <AnimatedCounter target={stat.value} duration={800} />
                   </p>
                   <p className={`text-[11px] mt-2 font-medium flex items-center gap-1 ${stat.changeType === 'positive' ? 'text-emerald-400' : 'text-zinc-500'}`}>
@@ -162,7 +171,7 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
 
       {/* Charts row */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
-        
+
         {/* Attendance chart */}
         <div className="lg:col-span-2">
           <div className="rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
@@ -182,7 +191,7 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
                 <AreaChart data={attendanceData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
                   <defs>
                     <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
                       <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -196,7 +205,7 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
                     stroke="#6366f1"
                     strokeWidth={2}
                     fill="url(#attendanceGrad)"
-                    activeDot={{ r: 4, fill: '#6366f1', stroke: '#111113', strokeWidth: 2 }}
+                    activeDot={{ r: 5, fill: '#6366f1', stroke: '#111113', strokeWidth: 2 }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -221,7 +230,7 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
                     )}
                     <p className="text-[13px] font-medium text-white truncate">{course.name}</p>
                   </div>
-                  <span className={`text-[12px] font-medium flex-shrink-0 ${
+                  <span className={`text-[12px] font-semibold flex-shrink-0 ${
                     course.attendance >= 80 ? 'text-emerald-400' :
                     course.attendance >= 75 ? 'text-amber-400' : 'text-red-400'
                   }`}>{course.attendance}%</span>
@@ -233,10 +242,10 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
 
           {/* Student: shortage warning */}
           {isStudent && (
-            <div className="mt-5 p-3 rounded-md bg-red-500/10 border border-red-500/20">
+            <div className="mt-5 p-3 rounded-lg" style={{ background: 'rgb(239 68 68 / 0.08)', border: '1px solid rgb(239 68 68 / 0.2)' }}>
               <div className="flex items-center gap-2">
                 <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                <p className="text-[12px] text-red-400 font-medium">EC-303 attendance is below 75% minimum!</p>
+                <p className="text-[12px] text-red-400 font-medium">EC-303 is below 75% minimum!</p>
               </div>
             </div>
           )}
@@ -245,20 +254,18 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
 
       {/* Announcements and Today's sessions row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
-        
+
         {/* Recent Announcements Widget */}
         <div className="lg:col-span-1 rounded-xl p-5 flex flex-col" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
           <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-[14px] font-semibold text-white">Updates</h2>
-            </div>
-            <Megaphone className="h-4 w-4 text-zinc-500" />
+            <h2 className="text-[14px] font-semibold text-white">Updates</h2>
+            <Megaphone className="h-4 w-4 text-zinc-600" />
           </div>
           <div className="space-y-4 flex-1">
             {recentAnnouncements.map((ann, i) => (
               <div key={i} className="group cursor-pointer">
                 <div className="flex items-center gap-2 mb-1">
-                  <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className={ann.isGlobal ? 'text-[9px] px-1.5' : 'text-[9px] px-1.5'}>
+                  <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className="text-[9px] px-1.5">
                     {ann.type}
                   </Badge>
                   <span className="text-[10px] text-zinc-500">{ann.date}</span>
@@ -289,35 +296,41 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
             {upcomingSessions.map((session, i) => (
               <div
                 key={i}
-                className={`flex flex-col gap-2 p-3.5 rounded-lg border transition-all duration-150 cursor-pointer ${
+                className={`flex flex-col gap-2 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer group ${
                   session.status === 'live'
-                    ? 'border-emerald-500/30 bg-emerald-500/10 hover:border-emerald-500/50'
-                    : 'border-[#2a2a2e] bg-[#161618] hover:border-indigo-500/30 hover:bg-[#1a1a1d]'
+                    ? 'border-emerald-500/30 hover:border-emerald-500/50'
+                    : 'border-[#2a2a2e] hover:border-indigo-500/30'
                 }`}
+                style={{
+                  background: session.status === 'live'
+                    ? 'rgb(16 185 129 / 0.07)'
+                    : '#161618',
+                }}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-mono text-zinc-400">{session.code}</span>
                   {session.status === 'live' ? (
-                    <Badge variant="active" dot className="text-[9px] px-1.5">Live</Badge>
+                    <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-status-pulse" />
+                      LIVE
+                    </span>
                   ) : (
                     <Badge variant="secondary" className="text-[9px] px-1.5">Soon</Badge>
                   )}
                 </div>
-                <p className="text-[13px] font-medium text-white leading-tight">{session.course}</p>
-                <div className="text-[12px] text-zinc-500 space-y-0.5 mt-auto pt-2">
-                  {!isStudent && <p>{session.faculty}</p>}
+                <p className="text-[13px] font-semibold text-white leading-tight group-hover:text-white transition-colors">{session.course}</p>
+                <div className="text-[12px] text-zinc-500 space-y-0.5 mt-auto pt-2" style={{ borderTop: '1px solid #1f1f23' }}>
+                  {!isStudent && <p className="text-zinc-400">{session.faculty}</p>}
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-400">{session.time}</span>
+                    <span className="text-zinc-300 font-medium">{session.time}</span>
                     <span>{session.room}</span>
                   </div>
                 </div>
                 {isStudent && session.status === 'live' && (
-                  <div className="mt-2 pt-2 border-t border-emerald-500/20">
-                    <button className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 w-full">
-                      <GraduationCap className="h-3.5 w-3.5" />
-                      Mark attendance
-                    </button>
-                  </div>
+                  <button className="mt-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 w-full">
+                    <Zap className="h-3 w-3" />
+                    Mark attendance
+                  </button>
                 )}
               </div>
             ))}

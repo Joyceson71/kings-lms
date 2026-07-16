@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Bell, Search, ChevronRight, Settings, LogOut, User, Menu } from 'lucide-react';
+import { Bell, Search, ChevronRight, Settings, LogOut, User, Menu, Sparkles } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
@@ -27,6 +27,12 @@ const breadcrumbMap: Record<string, string> = {
   '/dashboard/calendar':      'Calendar',
 };
 
+const roleColors: Record<string, string> = {
+  admin:   'text-amber-400',
+  faculty: 'text-emerald-400',
+  student: 'text-indigo-400',
+};
+
 export function Header() {
   const pathname = usePathname();
   const router   = useRouter();
@@ -47,10 +53,12 @@ export function Header() {
 
   return (
     <header
-      className="sticky top-0 z-30 flex h-[52px] flex-shrink-0 items-center"
+      className="sticky top-0 z-30 flex h-[56px] flex-shrink-0 items-center"
       style={{
-        background: '#0a0a0b',
+        background: 'rgb(10 10 11 / 0.95)',
         borderBottom: '1px solid #1a1a1d',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }}
     >
       <div className="flex flex-1 items-center justify-between px-4 gap-3">
@@ -66,14 +74,14 @@ export function Header() {
           </button>
 
           <div className="hidden sm:flex items-center gap-1.5 text-[13px]">
-            <Link href="/dashboard" className="text-zinc-600 hover:text-zinc-300 transition-colors">
+            <Link href="/dashboard" className="text-zinc-600 hover:text-zinc-300 transition-colors font-medium">
               Kings EC
             </Link>
             <ChevronRight className="h-3 w-3 text-zinc-700" />
-            <span className="font-medium text-white">{pageTitle}</span>
+            <span className="font-semibold text-white">{pageTitle}</span>
           </div>
 
-          <span className="sm:hidden font-medium text-[13px] text-white truncate">{pageTitle}</span>
+          <span className="sm:hidden font-semibold text-[13px] text-white truncate">{pageTitle}</span>
         </div>
 
         {/* Center: search */}
@@ -86,15 +94,16 @@ export function Header() {
               placeholder="Search…"
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
-              className="w-full pl-8 pr-3 h-[30px] rounded-md text-[13px] text-white placeholder:text-zinc-600 outline-none transition-all"
-              style={{
-                background: '#111113',
-                border: `1px solid ${searchFocused ? '#6366f1' : '#1f1f23'}`,
-                boxShadow: searchFocused ? '0 0 0 2px rgb(99 102 241 / 0.15)' : 'none',
-              }}
+              className={cn(
+                'w-full pl-8 pr-10 h-[32px] rounded-lg text-[13px] text-white placeholder:text-zinc-600 outline-none transition-all duration-200',
+                'bg-[#111113] border',
+                searchFocused
+                  ? 'border-indigo-500 ring-2 ring-indigo-500/15'
+                  : 'border-[#1f1f23] hover:border-[#2a2a2e]',
+              )}
             />
             <kbd
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-zinc-600 hidden sm:block"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-zinc-600 hidden sm:block"
               style={{ fontFamily: 'IBM Plex Mono, monospace' }}
             >
               ⌘K
@@ -111,12 +120,13 @@ export function Header() {
               id="notifications-btn"
               type="button"
               onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
-              className="relative flex h-[30px] w-[30px] items-center justify-center rounded-md text-zinc-500 hover:text-white hover:bg-[#111113] transition-colors"
+              className="relative flex h-[32px] w-[32px] items-center justify-center rounded-lg text-zinc-500 hover:text-white hover:bg-[#111113] transition-colors"
               aria-label="Notifications"
+              aria-expanded={showNotifications}
             >
               <Bell className="h-4 w-4" />
               <span
-                className="absolute top-1 right-1 h-1.5 w-1.5 rounded-full animate-status-pulse"
+                className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full animate-status-pulse"
                 style={{ background: '#6366f1' }}
               />
             </button>
@@ -138,14 +148,14 @@ export function Header() {
               type="button"
               onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
               className={cn(
-                'flex items-center gap-2 rounded-md px-2 h-[30px] text-[13px] font-medium transition-colors',
+                'flex items-center gap-2 rounded-lg px-2 h-[32px] text-[13px] font-medium transition-colors',
                 showUserMenu ? 'bg-[#111113] text-white' : 'text-zinc-400 hover:text-white hover:bg-[#111113]',
               )}
               aria-expanded={showUserMenu}
               aria-label="User menu"
             >
               {loading ? (
-                <div className="h-5 w-5 rounded-full" style={{ background: '#1a1a1d' }} />
+                <div className="h-5 w-5 rounded-full skeleton" />
               ) : (
                 <Avatar name={displayName} size="xs" />
               )}
@@ -159,7 +169,7 @@ export function Header() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
                 <div
-                  className="absolute right-0 top-full mt-1 w-52 rounded-lg z-50 overflow-hidden animate-slide-in-up"
+                  className="absolute right-0 top-full mt-1.5 w-56 rounded-xl z-50 overflow-hidden animate-slide-in-down"
                   style={{
                     background: '#111113',
                     border: '1px solid #1f1f23',
@@ -167,13 +177,22 @@ export function Header() {
                   }}
                 >
                   {/* Info row */}
-                  <div className="px-3 py-2.5" style={{ borderBottom: '1px solid #1a1a1d' }}>
-                    <p className="text-[13px] font-medium text-white truncate">{displayName}</p>
-                    <p className="text-[11px] text-zinc-500 truncate mt-0.5">{profile?.email ?? '—'}</p>
+                  <div className="px-3 py-3" style={{ borderBottom: '1px solid #1a1a1d' }}>
+                    <div className="flex items-center gap-2.5 mb-2">
+                      <Avatar name={displayName} size="sm" ring="none" />
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
+                        <p className="text-[11px] text-zinc-500 truncate mt-px">{profile?.email ?? '—'}</p>
+                      </div>
+                    </div>
                     <span
-                      className="inline-block mt-1.5 text-[10px] font-medium px-1.5 py-0.5 rounded capitalize"
-                      style={{ background: '#1a1a1d', color: '#71717a', border: '1px solid #2a2a2e' }}
+                      className={cn(
+                        'inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize',
+                        'bg-[#1a1a1d] border border-[#2a2a2e]',
+                        roleColors[role] ?? 'text-zinc-500',
+                      )}
                     >
+                      <Sparkles className="h-2.5 w-2.5" />
                       {role}
                     </span>
                   </div>
@@ -188,7 +207,7 @@ export function Header() {
                         key={label}
                         href={href}
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-2.5 rounded-md px-2.5 h-8 text-[13px] text-zinc-400 hover:text-white hover:bg-[#1a1a1d] transition-colors"
+                        className="flex items-center gap-2.5 rounded-lg px-2.5 h-8 text-[13px] text-zinc-400 hover:text-white hover:bg-[#1a1a1d] transition-colors"
                       >
                         <Icon className="h-3.5 w-3.5 text-zinc-600" />
                         {label}
@@ -200,7 +219,7 @@ export function Header() {
                     <button
                       onClick={handleLogout}
                       id="header-logout-btn"
-                      className="flex w-full items-center gap-2.5 rounded-md px-2.5 h-8 text-[13px] text-red-500 hover:bg-[#1a1a1d] transition-colors"
+                      className="flex w-full items-center gap-2.5 rounded-lg px-2.5 h-8 text-[13px] text-red-500 hover:bg-red-500/5 transition-colors"
                     >
                       <LogOut className="h-3.5 w-3.5" />
                       Logout

@@ -100,12 +100,12 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
         )}
       >
         {/* Toolbar */}
-        <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 bg-secondary/30 shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-secondary/50">
+        <div className="h-14 flex items-center justify-between px-4 border-b border-border/50 bg-secondary/30 shrink-0 gap-2">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="p-2 rounded-lg bg-secondary/50 shrink-0">
               <Icon className="h-4 w-4 text-primary" />
             </div>
-            <h2 className="font-semibold text-foreground text-sm truncate max-w-md">{title}</h2>
+            <h2 className="font-semibold text-foreground text-sm truncate">{title}</h2>
           </div>
           
           <div className="flex items-center gap-2">

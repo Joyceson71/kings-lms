@@ -98,7 +98,7 @@ export function CreateAssignmentModal({ isOpen, onClose, onSuccess }: CreateAssi
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="courseId">Course ID *</Label>
               <div className="relative group">

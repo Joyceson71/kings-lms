@@ -288,7 +288,7 @@ function AttendanceContent() {
 
       {/* Quick stats row (students only) */}
       {isStudent && (
-        <div className="grid grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
           {/* Attended */}
           <div
             className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative"
@@ -315,7 +315,7 @@ function AttendanceContent() {
             const isLow = rate < 75;
             return (
               <div
-                className="border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative transition-all duration-300"
+                className="col-span-2 sm:col-span-1 border border-[#1f1f23] rounded-2xl p-4 text-center overflow-hidden relative transition-all duration-300"
                 style={{
                   background: '#111113',
                   borderTop: `2px solid ${isLow ? 'rgb(239 68 68 / 0.6)' : 'rgb(245 158 11 / 0.6)'}`,

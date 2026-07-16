@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: Request) {
   try {
-    const { messages } = await req.json();
+    const { messages, profile } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {
       return NextResponse.json(
@@ -22,7 +22,12 @@ export async function POST(req: Request) {
       parts: [{ text: msg.content }],
     }));
 
-    const systemInstruction = "You are Kings AI, an expert engineering course assistant for students at Kings Engineering College. You are helpful, encouraging, and provide concise, accurate technical answers.";
+    let systemInstruction = "You are Kings AI, an expert engineering course assistant for students at Kings Engineering College. You are helpful, encouraging, and provide concise, accurate technical answers.";
+    if (profile) {
+      const yearStr = profile.year_of_study ? `${profile.year_of_study}${profile.year_of_study === 1 ? 'st' : profile.year_of_study === 2 ? 'nd' : profile.year_of_study === 3 ? 'rd' : 'th'} year ` : '';
+      const deptStr = profile.department ? `${profile.department} ` : '';
+      systemInstruction = `You are Kings AI, an expert engineering course assistant. You are currently helping a ${yearStr}${deptStr}student at Kings Engineering College. You are helpful, encouraging, and provide concise, accurate technical answers relevant to their specific department when possible.`;
+    }
 
     // Use Gemini 2.5 Flash for fast chat responses
     const response = await ai.models.generateContent({

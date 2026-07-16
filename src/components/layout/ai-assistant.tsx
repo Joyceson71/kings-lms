@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { MessageSquare, X, Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type Message = {
   id: string;
@@ -23,7 +25,11 @@ export function AIAssistant() {
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const { displayName, isStudent } = useUser();
+  const { profile, isStudent } = useUser();
+
+  const handleClear = () => {
+    setMessages([{ id: Date.now().toString(), type: 'bot', content: 'Hi there! I am your AI Course Assistant. How can I help you with your studies today?' }]);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -47,7 +53,7 @@ export function AIAssistant() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: currentMessages }),
+        body: JSON.stringify({ messages: currentMessages, profile }),
       });
 
       const data = await response.json();
@@ -93,9 +99,14 @@ export function AIAssistant() {
                     <p className="text-[10px] text-muted-foreground">Always ready to help</p>
                   </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8 hover:bg-secondary/60 rounded-full">
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-1">
+                  <Button variant="ghost" size="icon" onClick={handleClear} className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive rounded-full" title="Clear Chat">
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="h-8 w-8 hover:bg-secondary/60 rounded-full">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
 
               {/* Chat Area */}
@@ -111,9 +122,15 @@ export function AIAssistant() {
                       "p-3 rounded-2xl text-sm leading-relaxed",
                       msg.type === 'user' 
                         ? "bg-primary text-primary-foreground rounded-tr-none" 
-                        : "bg-secondary/60 text-foreground border border-border/40 rounded-tl-none"
+                        : "bg-secondary/60 text-foreground border border-border/40 rounded-tl-none prose prose-invert max-w-none prose-p:leading-relaxed prose-pre:bg-black/50 prose-pre:border prose-pre:border-border/50 prose-pre:rounded-xl prose-a:text-primary hover:prose-a:text-primary/80"
                     )}>
-                      {msg.content}
+                      {msg.type === 'user' ? (
+                        msg.content
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {msg.content}
+                        </ReactMarkdown>
+                      )}
                     </div>
                   </div>
                 ))}

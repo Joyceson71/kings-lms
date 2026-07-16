@@ -13,6 +13,7 @@ import { createClient } from '@/lib/supabase/client';
 const addCourseSchema = z.object({
   title: z.string().min(3, { message: 'Title must be at least 3 characters' }),
   description: z.string().min(10, { message: 'Description must be at least 10 characters' }),
+  department: z.string().optional(),
 });
 
 type AddCourseFormValues = z.infer<typeof addCourseSchema>;
@@ -66,6 +67,7 @@ export function AddCourseModal({ isOpen, onClose, onCourseAdded }: AddCourseModa
         .insert({
           title: data.title,
           description: data.description,
+          department: data.department || null,
           created_by: user.id,
         })
         .select()
@@ -155,6 +157,29 @@ export function AddCourseModal({ isOpen, onClose, onCourseAdded }: AddCourseModa
                   {errors.description.message}
                 </p>
               )}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="department" className="text-sm font-medium">Department (Optional)</Label>
+              <div className="relative group">
+                <Book className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors z-10 pointer-events-none" />
+                <select
+                  id="department"
+                  {...register('department')}
+                  className="w-full pl-10 pr-4 h-11 bg-background/40 border-border/60 text-foreground text-sm focus-visible:ring-1 focus-visible:ring-primary focus-visible:border-primary transition-all rounded-xl outline-none appearance-none"
+                  defaultValue=""
+                >
+                  <option value="" className="text-muted-foreground bg-background">All Departments (Global)</option>
+                  <option value="ECE" className="bg-background text-foreground">ECE</option>
+                  <option value="CSE" className="bg-background text-foreground">CSE</option>
+                  <option value="IT" className="bg-background text-foreground">IT</option>
+                  <option value="AIDS" className="bg-background text-foreground">AIDS</option>
+                  <option value="AIML" className="bg-background text-foreground">AIML</option>
+                  <option value="RAA" className="bg-background text-foreground">RAA</option>
+                  <option value="MECH" className="bg-background text-foreground">MECH</option>
+                  <option value="BME" className="bg-background text-foreground">BME</option>
+                </select>
+              </div>
             </div>
 
             <div className="pt-2 flex justify-end gap-3">

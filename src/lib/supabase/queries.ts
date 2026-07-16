@@ -20,6 +20,7 @@ export type Course = {
   id: string;
   title: string;
   description: string | null;
+  department: string | null;
   created_by: string;
   created_at: string;
   updated_at: string;
@@ -164,11 +165,15 @@ export async function getDashboardStats(supabase: SupabaseClient, userId: string
   return { totalStudents, totalCourses, attendanceRate, pendingAssignments };
 }
 
-export async function getCourses(supabase: SupabaseClient): Promise<Course[]> {
-  const { data, error } = await supabase
-    .from('courses')
-    .select('*')
-    .order('created_at', { ascending: false });
+export async function getCourses(supabase: SupabaseClient, department?: string): Promise<Course[]> {
+  let query = supabase.from('courses').select('*');
+  
+  if (department) {
+    // If a department is specified, show courses for that department OR global courses (department IS NULL)
+    query = query.or(`department.eq.${department},department.is.null`);
+  }
+  
+  const { data, error } = await query.order('created_at', { ascending: false });
   if (error) {
     console.error('Error fetching courses:', error);
     return [];

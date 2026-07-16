@@ -18,7 +18,7 @@ export default async function CoursesPage() {
     redirect('/onboarding');
   }
 
-  const allCourses = await getCourses(supabase);
+  const allCourses = await getCourses(supabase, profile.role === 'student' ? profile.department || undefined : undefined);
   let enrolledCourses: Awaited<ReturnType<typeof getEnrolledCourses>> = [];
   if (profile.role === 'student') {
     enrolledCourses = await getEnrolledCourses(supabase, user.id);

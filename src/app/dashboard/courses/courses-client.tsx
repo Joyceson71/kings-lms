@@ -69,7 +69,8 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
     icon: '📚',
     status: 'active' as const,
     rating: 0,
-    description: c.description
+    description: c.description,
+    department: c.department || 'Global'
   });
 
   const enrolledIds = new Set(localEnrolledCourses.map(c => c.id));
@@ -171,7 +172,12 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
 
                 {/* Title */}
                 <div className="mb-4">
-                  <span className="text-[11px] font-mono text-zinc-500">{course.code}</span>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[11px] font-mono text-zinc-500">{course.code}</span>
+                    <Badge variant="outline" className="text-[9px] h-4 px-1.5 py-0 border-indigo-500/30 text-indigo-400">
+                      {course.department}
+                    </Badge>
+                  </div>
                   <h3 className="text-[14px] font-semibold text-white mt-0.5 leading-snug">
                     {course.title}
                   </h3>

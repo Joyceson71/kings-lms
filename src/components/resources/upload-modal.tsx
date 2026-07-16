@@ -29,8 +29,39 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
   
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
 
   if (!isOpen) return null;
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const droppedFile = e.dataTransfer.files[0];
+      setFile(droppedFile);
+      if (!title) {
+        setTitle(droppedFile.name.split('.')[0]);
+      }
+      
+      const fileType = droppedFile.type;
+      if (fileType.includes('pdf')) setType('PDF');
+      else if (fileType.includes('video')) setType('Video');
+      else if (fileType.includes('zip') || fileType.includes('rar') || fileType.includes('tar')) setType('Archive');
+      else if (fileType.includes('image')) setType('Image');
+      else setType('File');
+    }
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -229,7 +260,15 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
                   />
                   <Label 
                     htmlFor="file"
-                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-border/60 rounded-xl bg-secondary/20 hover:bg-secondary/40 transition-colors cursor-pointer group"
+                    className={cn(
+                      "flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-xl transition-all cursor-pointer group",
+                      isDragging 
+                        ? "border-primary bg-primary/10 scale-[1.02]" 
+                        : "border-border/60 bg-secondary/20 hover:bg-secondary/40 hover:border-primary/50"
+                    )}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
                   >
                     {file ? (
                       <div className="flex flex-col items-center text-primary">

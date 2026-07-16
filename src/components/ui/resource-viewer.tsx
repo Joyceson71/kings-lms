@@ -1,6 +1,6 @@
 'use client';
 
-import { X, Maximize2, Download, FileText, Globe, PlaySquare } from 'lucide-react';
+import { X, Maximize2, Download, FileText, Globe, PlaySquare, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -44,11 +44,22 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
     
     if (type.toLowerCase() === 'pdf' || type.toLowerCase() === 'web' || type.toLowerCase() === 'link') {
       return (
-        <div className="w-full h-full bg-white relative">
+        <div className="w-full h-full bg-white relative flex flex-col">
+          <div className="w-full bg-secondary/50 border-b border-border/50 py-2 px-4 flex justify-between items-center text-xs text-muted-foreground z-10 shrink-0 shadow-sm">
+            <span>If the document doesn't display correctly, you can view it directly.</span>
+            <a 
+              href={url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-primary hover:underline font-medium flex items-center gap-1.5"
+            >
+              <ExternalLink className="h-3.5 w-3.5" /> Open in New Tab
+            </a>
+          </div>
           {/* We use an iframe. Note that some real websites block iframes, but this simulates the in-app viewer experience */}
           <iframe 
             src={url}
-            className="w-full h-full border-0"
+            className="flex-1 w-full border-0"
             title={title}
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
           />
@@ -102,6 +113,21 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
               variant="ghost" 
               size="sm"
               className="h-9 px-3 text-muted-foreground hover:text-foreground hidden sm:flex gap-2"
+              onClick={() => window.open(url, '_blank')}
+            >
+              <ExternalLink className="h-4 w-4" />
+              <span className="text-xs">Open</span>
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="h-9 px-3 text-muted-foreground hover:text-foreground hidden sm:flex gap-2"
+              onClick={() => {
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = title;
+                a.click();
+              }}
             >
               <Download className="h-4 w-4" />
               <span className="text-xs">Download</span>

@@ -9,8 +9,14 @@ import { Input } from '@/components/ui/input';
 import { 
   FileText, Download, Upload, Search, Filter, 
   ExternalLink, File, FileArchive, FileImage, 
-  PlaySquare, MoreVertical, Loader2
+  PlaySquare, MoreVertical, Loader2, Trash2
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { UploadModal } from '@/components/resources/upload-modal';
@@ -47,6 +53,7 @@ export default function ResourcesPage() {
   
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
+  const [activeTypeFilter, setActiveTypeFilter] = useState('All');
   
   const [viewerUrl, setViewerUrl] = useState<{url: string, title: string, type: string} | null>(null);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -99,9 +106,36 @@ export default function ResourcesPage() {
     const matchesSearch = title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           courseCode.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesFilter = activeFilter === 'All' || courseCode === activeFilter;
+    const matchesType = activeTypeFilter === 'All' || (resource.type && resource.type.toLowerCase() === activeTypeFilter.toLowerCase());
     
-    return matchesSearch && matchesFilter;
+    return matchesSearch && matchesFilter && matchesType;
   });
+
+  const handleDelete = async (resourceId: string, filePath: string) => {
+    if (!confirm('Are you sure you want to delete this resource? This action cannot be undone.')) return;
+    
+    try {
+      if (filePath && filePath.includes('/storage/v1/object/public/course_materials/')) {
+        const pathParts = filePath.split('/course_materials/');
+        if (pathParts.length > 1) {
+          const storagePath = pathParts[1];
+          await supabase.storage.from('course_materials').remove([storagePath]);
+        }
+      }
+
+      const { error } = await supabase
+        .from('course_materials')
+        .delete()
+        .eq('id', resourceId);
+
+      if (error) throw error;
+      
+      setResources(prev => prev.filter(r => r.id !== resourceId));
+    } catch (err) {
+      console.error('Failed to delete resource:', err);
+      alert('Failed to delete resource.');
+    }
+  };
 
   return (
     <div className="space-y-8 pb-12 relative">
@@ -141,22 +175,44 @@ export default function ResourcesPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 w-full lg:w-auto hide-scrollbar snap-x">
-          <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0 mr-1" />
-          {filters.map((filter) => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={cn(
-                'px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 whitespace-nowrap snap-start',
-                activeFilter === filter
-                  ? 'bg-primary/15 border-primary/30 text-primary'
-                  : 'border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
-              )}
-            >
-              {filter}
-            </button>
-          ))}
+        <div className="flex flex-col gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 hide-scrollbar snap-x">
+            <Filter className="h-4 w-4 text-muted-foreground flex-shrink-0 mr-1" />
+            <span className="text-xs text-muted-foreground/70 font-semibold mr-1">Course:</span>
+            {filters.map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 whitespace-nowrap snap-start',
+                  activeFilter === filter
+                    ? 'bg-primary/15 border-primary/30 text-primary'
+                    : 'border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
+                )}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+          
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0 hide-scrollbar snap-x">
+            <Filter className="h-4 w-4 text-transparent flex-shrink-0 mr-1" />
+            <span className="text-xs text-muted-foreground/70 font-semibold mr-1">Type:</span>
+            {['All', 'PDF', 'Video', 'Archive', 'Link'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setActiveTypeFilter(type)}
+                className={cn(
+                  'px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all duration-200 whitespace-nowrap snap-start',
+                  activeTypeFilter === type
+                    ? 'bg-primary/15 border-primary/30 text-primary'
+                    : 'border-border/40 text-muted-foreground hover:text-foreground hover:border-border'
+                )}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -197,10 +253,21 @@ export default function ResourcesPage() {
                       </div>
                       
                       {/* Context Menu (Hidden for students) */}
-                      {!isStudent && (
-                        <button className="text-muted-foreground hover:text-foreground p-1 transition-colors rounded-lg hover:bg-secondary">
-                          <MoreVertical className="h-4 w-4" />
-                        </button>
+                      {!isStudent && (profile?.id === resource.uploaded_by || profile?.role === 'admin') && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger className="text-muted-foreground hover:text-foreground p-1.5 transition-colors rounded-lg hover:bg-secondary cursor-pointer border-none outline-none">
+                            <MoreVertical className="h-4 w-4" />
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-40 rounded-xl border-border/50 shadow-xl bg-background/95 backdrop-blur-md p-1">
+                            <DropdownMenuItem 
+                              className="text-destructive focus:text-destructive focus:bg-destructive/10 cursor-pointer rounded-lg px-3 py-2 text-sm font-medium"
+                              onClick={() => handleDelete(resource.id, resource.file_path)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       )}
                     </div>
 

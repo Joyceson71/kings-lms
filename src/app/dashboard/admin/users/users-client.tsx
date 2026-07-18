@@ -15,8 +15,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -188,12 +186,10 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                         <MoreVertical className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
+                        <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Actions</div>
                         <DropdownMenuItem onClick={() => alert(`View Profile: ${user.name}`)}>View Profile</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => alert(`Change Role for: ${user.name}`)}>Change Role</DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => alert(`Suspended: ${user.name}`)}>Suspend User</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive mt-1 border-t border-border/50 pt-1" onClick={() => alert(`Suspended: ${user.name}`)}>Suspend User</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>

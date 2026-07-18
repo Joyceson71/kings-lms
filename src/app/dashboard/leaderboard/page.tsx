@@ -40,7 +40,7 @@ export default function LeaderboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-slide-in-up" style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}>
-        {TOP_STUDENTS.slice(0, 3).map((student, i) => (
+        {TOP_STUDENTS.slice(0, 3).map((student) => (
           <div key={student.id} className={cn(
               "bg-[#111113] border border-[#1f1f23] rounded-3xl p-6 flex flex-col items-center text-center relative overflow-hidden",
               student.rank === 1 ? "border-amber-500/30 shadow-[0_0_30px_oklch(0.75_0.16_85/0.15)]" :

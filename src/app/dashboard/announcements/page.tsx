@@ -33,7 +33,7 @@ export default function AnnouncementsPage() {
     
     async function fetchAnnouncements() {
       const supabase = createClient();
-      const { data, error } = await supabase
+      const { data } = await supabase
         .from('announcements')
         .select('*, courses(title), profiles(full_name)')
         .order('created_at', { ascending: false });

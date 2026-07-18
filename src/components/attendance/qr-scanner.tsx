@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+
 
 interface QRScannerModalProps {
   isOpen: boolean;

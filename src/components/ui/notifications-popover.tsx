@@ -8,41 +8,6 @@ import { getNotifications, markNotificationRead } from '@/lib/supabase/queries';
 import { useUser } from '@/lib/hooks/use-user';
 import { useEffect, useState } from 'react';
 
-type Notification = {
-  id: string;
-  title: string;
-  message: string;
-  time: string;
-  type: 'success' | 'warning' | 'info';
-  read: boolean;
-};
-
-const INITIAL_NOTIFICATIONS: Notification[] = [
-  {
-    id: '1',
-    title: 'Assignment Graded',
-    message: 'Your assignment "Binary Tree Implementation" was graded: A+',
-    time: '2 mins ago',
-    type: 'success',
-    read: false,
-  },
-  {
-    id: '2',
-    title: 'Live Session Starting',
-    message: 'Digital Signal Processing starts in 10 minutes.',
-    time: '10 mins ago',
-    type: 'info',
-    read: false,
-  },
-  {
-    id: '3',
-    title: 'Attendance Warning',
-    message: 'Your attendance in EC-303 dropped below 75%.',
-    time: '1 hour ago',
-    type: 'warning',
-    read: true,
-  },
-];
 
 export function NotificationsPopover({ onClose }: { onClose: () => void }) {
   const [notifications, setNotifications] = useState<any[]>([]);

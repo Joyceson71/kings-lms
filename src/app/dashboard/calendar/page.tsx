@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, addDays, startOfWeek, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';

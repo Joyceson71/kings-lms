@@ -96,6 +96,7 @@ export default function ResourcesPage() {
       fetchData();
      
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoading, isStudent, profile?.id]);
 
   // Filter logic

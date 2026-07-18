@@ -115,14 +115,11 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                   <p className="text-xs text-muted-foreground mt-0.5">All registered users — manage roles & status</p>
                 </div>
                 <Dialog>
-                  <DialogTrigger asChild>
-                    <Button
-                      size="sm"
-                      id="admin-invite-btn"
-                      className="h-8 px-3 bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 rounded-lg text-xs font-semibold"
-                    >
-                      + Invite User
-                    </Button>
+                  <DialogTrigger
+                    id="admin-invite-btn"
+                    className="inline-flex items-center justify-center whitespace-nowrap h-8 px-3 bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 rounded-lg text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                  >
+                    + Invite User
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -139,8 +136,8 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                       />
                     </div>
                     <DialogFooter>
-                      <DialogClose asChild>
-                        <Button variant="outline">Cancel</Button>
+                      <DialogClose className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring border border-input bg-background hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+                        Cancel
                       </DialogClose>
                       <Button onClick={() => alert('Invitation sent!')}>Send Invite</Button>
                     </DialogFooter>
@@ -184,13 +181,11 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                     </Badge>
 
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-                          aria-label={`More options for ${user.name}`}
-                        >
-                          <MoreVertical className="h-3.5 w-3.5" />
-                        </button>
+                      <DropdownMenuTrigger
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                        aria-label={`More options for ${user.name}`}
+                      >
+                        <MoreVertical className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>

@@ -40,15 +40,30 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
 
   const normalizedType = type.toLowerCase();
 
+  // Security: Sanitize URL to prevent XSS via javascript: or vbscript: URIs
+  const safeUrl = (() => {
+    const trimmedUrl = url?.trim() || '';
+    const lowerUrl = trimmedUrl.toLowerCase();
+    if (
+      lowerUrl.startsWith('javascript:') || 
+      lowerUrl.startsWith('vbscript:') || 
+      lowerUrl.startsWith('data:text/html')
+    ) {
+      return 'about:blank';
+    }
+    return trimmedUrl;
+  })();
+
   const renderContent = () => {
     if (normalizedType === 'video') {
       return (
         <div className="w-full h-full bg-black flex items-center justify-center">
           <iframe 
-            src={url} 
+            src={safeUrl} 
             className="w-full h-full aspect-video max-w-5xl border-0"
             allowFullScreen
             title={title}
+            sandbox="allow-same-origin allow-scripts allow-presentation allow-popups"
           />
         </div>
       );
@@ -59,7 +74,7 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
         <div className="w-full h-full flex items-center justify-center bg-black/5 p-4 overflow-auto relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
-            src={url} 
+            src={safeUrl} 
             alt={title} 
             className="max-w-full max-h-full object-contain shadow-sm bg-white" 
           />
@@ -73,7 +88,7 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
           <div className="w-full bg-secondary/50 border-b border-border/50 py-2 px-4 flex justify-between items-center text-xs text-muted-foreground z-10 shrink-0 shadow-sm">
             <span>If the document doesn't display correctly, you can view it directly.</span>
             <a 
-              href={url} 
+              href={safeUrl} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-primary hover:underline font-medium flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
@@ -83,7 +98,7 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
           </div>
           {/* We use an iframe. Note that some real websites block iframes, but this simulates the in-app viewer experience */}
           <iframe 
-            src={url}
+            src={safeUrl}
             className="flex-1 w-full border-0 bg-white"
             title={title}
             sandbox="allow-same-origin allow-scripts allow-popups allow-forms"
@@ -104,8 +119,9 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
           className="mt-6 gap-2"
           onClick={() => {
             const a = document.createElement('a');
-            a.href = url;
+            a.href = safeUrl;
             a.target = '_blank';
+            a.rel = 'noopener noreferrer';
             a.download = title;
             a.click();
           }}
@@ -153,7 +169,7 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
               variant="ghost" 
               size="sm"
               className="h-9 px-3 text-muted-foreground hover:text-foreground hidden sm:flex gap-2"
-              onClick={() => window.open(url, '_blank')}
+              onClick={() => window.open(safeUrl, '_blank', 'noopener,noreferrer')}
             >
               <ExternalLink className="h-4 w-4" />
               <span className="text-xs">Open</span>
@@ -164,8 +180,9 @@ export function ResourceViewer({ isOpen, onClose, title, url, type }: ResourceVi
               className="h-9 px-3 text-muted-foreground hover:text-foreground hidden sm:flex gap-2"
               onClick={() => {
                 const a = document.createElement('a');
-                a.href = url;
+                a.href = safeUrl;
                 a.target = '_blank';
+                a.rel = 'noopener noreferrer';
                 a.download = title;
                 a.click();
               }}

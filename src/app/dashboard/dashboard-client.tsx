@@ -1,37 +1,28 @@
 'use client';
 
+import { memo, useMemo } from 'react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
   Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
-  Calendar, ClipboardList, GraduationCap, AlertTriangle, Star, Megaphone, Zap
+  Calendar, ClipboardList, AlertTriangle, Star, Megaphone, Zap,
 } from 'lucide-react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
-const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
-const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
-const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
-const CartesianGrid = dynamic(() => import('recharts').then(mod => mod.CartesianGrid), { ssr: false });
-const BarChart = dynamic(() => import('recharts').then(mod => mod.BarChart), { ssr: false });
-const Bar = dynamic(() => import('recharts').then(mod => mod.Bar), { ssr: false });
-const PieChart = dynamic(() => import('recharts').then(mod => mod.PieChart), { ssr: false });
-const Pie = dynamic(() => import('recharts').then(mod => mod.Pie), { ssr: false });
-const Cell = dynamic(() => import('recharts').then(mod => mod.Cell), { ssr: false });
+// Single consolidated dynamic import block — reduces chunk overhead
+const Charts = dynamic(() => import('@/components/ui/dashboard-charts'), { ssr: false });
 
 const attendanceData = [
-  { day: 'Mon', attendance: 72, target: 80 },
-  { day: 'Tue', attendance: 85, target: 80 },
-  { day: 'Wed', attendance: 91, target: 80 },
-  { day: 'Thu', attendance: 78, target: 80 },
-  { day: 'Fri', attendance: 95, target: 80 },
-  { day: 'Sat', attendance: 88, target: 80 },
-  { day: 'Sun', attendance: 60, target: 80 },
+  { day: 'Mon', attendance: 72 },
+  { day: 'Tue', attendance: 85 },
+  { day: 'Wed', attendance: 91 },
+  { day: 'Thu', attendance: 78 },
+  { day: 'Fri', attendance: 95 },
+  { day: 'Sat', attendance: 88 },
+  { day: 'Sun', attendance: 60 },
 ];
 
 const studentPerformanceData = [
@@ -48,108 +39,169 @@ const facultyPerformanceData = [
 ];
 
 const taskStatusData = [
-  { name: 'Completed', value: 12, color: '#10b981' },
-  { name: 'Pending', value: 5, color: '#f59e0b' },
-  { name: 'Overdue', value: 2, color: '#ef4444' },
+  { name: 'Completed', value: 12, color: '#34d399' },
+  { name: 'Pending',   value: 5,  color: '#fbbf24' },
+  { name: 'Overdue',   value: 2,  color: '#f87171' },
 ];
 
 const upcomingSessions = [
-  { course: 'Signals and Systems', code: 'EC-301', faculty: 'Dr. Smith', time: '10:00 AM', room: 'Room 402', status: 'upcoming' },
-  { course: 'Digital Signal Processing', code: 'EC-302', faculty: 'Prof. Meera', time: '11:30 AM', room: 'Room 205', status: 'live' },
-  { course: 'Network Analysis', code: 'EC-101', faculty: 'Dr. Kumar', time: '2:00 PM', room: 'Room 301', status: 'upcoming' },
+  { course: 'Signals and Systems',          code: 'EC-301', faculty: 'Dr. Smith',  time: '10:00 AM', room: 'Room 402', status: 'upcoming' },
+  { course: 'Digital Signal Processing',    code: 'EC-302', faculty: 'Prof. Meera', time: '11:30 AM', room: 'Room 205', status: 'live' },
+  { course: 'Network Analysis',             code: 'EC-101', faculty: 'Dr. Kumar',   time: '2:00 PM',  room: 'Room 301', status: 'upcoming' },
 ];
 
 const topCourses = [
-  { name: 'Signals and Systems', attendance: 94, color: 'emerald' as const },
-  { name: 'Digital Signal Processing', attendance: 88, color: 'violet' as const },
-  { name: 'Network Analysis', attendance: 76, color: 'gold' as const },
-  { name: 'Analog Circuits', attendance: 65, color: 'red' as const },
+  { name: 'Signals and Systems',         attendance: 94, color: 'emerald' as const },
+  { name: 'Digital Signal Processing',   attendance: 88, color: 'violet' as const },
+  { name: 'Network Analysis',            attendance: 76, color: 'gold' as const },
+  { name: 'Analog Circuits',             attendance: 65, color: 'red' as const },
 ];
 
 const studentCourses = [
-  { name: 'EC-301 Signals and Systems', attendance: 94, color: 'emerald' as const, status: 'safe' },
-  { name: 'EC-302 Digital Signal Processing', attendance: 88, color: 'emerald' as const, status: 'safe' },
-  { name: 'EC-101 Network Analysis', attendance: 74, color: 'gold' as const, status: 'watch' },
-  { name: 'EC-303 Analog Circuits', attendance: 62, color: 'red' as const, status: 'danger' },
-  { name: 'EC-201 Electromagnetic Fields', attendance: 82, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-301 Signals',              attendance: 94, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-302 DSP',                  attendance: 88, color: 'emerald' as const, status: 'safe' },
+  { name: 'EC-101 Network Analysis',     attendance: 74, color: 'gold' as const,    status: 'watch' },
+  { name: 'EC-303 Analog Circuits',      attendance: 62, color: 'red' as const,     status: 'danger' },
+  { name: 'EC-201 Electromagnetic',      attendance: 82, color: 'emerald' as const, status: 'safe' },
 ];
 
 const recentAnnouncements = [
-  { title: 'System Maintenance Scheduled', type: 'Global', date: 'Today', isGlobal: true },
-  { title: 'Midterm Exam Schedule Released', type: 'Course', date: 'Yesterday', isGlobal: false }
+  { title: 'System Maintenance Scheduled', type: 'Global',  date: 'Today',     isGlobal: true },
+  { title: 'Midterm Exam Schedule Released',type: 'Course',  date: 'Yesterday', isGlobal: false },
 ];
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-        <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
-        <p className="text-[13px] font-semibold text-white">{payload[0]?.value}% attendance</p>
-      </div>
-    );
-  }
-  return null;
-};
-
-const PerformanceTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-        <p className="text-[11px] text-zinc-500 mb-0.5">{label}</p>
-        <p className="text-[13px] font-semibold text-white">{payload[0]?.value}% Avg Score</p>
-      </div>
-    );
-  }
-  return null;
-};
-
+/* ─── Skeleton ─── */
 function SkeletonCard() {
   return (
-    <div className="rounded-xl p-4" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-      <div className="flex items-center justify-between mb-4">
-        <div className="h-8 w-8 rounded-lg skeleton" />
+    <div className="bento-card p-5 animate-pulse">
+      <div className="flex items-start justify-between mb-4">
+        <div className="h-10 w-10 rounded-xl skeleton" />
         <div className="h-4 w-4 rounded skeleton" />
       </div>
       <div className="space-y-2">
-        <div className="h-2.5 w-20 rounded skeleton" />
-        <div className="h-8 w-16 rounded skeleton" />
-        <div className="h-2.5 w-24 rounded skeleton" />
+        <div className="h-2.5 w-16 rounded skeleton" />
+        <div className="h-8 w-20 rounded skeleton" />
+        <div className="h-2 w-24 rounded skeleton" />
       </div>
     </div>
   );
 }
 
+/* ─── Stat Card ─── */
+const StatCard = memo(function StatCard({ stat, index }: {
+  stat: {
+    name: string; value: string; icon: React.ElementType;
+    change: string; changeType: 'positive' | 'neutral';
+    iconColor: string; iconBg: string; accentGrad: string;
+  };
+  index: number;
+}) {
+  return (
+    <div
+      className="bento-card p-5 animate-slide-in-up opacity-0 group cursor-default"
+      style={{ animationDelay: `${(index + 1) * 60}ms`, animationFillMode: 'forwards' }}
+    >
+      <div className="flex items-start justify-between mb-4">
+        <div
+          className="h-10 w-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+          style={{ background: stat.iconBg }}
+        >
+          <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+        </div>
+        <ArrowUpRight className="h-4 w-4 text-slate-700 group-hover:text-slate-400 transition-colors" />
+      </div>
+      <div>
+        <p className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase mb-1">{stat.name}</p>
+        <p className="text-3xl font-black text-white tracking-tight leading-none mb-2">
+          <AnimatedCounter target={stat.value} duration={900} />
+        </p>
+        <p className={`text-[11px] font-medium flex items-center gap-1 ${stat.changeType === 'positive' ? 'text-emerald-400' : 'text-slate-500'}`}>
+          {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
+          {stat.change}
+        </p>
+      </div>
+      {/* Bottom accent line */}
+      <div className="mt-4 h-[2px] rounded-full" style={{ background: stat.accentGrad }} />
+    </div>
+  );
+});
+
+/* ─── Main Dashboard ─── */
 export default function DashboardClient({ stats, profile }: { stats: any; profile: any }) {
   const { loading, displayName } = useUser();
   const isStudent = profile?.role === 'student' || !profile?.role;
 
-  const displayStats = isStudent ? [
-    { name: 'My Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: '↑ Above 75% minimum', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
-    { name: 'Enrolled Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'This semester', changeType: 'neutral' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10', glowColor: 'rgb(99 102 241 / 0.15)' },
-    { name: 'Pending Tasks', value: stats.pendingAssignments.toString(), icon: ClipboardList, change: 'Due this week', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10', glowColor: 'rgb(245 158 11 / 0.15)' },
-    { name: 'CGPA', value: '8.4', icon: Star, change: 'Last semester', changeType: 'positive' as const, iconColor: 'text-violet-400', bgIcon: 'bg-violet-500/10', glowColor: 'rgb(139 92 246 / 0.15)' },
+  const displayStats = useMemo(() => isStudent ? [
+    {
+      name: 'Attendance',      value: `${stats.attendanceRate}%`,        icon: CheckCircle,
+      change: '↑ Above 75%',  changeType: 'positive' as const,
+      iconColor: 'text-emerald-400', iconBg: 'rgb(52 211 153 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #34d399, transparent)',
+    },
+    {
+      name: 'Courses',         value: stats.totalCourses.toString(),      icon: BookOpen,
+      change: 'This semester', changeType: 'neutral' as const,
+      iconColor: 'text-indigo-300',  iconBg: 'rgb(129 140 248 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #818cf8, transparent)',
+    },
+    {
+      name: 'Pending Tasks',   value: stats.pendingAssignments.toString(), icon: ClipboardList,
+      change: 'Due this week', changeType: 'neutral' as const,
+      iconColor: 'text-amber-300',  iconBg: 'rgb(251 191 36 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #fbbf24, transparent)',
+    },
+    {
+      name: 'CGPA',            value: '8.4',                              icon: Star,
+      change: 'Last semester', changeType: 'positive' as const,
+      iconColor: 'text-cyan-300',   iconBg: 'rgb(34 211 238 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #22d3ee, transparent)',
+    },
   ] : [
-    { name: 'Total Students', value: stats.totalStudents.toString(), icon: Users, change: 'Total enrolled', changeType: 'positive' as const, iconColor: 'text-indigo-400', bgIcon: 'bg-indigo-500/10', glowColor: 'rgb(99 102 241 / 0.15)' },
-    { name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen, change: 'Offered this sem', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
-    { name: 'Avg. Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle, change: 'Across all courses', changeType: 'positive' as const, iconColor: 'text-emerald-400', bgIcon: 'bg-emerald-500/10', glowColor: 'rgb(16 185 129 / 0.15)' },
-    { name: 'Submissions to Grade', value: stats.pendingAssignments.toString(), icon: Clock, change: 'Pending review', changeType: 'neutral' as const, iconColor: 'text-amber-400', bgIcon: 'bg-amber-500/10', glowColor: 'rgb(245 158 11 / 0.15)' },
-  ];
+    {
+      name: 'Total Students',  value: stats.totalStudents.toString(),     icon: Users,
+      change: 'Total enrolled', changeType: 'positive' as const,
+      iconColor: 'text-indigo-300',  iconBg: 'rgb(129 140 248 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #818cf8, transparent)',
+    },
+    {
+      name: 'Total Courses',   value: stats.totalCourses.toString(),      icon: BookOpen,
+      change: 'This semester', changeType: 'positive' as const,
+      iconColor: 'text-emerald-400', iconBg: 'rgb(52 211 153 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #34d399, transparent)',
+    },
+    {
+      name: 'Avg Attendance',  value: `${stats.attendanceRate}%`,         icon: CheckCircle,
+      change: 'Across all courses', changeType: 'positive' as const,
+      iconColor: 'text-emerald-400', iconBg: 'rgb(52 211 153 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #34d399, transparent)',
+    },
+    {
+      name: 'To Grade',        value: stats.pendingAssignments.toString(), icon: Clock,
+      change: 'Pending review', changeType: 'neutral' as const,
+      iconColor: 'text-amber-300',  iconBg: 'rgb(251 191 36 / 0.1)',
+      accentGrad: 'linear-gradient(90deg, #fbbf24, transparent)',
+    },
+  ], [isStudent, stats]);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
+    <div className="space-y-5 max-w-6xl mx-auto">
+
+      {/* ── Page Header ── */}
+      <div
+        className="flex items-center justify-between animate-fade-in opacity-0"
+        style={{ animationFillMode: 'forwards' }}
+      >
         <div>
           <h1
-            className="text-xl font-bold tracking-tight text-white"
+            className="text-2xl font-black tracking-tight text-white"
             style={{ fontFamily: "'Outfit', sans-serif" }}
           >
-            {loading ? 'Dashboard' : isStudent ? 'My Dashboard' : 'Dashboard Overview'}
+            {loading ? 'Dashboard' : isStudent ? (
+              <>Hey, <span className="gradient-text">{displayName.split(' ')[0]}</span> 👋</>
+            ) : 'Dashboard Overview'}
           </h1>
-          <p className="text-zinc-400 mt-1 text-[13px]">
-            {loading
-              ? 'Loading your dashboard…'
-              : `Welcome back, ${displayName.split(' ')[0]}. Here's what's happening.`}
+          <p className="text-slate-500 mt-1 text-[13px]">
+            {loading ? 'Loading…' : "Here's what's happening today."}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -158,105 +210,44 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
         </div>
       </div>
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ── Stat Cards ── */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {loading
-          ? Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="animate-fade-in opacity-0" style={{ animationDelay: `${i * 50}ms`, animationFillMode: 'forwards' }}>
-                <SkeletonCard />
-              </div>
-            ))
+          ? Array.from({ length: 4 }).map((_, i) => <SkeletonCard key={i} />)
           : displayStats.map((stat, i) => (
-              <div
-                key={stat.name}
-                className="group rounded-xl p-4 animate-slide-in-up opacity-0 cursor-default transition-all duration-300 hover:-translate-y-0.5"
-                style={{
-                  background: '#111113',
-                  border: '1px solid #1f1f23',
-                  animationDelay: `${(i + 1) * 60}ms`,
-                  animationFillMode: 'forwards',
-                }}
-                onMouseEnter={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#2a2a2e';
-                  (e.currentTarget as HTMLElement).style.boxShadow = `0 4px 20px ${stat.glowColor}`;
-                }}
-                onMouseLeave={e => {
-                  (e.currentTarget as HTMLElement).style.borderColor = '#1f1f23';
-                  (e.currentTarget as HTMLElement).style.boxShadow = 'none';
-                }}
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <div className={`h-9 w-9 rounded-lg ${stat.bgIcon} flex items-center justify-center transition-transform duration-200 group-hover:scale-110`}>
-                    <stat.icon className={`h-4 w-4 ${stat.iconColor}`} />
-                  </div>
-                  <ArrowUpRight className="h-4 w-4 text-zinc-700 group-hover:text-zinc-400 transition-colors" />
-                </div>
-                <div>
-                  <p className="text-[12px] font-medium text-zinc-500 mb-0.5">{stat.name}</p>
-                  <p className="text-2xl font-bold text-white tracking-tight">
-                    <AnimatedCounter target={stat.value} duration={800} />
-                  </p>
-                  <p className={`text-[11px] mt-2 font-medium flex items-center gap-1 ${stat.changeType === 'positive' ? 'text-emerald-400' : 'text-zinc-500'}`}>
-                    {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
-                    {stat.change}
-                  </p>
-                </div>
-              </div>
+              <StatCard key={stat.name} stat={stat} index={i} />
             ))}
       </div>
 
-      {/* Charts row */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}>
-
-        {/* Attendance chart */}
-        <div className="lg:col-span-2">
-          <div className="rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-[14px] font-semibold text-white">
-                  {isStudent ? 'Attendance Trend' : 'Overall Attendance'}
-                </h2>
-                <p className="text-[12px] text-zinc-500 mt-0.5">
-                  {isStudent ? 'Your attendance over the past 7 days' : 'Last 7 days across all courses'}
-                </p>
-              </div>
-              <Badge variant="secondary">7 days</Badge>
+      {/* ── Charts Row ── */}
+      <div
+        className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
+        style={{ animationDelay: '280ms', animationFillMode: 'forwards' }}
+      >
+        {/* Attendance Chart — 2/3 width */}
+        <div className="lg:col-span-2 bento-card p-5">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                {isStudent ? 'Attendance Trend' : 'Overall Attendance'}
+              </h2>
+              <p className="text-[12px] text-slate-500 mt-0.5">Last 7 days</p>
             </div>
-            <div className="h-56">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={attendanceData} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.25} />
-                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
-                  <XAxis dataKey="day" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
-                  <YAxis domain={[50, 100]} tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                  <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#2a2a2e', strokeWidth: 1 }} />
-                  <Area
-                    type="monotone"
-                    dataKey="attendance"
-                    stroke="#6366f1"
-                    strokeWidth={2}
-                    fill="url(#attendanceGrad)"
-                    activeDot={{ r: 5, fill: '#6366f1', stroke: '#111113', strokeWidth: 2 }}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
+            <Badge variant="secondary">7 days</Badge>
+          </div>
+          <div className="h-52">
+            <Charts type="area" data={attendanceData} />
           </div>
         </div>
 
-        {/* Courses attendance */}
-        <div className="rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[14px] font-semibold text-white">
-              {isStudent ? 'My Courses' : 'Course Performance'}
+        {/* Course performance — 1/3 width */}
+        <div className="bento-card p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              {isStudent ? 'My Courses' : 'Performance'}
             </h2>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             {(isStudent ? studentCourses : topCourses).map((course) => (
               <div key={course.name}>
                 <div className="flex items-center justify-between mb-1.5">
@@ -264,9 +255,9 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
                     {isStudent && 'status' in course && course.status === 'danger' && (
                       <AlertTriangle className="h-3 w-3 text-red-400 flex-shrink-0" />
                     )}
-                    <p className="text-[13px] font-medium text-white truncate">{course.name}</p>
+                    <p className="text-[12px] font-medium text-slate-300 truncate">{course.name}</p>
                   </div>
-                  <span className={`text-[12px] font-semibold flex-shrink-0 ${
+                  <span className={`text-[12px] font-bold flex-shrink-0 ${
                     course.attendance >= 80 ? 'text-emerald-400' :
                     course.attendance >= 75 ? 'text-amber-400' : 'text-red-400'
                   }`}>{course.attendance}%</span>
@@ -276,164 +267,134 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
             ))}
           </div>
 
-          {/* Student: shortage warning */}
           {isStudent && (
-            <div className="mt-5 p-3 rounded-lg" style={{ background: 'rgb(239 68 68 / 0.08)', border: '1px solid rgb(239 68 68 / 0.2)' }}>
+            <div
+              className="mt-4 p-3 rounded-xl"
+              style={{ background: 'rgb(248 113 113 / 0.08)', border: '1px solid rgb(248 113 113 / 0.2)' }}
+            >
               <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-400 flex-shrink-0" />
-                <p className="text-[12px] text-red-400 font-medium">EC-303 is below 75% minimum!</p>
+                <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />
+                <p className="text-[11px] text-red-400 font-semibold">EC-303 below 75% minimum!</p>
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Advanced Analytics Row */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0" style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}>
-        
-        {/* Performance Bar Chart */}
-        <div className="lg:col-span-2 rounded-xl p-5 h-full" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-          <div className="flex items-center justify-between mb-6">
+      {/* ── Analytics Row ── */}
+      <div
+        className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
+        style={{ animationDelay: '360ms', animationFillMode: 'forwards' }}
+      >
+        {/* Performance bar chart */}
+        <div className="lg:col-span-2 bento-card p-5">
+          <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-[14px] font-semibold text-white">
+              <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 {isStudent ? 'Academic Performance' : 'Class Averages'}
               </h2>
-              <p className="text-[12px] text-zinc-500 mt-0.5">
-                {isStudent ? 'Your scores across enrolled courses' : 'Average scores across your courses'}
+              <p className="text-[12px] text-slate-500 mt-0.5">
+                {isStudent ? 'Scores across enrolled courses' : 'Average scores per course'}
               </p>
             </div>
           </div>
-          <div className="h-56">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={isStudent ? studentPerformanceData : facultyPerformanceData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }} barSize={32}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1f1f23" vertical={false} />
-                <XAxis dataKey="subject" tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: '#71717a' }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}%`} />
-                <Tooltip content={<PerformanceTooltip />} cursor={{ fill: '#161618' }} />
-                <Bar dataKey="score" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="h-52">
+            <Charts type="bar" data={isStudent ? studentPerformanceData : facultyPerformanceData} />
           </div>
         </div>
 
-        {/* Tasks Doughnut Chart */}
-        <div className="rounded-xl p-5 h-full flex flex-col" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+        {/* Tasks donut */}
+        <div className="bento-card p-5 flex flex-col">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[14px] font-semibold text-white">
-              {isStudent ? 'Tasks & Assignments' : 'Grading Progress'}
+            <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              {isStudent ? 'Tasks' : 'Grading'}
             </h2>
           </div>
-          <div className="flex-1 min-h-[220px] relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={taskStatusData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                  stroke="none"
-                >
-                  {taskStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip 
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      return (
-                        <div className="rounded-lg p-2.5 shadow-xl" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
-                          <p className="text-[13px] font-semibold" style={{ color: payload[0].payload.color }}>
-                            {payload[0].name}: {payload[0].value}
-                          </p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-            {/* Center Label */}
+          <div className="flex-1 min-h-[200px] relative">
+            <Charts type="donut" data={taskStatusData} />
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-bold text-white">19</span>
-              <span className="text-[10px] text-zinc-500 uppercase tracking-wider">Total Tasks</span>
+              <span className="text-2xl font-black text-white">19</span>
+              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Total</span>
             </div>
           </div>
-          
-          {/* Custom Legend */}
-          <div className="flex justify-center gap-4 mt-2">
+          <div className="flex justify-center gap-3 mt-2">
             {taskStatusData.map((item) => (
               <div key={item.name} className="flex items-center gap-1.5">
-                <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-                <span className="text-[11px] text-zinc-400">{item.name}</span>
+                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color, boxShadow: `0 0 6px ${item.color}` }} />
+                <span className="text-[10px] text-slate-500">{item.name}</span>
               </div>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Announcements and Today's sessions row */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-slide-in-up opacity-0" style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}>
-
-        {/* Recent Announcements Widget */}
-        <div className="lg:col-span-1 rounded-xl p-5 flex flex-col" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+      {/* ── Bottom Row: Announcements + Sessions ── */}
+      <div
+        className="grid grid-cols-1 lg:grid-cols-3 gap-4 animate-slide-in-up opacity-0"
+        style={{ animationDelay: '440ms', animationFillMode: 'forwards' }}
+      >
+        {/* Announcements */}
+        <div className="bento-card p-5 flex flex-col">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[14px] font-semibold text-white">Updates</h2>
-            <Megaphone className="h-4 w-4 text-zinc-600" />
+            <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Updates</h2>
+            <Megaphone className="h-4 w-4 text-slate-600" />
           </div>
           <div className="space-y-4 flex-1">
             {recentAnnouncements.map((ann, i) => (
               <div key={i} className="group cursor-pointer">
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1.5">
                   <Badge variant={ann.isGlobal ? 'active' : 'secondary'} className="text-[9px] px-1.5">
                     {ann.type}
                   </Badge>
-                  <span className="text-[10px] text-zinc-500">{ann.date}</span>
+                  <span className="text-[10px] text-slate-600">{ann.date}</span>
                 </div>
-                <p className="text-[13px] font-medium text-white group-hover:text-indigo-400 transition-colors leading-snug">
+                <p className="text-[13px] font-semibold text-slate-200 group-hover:text-indigo-300 transition-colors leading-snug">
                   {ann.title}
                 </p>
               </div>
             ))}
           </div>
-          <div className="mt-4 pt-3" style={{ borderTop: '1px solid #1a1a1d' }}>
-            <Link href="/dashboard/announcements" className="text-[12px] font-medium text-zinc-400 hover:text-white transition-colors flex items-center justify-center gap-1 w-full">
+          <div className="mt-4 pt-3" style={{ borderTop: '1px solid #1a1a3a' }}>
+            <Link href="/dashboard/announcements" className="text-[12px] font-semibold text-slate-500 hover:text-white transition-colors flex items-center justify-center gap-1.5 w-full">
               View all updates
+              <ArrowUpRight className="h-3 w-3" />
             </Link>
           </div>
         </div>
 
         {/* Today's sessions */}
-        <div className="lg:col-span-2 rounded-xl p-5" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
+        <div className="lg:col-span-2 bento-card p-5">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[14px] font-semibold text-white">Today&apos;s Sessions</h2>
-            <div className="flex items-center gap-1.5 text-[12px] text-zinc-500">
+            <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              Today&apos;s Sessions
+            </h2>
+            <div className="flex items-center gap-1.5 text-[12px] text-slate-500">
               <Calendar className="h-3.5 w-3.5" />
               {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+
+          {/* Horizontal scroll on mobile */}
+          <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1 snap-x snap-mandatory md:grid md:grid-cols-3 md:overflow-visible md:pb-0">
             {upcomingSessions.map((session, i) => (
               <div
                 key={i}
-                className={`flex flex-col gap-2 p-3.5 rounded-xl border transition-all duration-200 cursor-pointer group ${
+                className={`flex-shrink-0 w-64 md:w-auto snap-start flex flex-col gap-2.5 p-4 rounded-2xl border transition-all duration-200 cursor-pointer group ${
                   session.status === 'live'
                     ? 'border-emerald-500/30 hover:border-emerald-500/50'
-                    : 'border-[#2a2a2e] hover:border-indigo-500/30'
+                    : 'border-[#1a1a3a] hover:border-indigo-500/30'
                 }`}
                 style={{
                   background: session.status === 'live'
-                    ? 'rgb(16 185 129 / 0.07)'
-                    : '#161618',
+                    ? 'linear-gradient(135deg, rgb(52 211 153 / 0.08), rgb(16 185 129 / 0.04))'
+                    : 'linear-gradient(135deg, #0c0c20, #08081c)',
                 }}
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-mono text-zinc-400">{session.code}</span>
+                  <span className="text-[11px] font-mono text-slate-500">{session.code}</span>
                   {session.status === 'live' ? (
-                    <span className="flex items-center gap-1 text-[10px] font-semibold text-emerald-400">
+                    <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-400"
+                      style={{ textShadow: '0 0 8px #34d399' }}>
                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-status-pulse" />
                       LIVE
                     </span>
@@ -441,16 +402,19 @@ export default function DashboardClient({ stats, profile }: { stats: any; profil
                     <Badge variant="secondary" className="text-[9px] px-1.5">Soon</Badge>
                   )}
                 </div>
-                <p className="text-[13px] font-semibold text-white leading-tight group-hover:text-white transition-colors">{session.course}</p>
-                <div className="text-[12px] text-zinc-500 space-y-0.5 mt-auto pt-2" style={{ borderTop: '1px solid #1f1f23' }}>
-                  {!isStudent && <p className="text-zinc-400">{session.faculty}</p>}
+                <p className="text-[13px] font-bold text-white leading-snug">{session.course}</p>
+                <div className="text-[12px] text-slate-500 space-y-1 pt-2.5" style={{ borderTop: '1px solid #1a1a3a' }}>
+                  {!isStudent && <p className="text-slate-400">{session.faculty}</p>}
                   <div className="flex items-center justify-between">
-                    <span className="text-zinc-300 font-medium">{session.time}</span>
-                    <span>{session.room}</span>
+                    <span className="text-slate-200 font-semibold">{session.time}</span>
+                    <span className="text-slate-600">{session.room}</span>
                   </div>
                 </div>
                 {isStudent && session.status === 'live' && (
-                  <button className="mt-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1 w-full">
+                  <button
+                    className="mt-1 text-[11px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors flex items-center gap-1.5 w-full"
+                    style={{ textShadow: '0 0 8px #34d399' }}
+                  >
                     <Zap className="h-3 w-3" />
                     Mark attendance
                   </button>

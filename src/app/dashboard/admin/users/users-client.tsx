@@ -11,6 +11,24 @@ import {
   ShieldCheck, UserCheck, MoreVertical, RefreshCw,
   Database, Globe, HardDrive, BookOpen, Server, Activity
 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
 
 // Removed hardcoded users and stats
 const systemHealth = [
@@ -75,6 +93,7 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
             variant="outline"
             size="sm"
             id="admin-refresh-btn"
+            onClick={() => router.refresh()}
             className="border-border/40 rounded-xl gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >
             <RefreshCw className="h-3.5 w-3.5" />
@@ -95,13 +114,38 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                   <h2 className="text-lg font-bold text-foreground" >User Management</h2>
                   <p className="text-xs text-muted-foreground mt-0.5">All registered users — manage roles & status</p>
                 </div>
-                <Button
-                  size="sm"
-                  id="admin-invite-btn"
-                  className="h-8 px-3 bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 rounded-lg text-xs font-semibold"
-                >
-                  + Invite User
-                </Button>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      size="sm"
+                      id="admin-invite-btn"
+                      className="h-8 px-3 bg-primary/15 hover:bg-primary/25 text-primary border border-primary/30 rounded-lg text-xs font-semibold"
+                    >
+                      + Invite User
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Invite a new user</DialogTitle>
+                      <DialogDescription>
+                        Send an invitation email to add a new user to the system.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="py-4">
+                      <input 
+                        type="email" 
+                        placeholder="user@example.com" 
+                        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50" 
+                      />
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                        <Button variant="outline">Cancel</Button>
+                      </DialogClose>
+                      <Button onClick={() => alert('Invitation sent!')}>Send Invite</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
 
               {/* Table header */}
@@ -139,12 +183,24 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                       {user.status.charAt(0).toUpperCase() + user.status.slice(1)}
                     </Badge>
 
-                    <button
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
-                      aria-label={`More options for ${user.name}`}
-                    >
-                      <MoreVertical className="h-3.5 w-3.5" />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors"
+                          aria-label={`More options for ${user.name}`}
+                        >
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onClick={() => alert(`View Profile: ${user.name}`)}>View Profile</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => alert(`Change Role for: ${user.name}`)}>Change Role</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive focus:bg-destructive/10 focus:text-destructive" onClick={() => alert(`Suspended: ${user.name}`)}>Suspend User</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 ))}
               </div>
@@ -220,6 +276,7 @@ export default function AdminUsersClient({ initialUsers }: { initialUsers: any[]
                 <button
                   key={action.id}
                   id={action.id}
+                  onClick={() => alert(`Action "${action.label}" is coming soon!`)}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/30 bg-background/20 hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 hover:-translate-y-0.5 text-center"
                 >
                   <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">

@@ -80,7 +80,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       href={item.href}
       title={!expanded ? item.name : undefined}
       className={cn(
-        'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-150',
+        'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
         expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
         active
           ? 'text-white'
@@ -124,7 +124,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
 
       <item.icon
         className={cn(
-          'flex-shrink-0 transition-all duration-150',
+          'flex-shrink-0 transition-all duration-300 ease-out',
           expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]',
           active
             ? isAdmin ? 'text-amber-300' : 'text-indigo-300'
@@ -186,7 +186,7 @@ export function Sidebar() {
     <aside
       className={cn(
         'hidden md:flex h-full flex-col flex-shrink-0 relative',
-        'transition-[width] duration-250 ease-[cubic-bezier(0.16,1,0.3,1)]',
+        'transition-all duration-300 ease-out',
         expanded ? 'w-56' : 'w-16',
       )}
       style={{
@@ -230,7 +230,7 @@ export function Sidebar() {
       <div
         className={cn(
           'absolute -right-3 top-[52px] z-20 h-5 w-5 rounded-full items-center justify-center',
-          'border text-slate-500 transition-all duration-200',
+          'border text-slate-500 transition-all duration-300 ease-out',
           expanded ? 'flex opacity-100' : 'hidden opacity-0',
         )}
         style={{ background: '#0c0c20', borderColor: '#1a1a3a' }}
@@ -293,7 +293,7 @@ export function Sidebar() {
                 href={item.href}
                 title={!expanded ? item.name : undefined}
                 className={cn(
-                  'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-150',
+                  'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
                   expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
                   active
                     ? 'text-white'
@@ -304,7 +304,7 @@ export function Sidebar() {
                   boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
                 } : {}}
               >
-                <item.icon className={cn('flex-shrink-0 transition-colors', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-slate-600 group-hover:text-slate-300')} />
+                <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-slate-600 group-hover:text-slate-300')} />
                 {expanded && item.name}
                 {!expanded && (
                   <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
@@ -322,12 +322,12 @@ export function Sidebar() {
           id="sidebar-logout-btn"
           title={!expanded ? 'Logout' : undefined}
           className={cn(
-            'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-150 w-full',
+            'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out w-full',
             'text-slate-500 hover:text-red-300 hover:bg-red-500/5',
             expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
           )}
         >
-          <LogOut className={cn('flex-shrink-0 text-slate-600 group-hover:text-red-400 transition-colors', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
+          <LogOut className={cn('flex-shrink-0 text-slate-600 group-hover:text-red-400 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
           {expanded && 'Logout'}
           {!expanded && (
             <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"

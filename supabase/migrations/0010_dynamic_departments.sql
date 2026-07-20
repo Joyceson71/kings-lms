@@ -44,6 +44,14 @@ BEGIN
     END IF;
 END $$;
 
+-- Ensure columns exist before adding foreign keys
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS department TEXT;
+ALTER TABLE public.courses ADD COLUMN IF NOT EXISTS department TEXT;
+
+-- Drop existing constraints if any (to be safe)
+ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS fk_profiles_department;
+ALTER TABLE public.courses DROP CONSTRAINT IF EXISTS fk_courses_department;
+
 -- Add foreign key constraint to profiles.department referencing departments.code
 ALTER TABLE public.profiles
     ADD CONSTRAINT fk_profiles_department 

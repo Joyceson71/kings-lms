@@ -252,6 +252,24 @@ export default function LoginPage() {
           </Link>
         </p>
       )}
+
+      {/* Download App — stagger 5 */}
+      <div
+        className="mt-8 pt-6 border-t border-[#1f1f23] animate-slide-in-up opacity-0 text-center"
+        style={{ animationDelay: '300ms', animationFillMode: 'forwards' }}
+      >
+        <p className="text-[12px] text-zinc-500 mb-3">Experience Kings LMS natively on your Android device.</p>
+        <a
+          href="/KingsLMS.apk"
+          download
+          className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-lg text-[12px] font-medium text-zinc-300 transition-all duration-200 hover:text-white hover:bg-[#1a1a1d] bg-[#111113] border border-[#1f1f23] hover:border-indigo-500/30"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-[#3DDC84]">
+            <path d="M17.523 15.3414c-.5511 0-.9993-.4486-.9993-.9997s.4483-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993.0001.5511-.4482.9997-.9993.9997m-11.046 0c-.5511 0-.9993-.4486-.9993-.9997s.4482-.9993.9993-.9993c.5511 0 .9993.4482.9993.9993 0 .5511-.4482.9997-.9993.9997m11.4045-6.02l1.9973-3.4592a.416.416 0 00-.1517-.5677.416.416 0 00-.5677.1517l-2.0315 3.518c-1.4363-.6557-3.0805-1.025-4.8329-1.025-1.7525 0-3.3967.3692-4.8329 1.025l-2.0315-3.518a.416.416 0 00-.5677-.1517.416.416 0 00-.1517.5677l1.9973 3.4592C2.6889 11.1867.3432 14.6589 0 18.761h24c-.3432-4.1021-2.6889-7.5743-6.118-9.4396"/>
+          </svg>
+          Download for Android
+        </a>
+      </div>
     </div>
   );
 }

@@ -6,7 +6,8 @@ const config: CapacitorConfig = {
   webDir: 'public',
   server: {
     url: 'https://kings-lms.vercel.app',
-    cleartext: true
+    cleartext: true,
+    allowNavigation: ['*']
   }
 };
 

@@ -68,17 +68,21 @@ ALTER TABLE public.departments ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
 -- Everyone can view departments
+DROP POLICY IF EXISTS "Departments are viewable by everyone." ON public.departments;
 CREATE POLICY "Departments are viewable by everyone." 
     ON public.departments FOR SELECT USING (true);
 
 -- Admins can insert departments
+DROP POLICY IF EXISTS "Admins can insert departments." ON public.departments;
 CREATE POLICY "Admins can insert departments." 
     ON public.departments FOR INSERT WITH CHECK (public.is_admin());
 
 -- Admins can update departments
+DROP POLICY IF EXISTS "Admins can update departments." ON public.departments;
 CREATE POLICY "Admins can update departments." 
     ON public.departments FOR UPDATE USING (public.is_admin());
 
 -- Admins can delete departments
+DROP POLICY IF EXISTS "Admins can delete departments." ON public.departments;
 CREATE POLICY "Admins can delete departments." 
     ON public.departments FOR DELETE USING (public.is_admin());

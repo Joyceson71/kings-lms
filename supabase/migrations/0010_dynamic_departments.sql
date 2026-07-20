@@ -1,8 +1,3 @@
--- ============================================================
--- 0010_dynamic_departments.sql
--- Create dynamic departments table and link foreign keys
--- ============================================================
-
 CREATE TABLE IF NOT EXISTS public.departments (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
     code TEXT UNIQUE NOT NULL,

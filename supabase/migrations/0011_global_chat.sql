@@ -9,12 +9,15 @@ CREATE TABLE IF NOT EXISTS public.global_messages (
 ALTER TABLE public.global_messages ENABLE ROW LEVEL SECURITY;
 
 -- Policies
+DROP POLICY IF EXISTS "Messages are viewable by everyone." ON public.global_messages;
 CREATE POLICY "Messages are viewable by everyone." 
     ON public.global_messages FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Users can insert their own messages." ON public.global_messages;
 CREATE POLICY "Users can insert their own messages." 
     ON public.global_messages FOR INSERT WITH CHECK (auth.uid() = user_id);
 
+DROP POLICY IF EXISTS "Admins can delete any messages." ON public.global_messages;
 CREATE POLICY "Admins can delete any messages." 
     ON public.global_messages FOR DELETE USING (public.is_admin());
 

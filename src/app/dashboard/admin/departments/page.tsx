@@ -1,101 +1,79 @@
-'use client';
-// NOTE: Middleware already guards /dashboard/admin/* at the edge.
-// This page also inherits the server-side admin check from the layout hierarchy.
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import AdminDepartmentsClient from './departments-client';
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
 
+export default async function AdminDepartmentsPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
 
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Building2, Plus, Edit2, Trash2, Users } from 'lucide-react';
-import { useState } from 'react';
+  if (!user) {
+    redirect('/login');
+  }
 
-const initialDepartments = [
-  { id: 'ECE', name: 'Electronics and Communication', head: 'Dr. A. Smith', students: 420 },
-  { id: 'CSE', name: 'Computer Science', head: 'Dr. J. Doe', students: 510 },
-  { id: 'IT', name: 'Information Technology', head: 'Prof. M. Raj', students: 380 },
-  { id: 'AIDS', name: 'Artificial Intelligence & Data Science', head: 'Dr. K. Prasad', students: 210 },
-  { id: 'AIML', name: 'Artificial Intelligence & Machine Learning', head: 'Dr. S. Ramesh', students: 180 },
-  { id: 'RAA', name: 'Robotics and Automation', head: 'Dr. R. Kumar', students: 120 },
-  { id: 'MECH', name: 'Mechanical Engineering', head: 'Dr. P. Nair', students: 300 },
-  { id: 'BME', name: 'Biomedical Engineering', head: 'Dr. N. Singh', students: 150 },
-];
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
 
-export default function AdminDepartmentsPage() {
-  const [departments] = useState(initialDepartments);
-  const [search, setSearch] = useState('');
+  // Middleware guards this, but checking again server-side
+  if (!profile || profile.role !== 'admin') {
+    redirect('/dashboard');
+  }
 
-  const filtered = departments.filter(d => 
-    d.id.toLowerCase().includes(search.toLowerCase()) || 
-    d.name.toLowerCase().includes(search.toLowerCase())
-  );
+  // Fetch departments with their head's name
+  const { data: rawDepartments } = await supabase
+    .from('departments')
+    .select(`
+      id,
+      code,
+      name,
+      head_id,
+      profiles!departments_head_id_fkey (
+        full_name
+      )
+    `)
+    .order('code', { ascending: true });
+
+  // Count students per department
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('department, role');
+
+  const studentCounts = (profiles || []).reduce((acc: Record<string, number>, p: any) => {
+    if (p.role === 'student' && p.department) {
+      acc[p.department] = (acc[p.department] || 0) + 1;
+    }
+    return acc;
+  }, {});
+
+  const departments = (rawDepartments || []).map((d: any) => ({
+    id: d.id,
+    code: d.code,
+    name: d.name,
+    head_id: d.head_id,
+    head_name: d.profiles?.full_name || null,
+    student_count: studentCounts[d.code] || 0
+  }));
+
+  // Fetch faculties for HOD assignment
+  const { data: faculties } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('role', 'faculty');
 
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <Building2 className="h-6 w-6 text-primary" />
-            <h1 className="text-3xl font-black tracking-tight" >
-              <span className="gradient-text">Departments</span>
-            </h1>
-          </div>
-          <p className="text-muted-foreground text-sm">Manage academic departments</p>
-        </div>
-        <Button
-          className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
-        >
-          <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
-          Add Department
-        </Button>
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
-
-      <div className="flex gap-3 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
-        <Input 
-          placeholder="Search departments..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="max-w-sm h-10 bg-secondary/40 border-border/40 rounded-xl"
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
-        {filtered.map(dept => (
-          <div key={dept.id} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5 border border-border/40 hover:border-primary/30 transition-all duration-200">
-              <div className="flex items-start justify-between mb-4">
-                <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <span className="font-bold text-primary">{dept.id}</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <button className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-secondary rounded-lg transition-colors">
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  <button className="p-1.5 text-red-400 hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </div>
-              
-              <h3 className="text-lg font-bold text-foreground leading-tight" >
-                {dept.name}
-              </h3>
-              
-              <div className="mt-4 pt-4 border-t border-border/30 grid grid-cols-2 gap-4">
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">HOD</p>
-                  <p className="text-sm font-medium text-foreground">{dept.head}</p>
-                </div>
-                <div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1">Students</p>
-                  <div className="flex items-center gap-1.5">
-                    <Users className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-sm font-medium text-foreground">{dept.students}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          
-        ))}
-      </div>
-    </div>
+    }>
+      <AdminDepartmentsClient
+        initialDepartments={departments}
+        faculties={faculties || []}
+      />
+    </Suspense>
   );
 }

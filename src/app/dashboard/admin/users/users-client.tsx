@@ -56,6 +56,13 @@ interface FormattedUser {
   department: string | null;
 }
 
+export interface ActivityItem {
+  id: string;
+  type: 'user' | 'course' | 'system';
+  message: string;
+  time: string;
+}
+
 // ─── Static display data (still mock — wired in a future analytics migration) ─
 
 const systemHealth = [
@@ -63,12 +70,6 @@ const systemHealth = [
   { name: 'API Server', value: 95,  icon: Server,    color: 'emerald' as const },
   { name: 'Storage',    value: 64,  icon: HardDrive, color: 'gold'    as const },
   { name: 'CDN',        value: 100, icon: Globe,     color: 'emerald' as const },
-];
-
-const recentActivity = [
-  { icon: UserCheck,  color: 'text-emerald-400', message: 'New user "Sarah Jenkins" registered',          time: '10 mins ago' },
-  { icon: Database,   color: 'text-indigo-400',  message: 'Database backup completed automatically',       time: '2 hours ago' },
-  { icon: ShieldCheck, color: 'text-amber-400', message: 'Admin role granted to "Mike Davis"',             time: '4 hours ago' },
 ];
 
 // ─── Role Change Dialog ────────────────────────────────────────────────────────
@@ -220,9 +221,11 @@ function SuspendDialog({ user, onClose, onConfirm }: SuspendDialogProps) {
 export default function AdminUsersClient({
   initialUsers,
   currentUserId,
+  recentActivity = [],
 }: {
   initialUsers: RawUser[];
   currentUserId: string;
+  recentActivity?: ActivityItem[];
 }) {
   const router = useRouter();
 
@@ -557,17 +560,29 @@ export default function AdminUsersClient({
           <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
             <h2 className="text-base font-bold text-foreground mb-4">Recent Activity</h2>
             <div className="space-y-3">
-              {recentActivity.map((activity, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className="h-7 w-7 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <activity.icon className={`h-3.5 w-3.5 ${activity.color}`} />
+              {recentActivity.map((activity) => {
+                const Icon = activity.type === 'user' ? UserCheck : activity.type === 'course' ? BookOpen : Database;
+                const color = activity.type === 'user' ? 'text-emerald-400' : activity.type === 'course' ? 'text-indigo-400' : 'text-amber-400';
+                
+                return (
+                  <div key={activity.id} className="flex items-start gap-3">
+                    <div className="h-7 w-7 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Icon className={`h-3.5 w-3.5 ${color}`} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-foreground/80 leading-relaxed">{activity.message}</p>
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
+                        {new Date(activity.time).toLocaleString('en-IN', {
+                          month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                        })}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-foreground/80 leading-relaxed">{activity.message}</p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
+              {recentActivity.length === 0 && (
+                <div className="text-sm text-muted-foreground py-4 text-center">No recent activity</div>
+              )}
             </div>
           </div>
         </div>

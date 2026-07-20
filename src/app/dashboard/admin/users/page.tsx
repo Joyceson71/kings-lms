@@ -1,8 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
-import AdminUsersClient from './users-client';
+import AdminUsersClient, { ActivityItem } from './users-client';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, UserCheck, BookOpen } from 'lucide-react';
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();
@@ -28,6 +28,48 @@ export default async function AdminUsersPage() {
     .select('id, full_name, email, role, status, created_at, department, college')
     .order('created_at', { ascending: false });
 
+  // Fetch recent signups for activity feed
+  const { data: recentSignups } = await supabase
+    .from('profiles')
+    .select('full_name, email, created_at')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  // Fetch recent courses for activity feed
+  const { data: recentCourses } = await supabase
+    .from('courses')
+    .select('title, created_at')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const activities: ActivityItem[] = [];
+
+  if (recentSignups) {
+    recentSignups.forEach((u) => {
+      activities.push({
+        id: `signup-${u.email}`,
+        type: 'user',
+        message: `New user "${u.full_name || u.email}" registered`,
+        time: u.created_at,
+      });
+    });
+  }
+
+  if (recentCourses) {
+    recentCourses.forEach((c) => {
+      activities.push({
+        id: `course-${c.title}`,
+        type: 'course',
+        message: `New course "${c.title}" was created`,
+        time: c.created_at,
+      });
+    });
+  }
+
+  // Sort activities by time descending and take top 5
+  activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  const recentActivity = activities.slice(0, 5);
+
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-[60vh]">
@@ -37,6 +79,7 @@ export default async function AdminUsersPage() {
       <AdminUsersClient
         initialUsers={users || []}
         currentUserId={user.id}
+        recentActivity={recentActivity}
       />
     </Suspense>
   );

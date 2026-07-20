@@ -1,16 +1,10 @@
--- 0008_sql_optimizations.sql
--- Contains performance, consistency, and security improvements for the database schema.
 
--- 1. Database Indexing (Performance Optimization)
--- PostgreSQL does not index foreign keys by default. We add them here to speed up RLS policies and JOINs.
-
--- Courses
 CREATE INDEX IF NOT EXISTS idx_courses_created_by ON public.courses(created_by);
 
 -- Course Enrollments
 CREATE INDEX IF NOT EXISTS idx_course_enrollments_course_id ON public.course_enrollments(course_id);
 CREATE INDEX IF NOT EXISTS idx_course_enrollments_student_id ON public.course_enrollments(student_id);
-
+  
 -- Course Sessions (Replaced attendance_sessions in 0002)
 CREATE INDEX IF NOT EXISTS idx_course_sessions_course_id ON public.course_sessions(course_id);
 CREATE INDEX IF NOT EXISTS idx_course_sessions_created_by ON public.course_sessions(created_by);

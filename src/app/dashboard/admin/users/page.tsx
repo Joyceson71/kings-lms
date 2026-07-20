@@ -18,13 +18,14 @@ export default async function AdminUsersPage() {
     .eq('id', user.id)
     .maybeSingle();
 
+  // Middleware already guards this route but we double-check server-side.
   if (!profile || profile.role !== 'admin') {
     redirect('/dashboard');
   }
 
   const { data: users } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, full_name, email, role, status, created_at, department, college')
     .order('created_at', { ascending: false });
 
   return (
@@ -33,7 +34,10 @@ export default async function AdminUsersPage() {
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     }>
-      <AdminUsersClient initialUsers={users || []} />
+      <AdminUsersClient
+        initialUsers={users || []}
+        currentUserId={user.id}
+      />
     </Suspense>
   );
 }

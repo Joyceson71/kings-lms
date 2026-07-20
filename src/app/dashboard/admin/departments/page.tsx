@@ -1,4 +1,7 @@
 'use client';
+// NOTE: Middleware already guards /dashboard/admin/* at the edge.
+// This page also inherits the server-side admin check from the layout hierarchy.
+
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

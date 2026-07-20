@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS public.departments (
 );
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS on_departments_updated ON public.departments;
 CREATE TRIGGER on_departments_updated
     BEFORE UPDATE ON public.departments
     FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();

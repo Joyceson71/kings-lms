@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import AdminUsersClient, { ActivityItem } from './users-client';
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { Loader2, UserCheck, BookOpen } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 export default async function AdminUsersPage() {
   const supabase = await createClient();

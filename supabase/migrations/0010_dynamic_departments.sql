@@ -13,7 +13,8 @@ CREATE TRIGGER on_departments_updated
     FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 
 -- Insert existing departments
-INSERT INTO public.departments (code, name) VALUES
+INSERT INTO public.departments (code, name)
+SELECT * FROM (VALUES
     ('ECE', 'Electronics and Communication'),
     ('CSE', 'Computer Science'),
     ('IT', 'Information Technology'),
@@ -22,7 +23,11 @@ INSERT INTO public.departments (code, name) VALUES
     ('RAA', 'Robotics and Automation'),
     ('MECH', 'Mechanical Engineering'),
     ('BME', 'Biomedical Engineering')
-ON CONFLICT (code) DO NOTHING;
+) AS v(code, name)
+WHERE NOT EXISTS (
+    SELECT 1 FROM public.departments d 
+    WHERE d.code = v.code OR d.name = v.name
+);
 
 -- Drop CHECK constraint on profiles.department
 DO $$

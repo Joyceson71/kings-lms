@@ -43,26 +43,28 @@ END
 $$;
 
 -- 2. anon_security_definer_function_executable & authenticated_security_definer_function_executable
--- Revoke EXECUTE from anon and authenticated for internal functions (triggers).
+-- For is_admin(), it is safe to be SECURITY INVOKER since public.profiles is readable by everyone.
+ALTER FUNCTION public.is_admin() SECURITY INVOKER;
+
+-- For trigger functions, revoke EXECUTE from PUBLIC so they are not exposed via RPC.
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC;
 REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM anon, authenticated;
 
--- For is_admin(), it is used by the frontend via RPC and internally for RLS. 
--- It shouldn't be executed by anonymous users.
-REVOKE EXECUTE ON FUNCTION public.is_admin() FROM anon;
+REVOKE EXECUTE ON FUNCTION public.handle_updated_at() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.handle_updated_at() FROM anon, authenticated;
 
 -- Revoke for other dashboard-created functions if they exist
 DO $$
 BEGIN
     IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'log_audit_event') THEN
         EXECUTE (
-            SELECT 'REVOKE EXECUTE ON FUNCTION ' || oid::regprocedure || ' FROM anon, authenticated;'
+            SELECT 'REVOKE EXECUTE ON FUNCTION ' || oid::regprocedure || ' FROM PUBLIC, anon, authenticated;'
             FROM pg_proc WHERE proname = 'log_audit_event' AND pronamespace = 'public'::regnamespace
         );
     END IF;
     IF EXISTS (SELECT 1 FROM pg_proc WHERE proname = 'rls_auto_enable') THEN
         EXECUTE (
-            SELECT 'REVOKE EXECUTE ON FUNCTION ' || oid::regprocedure || ' FROM anon, authenticated;'
+            SELECT 'REVOKE EXECUTE ON FUNCTION ' || oid::regprocedure || ' FROM PUBLIC, anon, authenticated;'
             FROM pg_proc WHERE proname = 'rls_auto_enable' AND pronamespace = 'public'::regnamespace
         );
     END IF;

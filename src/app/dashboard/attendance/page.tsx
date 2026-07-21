@@ -10,6 +10,8 @@ import { createClient } from '@/lib/supabase/client';
 import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle } from 'lucide-react';
 import { QRDisplayModal } from '@/components/attendance/qr-display';
 import { QRScannerModal } from '@/components/attendance/qr-scanner';
+import { PulseFacultyPanel } from '@/components/attendance/pulse-faculty-panel';
+import { PulseStudentWidget } from '@/components/attendance/pulse-student-widget';
 import confetti from 'canvas-confetti';
 
 function AttendanceContent() {
@@ -387,6 +389,11 @@ function AttendanceContent() {
                             </span>
                           </div>
                         </div>
+
+                        {/* Live Class Pulse — faculty view */}
+                        <div className="mt-4">
+                          <PulseFacultyPanel sessionId={session.id} />
+                        </div>
                       </div>
                     );
                   })}
@@ -417,6 +424,13 @@ function AttendanceContent() {
                     <ScanLine className="mr-2 h-4 w-4" />
                     Scan QR Code
                   </Button>
+                </div>
+              )}
+
+              {/* Live Class Pulse — student signals (shown when there's an active session) */}
+              {isStudent && activeSessions.length > 0 && (
+                <div className="mt-4">
+                  <PulseStudentWidget sessionId={activeSessions[0].id} />
                 </div>
               )}
             </div>

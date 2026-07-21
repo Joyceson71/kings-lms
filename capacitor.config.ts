@@ -6,9 +6,12 @@ const config: CapacitorConfig = {
   webDir: 'public',
   server: {
     url: 'https://kings-lms.vercel.app',
-    cleartext: true,
-    allowNavigation: ['*']
-  }
+    cleartext: false,
+    androidScheme: 'https',
+    // Only allow navigation within the Supabase auth domain.
+    // Everything else stays inside the WebView.
+    allowNavigation: ['vkusqelpzpaocnwaawkw.supabase.co'],
+  },
 };
 
 export default config;

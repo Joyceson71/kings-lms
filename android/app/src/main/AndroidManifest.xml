@@ -22,6 +22,16 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
+            <!-- Deep-link intent filter: handles OAuth callback redirect back into the app -->
+            <!-- The redirectTo URL in Supabase must be: com.kingslms.app://login-callback -->
+            <!-- Add this to your Supabase project → Authentication → URL Configuration → Redirect URLs -->
+            <intent-filter android:autoVerify="false">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.kingslms.app" android:host="login-callback" />
+            </intent-filter>
+
         </activity>
 
         <provider

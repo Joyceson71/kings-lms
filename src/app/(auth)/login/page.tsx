@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
@@ -11,7 +11,23 @@ const inputBase =
   'w-full h-10 px-3 rounded-lg text-[13px] text-white placeholder:text-zinc-600 outline-none transition-all duration-200 disabled:opacity-50 ' +
   'bg-[#111113] border border-[#1f1f23] focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
 
+/**
+ * Detect whether we are running inside a Capacitor WebView.
+ * window.Capacitor is injected by the Capacitor runtime on Android/iOS.
+ */
+function isCapacitor(): boolean {
+  return typeof window !== 'undefined' && !!(window as unknown as { Capacitor?: unknown }).Capacitor;
+}
+
+/**
+ * The deployed web URL used as the OAuth redirect base.
+ * In a Capacitor WebView, window.location.origin is "capacitor://localhost"
+ * which Supabase will reject. We always use the real deployed URL instead.
+ */
+const DEPLOYED_URL = 'https://kings-lms.vercel.app';
+
 export default function LoginPage() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const nextPath = searchParams.get('next') || '/dashboard';
 
@@ -48,7 +64,9 @@ export default function LoginPage() {
           return;
         }
 
-        window.location.href = nextPath;
+        // Use router.push so navigation stays inside the WebView
+        router.push(nextPath);
+        router.refresh(); // ensure server components re-render with the new session
       } catch {
         setError('Something went wrong. Please try again.');
       }
@@ -56,11 +74,56 @@ export default function LoginPage() {
   };
 
   const handleOAuth = async (provider: 'google' | 'github') => {
+    setError(null);
     const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback?next=${nextPath}` },
-    });
+
+    if (isCapacitor()) {
+      // ── Capacitor path ────────────────────────────────────────────────────
+      // We MUST use skipBrowserRedirect + @capacitor/browser so the OAuth
+      // page opens in an in-app browser tab. The callback deep link
+      // (com.kingslms.app://login-callback) is intercepted by MainActivity
+      // and handled by the App plugin listener below.
+      const { Browser, App } = await Promise.all([
+        import('@capacitor/browser'),
+        import('@capacitor/app'),
+      ]).then(([b, a]) => ({ Browser: b.Browser, App: a.App }));
+
+      // Use the deployed URL as redirectTo — Supabase must have this whitelisted
+      const redirectTo = `${DEPLOYED_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+
+      const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo,
+          skipBrowserRedirect: true, // Don't auto-open system browser
+        },
+      });
+
+      if (oauthError || !data.url) {
+        setError(oauthError?.message ?? 'Could not start OAuth flow.');
+        return;
+      }
+
+      // Open the OAuth URL in an in-app browser
+      await Browser.open({ url: data.url, windowName: '_self' });
+
+      // Listen for the deep-link callback (com.kingslms.app://login-callback)
+      // The App plugin fires 'appUrlOpen' when Android intercepts the custom scheme
+      const listener = await App.addListener('appUrlOpen', async () => {
+        await listener.remove();
+        await Browser.close();
+        // Session is now set via the auth/callback route; navigate to dashboard
+        router.push(nextPath);
+        router.refresh();
+      });
+    } else {
+      // ── Web path ──────────────────────────────────────────────────────────
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+      await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo },
+      });
+    }
   };
 
   return (

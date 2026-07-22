@@ -412,7 +412,7 @@ export default function AdminUsersClient({
         style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
       >
         {statCards.map((card) => (
-          <div key={card.label} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-4 flex items-center gap-3">
+          <div key={card.label} className="bg-[#111113]/80 backdrop-blur-xl border border-[#1f1f23] hover:border-white/10 hover:bg-[#151518]/90 transition-all duration-300 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md">
             <div className={`h-10 w-10 rounded-xl ${card.bg} flex items-center justify-center flex-shrink-0`}>
               <card.icon className={`h-5 w-5 ${card.color}`} />
             </div>
@@ -432,9 +432,9 @@ export default function AdminUsersClient({
           className="lg:col-span-2 animate-slide-in-up opacity-0"
           style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
         >
-          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl overflow-hidden">
+          <div className="bg-[#111113]/80 backdrop-blur-xl border border-[#1f1f23] rounded-2xl overflow-hidden shadow-sm">
             {/* Table Header */}
-            <div className="flex items-center justify-between p-5 border-b border-border/50 gap-3 flex-wrap">
+            <div className="flex items-center justify-between p-5 border-b border-[#1f1f23] gap-3 flex-wrap">
               <div>
                 <h2 className="text-lg font-bold text-foreground">User Management</h2>
                 <p className="text-xs text-muted-foreground mt-0.5">

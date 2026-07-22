@@ -256,9 +256,9 @@ export default function AdminDepartmentsClient({
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
         {filtered.map(dept => (
-          <div key={dept.id} className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5 border border-border/40 hover:border-primary/30 transition-all duration-200 flex flex-col h-full">
+          <div key={dept.id} className="bg-[#111113]/80 backdrop-blur-xl rounded-2xl p-5 border border-[#1f1f23] hover:border-primary/30 hover:bg-[#151518]/90 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full group">
             <div className="flex items-start justify-between mb-4">
-              <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+              <div className="h-12 w-12 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors flex items-center justify-center">
                 <span className="font-bold text-primary text-sm">{dept.code}</span>
               </div>
               <div className="flex items-center gap-1">

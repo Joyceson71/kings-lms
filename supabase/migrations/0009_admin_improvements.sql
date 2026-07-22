@@ -41,6 +41,7 @@ CREATE POLICY "Users can update own profile."
   USING (auth.uid() = id);
 
 -- Admins can update any profile (role, status, etc.)
+DROP POLICY IF EXISTS "Admins can update any profile." ON public.profiles;
 CREATE POLICY "Admins can update any profile."
   ON public.profiles
   FOR UPDATE

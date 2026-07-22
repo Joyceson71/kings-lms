@@ -24,11 +24,13 @@ CREATE INDEX IF NOT EXISTS idx_submissions_assignment_id ON public.submissions(a
 ALTER TABLE public.submissions ENABLE ROW LEVEL SECURITY;
 
 -- Students can view their own submissions
+DROP POLICY IF EXISTS "Students can view own submissions." ON public.submissions;
 CREATE POLICY "Students can view own submissions."
   ON public.submissions FOR SELECT
   USING (auth.uid() = student_id);
 
 -- Faculty/Admin can view all submissions
+DROP POLICY IF EXISTS "Faculty can view all submissions." ON public.submissions;
 CREATE POLICY "Faculty can view all submissions."
   ON public.submissions FOR SELECT
   USING (
@@ -39,6 +41,7 @@ CREATE POLICY "Faculty can view all submissions."
   );
 
 -- Faculty/Admin can insert and update grades
+DROP POLICY IF EXISTS "Faculty can upsert submissions." ON public.submissions;
 CREATE POLICY "Faculty can upsert submissions."
   ON public.submissions FOR INSERT
   WITH CHECK (
@@ -48,6 +51,7 @@ CREATE POLICY "Faculty can upsert submissions."
     )
   );
 
+DROP POLICY IF EXISTS "Faculty can update submissions." ON public.submissions;
 CREATE POLICY "Faculty can update submissions."
   ON public.submissions FOR UPDATE
   USING (

@@ -72,7 +72,7 @@ export default async function AdminUsersPage() {
 
   // Fetch system stats
   const { count: coursesCount } = await supabase.from('courses').select('*', { count: 'exact', head: true });
-  const { count: sessionsCount } = await supabase.from('attendance_sessions').select('*', { count: 'exact', head: true });
+  const { count: sessionsCount } = await supabase.from('course_sessions').select('*', { count: 'exact', head: true });
   const { count: enrollmentsCount } = await supabase.from('course_enrollments').select('*', { count: 'exact', head: true });
   const { count: departmentsCount } = await supabase.from('departments').select('*', { count: 'exact', head: true });
 

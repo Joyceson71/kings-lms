@@ -7,35 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
   Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
-  Calendar, ClipboardList, AlertTriangle, Star, Megaphone, Zap,
-  ScanLine, Bell, ChevronRight, Flame, Target,
+  ClipboardList, AlertTriangle, Zap,
+  ScanLine, Bell, ChevronRight, Flame,
 } from 'lucide-react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 
-const Charts = dynamic(() => import('@/components/ui/dashboard-charts'), { ssr: false });
-
 // ─── Fallback mock data (used when real data has no results yet) ────────────
-const attendanceData = [
-  { day: 'Mon', attendance: 72 },{ day: 'Tue', attendance: 85 },
-  { day: 'Wed', attendance: 91 },{ day: 'Thu', attendance: 78 },
-  { day: 'Fri', attendance: 95 },{ day: 'Sat', attendance: 88 },
-  { day: 'Sun', attendance: 60 },
-];
-const facultyPerformanceData = [
-  { subject: 'EC-301', score: 76 },{ subject: 'EC-302', score: 81 },
-];
-const taskStatusData = [
-  { name: 'Completed', value: 12, color: '#34d399' },
-  { name: 'Pending',   value: 5,  color: '#fbbf24' },
-  { name: 'Overdue',   value: 2,  color: '#f87171' },
-];
-const topCourses = [
-  { name: 'Signals and Systems',       attendance: 94, color: 'emerald' as const },
-  { name: 'Digital Signal Processing', attendance: 88, color: 'violet' as const },
-  { name: 'Network Analysis',          attendance: 76, color: 'gold' as const },
-  { name: 'Analog Circuits',           attendance: 65, color: 'red' as const },
-];
+// (Removed to show fresh empty states for new users instead of fake data)
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type CourseWithAttendance = {
@@ -363,20 +341,16 @@ export default function DashboardClient({
             </div>
 
             <div className="space-y-2.5">
-              {coursesDisplay ? (
+              {coursesDisplay && coursesDisplay.length > 0 ? (
                 coursesDisplay.map(course => (
                   <CourseAttendanceCard key={course.id} course={course} />
                 ))
               ) : (
-                /* Fallback sample data */
-                [
-                  { id: '1', title: 'Signals and Systems', code: 'EC-301', rate: 94, attended: 17, total: 18, color: 'emerald' as const },
-                  { id: '2', title: 'Digital Signal Processing', code: 'EC-302', rate: 88, attended: 15, total: 17, color: 'emerald' as const },
-                  { id: '3', title: 'Network Analysis', code: 'EC-101', rate: 74, attended: 11, total: 15, color: 'gold' as const },
-                  { id: '4', title: 'Analog Circuits', code: 'EC-303', rate: 62, attended: 8, total: 13, color: 'red' as const },
-                ].map(course => (
-                  <CourseAttendanceCard key={course.id} course={{ ...course, rate: course.rate, total: course.total, attended: course.attended }} />
-                ))
+                <div className="flex flex-col items-center py-6 text-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+                  <BookOpen className="h-8 w-8 text-slate-600/50 mb-2" />
+                  <p className="text-[12px] font-medium text-slate-400">No courses enrolled yet</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Your attendance will appear here once enrolled.</p>
+                </div>
               )}
             </div>
 
@@ -485,8 +459,9 @@ export default function DashboardClient({
             </div>
             <Badge variant="secondary">7 days</Badge>
           </div>
-          <div className="h-52">
-            <Charts type="area" data={attendanceData} />
+          <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+            <TrendingUp className="h-8 w-8 text-slate-600/50 mb-2" />
+            <p className="text-[12px] font-medium text-slate-400">Not enough data yet</p>
           </div>
         </div>
 
@@ -497,20 +472,9 @@ export default function DashboardClient({
               {isStudent ? 'Tasks' : 'Grading'}
             </h2>
           </div>
-          <div className="flex-1 min-h-[200px] relative">
-            <Charts type="donut" data={taskStatusData} />
-            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-              <span className="text-2xl font-black text-white">19</span>
-              <span className="text-[10px] text-slate-500 uppercase tracking-wider">Total</span>
-            </div>
-          </div>
-          <div className="flex justify-center gap-3 mt-2">
-            {taskStatusData.map(item => (
-              <div key={item.name} className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color, boxShadow: `0 0 6px ${item.color}` }} />
-                <span className="text-[10px] text-slate-500">{item.name}</span>
-              </div>
-            ))}
+          <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+            <CheckCircle className="h-8 w-8 text-slate-600/50 mb-2" />
+            <p className="text-[12px] font-medium text-slate-400">No active tasks</p>
           </div>
         </div>
       </div>
@@ -528,28 +492,19 @@ export default function DashboardClient({
                 <p className="text-[12px] text-slate-500 mt-0.5">Average scores per course</p>
               </div>
             </div>
-            <div className="h-52">
-              <Charts type="bar" data={facultyPerformanceData} />
+            <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+              <BookOpen className="h-8 w-8 text-slate-600/50 mb-2" />
+              <p className="text-[12px] font-medium text-slate-400">No courses assigned yet</p>
             </div>
           </div>
 
-          <div className="bento-card p-5">
+          <div className="bento-card p-5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Course Attendance</h2>
             </div>
-            <div className="space-y-3.5">
-              {topCourses.map(course => (
-                <div key={course.name}>
-                  <div className="flex items-center justify-between mb-1.5">
-                    <p className="text-[12px] font-medium text-slate-300 truncate mr-2">{course.name}</p>
-                    <span className={`text-[12px] font-bold flex-shrink-0 ${
-                      course.attendance >= 80 ? 'text-emerald-400' :
-                      course.attendance >= 75 ? 'text-amber-400' : 'text-red-400'
-                    }`}>{course.attendance}%</span>
-                  </div>
-                  <Progress value={course.attendance} variant={course.color} size="sm" />
-                </div>
-              ))}
+            <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5 py-8">
+              <Users className="h-8 w-8 text-slate-600/50 mb-2" />
+              <p className="text-[12px] font-medium text-slate-400">No active students</p>
             </div>
           </div>
         </div>

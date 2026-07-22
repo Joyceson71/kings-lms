@@ -480,11 +480,9 @@ export default function AdminUsersClient({
               <div className="flex items-center gap-2">
                 {selectedUsers.size > 0 && (
                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="secondary" size="sm" className="h-8 rounded-lg border border-border/40 text-xs">
-                        {isBulkSuspending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <ListChecks className="h-3.5 w-3.5 mr-1.5" />}
-                        Bulk Actions ({selectedUsers.size})
-                      </Button>
+                    <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap bg-secondary hover:bg-secondary/80 h-8 rounded-lg border border-border/40 text-xs px-3">
+                      {isBulkSuspending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <ListChecks className="h-3.5 w-3.5 mr-1.5" />}
+                      Bulk Actions ({selectedUsers.size})
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-44">
                       <DropdownMenuItem onClick={() => handleBulkStatusToggle('suspended')} className="text-destructive focus:text-destructive focus:bg-destructive/10">

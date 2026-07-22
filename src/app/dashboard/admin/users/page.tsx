@@ -70,6 +70,19 @@ export default async function AdminUsersPage() {
   activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
   const recentActivity = activities.slice(0, 5);
 
+  // Fetch system stats
+  const { count: coursesCount } = await supabase.from('courses').select('*', { count: 'exact', head: true });
+  const { count: sessionsCount } = await supabase.from('attendance_sessions').select('*', { count: 'exact', head: true });
+  const { count: enrollmentsCount } = await supabase.from('course_enrollments').select('*', { count: 'exact', head: true });
+  const { count: departmentsCount } = await supabase.from('departments').select('*', { count: 'exact', head: true });
+
+  const systemStats = {
+    courses: coursesCount || 0,
+    sessions: sessionsCount || 0,
+    enrollments: enrollmentsCount || 0,
+    departments: departmentsCount || 0,
+  };
+
   return (
     <Suspense fallback={
       <div className="flex items-center justify-center h-[60vh]">
@@ -80,6 +93,7 @@ export default async function AdminUsersPage() {
         initialUsers={users || []}
         currentUserId={user.id}
         recentActivity={recentActivity}
+        systemStats={systemStats}
       />
     </Suspense>
   );

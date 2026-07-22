@@ -11,7 +11,7 @@ import {
   ShieldCheck, UserCheck, MoreVertical, RefreshCw,
   Database, Globe, HardDrive, BookOpen, Server, Activity,
   Search, Users, GraduationCap, Shield, UserX, UserCircle2,
-  Loader2,
+  Loader2, Download, ListChecks
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -65,12 +65,7 @@ export interface ActivityItem {
 
 // ─── Static display data (still mock — wired in a future analytics migration) ─
 
-const systemHealth = [
-  { name: 'Database',   value: 98,  icon: Database,  color: 'emerald' as const },
-  { name: 'API Server', value: 95,  icon: Server,    color: 'emerald' as const },
-  { name: 'Storage',    value: 64,  icon: HardDrive, color: 'gold'    as const },
-  { name: 'CDN',        value: 100, icon: Globe,     color: 'emerald' as const },
-];
+// ─── Deleted mocked systemHealth ───
 
 // ─── Role Change Dialog ────────────────────────────────────────────────────────
 
@@ -222,10 +217,12 @@ export default function AdminUsersClient({
   initialUsers,
   currentUserId,
   recentActivity = [],
+  systemStats = { courses: 0, sessions: 0, enrollments: 0, departments: 0 },
 }: {
   initialUsers: RawUser[];
   currentUserId: string;
   recentActivity?: ActivityItem[];
+  systemStats?: { courses: number; sessions: number; enrollments: number; departments: number };
 }) {
   const router = useRouter();
 
@@ -245,6 +242,10 @@ export default function AdminUsersClient({
   // ── Dialog state ──
   const [roleDialogUser, setRoleDialogUser] = useState<FormattedUser | null>(null);
   const [suspendDialogUser, setSuspendDialogUser] = useState<FormattedUser | null>(null);
+
+  // ── Selection state ──
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
+  const [isBulkSuspending, setIsBulkSuspending] = useState(false);
 
   // ── Filters ──
   const [search, setSearch] = useState('');
@@ -293,6 +294,56 @@ export default function AdminUsersClient({
         prev.map((u) => (u.id === user.id ? { ...u, status: user.status } : u))
       );
       console.error('Status change failed:', err);
+    }
+  }
+
+  // ── Bulk Actions & Export ──
+  function exportCSV() {
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Joined', 'Department'];
+    const csvContent = [
+      headers.join(','),
+      ...filtered.map(u => 
+        `"${u.name}","${u.email}","${u.role}","${u.status}","${u.joined}","${u.department || ''}"`
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `kings-lms-users-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  }
+
+  function toggleSelection(id: string) {
+    const next = new Set(selectedUsers);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelectedUsers(next);
+  }
+
+  function toggleAll() {
+    if (selectedUsers.size === filtered.length) {
+      setSelectedUsers(new Set());
+    } else {
+      setSelectedUsers(new Set(filtered.map(u => u.id)));
+    }
+  }
+
+  async function handleBulkStatusToggle(targetStatus: UserStatus) {
+    setIsBulkSuspending(true);
+    try {
+      const ids = Array.from(selectedUsers);
+      await Promise.all(ids.map(id => patchUser(id, { status: targetStatus })));
+      
+      setUsers(prev => prev.map(u => 
+        selectedUsers.has(u.id) ? { ...u, status: targetStatus } : u
+      ));
+      setSelectedUsers(new Set());
+    } catch (err) {
+      console.error('Bulk status change failed:', err);
+      alert('Some updates failed. Please refresh and try again.');
+    } finally {
+      setIsBulkSuspending(false);
     }
   }
 
@@ -396,37 +447,72 @@ export default function AdminUsersClient({
             </div>
 
             {/* Search + Filter */}
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-border/30 bg-secondary/10 flex-wrap">
-              <div className="relative flex-1 min-w-[180px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                <Input
-                  id="admin-user-search"
-                  placeholder="Search by name or email…"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-8 h-8 text-xs bg-secondary/30 border-border/40 rounded-lg"
-                />
+            <div className="flex items-center justify-between gap-2 px-5 py-3 border-b border-border/30 bg-secondary/10 flex-wrap">
+              <div className="flex items-center gap-2 flex-1 min-w-[200px]">
+                <div className="relative flex-1 max-w-[240px]">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    id="admin-user-search"
+                    placeholder="Search by name or email…"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="pl-8 h-8 text-xs bg-secondary/30 border-border/40 rounded-lg"
+                  />
+                </div>
+
+                {/* Role filter pills */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {(['all', 'student', 'faculty', 'admin'] as const).map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setRoleFilter(r)}
+                      className={`h-7 px-3 rounded-lg text-xs font-semibold transition-all duration-150
+                        ${roleFilter === r
+                          ? 'bg-primary/20 text-primary border border-primary/40'
+                          : 'bg-secondary/30 text-muted-foreground border border-border/30 hover:border-border/60'}`}
+                    >
+                      {r === 'all' ? 'All' : r.charAt(0).toUpperCase() + r.slice(1)}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Role filter pills */}
-              <div className="flex items-center gap-1.5 flex-wrap">
-                {(['all', 'student', 'faculty', 'admin'] as const).map((r) => (
-                  <button
-                    key={r}
-                    onClick={() => setRoleFilter(r)}
-                    className={`h-7 px-3 rounded-lg text-xs font-semibold transition-all duration-150
-                      ${roleFilter === r
-                        ? 'bg-primary/20 text-primary border border-primary/40'
-                        : 'bg-secondary/30 text-muted-foreground border border-border/30 hover:border-border/60'}`}
-                  >
-                    {r === 'all' ? 'All' : r.charAt(0).toUpperCase() + r.slice(1)}
-                  </button>
-                ))}
+              <div className="flex items-center gap-2">
+                {selectedUsers.size > 0 && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="secondary" size="sm" className="h-8 rounded-lg border border-border/40 text-xs">
+                        {isBulkSuspending ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : <ListChecks className="h-3.5 w-3.5 mr-1.5" />}
+                        Bulk Actions ({selectedUsers.size})
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-44">
+                      <DropdownMenuItem onClick={() => handleBulkStatusToggle('suspended')} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <UserX className="h-3.5 w-3.5 mr-2" />
+                        Suspend Selected
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => handleBulkStatusToggle('active')} className="text-emerald-400 focus:text-emerald-400 focus:bg-emerald-500/10">
+                        <ShieldCheck className="h-3.5 w-3.5 mr-2" />
+                        Reactivate Selected
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                <Button onClick={exportCSV} variant="outline" size="sm" className="h-8 rounded-lg border border-border/40 text-xs gap-1.5">
+                  <Download className="h-3.5 w-3.5" />
+                  Export CSV
+                </Button>
               </div>
             </div>
 
             {/* Column headers */}
-            <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-5 py-3 bg-secondary/10 border-b border-border/20">
+            <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 px-5 py-3 bg-secondary/10 border-b border-border/20 items-center">
+              <input 
+                type="checkbox" 
+                checked={selectedUsers.size > 0 && selectedUsers.size === filtered.length}
+                onChange={toggleAll}
+                className="w-4 h-4 rounded border-border/50 bg-background/50 accent-primary"
+              />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">User</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Role</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Status</span>
@@ -444,11 +530,18 @@ export default function AdminUsersClient({
                 filtered.map((user, i) => (
                   <div
                     key={user.id}
-                    className={`grid grid-cols-[1fr_auto_auto_auto] gap-3 px-5 py-3.5 items-center transition-colors animate-fade-in opacity-0 ${
-                      user.status === 'suspended' ? 'bg-red-500/3 hover:bg-red-500/5' : 'hover:bg-secondary/15'
+                    className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 px-5 py-3.5 items-center transition-colors animate-fade-in opacity-0 ${
+                      user.status === 'suspended' ? 'bg-red-500/3 hover:bg-red-500/5' : 
+                      selectedUsers.has(user.id) ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-secondary/15'
                     }`}
                     style={{ animationDelay: `${200 + i * 35}ms`, animationFillMode: 'forwards' }}
                   >
+                    <input 
+                      type="checkbox" 
+                      checked={selectedUsers.has(user.id)}
+                      onChange={() => toggleSelection(user.id)}
+                      className="w-4 h-4 rounded border-border/50 bg-background/50 accent-primary"
+                    />
                     {/* Avatar + Name */}
                     <div className="flex items-center gap-3 min-w-0">
                       <div className={user.status === 'suspended' ? 'opacity-50' : ''}>
@@ -527,32 +620,34 @@ export default function AdminUsersClient({
           className="space-y-5 animate-slide-in-up opacity-0"
           style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}
         >
-          {/* System health */}
+          {/* System Overview */}
           <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-5">
-              <h2 className="text-base font-bold text-foreground">System Health</h2>
+              <h2 className="text-base font-bold text-foreground">System Overview</h2>
               <div className="h-2 w-2 rounded-full bg-emerald-400 animate-status-pulse shadow-[0_0_8px_oklch(0.7_0.2_165/0.8)]" />
             </div>
             <div className="space-y-4">
-              {systemHealth.map((item) => (
+              {[
+                { name: 'Total Courses', value: systemStats.courses, icon: BookOpen, color: 'text-indigo-400', progressColor: 'default' as any },
+                { name: 'Active Sessions', value: systemStats.sessions, icon: Activity, color: 'text-emerald-400', progressColor: 'emerald' as any },
+                { name: 'Enrollments', value: systemStats.enrollments, icon: Users, color: 'text-sky-400', progressColor: 'default' as any },
+                { name: 'Departments', value: systemStats.departments, icon: Database, color: 'text-amber-400', progressColor: 'gold' as any },
+              ].map((item) => (
                 <div key={item.name}>
                   <div className="flex items-center justify-between mb-1.5">
                     <div className="flex items-center gap-2">
                       <item.icon className="h-3.5 w-3.5 text-muted-foreground" />
                       <span className="text-sm font-medium text-foreground">{item.name}</span>
                     </div>
-                    <span className={`text-xs font-bold ${
-                      item.value >= 90 ? 'text-emerald-400' :
-                      item.value >= 60 ? 'text-amber-400' : 'text-red-400'
-                    }`}>{item.value}%</span>
+                    <span className={`text-xs font-bold ${item.color}`}>{item.value}</span>
                   </div>
-                  <Progress value={item.value} variant={item.color} size="sm" />
+                  <Progress value={Math.min(item.value * 5, 100)} variant={item.progressColor} size="sm" />
                 </div>
               ))}
             </div>
             <div className="mt-4 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20">
-              <p className="text-xs text-emerald-400 font-medium">✓ All systems operational</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">Last checked: just now</p>
+              <p className="text-xs text-emerald-400 font-medium">✓ Metrics updated live</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">Real-time data from database</p>
             </div>
           </div>
 

@@ -64,7 +64,7 @@ Before you begin, make sure you have the following installed:
 
 ```bash
 # Clone the repository
-git clone <your-repo-url>
+git clone https://github.com/Joyceson71/kings-lms.git
 cd kings-lms
 
 # Install dependencies

@@ -79,11 +79,11 @@ npm install
 2. Once your project is ready, navigate to:
    - **Project Settings → API** to get your keys
    
-3. Run the database migration by going to **SQL Editor** in your Supabase dashboard, and paste the contents of:
+3. Run the database migrations by going to **SQL Editor** in your Supabase dashboard. You must paste and run the contents of **all SQL files** in the migrations folder sequentially (from 0000 to 0014):
    ```
-   supabase/migrations/0000_initial_schema.sql
+   supabase/migrations/
    ```
-   Then click **Run**.
+   (Alternatively, use the Supabase CLI if you have it installed: `npx supabase db push`)
 
 This will create the following tables:
 - `profiles` — User profile with role (student/faculty/admin)

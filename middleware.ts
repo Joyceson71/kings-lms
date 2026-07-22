@@ -49,11 +49,9 @@ export async function middleware(request: NextRequest) {
   if (!user && isProtectedRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    // Preserve the intended destination so we can redirect back after login
     loginUrl.searchParams.set('next', pathname);
     const redirect = NextResponse.redirect(loginUrl);
-    // Copy any cookies Supabase just set onto the redirect response
-    supabaseResponse.cookies.getAll().forEach(({ name, value }) =>
+    request.cookies.getAll().forEach(({ name, value }) =>
       redirect.cookies.set(name, value)
     );
     return redirect;
@@ -73,7 +71,7 @@ export async function middleware(request: NextRequest) {
       dashboardUrl.pathname = '/dashboard';
       dashboardUrl.search = '';
       const redirect = NextResponse.redirect(dashboardUrl);
-      supabaseResponse.cookies.getAll().forEach(({ name, value }) =>
+      request.cookies.getAll().forEach(({ name, value }) =>
         redirect.cookies.set(name, value)
       );
       return redirect;
@@ -85,7 +83,7 @@ export async function middleware(request: NextRequest) {
     dashboardUrl.pathname = '/dashboard';
     dashboardUrl.search = '';
     const redirect = NextResponse.redirect(dashboardUrl);
-    supabaseResponse.cookies.getAll().forEach(({ name, value }) =>
+    request.cookies.getAll().forEach(({ name, value }) =>
       redirect.cookies.set(name, value)
     );
     return redirect;

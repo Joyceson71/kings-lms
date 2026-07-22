@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckCircle, Building2, Hash, BookOpen, GraduationCap } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -115,6 +116,7 @@ export default function SignupPage() {
 
       if (signUpError) {
         setError(signUpError.message);
+        toast.error(signUpError.message);
         return;
       }
 
@@ -133,11 +135,14 @@ export default function SignupPage() {
       }
 
       setSuccess(true);
+      toast.success('Account created! Please check your email to verify.');
       setTimeout(() => {
         router.replace('/login');
       }, 2000);
     } catch {
-      setError('An unexpected error occurred. Please try again.');
+      const msg = 'An unexpected error occurred. Please try again.';
+      setError(msg);
+      toast.error(msg);
     } finally {
       setIsLoading(false);
     }

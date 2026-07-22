@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
-  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare,
+  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
@@ -43,6 +43,7 @@ const navSections: NavSection[] = [
       { name: 'Courses',       href: '/dashboard/courses',       icon: BookOpen },
       { name: 'Assignments',   href: '/dashboard/assignments',   icon: ClipboardList },
       { name: 'Resources',     href: '/dashboard/resources',     icon: Library },
+      { name: 'AI Assistant',  href: '/dashboard/assistant',     icon: Sparkles },
       { name: 'Leaderboard',   href: '/dashboard/leaderboard',   icon: Trophy,      roles: ['student'] },
     ],
   },

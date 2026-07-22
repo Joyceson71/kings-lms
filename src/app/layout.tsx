@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { AIAssistant } from "@/components/layout/ai-assistant";
 import { ThemeProvider } from "@/components/theme-provider";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -41,6 +42,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem disableTransitionOnChange>
           {children}
           <AIAssistant />
+          <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

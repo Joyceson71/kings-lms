@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { AlertCircle, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 
 /* ── Reusable focused-input style helper ── */
 const inputBase =
@@ -62,19 +63,23 @@ export default function LoginPage() {
         });
 
         if (authError) {
-          setError(
+          const msg =
             authError.message === 'Invalid login credentials'
               ? 'Incorrect email or password.'
-              : authError.message,
-          );
+              : authError.message;
+          setError(msg);
+          toast.error(msg);
           return;
         }
 
+        toast.success('Signed in successfully!');
         // Use router.push so navigation stays inside the WebView / App
         router.push(nextPath);
         router.refresh();
       } catch {
-        setError('Something went wrong. Please try again.');
+        const msg = 'Something went wrong. Please try again.';
+        setError(msg);
+        toast.error(msg);
       }
     });
   };

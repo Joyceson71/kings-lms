@@ -7,12 +7,13 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
-import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle } from 'lucide-react';
+import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle, Download } from 'lucide-react';
 import { QRDisplayModal } from '@/components/attendance/qr-display';
 import { QRScannerModal } from '@/components/attendance/qr-scanner';
 import { PulseFacultyPanel } from '@/components/attendance/pulse-faculty-panel';
 import { PulseStudentWidget } from '@/components/attendance/pulse-student-widget';
 import confetti from 'canvas-confetti';
+import { toast } from 'sonner';
 
 function AttendanceContent() {
   const { isFaculty, isStudent, profile, loading: userLoading } = useUser();
@@ -113,17 +114,21 @@ function AttendanceContent() {
       }
     } catch (error) {
       console.error('Error fetching attendance data:', error);
+      toast.error('Failed to load attendance data.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleCreateSession = async () => {
-    if (myCourses.length === 0) return alert('You must create a course first.');
+    if (myCourses.length === 0) {
+      toast.error('You must create a course first.');
+      return;
+    }
 
     setIsCreatingSession(true);
     try {
-      const courseId = myCourses[0].id; // For simplicity, picking first course
+      const courseId = myCourses[0].id;
       const token = crypto.randomUUID();
 
       const { data, error } = await supabase
@@ -148,7 +153,7 @@ function AttendanceContent() {
       }
     } catch (err) {
       console.error('Failed to create session:', err);
-      alert('Failed to create session');
+      toast.error('Failed to create session. Please try again.');
     } finally {
       setIsCreatingSession(false);
     }
@@ -169,7 +174,7 @@ function AttendanceContent() {
       // Find the session with this token
       const { data: sessionData, error: sessionError } = await supabase
         .from('course_sessions')
-        .select('id, course_id, status, courses(title)')
+        .select('id, course_id, status, created_at, courses(title)')
         .eq('qr_token', token)
         .single();
 
@@ -179,6 +184,12 @@ function AttendanceContent() {
 
       if (sessionData.status !== 'active') {
         throw new Error('This session has already ended.');
+      }
+
+      // Check 2-hour session expiry
+      const sessionAge = Date.now() - new Date(sessionData.created_at).getTime();
+      if (sessionAge > 2 * 60 * 60 * 1000) {
+        throw new Error('Session has expired. Please ask your faculty to start a new session.');
       }
 
       // Check if already enrolled in this course
@@ -214,6 +225,7 @@ function AttendanceContent() {
       }
 
       setScanSuccess(`Marked present for ${(sessionData.courses as any)?.title}`);
+      toast.success(`Attendance marked for ${(sessionData.courses as any)?.title}! 🎉`);
 
       // Fire confetti
       confetti({
@@ -227,8 +239,9 @@ function AttendanceContent() {
       fetchData();
 
     } catch (error) {
-      console.error('Scanning error:', error);
-      setScanError(error instanceof Error ? error.message : 'Failed to mark attendance.');
+      const msg = error instanceof Error ? error.message : 'Failed to mark attendance.';
+      setScanError(msg);
+      toast.error(msg);
     } finally {
       setIsProcessingScan(false);
     }
@@ -276,15 +289,41 @@ function AttendanceContent() {
           </p>
         </div>
         {isFaculty && (
-          <Button
-            id="new-session-btn"
-            onClick={handleCreateSession}
-            disabled={isCreatingSession}
-            className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
-          >
-            {isCreatingSession ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />}
-            New Session
-          </Button>
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              id="new-session-btn"
+              onClick={handleCreateSession}
+              disabled={isCreatingSession}
+              className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
+            >
+              {isCreatingSession ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />}
+              New Session
+            </Button>
+            <Button
+              id="export-csv-btn"
+              variant="outline"
+              onClick={async () => {
+                try {
+                  const res = await fetch('/api/attendance-export');
+                  if (!res.ok) throw new Error('Export failed');
+                  const blob = await res.blob();
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `attendance-${new Date().toISOString().split('T')[0]}.csv`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success('CSV exported!');
+                } catch {
+                  toast.error('Export failed. Please try again.');
+                }
+              }}
+              className="h-10 px-4 rounded-xl border-border/40 text-muted-foreground hover:text-foreground gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Export CSV
+            </Button>
+          </div>
         )}
       </div>
 

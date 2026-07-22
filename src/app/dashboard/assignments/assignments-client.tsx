@@ -2,10 +2,13 @@
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText, Star, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { SubmissionModal } from '@/components/assignments/submission-modal';
 import { CreateAssignmentModal } from '@/components/assignments/create-assignment-modal';
+import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 
 type AssignmentStatus = 'pending' | 'submitted' | 'graded';
 
@@ -51,6 +54,43 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
   const [selectedAssignment, setSelectedAssignment] = useState<Assignment | null>(null);
   const [isSubmissionModalOpen, setIsSubmissionModalOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [gradingId, setGradingId] = useState<string | null>(null);
+  const [gradeInput, setGradeInput] = useState('');
+  const [feedbackInput, setFeedbackInput] = useState('');
+  const [isSavingGrade, setIsSavingGrade] = useState(false);
+
+  const handleGradeSubmit = async (assignment: Assignment) => {
+    const grade = parseInt(gradeInput, 10);
+    if (isNaN(grade) || grade < 0 || grade > 100) {
+      toast.error('Please enter a grade between 0 and 100.');
+      return;
+    }
+    setIsSavingGrade(true);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from('submissions').upsert({
+        assignment_id: assignment.id,
+        grade,
+        feedback: feedbackInput.trim() || null,
+        status: 'graded',
+        graded_at: new Date().toISOString(),
+      }, { onConflict: 'assignment_id' });
+      if (error) throw error;
+      setAssignments(prev => prev.map(a =>
+        a.id === assignment.id
+          ? { ...a, status: 'graded' as AssignmentStatus, grade: `${grade}/100` }
+          : a
+      ));
+      toast.success(`Graded "${assignment.title}" — ${grade}/100`);
+      setGradingId(null);
+      setGradeInput('');
+      setFeedbackInput('');
+    } catch {
+      toast.error('Failed to save grade. Please try again.');
+    } finally {
+      setIsSavingGrade(false);
+    }
+  };
 
   const handleSubmissionSuccess = (assignmentId: string) => {
     setAssignments(prev => prev.map(a => 
@@ -164,12 +204,73 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
                       </div>
                     </div>
 
-                    <div className="mt-3 pt-2.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity" style={{ borderTop: '1px solid #1a1a1d' }}>
-                      <span className="text-[11px] text-zinc-500">{assignment.course}</span>
-                      <button className="flex items-center gap-1 text-[11px] font-medium text-indigo-400 hover:text-indigo-300">
-                        View <ArrowRight className="h-3 w-3" />
-                      </button>
-                    </div>
+                    {/* Faculty grade form or student grade display */}
+                    {isFaculty && gradingId === assignment.id ? (
+                      <div
+                        className="mt-3 pt-3 space-y-2"
+                        style={{ borderTop: '1px solid #1a1a1d' }}
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <div className="flex gap-2">
+                          <Input
+                            type="number"
+                            min={0}
+                            max={100}
+                            placeholder="Grade (0-100)"
+                            value={gradeInput}
+                            onChange={e => setGradeInput(e.target.value)}
+                            className="h-8 text-xs bg-background/40 border-border/40 rounded-lg flex-1"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => handleGradeSubmit(assignment)}
+                            disabled={isSavingGrade}
+                            className="h-8 px-3 rounded-lg text-xs"
+                          >
+                            {isSavingGrade ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => setGradingId(null)}
+                            className="h-8 px-2 rounded-lg text-xs"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                        <textarea
+                          placeholder="Feedback (optional)"
+                          value={feedbackInput}
+                          onChange={e => setFeedbackInput(e.target.value)}
+                          rows={2}
+                          className="w-full resize-none text-xs rounded-lg border border-border/40 bg-background/40 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary/50 outline-none"
+                        />
+                      </div>
+                    ) : (
+                      <div
+                        className="mt-3 pt-2.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity"
+                        style={{ borderTop: '1px solid #1a1a1d' }}
+                      >
+                        <span className="text-[11px] text-zinc-500">{assignment.course}</span>
+                        {isFaculty ? (
+                          <button
+                            className="flex items-center gap-1 text-[11px] font-medium text-amber-400 hover:text-amber-300"
+                            onClick={e => {
+                              e.stopPropagation();
+                              setGradingId(assignment.id);
+                              setGradeInput('');
+                              setFeedbackInput('');
+                            }}
+                          >
+                            <Star className="h-3 w-3" /> Grade
+                          </button>
+                        ) : (
+                          <button className="flex items-center gap-1 text-[11px] font-medium text-indigo-400 hover:text-indigo-300">
+                            View <ArrowRight className="h-3 w-3" />
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
 

@@ -72,9 +72,35 @@ export default function SettingsPage() {
     if (profile?.email) setEmailValue(profile.email);
   }, [profile?.email]);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!profile?.id) return;
+    setIsSaving(true);
+    
+    try {
+      const supabase = createClient();
+      
+      // Update the profiles table
+      const { error } = await supabase
+        .from('profiles')
+        .update({ full_name: nameValue })
+        .eq('id', profile.id);
+        
+      if (error) throw error;
+      
+      // Update auth metadata to trigger auth state change and refresh the useUser hook
+      await supabase.auth.updateUser({
+        data: { full_name: nameValue }
+      });
+      
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const toggleNotification = (id: string) => {
@@ -315,10 +341,11 @@ export default function SettingsPage() {
                   <Button
                     id="settings-save-btn"
                     onClick={handleSave}
+                    disabled={isSaving}
                     className="h-10 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 gap-2"
                   >
-                    <Save className="h-4 w-4" />
-                    Save Changes
+                    {isSaving ? <span className="animate-spin mr-1">⚪</span> : <Save className="h-4 w-4" />}
+                    {isSaving ? 'Saving...' : 'Save Changes'}
                   </Button>
                 </div>
               </div>

@@ -23,6 +23,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  experimental: {
+    reactCompiler: true,
+    optimizePackageImports: ['lucide-react', 'recharts', 'canvas-confetti'],
+  },
 };
 
 export default nextConfig;
+

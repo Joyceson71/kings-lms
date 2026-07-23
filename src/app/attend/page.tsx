@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { markAttendance } from '@/lib/supabase/queries';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
-import confetti from 'canvas-confetti';
+const getConfetti = () => import('canvas-confetti').then(mod => mod.default);
 
 function AttendClient() {
   const searchParams = useSearchParams();
@@ -53,12 +53,12 @@ function AttendClient() {
 
         setStatus('success');
         setMessage(`Successfully marked present for ${(session.courses as any)?.title || 'the course'}.`);
-        
+        const confetti = await getConfetti();
         confetti({
           particleCount: 100,
           spread: 70,
           origin: { y: 0.6 },
-          colors: ['#38bdf8', '#3ecf8e']
+          colors: ['#34d399', '#10b981', '#059669'],
         });
 
       } catch (err: any) {

@@ -12,7 +12,7 @@ import { QRDisplayModal } from '@/components/attendance/qr-display';
 import { QRScannerModal } from '@/components/attendance/qr-scanner';
 import { PulseFacultyPanel } from '@/components/attendance/pulse-faculty-panel';
 import { PulseStudentWidget } from '@/components/attendance/pulse-student-widget';
-import confetti from 'canvas-confetti';
+const getConfetti = () => import('canvas-confetti').then(mod => mod.default);
 import { toast } from 'sonner';
 
 function AttendanceContent() {
@@ -228,11 +228,12 @@ function AttendanceContent() {
       toast.success(`Attendance marked for ${(sessionData.courses as any)?.title}! 🎉`);
 
       // Fire confetti
+      const confetti = await getConfetti();
       confetti({
         particleCount: 100,
         spread: 70,
         origin: { y: 0.6 },
-        colors: ['#38bdf8', '#3ecf8e']
+        colors: ['#34d399', '#10b981', '#059669', '#fbbf24', '#f59e0b'],
       });
 
       // Refresh data

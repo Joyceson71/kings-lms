@@ -206,28 +206,28 @@ export default function SettingsPage() {
                       <Label htmlFor="settings-phone" className="text-sm font-medium">Phone</Label>
                       <div className="relative">
                         <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-phone" defaultValue="+91 98765 43210" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-phone" placeholder="Enter phone number" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="settings-dept" className="text-sm font-medium">Department</Label>
                       <div className="relative">
                         <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-dept" defaultValue="Electronics & Communication Engineering" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-dept" placeholder="Enter department" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="settings-office" className="text-sm font-medium">Office Location</Label>
                       <div className="relative">
                         <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-office" defaultValue="Block A, Room 204" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-office" placeholder="e.g. Block A, Room 204" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                     <div className="space-y-1.5">
                       <Label htmlFor="settings-courses" className="text-sm font-medium">Courses Handling</Label>
                       <div className="relative">
                         <Book className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input id="settings-courses" defaultValue="EC-301, EC-302, EC-303" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+                        <Input id="settings-courses" placeholder="e.g. EC-301, EC-302" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
                       </div>
                     </div>
                   </div>

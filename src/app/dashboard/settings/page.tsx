@@ -183,7 +183,7 @@ export default function SettingsPage() {
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           id="settings-name"
-                          value={nameValue || displayName || ''}
+                          value={nameValue}
                           onChange={(e) => setNameValue(e.target.value)}
                           className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl"
                         />
@@ -196,7 +196,7 @@ export default function SettingsPage() {
                         <Input
                           id="settings-email"
                           type="email"
-                          value={emailValue || (profile?.email ?? '')}
+                          value={emailValue}
                           onChange={(e) => setEmailValue(e.target.value)}
                           className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl"
                         />

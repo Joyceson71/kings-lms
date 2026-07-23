@@ -10,7 +10,7 @@
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=for-the-badge&logo=tailwindcss)
 
 **A premium, full-stack Campus LMS for Kings Engineering College.**  
-Features 3D animations, particle backgrounds, real-time attendance, and role-based dashboards.
+Features 3D animations, particle backgrounds, real-time attendance, global focus timers, and role-based dashboards.
 
 </div>
 
@@ -21,14 +21,16 @@ Features 3D animations, particle backgrounds, real-time attendance, and role-bas
 | Feature | Description |
 |---|---|
 | 🔐 **Auth System** | Supabase email/password auth exclusively (No split-brain local auth) |
-| 🎨 **Premium UI** | Glassmorphism, 3D tilt cards, particle canvas backgrounds |
-| 📊 **Dashboard** | Live stats with animated counters, Recharts area chart |
+| 🎨 **Premium UI** | Glassmorphism, 3D tilt cards, particle canvas backgrounds, smooth layout animations |
+| 📊 **Dashboard** | Live stats with animated counters, Recharts area/radial charts, and streak widgets |
 | ✅ **Attendance** | QR-based session tracking for faculty + students |
 | 📚 **Courses** | Course management with 3D cards and attendance tracking |
-| 📋 **Assignments** | Kanban board (Pending → Submitted → Graded) |
+| 📋 **Assignments** | Kanban board (Pending → Submitted → Graded) featuring **Smart Sort** (urgency & deadline-based sorting) |
+| ⏱️ **Pomodoro Timer**| Global floating focus timer widget with persistent storage and break cycles |
+| 🛡️ **Admin Panel** | Powerful admin tools: **User Details Drawer**, **Global Broadcast Announcements**, live **Health Metrics**, and **Department Breakdown Charts** |
 | 👥 **Students** | Searchable student table with attendance bars |
-| ⚙️ **Settings** | Profile, notifications, security, and appearance tabs |
-| 🌐 **Responsive** | Works on desktop, tablet, and mobile |
+| ⚙️ **Settings** | Real-time profile syncing, notifications, security, and appearance tabs |
+| 🌐 **Responsive** | Works beautifully on desktop, tablet, and mobile with animated side nav |
 
 ---
 
@@ -91,6 +93,8 @@ This will create the following tables:
 - `course_enrollments` — Many-to-many student↔course
 - `attendance_sessions` — QR-enabled sessions created by faculty
 - `attendance_records` — Student attendance per session
+- `announcements` — Global and course-specific broadcasts
+- `assignment_submissions` — Grades and file links for assignments
 
 ---
 
@@ -127,22 +131,6 @@ To enable the "Continue with Google" and "Continue with GitHub" buttons on the L
 6. Go to your [Supabase Dashboard](https://app.supabase.com) > **Authentication > Providers > Google**.
 7. Enable Google and paste the Client ID and Client Secret. Click **Save**.
 
-**GitHub Setup:**
-1. Go to your GitHub account **Settings > Developer Settings > OAuth Apps**.
-2. Click **New OAuth App**.
-3. Set the **Homepage URL** to your app's domain (or `http://localhost:3000` for local dev).
-4. Set the **Authorization callback URL** to your Supabase callback (e.g., `https://<project-id>.supabase.co/auth/v1/callback`).
-5. Copy the **Client ID** and generate a **Client Secret**.
-6. Go to your [Supabase Dashboard](https://app.supabase.com) > **Authentication > Providers > GitHub**.
-7. Enable GitHub and paste the Client ID and Client Secret. Click **Save**.
-
-**How to Validate Auth:**
-- Ensure your local dev server is running (`npm run dev`).
-- Click the "Continue with Google" or "Continue with GitHub" button on the login/signup page.
-- You should be redirected to the provider's consent screen.
-- After consenting, you should be redirected back to the `/dashboard` page automatically.
-- Check the `profiles` table in Supabase to ensure a row was created for the new user!
-
 > ⚠️ **Never commit `.env.local` to version control.** The `.gitignore` already excludes it.
 
 ---
@@ -161,56 +149,31 @@ You'll be automatically redirected to `/login` if not authenticated.
 
 ## 📁 Project Structure
 
-```
+```text
 kings-lms/
 ├── src/
 │   ├── app/                          # Next.js App Router
 │   │   ├── (auth)/                   # Auth route group (no layout chrome)
-│   │   │   ├── layout.tsx            # Auth layout — particles + glassmorphism
-│   │   │   ├── login/page.tsx        # Login page (bug-fixed)
-│   │   │   └── signup/page.tsx       # Signup with password strength meter
 │   │   ├── dashboard/                # Protected dashboard pages
-│   │   │   ├── layout.tsx            # Dashboard shell (sidebar + header)
-│   │   │   ├── page.tsx              # Overview with stats + charts
-│   │   │   ├── attendance/page.tsx   # QR attendance management
-│   │   │   ├── courses/page.tsx      # Course cards grid
-│   │   │   ├── assignments/page.tsx  # Kanban assignment board
-│   │   │   ├── students/page.tsx     # Student table + search
-│   │   │   └── settings/page.tsx     # Profile & preferences
+│   │   │   ├── admin/                # Admin Panel (Users, Departments)
+│   │   │   ├── attendance/           # QR attendance management
+│   │   │   ├── courses/              # Course cards grid
+│   │   │   ├── assignments/          # Kanban assignment board (with Smart Sort)
+│   │   │   ├── students/             # Student table + search
+│   │   │   └── settings/             # Profile & preferences
+│   │   ├── api/                      # Next.js Route Handlers
 │   │   ├── globals.css               # Design system + animations
 │   │   ├── layout.tsx                # Root layout (fonts + metadata)
 │   │   └── page.tsx                  # Root redirect to /dashboard
 │   ├── components/
-│   │   ├── layout/
-│   │   │   ├── header.tsx            # Top navigation bar
-│   │   │   └── sidebar.tsx           # Collapsible navigation sidebar
-│   │   └── ui/
-│   │       ├── avatar.tsx            # Avatar with gradient initials + ring
-│   │       ├── badge.tsx             # Status/role badges with glow
-│   │       ├── button.tsx            # Base button component
-│   │       ├── card.tsx              # Base card component
-│   │       ├── input.tsx             # Base input component
-│   │       ├── label.tsx             # Form label
-│   │       ├── animated-counter.tsx  # Intersection-observer number counter
-│   │       ├── particles-bg.tsx      # Canvas particle constellation
-│   │       ├── progress.tsx          # Animated gradient progress bar
-│   │       └── tilt-card.tsx         # Mouse-tracking 3D tilt wrapper
-│   ├── lib/
-│   │   ├── supabase/
-│   │   │   ├── client.ts             # Browser Supabase client
-│   │   │   ├── server.ts             # Server Supabase client
-│   │   │   └── middleware.ts         # Session refresh middleware helper
-│   │   └── utils.ts                  # cn() helper (clsx + tailwind-merge)
+│   │   ├── layout/                   # Header, Animated Sidebar, Pomodoro Timer
+│   │   └── ui/                       # Glassmorphism cards, animated counters, particle bg
+│   ├── lib/                          # Supabase clients, auth middleware, util functions
 │   └── middleware.ts                 # Next.js middleware for auth session
 ├── supabase/
-│   └── migrations/
-│       └── 0000_initial_schema.sql  # Full DB schema + RLS policies
-├── .env.example                     # Template for environment variables
-├── .env.local                       # Your local secrets (git-ignored)
-├── next.config.ts
-├── package.json
-├── tailwind.config.* (embedded in globals.css for v4)
-└── tsconfig.json
+│   └── migrations/                   # Full DB schema + RLS policies + dummy data
+├── .env.example                      # Template for environment variables
+└── package.json
 ```
 
 ---
@@ -221,11 +184,11 @@ The platform has **3 roles** managed via the `profiles.role` column in Supabase:
 
 | Role | Permissions |
 |---|---|
-| `student` | View enrolled courses, mark attendance via QR, view own grades |
+| `student` | View enrolled courses, mark attendance via QR, view own grades, use Smart Sort |
 | `faculty` | Create sessions, show QR codes, view all student attendance, grade assignments |
-| `admin` | All faculty permissions + manage users, departments, and system settings |
+| `admin` | All faculty permissions + manage users, broadcast announcements, view health metrics |
 
-Roles are automatically set to `student` on signup. A `faculty` or `admin` must update the role via the Supabase dashboard or a dedicated admin panel.
+Roles are automatically set to `student` on signup. A `faculty` or `admin` must update the role via the Supabase dashboard or the **Admin Panel**.
 
 ---
 
@@ -235,11 +198,12 @@ All tables have RLS enabled with the following policies:
 
 | Table | Who Can Read | Who Can Write |
 |---|---|---|
-| `profiles` | Everyone | Own profile only |
+| `profiles` | Everyone | Own profile only (Admins can update all) |
 | `courses` | Everyone | Faculty/Admin |
 | `course_enrollments` | Students (own) + Faculty (their courses) | Faculty |
 | `attendance_sessions` | Enrolled students + Faculty (their courses) | Faculty |
 | `attendance_records` | Students (own) + Faculty (their courses) | Students (mark own) + Faculty |
+| `announcements` | Enrolled students / Everyone (if global) | Faculty (course) / Admins (global) |
 
 ---
 
@@ -275,38 +239,19 @@ All tables have RLS enabled with the following policies:
 3. Add all environment variables from `.env.local` in the Vercel project settings
 4. Deploy — Vercel auto-detects Next.js
 
-### Environment Variables on Vercel
-
-Add these in **Project Settings → Environment Variables**:
-- `NEXT_PUBLIC_SUPABASE_URL`
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
 ---
 
-## 🧑‍💻 Development Commands
+## 📋 Changelog / Recent Updates
 
-```bash
-npm run dev       # Start development server on localhost:3000
-npm run build     # Production build
-npm run start     # Run production build locally
-npm run lint      # Lint with ESLint
-```
-
----
-
-## 📋 Known Bugs Fixed
-
-| Bug | Status | Fix Applied |
-|---|---|---|
-| Login button permanently disabled (`!isValid` in `disabled` prop with `mode: 'onChange'`) | ✅ Fixed | Changed to `mode: 'onBlur'`, removed `!isValid` from `disabled` |
-| `router.push('/dashboard')` allows back-navigation to login after sign-in | ✅ Fixed | Changed to `router.replace('/dashboard')` |
-| Split-brain auth bypassing Supabase with local cookies (`kings_lms_auth`) | ✅ Fixed | Purged legacy mock auth system; middleware strictly enforces Supabase sessions. |
-| Hardcoded admin credentials exposed in client environments | ✅ Fixed | Removed client-side mock credentials. Source of truth is now the `profiles` table. |
-| Mock data used for Announcements, Attendance & Course stats | ✅ Fixed | Replaced mock values with real `supabase` DB queries across all dashboard pages. |
-| Uncontrolled input component warnings in Settings page | ✅ Fixed | Applied controlled state fallback logic (`value={nameValue || ''}`). |
-| React Hook Temporal Dead Zone (TDF) errors | ✅ Fixed | Hoisted function declarations appropriately above `useEffect` blocks. |
-| Strict type check errors blocking Next.js production builds | ✅ Fixed | Resolved ambiguous types, missing JSX namespaces, and fixed assignments ID typing. |
+| Feature / Fix | Status |
+|---|---|
+| **Admin Panel Overhaul** | Added User Detail Drawer, Global Broadcasts, and Dept Bar Charts |
+| **Pomodoro Timer** | Implemented global floating focus timer with localStorage persistence |
+| **Smart Sort (Assignments)** | Students can now auto-sort Kanban columns by urgency/deadline |
+| **Dashboard Analytics** | Added Recharts Area & Radial charts for attendance/study scores |
+| **UI Polish** | Added buttery-smooth fade animations to sidebar expansion |
+| **Settings Profile Sync** | Wired the settings form directly to the Supabase `profiles` table |
+| **Auth Fixes** | Purged split-brain mock auth, fully migrated to Supabase SSR sessions |
 
 ---
 

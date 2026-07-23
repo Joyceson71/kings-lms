@@ -99,7 +99,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       {/* Active pill indicator */}
       {active && expanded && (
         <span
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full"
+          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full animate-fade-in"
           style={{
             background: isAdmin
               ? 'linear-gradient(180deg, #fbbf24, #f59e0b)'
@@ -134,12 +134,12 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       />
 
       {expanded && (
-        <span className="flex-1 truncate">{item.name}</span>
+        <span className="flex-1 truncate animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>
       )}
 
       {expanded && isAdmin && (
         <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded-md tracking-wider"
+          className="text-[9px] font-bold px-1.5 py-0.5 rounded-md tracking-wider animate-fade-in"
           style={{ background: 'rgb(251 191 36 / 0.12)', color: '#fbbf24', border: '1px solid rgb(251 191 36 / 0.2)' }}
         >
           ADMIN
@@ -218,7 +218,7 @@ export function Sidebar() {
           </div>
           {expanded && (
             <span
-              className="text-[13px] font-bold tracking-tight text-white truncate"
+              className="text-[13px] font-bold tracking-tight text-white truncate animate-fade-in"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
               Kings EC
@@ -248,7 +248,7 @@ export function Sidebar() {
           return (
             <div key={section.label} className="mb-3">
               {expanded && (
-                <p className="px-3 mb-1.5 text-[9px] font-bold tracking-[0.15em] uppercase"
+                <p className="px-3 mb-1.5 text-[9px] font-bold tracking-[0.15em] uppercase animate-fade-in"
                   style={{ color: '#2d2d5e' }}>
                   {section.label}
                 </p>
@@ -306,7 +306,7 @@ export function Sidebar() {
                 } : {}}
               >
                 <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-slate-600 group-hover:text-slate-300')} />
-                {expanded && item.name}
+                {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>}
                 {!expanded && (
                   <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
                     style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
@@ -329,7 +329,7 @@ export function Sidebar() {
           )}
         >
           <LogOut className={cn('flex-shrink-0 text-slate-600 group-hover:text-red-400 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
-          {expanded && 'Logout'}
+          {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>Logout</span>}
           {!expanded && (
             <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
               style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
@@ -348,7 +348,7 @@ export function Sidebar() {
           <div className={cn('flex items-center', expanded ? 'gap-2.5' : 'justify-center')}>
             <div className="h-8 w-8 rounded-full skeleton flex-shrink-0" />
             {expanded && (
-              <div className="flex-1 space-y-1.5">
+              <div className="flex-1 space-y-1.5 animate-fade-in" style={{ animationDuration: '400ms' }}>
                 <div className="h-2 w-20 rounded skeleton" />
                 <div className="h-2 w-12 rounded skeleton" />
               </div>
@@ -358,7 +358,7 @@ export function Sidebar() {
           <div className={cn('flex items-center', expanded ? 'gap-2.5' : 'justify-center')}>
             <Avatar name={displayName} size="sm" ring="none" />
             {expanded && (
-              <div className="flex-1 min-w-0">
+              <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
                 <p className="text-[12px] font-semibold text-white/90 truncate">{displayName}</p>
                 <span
                   className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full capitalize tracking-wide"

@@ -76,6 +76,37 @@ export default async function AdminUsersPage() {
   const { count: enrollmentsCount } = await supabase.from('course_enrollments').select('*', { count: 'exact', head: true });
   const { count: departmentsCount } = await supabase.from('departments').select('*', { count: 'exact', head: true });
 
+  // Sessions started today
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const { count: todaySessions } = await supabase
+    .from('course_sessions')
+    .select('*', { count: 'exact', head: true })
+    .gte('started_at', todayStart.toISOString());
+
+  // Pending grading count (submitted assignments)
+  const { count: pendingGrading } = await supabase
+    .from('assignment_submissions')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'submitted');
+
+  // Department breakdown: count users per department
+  const { data: deptRaw } = await supabase
+    .from('profiles')
+    .select('department, role')
+    .not('department', 'is', null);
+  const deptMap: Record<string, { students: number; faculty: number }> = {};
+  for (const row of deptRaw ?? []) {
+    const dept = (row.department as string) || 'Unknown';
+    if (!deptMap[dept]) deptMap[dept] = { students: 0, faculty: 0 };
+    if (row.role === 'student') deptMap[dept].students++;
+    else if (row.role === 'faculty') deptMap[dept].faculty++;
+  }
+  const departmentBreakdown = Object.entries(deptMap)
+    .map(([dept, counts]) => ({ dept, ...counts, total: counts.students + counts.faculty }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 8);
+
   const systemStats = {
     courses: coursesCount || 0,
     sessions: sessionsCount || 0,
@@ -94,6 +125,12 @@ export default async function AdminUsersPage() {
         currentUserId={user.id}
         recentActivity={recentActivity}
         systemStats={systemStats}
+        healthMetrics={{
+          todaySessions: todaySessions ?? 0,
+          pendingGrading: pendingGrading ?? 0,
+          totalEnrollments: enrollmentsCount ?? 0,
+        }}
+        departmentBreakdown={departmentBreakdown}
       />
     </Suspense>
   );

@@ -11,7 +11,9 @@ import {
   ShieldCheck, UserCheck, MoreVertical, RefreshCw,
   Database, BookOpen, Activity,
   Search, Users, GraduationCap, Shield, UserX, UserCircle2,
-  Loader2, Download, ListChecks
+  Loader2, Download, ListChecks, Megaphone, X,
+  CalendarDays, Building2, Mail, Hash, Zap, ClipboardCheck,
+  BarChart2,
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -29,6 +31,9 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
+import {
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell,
+} from 'recharts';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -53,7 +58,9 @@ interface FormattedUser {
   role: UserRole;
   status: UserStatus;
   joined: string;
+  joinedRaw: string;
   department: string | null;
+  college: string | null;
 }
 
 export interface ActivityItem {
@@ -63,9 +70,12 @@ export interface ActivityItem {
   time: string;
 }
 
-// ─── Static display data (still mock — wired in a future analytics migration) ─
-
-// ─── Deleted mocked systemHealth ───
+interface DeptBreakpoint {
+  dept: string;
+  students: number;
+  faculty: number;
+  total: number;
+}
 
 // ─── Role Change Dialog ────────────────────────────────────────────────────────
 
@@ -211,6 +221,264 @@ function SuspendDialog({ user, onClose, onConfirm }: SuspendDialogProps) {
   );
 }
 
+// ─── NEW: User Detail Drawer ───────────────────────────────────────────────────
+
+function UserDetailDrawer({ user, onClose, isSelf, onChangeRole, onToggleStatus }: {
+  user: FormattedUser;
+  onClose: () => void;
+  isSelf: boolean;
+  onChangeRole: () => void;
+  onToggleStatus: () => void;
+}) {
+  const roleColor =
+    user.role === 'admin'   ? 'text-amber-400 bg-amber-500/10 border-amber-500/20' :
+    user.role === 'faculty' ? 'text-violet-400 bg-violet-500/10 border-violet-500/20' :
+                              'text-indigo-400 bg-indigo-500/10 border-indigo-500/20';
+
+  return (
+    <div
+      className="fixed inset-y-0 right-0 z-50 w-80 flex flex-col shadow-2xl animate-slide-in-right"
+      style={{ background: 'rgba(8,8,24,0.98)', borderLeft: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)' }}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <span className="text-[13px] font-bold text-white">User Profile</span>
+        <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+        {/* Avatar + name */}
+        <div className="flex flex-col items-center text-center py-2">
+          <Avatar
+            name={user.name}
+            size="xl"
+            className="h-20 w-20 text-2xl mb-3"
+            ring={user.role === 'admin' ? 'gold' : user.role === 'faculty' ? 'violet' : 'none'}
+          />
+          <p className="text-lg font-bold text-white leading-tight">{user.name}</p>
+          <p className="text-[12px] text-slate-500 mt-0.5">{user.email}</p>
+          {isSelf && <span className="mt-1 text-[11px] text-amber-400 font-semibold">(you)</span>}
+          <div className={`mt-2 px-3 py-1 rounded-full border text-[11px] font-semibold ${roleColor}`}>
+            {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+          </div>
+        </div>
+
+        {/* Detail rows */}
+        <div className="space-y-3">
+          {[
+            { icon: Mail, label: 'Email', value: user.email },
+            { icon: Building2, label: 'Department', value: user.department || '—' },
+            { icon: Hash, label: 'College', value: user.college || '—' },
+            { icon: CalendarDays, label: 'Joined', value: user.joined },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+              <Icon className="h-3.5 w-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">{label}</p>
+                <p className="text-[13px] text-slate-200 font-medium mt-0.5 break-all">{value}</p>
+              </div>
+            </div>
+          ))}
+
+          {/* Status */}
+          <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
+            <div className="flex items-center gap-2">
+              <div className={`h-2 w-2 rounded-full ${user.status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
+              <span className="text-[12px] font-semibold text-slate-300">
+                {user.status === 'active' ? 'Active Account' : 'Suspended'}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="p-4 space-y-2 border-t border-white/5">
+        <button
+          onClick={() => { onClose(); onChangeRole(); }}
+          className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-indigo-300 transition-all duration-200 hover:brightness-110"
+          style={{ background: 'rgba(129,140,248,0.1)', border: '1px solid rgba(129,140,248,0.2)' }}
+        >
+          <Shield className="h-3.5 w-3.5" />
+          Change Role
+        </button>
+        {!isSelf && (
+          <button
+            onClick={() => { onClose(); onToggleStatus(); }}
+            className={`w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px] font-semibold transition-all duration-200 hover:brightness-110 ${
+              user.status === 'active'
+                ? 'text-red-400'
+                : 'text-emerald-400'
+            }`}
+            style={{
+              background: user.status === 'active' ? 'rgba(248,113,113,0.08)' : 'rgba(52,211,153,0.08)',
+              border: user.status === 'active' ? '1px solid rgba(248,113,113,0.2)' : '1px solid rgba(52,211,153,0.2)',
+            }}
+          >
+            <UserX className="h-3.5 w-3.5" />
+            {user.status === 'active' ? 'Suspend User' : 'Reactivate User'}
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: Broadcast Announcement ─────────────────────────────────────────────
+
+function BroadcastPanel({ onClose }: { onClose: () => void }) {
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+
+  async function handleSend() {
+    if (!title.trim() || !content.trim()) return;
+    setStatus('sending');
+    try {
+      const res = await fetch('/api/admin/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.trim(), content: content.trim() }),
+      });
+      if (!res.ok) throw new Error('Failed');
+      setStatus('sent');
+      setTimeout(() => {
+        setTitle('');
+        setContent('');
+        setStatus('idle');
+        onClose();
+      }, 1800);
+    } catch {
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 3000);
+    }
+  }
+
+  return (
+    <div
+      className="fixed inset-y-0 right-0 z-50 w-96 flex flex-col shadow-2xl animate-slide-in-right"
+      style={{ background: 'rgba(8,8,24,0.98)', borderLeft: '1px solid rgba(255,255,255,0.08)', backdropFilter: 'blur(20px)' }}
+    >
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+        <div className="flex items-center gap-2">
+          <Megaphone className="h-4 w-4 text-amber-400" />
+          <span className="text-[13px] font-bold text-white">Broadcast Announcement</span>
+        </div>
+        <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      <div className="flex-1 p-5 space-y-4">
+        <div
+          className="p-3 rounded-xl text-[11px] text-amber-400 font-medium"
+          style={{ background: 'rgba(251,191,36,0.06)', border: '1px solid rgba(251,191,36,0.15)' }}
+        >
+          📢 This will create a global announcement visible to <strong>all users</strong> on the platform.
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <input
+            value={title}
+            onChange={e => setTitle(e.target.value)}
+            placeholder="e.g. Campus closed on Friday"
+            maxLength={120}
+            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+          <p className="text-[10px] text-slate-600 text-right">{title.length}/120</p>
+        </div>
+
+        <div className="space-y-1.5">
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Message</label>
+          <textarea
+            value={content}
+            onChange={e => setContent(e.target.value)}
+            placeholder="Write your announcement here…"
+            rows={6}
+            maxLength={1000}
+            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-white placeholder:text-slate-600 outline-none resize-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+          <p className="text-[10px] text-slate-600 text-right">{content.length}/1000</p>
+        </div>
+
+        {status === 'sent' && (
+          <div className="flex items-center gap-2 p-3 rounded-xl text-[12px] text-emerald-400 font-semibold" style={{ background: 'rgba(52,211,153,0.08)', border: '1px solid rgba(52,211,153,0.2)' }}>
+            ✓ Announcement broadcast successfully!
+          </div>
+        )}
+        {status === 'error' && (
+          <div className="flex items-center gap-2 p-3 rounded-xl text-[12px] text-red-400 font-semibold" style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)' }}>
+            ✗ Failed to send. Please try again.
+          </div>
+        )}
+      </div>
+
+      <div className="p-4 border-t border-white/5">
+        <button
+          onClick={handleSend}
+          disabled={!title.trim() || !content.trim() || status === 'sending' || status === 'sent'}
+          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-[13px] font-bold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:brightness-110 active:scale-[0.98]"
+          style={{ background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', color: '#04040c' }}
+        >
+          {status === 'sending'
+            ? <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>
+            : status === 'sent'
+            ? '✓ Sent!'
+            : <><Megaphone className="h-4 w-4" /> Broadcast to All Users</>}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── NEW: Department Breakdown Chart ─────────────────────────────────────────
+
+function DeptChart({ data }: { data: DeptBreakpoint[] }) {
+  if (!data.length) {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 text-center">
+        <BarChart2 className="h-8 w-8 text-slate-600/50 mb-2" />
+        <p className="text-[12px] text-slate-500">No department data yet</p>
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={180}>
+      <BarChart data={data} margin={{ top: 4, right: 4, left: -24, bottom: 0 }}>
+        <XAxis
+          dataKey="dept"
+          tick={{ fontSize: 9, fill: '#64748b' }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis
+          tick={{ fontSize: 9, fill: '#64748b' }}
+          axisLine={false}
+          tickLine={false}
+          allowDecimals={false}
+        />
+        <Tooltip
+          contentStyle={{ background: '#0c0c20', border: '1px solid #1a1a2e', borderRadius: '10px', fontSize: '11px', color: '#e8eaf6' }}
+          cursor={{ fill: 'rgba(255,255,255,0.03)' }}
+        />
+        <Bar dataKey="students" name="Students" stackId="a" fill="#818cf8" radius={[0, 0, 0, 0]}>
+          {data.map((_, i) => <Cell key={i} fill="#818cf8" fillOpacity={0.85} />)}
+        </Bar>
+        <Bar dataKey="faculty" name="Faculty" stackId="a" fill="#a78bfa" radius={[4, 4, 0, 0]}>
+          {data.map((_, i) => <Cell key={i} fill="#a78bfa" fillOpacity={0.85} />)}
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+}
+
 // ─── Main Component ────────────────────────────────────────────────────────────
 
 export default function AdminUsersClient({
@@ -218,11 +486,15 @@ export default function AdminUsersClient({
   currentUserId,
   recentActivity = [],
   systemStats = { courses: 0, sessions: 0, enrollments: 0, departments: 0 },
+  healthMetrics = { todaySessions: 0, pendingGrading: 0, totalEnrollments: 0 },
+  departmentBreakdown = [],
 }: {
   initialUsers: RawUser[];
   currentUserId: string;
   recentActivity?: ActivityItem[];
   systemStats?: { courses: number; sessions: number; enrollments: number; departments: number };
+  healthMetrics?: { todaySessions: number; pendingGrading: number; totalEnrollments: number };
+  departmentBreakdown?: DeptBreakpoint[];
 }) {
   const router = useRouter();
 
@@ -235,13 +507,17 @@ export default function AdminUsersClient({
       role: u.role,
       status: u.status ?? 'active',
       joined: new Date(u.created_at).toLocaleDateString('en-IN'),
+      joinedRaw: u.created_at,
       department: u.department ?? null,
+      college: u.college ?? null,
     }))
   );
 
-  // ── Dialog state ──
+  // ── Dialog / drawer state ──
   const [roleDialogUser, setRoleDialogUser] = useState<FormattedUser | null>(null);
   const [suspendDialogUser, setSuspendDialogUser] = useState<FormattedUser | null>(null);
+  const [detailUser, setDetailUser] = useState<FormattedUser | null>(null);
+  const [showBroadcast, setShowBroadcast] = useState(false);
 
   // ── Selection state ──
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
@@ -265,14 +541,12 @@ export default function AdminUsersClient({
   }
 
   async function handleRoleChange(user: FormattedUser, newRole: UserRole) {
-    // Optimistic update
     setUsers((prev) =>
       prev.map((u) => (u.id === user.id ? { ...u, role: newRole } : u))
     );
     try {
       await patchUser(user.id, { role: newRole });
     } catch (err) {
-      // Rollback
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, role: user.role } : u))
       );
@@ -282,14 +556,12 @@ export default function AdminUsersClient({
 
   async function handleStatusToggle(user: FormattedUser) {
     const newStatus: UserStatus = user.status === 'active' ? 'suspended' : 'active';
-    // Optimistic update
     setUsers((prev) =>
       prev.map((u) => (u.id === user.id ? { ...u, status: newStatus } : u))
     );
     try {
       await patchUser(user.id, { status: newStatus });
     } catch (err) {
-      // Rollback
       setUsers((prev) =>
         prev.map((u) => (u.id === user.id ? { ...u, status: user.status } : u))
       );
@@ -299,11 +571,11 @@ export default function AdminUsersClient({
 
   // ── Bulk Actions & Export ──
   function exportCSV() {
-    const headers = ['Name', 'Email', 'Role', 'Status', 'Joined', 'Department'];
+    const headers = ['Name', 'Email', 'Role', 'Status', 'Joined', 'Department', 'College'];
     const csvContent = [
       headers.join(','),
-      ...filtered.map(u => 
-        `"${u.name}","${u.email}","${u.role}","${u.status}","${u.joined}","${u.department || ''}"`
+      ...filtered.map(u =>
+        `"${u.name}","${u.email}","${u.role}","${u.status}","${u.joined}","${u.department || ''}","${u.college || ''}"`
       )
     ].join('\n');
 
@@ -334,8 +606,7 @@ export default function AdminUsersClient({
     try {
       const ids = Array.from(selectedUsers);
       await Promise.all(ids.map(id => patchUser(id, { status: targetStatus })));
-      
-      setUsers(prev => prev.map(u => 
+      setUsers(prev => prev.map(u =>
         selectedUsers.has(u.id) ? { ...u, status: targetStatus } : u
       ));
       setSelectedUsers(new Set());
@@ -349,11 +620,11 @@ export default function AdminUsersClient({
 
   // ── Derived stats ──
   const stats = useMemo(() => ({
-    total:    users.length,
-    students: users.filter((u) => u.role === 'student').length,
-    faculty:  users.filter((u) => u.role === 'faculty').length,
-    admins:   users.filter((u) => u.role === 'admin').length,
-    active:   users.filter((u) => u.status === 'active').length,
+    total:     users.length,
+    students:  users.filter((u) => u.role === 'student').length,
+    faculty:   users.filter((u) => u.role === 'faculty').length,
+    admins:    users.filter((u) => u.role === 'admin').length,
+    active:    users.filter((u) => u.status === 'active').length,
     suspended: users.filter((u) => u.status === 'suspended').length,
   }), [users]);
 
@@ -375,7 +646,7 @@ export default function AdminUsersClient({
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
 
       {/* ── Header ── */}
       <div
@@ -393,6 +664,16 @@ export default function AdminUsersClient({
         </div>
         <div className="flex items-center gap-2">
           <Badge variant="admin" dot>Administrator</Badge>
+          {/* Broadcast Button */}
+          <button
+            onClick={() => { setShowBroadcast(true); setDetailUser(null); }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[12px] font-semibold border transition-all duration-200 hover:brightness-110"
+            style={{ background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)', color: '#fbbf24' }}
+            title="Broadcast a global announcement"
+          >
+            <Megaphone className="h-3.5 w-3.5" />
+            Broadcast
+          </button>
           <Button
             variant="outline"
             size="sm"
@@ -406,10 +687,34 @@ export default function AdminUsersClient({
         </div>
       </div>
 
+      {/* ── Platform Health Bar ── */}
+      <div
+        className="grid grid-cols-3 gap-3 animate-slide-in-up opacity-0"
+        style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}
+      >
+        {[
+          { label: 'Sessions Today', value: healthMetrics.todaySessions, icon: Zap, color: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.2)' },
+          { label: 'Pending Grading', value: healthMetrics.pendingGrading, icon: ClipboardCheck, color: 'text-amber-400', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.2)' },
+          { label: 'Total Enrollments', value: healthMetrics.totalEnrollments, icon: GraduationCap, color: 'text-indigo-400', bg: 'rgba(129,140,248,0.08)', border: 'rgba(129,140,248,0.2)' },
+        ].map(({ label, value, icon: Icon, color, bg, border }) => (
+          <div
+            key={label}
+            className="flex items-center gap-3 px-4 py-3 rounded-2xl"
+            style={{ background: bg, border: `1px solid ${border}` }}
+          >
+            <Icon className={`h-4 w-4 flex-shrink-0 ${color}`} />
+            <div>
+              <p className="text-xl font-black text-white leading-none">{value}</p>
+              <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{label}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* ── Live Stat Cards ── */}
       <div
         className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-slide-in-up opacity-0"
-        style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
+        style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
       >
         {statCards.map((card) => (
           <div key={card.label} className="bg-[#111113]/80 backdrop-blur-xl border border-[#1f1f23] hover:border-white/10 hover:bg-[#151518]/90 transition-all duration-300 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md">
@@ -430,7 +735,7 @@ export default function AdminUsersClient({
         {/* ── User Management Table ── */}
         <div
           className="lg:col-span-2 animate-slide-in-up opacity-0"
-          style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
+          style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
         >
           <div className="bg-[#111113]/80 backdrop-blur-xl border border-[#1f1f23] rounded-2xl overflow-hidden shadow-sm">
             {/* Table Header */}
@@ -505,8 +810,8 @@ export default function AdminUsersClient({
 
             {/* Column headers */}
             <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 px-5 py-3 bg-secondary/10 border-b border-border/20 items-center">
-              <input 
-                type="checkbox" 
+              <input
+                type="checkbox"
                 checked={selectedUsers.size > 0 && selectedUsers.size === filtered.length}
                 onChange={toggleAll}
                 className="w-4 h-4 rounded border-border/50 bg-background/50 accent-primary"
@@ -528,16 +833,18 @@ export default function AdminUsersClient({
                 filtered.map((user, i) => (
                   <div
                     key={user.id}
-                    className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 px-5 py-3.5 items-center transition-colors animate-fade-in opacity-0 ${
-                      user.status === 'suspended' ? 'bg-red-500/3 hover:bg-red-500/5' : 
+                    className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 px-5 py-3.5 items-center transition-colors animate-fade-in opacity-0 cursor-pointer ${
+                      user.status === 'suspended' ? 'bg-red-500/3 hover:bg-red-500/5' :
                       selectedUsers.has(user.id) ? 'bg-primary/5 hover:bg-primary/10' : 'hover:bg-secondary/15'
                     }`}
-                    style={{ animationDelay: `${200 + i * 35}ms`, animationFillMode: 'forwards' }}
+                    style={{ animationDelay: `${240 + i * 35}ms`, animationFillMode: 'forwards' }}
+                    onClick={() => { setDetailUser(user); setShowBroadcast(false); }}
                   >
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={selectedUsers.has(user.id)}
                       onChange={() => toggleSelection(user.id)}
+                      onClick={e => e.stopPropagation()}
                       className="w-4 h-4 rounded border-border/50 bg-background/50 accent-primary"
                     />
                     {/* Avatar + Name */}
@@ -578,6 +885,7 @@ export default function AdminUsersClient({
                       <DropdownMenuTrigger
                         className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         aria-label={`More options for ${user.name}`}
+                        onClick={e => e.stopPropagation()}
                       >
                         <MoreVertical className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
@@ -586,8 +894,14 @@ export default function AdminUsersClient({
                           Actions
                         </div>
                         <DropdownMenuItem
+                          onClick={(e) => { e.stopPropagation(); setDetailUser(user); setShowBroadcast(false); }}
+                        >
+                          <UserCircle2 className="h-3.5 w-3.5 mr-2 text-indigo-400" />
+                          View Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
                           id={`admin-change-role-${user.id}`}
-                          onClick={() => setRoleDialogUser(user)}
+                          onClick={(e) => { e.stopPropagation(); setRoleDialogUser(user); }}
                         >
                           <Shield className="h-3.5 w-3.5 mr-2 text-amber-400" />
                           Change Role
@@ -599,7 +913,7 @@ export default function AdminUsersClient({
                           className={user.status === 'active'
                             ? 'text-destructive focus:bg-destructive/10 focus:text-destructive'
                             : 'text-emerald-400 focus:bg-emerald-500/10 focus:text-emerald-400'}
-                          onClick={() => setSuspendDialogUser(user)}
+                          onClick={(e) => { e.stopPropagation(); setSuspendDialogUser(user); }}
                         >
                           <UserX className="h-3.5 w-3.5 mr-2" />
                           {user.status === 'active' ? 'Suspend User' : 'Reactivate User'}
@@ -616,8 +930,20 @@ export default function AdminUsersClient({
         {/* ── Right Column ── */}
         <div
           className="space-y-5 animate-slide-in-up opacity-0"
-          style={{ animationDelay: '350ms', animationFillMode: 'forwards' }}
+          style={{ animationDelay: '400ms', animationFillMode: 'forwards' }}
         >
+          {/* Department Breakdown Chart */}
+          <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-base font-bold text-foreground">Dept. Breakdown</h2>
+              <div className="flex items-center gap-3 text-[10px] text-slate-500">
+                <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-full bg-indigo-400" />Students</div>
+                <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-full bg-violet-400" />Faculty</div>
+              </div>
+            </div>
+            <DeptChart data={departmentBreakdown} />
+          </div>
+
           {/* System Overview */}
           <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
             <div className="flex items-center justify-between mb-5">
@@ -656,7 +982,7 @@ export default function AdminUsersClient({
               {recentActivity.map((activity) => {
                 const Icon = activity.type === 'user' ? UserCheck : activity.type === 'course' ? BookOpen : Database;
                 const color = activity.type === 'user' ? 'text-emerald-400' : activity.type === 'course' ? 'text-indigo-400' : 'text-amber-400';
-                
+
                 return (
                   <div key={activity.id} className="flex items-start gap-3">
                     <div className="h-7 w-7 rounded-lg bg-secondary flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -684,21 +1010,24 @@ export default function AdminUsersClient({
       {/* ── Quick Actions ── */}
       <div
         className="animate-slide-in-up opacity-0"
-        style={{ animationDelay: '500ms', animationFillMode: 'forwards' }}
+        style={{ animationDelay: '560ms', animationFillMode: 'forwards' }}
       >
         <div className="bg-[#111113] border border-[#1f1f23] rounded-2xl p-5">
           <h2 className="text-base font-bold text-foreground mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'Add Course',    icon: BookOpen,    id: 'admin-add-course',    href: '/dashboard/courses' },
-              { label: 'Manage Roles',  icon: ShieldCheck, id: 'admin-manage-roles',  href: null },
+              { label: 'Broadcast',     icon: Megaphone,   id: 'admin-broadcast',     href: null, action: () => { setShowBroadcast(true); setDetailUser(null); } },
               { label: 'View Reports',  icon: Activity,    id: 'admin-view-reports',  href: '/dashboard/reports' },
-              { label: 'System Backup', icon: Database,    id: 'admin-backup',        href: null },
+              { label: 'Departments',   icon: Building2,   id: 'admin-departments',   href: '/dashboard/admin/departments' },
             ].map((action) => (
               <button
                 key={action.id}
                 id={action.id}
-                onClick={() => action.href ? router.push(action.href) : alert(`"${action.label}" coming soon!`)}
+                onClick={() => {
+                  if (action.action) action.action();
+                  else if (action.href) router.push(action.href);
+                }}
                 className="flex flex-col items-center gap-2 p-4 rounded-xl border border-border/30 bg-background/20 hover:bg-primary/5 hover:border-primary/30 transition-all duration-200 hover:-translate-y-0.5 text-center"
               >
                 <div className="h-9 w-9 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -733,6 +1062,34 @@ export default function AdminUsersClient({
           />
         )}
       </Dialog>
+
+      {/* ── User Detail Drawer (slide-in) ── */}
+      {detailUser && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            onClick={() => setDetailUser(null)}
+          />
+          <UserDetailDrawer
+            user={detailUser}
+            onClose={() => setDetailUser(null)}
+            isSelf={detailUser.id === currentUserId}
+            onChangeRole={() => setRoleDialogUser(detailUser)}
+            onToggleStatus={() => setSuspendDialogUser(detailUser)}
+          />
+        </>
+      )}
+
+      {/* ── Broadcast Announcement Drawer ── */}
+      {showBroadcast && (
+        <>
+          <div
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowBroadcast(false)}
+          />
+          <BroadcastPanel onClose={() => setShowBroadcast(false)} />
+        </>
+      )}
     </div>
   );
 }

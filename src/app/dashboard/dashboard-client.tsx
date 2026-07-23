@@ -11,9 +11,10 @@ import {
   ScanLine, Bell, ChevronRight, Flame,
 } from 'lucide-react';
 import Link from 'next/link';
-
-// ─── Fallback mock data (used when real data has no results yet) ────────────
-// (Removed to show fresh empty states for new users instead of fake data)
+import {
+  AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer,
+  RadialBarChart, RadialBar, Cell,
+} from 'recharts';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 type CourseWithAttendance = {
@@ -34,6 +35,9 @@ interface StudentData {
   pendingAssignments: PendingAssignment[];
   notifications: Notification[];
 }
+
+interface TrendPoint { date: string; rate: number; present: number; total: number }
+interface AssignmentBreakdown { pending: number; submitted: number; graded: number }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 function getAttendanceColor(rate: number): 'emerald' | 'gold' | 'red' | 'violet' {
@@ -194,15 +198,230 @@ function CourseAttendanceCard({ course }: { course: CourseWithAttendance }) {
   );
 }
 
+// ─── Attendance Trend Chart ───────────────────────────────────────────────────
+function AttendanceTrendChart({ data }: { data: TrendPoint[] }) {
+  const hasData = data.some(d => d.total > 0);
+
+  if (!hasData) {
+    return (
+      <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+        <TrendingUp className="h-8 w-8 text-slate-600/50 mb-2" />
+        <p className="text-[12px] font-medium text-slate-400">Not enough data yet</p>
+        <p className="text-[10px] text-slate-600 mt-1">Attendance trend will appear once sessions start</p>
+      </div>
+    );
+  }
+
+  return (
+    <ResponsiveContainer width="100%" height={200}>
+      <AreaChart data={data} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
+        <defs>
+          <linearGradient id="attendanceGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor="#818cf8" stopOpacity={0.25} />
+            <stop offset="95%" stopColor="#818cf8" stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        <XAxis
+          dataKey="date"
+          tick={{ fontSize: 10, fill: '#64748b' }}
+          axisLine={false}
+          tickLine={false}
+        />
+        <YAxis
+          domain={[0, 100]}
+          tick={{ fontSize: 10, fill: '#64748b' }}
+          axisLine={false}
+          tickLine={false}
+          tickFormatter={(v) => `${v}%`}
+        />
+        <Tooltip
+          contentStyle={{
+            background: '#0c0c20',
+            border: '1px solid #1a1a2e',
+            borderRadius: '10px',
+            fontSize: '11px',
+            color: '#e8eaf6',
+          }}
+          formatter={(value: any) => [`${value}%`, 'Rate']}
+
+          labelStyle={{ color: '#94a3b8', marginBottom: 4 }}
+        />
+        <Area
+          type="monotone"
+          dataKey="rate"
+          stroke="#818cf8"
+          strokeWidth={2}
+          fill="url(#attendanceGrad)"
+          dot={{ r: 3, fill: '#818cf8', strokeWidth: 0 }}
+          activeDot={{ r: 5, fill: '#818cf8', stroke: '#04040c', strokeWidth: 2 }}
+        />
+      </AreaChart>
+    </ResponsiveContainer>
+  );
+}
+
+// ─── Tasks Donut Chart ────────────────────────────────────────────────────────
+function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBreakdown; isStudent: boolean }) {
+  const total = breakdown.pending + breakdown.submitted + breakdown.graded;
+
+  if (total === 0) {
+    return (
+      <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
+        <CheckCircle className="h-8 w-8 text-slate-600/50 mb-2" />
+        <p className="text-[12px] font-medium text-slate-400">No assignments yet</p>
+      </div>
+    );
+  }
+
+  const chartData = [
+    { name: 'Graded', value: breakdown.graded, color: '#34d399' },
+    { name: 'Submitted', value: breakdown.submitted, color: '#818cf8' },
+    { name: 'Pending', value: breakdown.pending, color: '#fbbf24' },
+  ].filter(d => d.value > 0);
+
+  return (
+    <div className="flex-1 flex flex-col">
+      <div style={{ height: 160 }}>
+        <ResponsiveContainer width="100%" height="100%">
+          <RadialBarChart
+            cx="50%"
+            cy="50%"
+            innerRadius="40%"
+            outerRadius="85%"
+            data={chartData}
+            startAngle={90}
+            endAngle={-270}
+          >
+            <RadialBar dataKey="value" cornerRadius={4} background={{ fill: '#0f0f28' }}>
+              {chartData.map((entry, index) => (
+                <Cell key={index} fill={entry.color} />
+              ))}
+            </RadialBar>
+            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fill="#e8eaf6" fontSize={22} fontWeight={800}>
+              {total}
+            </text>
+            <text x="50%" y="50%" dy={18} textAnchor="middle" dominantBaseline="middle" fill="#64748b" fontSize={9}>
+              total
+            </text>
+          </RadialBarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-2 space-y-1.5">
+        {[
+          { label: isStudent ? 'Graded' : 'Graded', count: breakdown.graded, color: 'bg-emerald-400' },
+          { label: 'Submitted', count: breakdown.submitted, color: 'bg-indigo-400' },
+          { label: 'Pending', count: breakdown.pending, color: 'bg-amber-400' },
+        ].map(({ label, count, color }) => (
+          <div key={label} className="flex items-center justify-between text-[11px]">
+            <div className="flex items-center gap-1.5">
+              <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
+              <span className="text-slate-400">{label}</span>
+            </div>
+            <span className="font-semibold text-slate-300">{count}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Streak & Study Score Widget ──────────────────────────────────────────────
+function StreakWidget({ streak, studyScore }: { streak: number; studyScore: number }) {
+  const scoreColor =
+    studyScore >= 80 ? 'text-emerald-400' :
+    studyScore >= 60 ? 'text-amber-400' : 'text-red-400';
+  const scoreGrad =
+    studyScore >= 80 ? 'linear-gradient(90deg, #34d399, transparent)' :
+    studyScore >= 60 ? 'linear-gradient(90deg, #fbbf24, transparent)' :
+    'linear-gradient(90deg, #f87171, transparent)';
+
+  return (
+    <div
+      className="bento-card p-5 animate-slide-in-up opacity-0"
+      style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
+    >
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          My Progress
+        </h2>
+        <Flame className="h-4 w-4 text-rose-400 animate-pulse" />
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        {/* Streak */}
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{ background: 'rgb(244 63 94 / 0.06)', border: '1px solid rgb(244 63 94 / 0.15)' }}
+        >
+          <div className="text-3xl font-black text-white mb-0.5 leading-none">
+            {streak}
+          </div>
+          <p className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider flex items-center justify-center gap-1">
+            <Flame className="h-2.5 w-2.5" />Day Streak
+          </p>
+          <p className="text-[9px] text-slate-600 mt-1">
+            {streak === 0 ? 'Start today!' : streak === 1 ? 'Keep it going!' : `${streak} days strong`}
+          </p>
+        </div>
+
+        {/* Study Score */}
+        <div
+          className="rounded-xl p-3 text-center"
+          style={{ background: 'rgb(129 140 248 / 0.06)', border: '1px solid rgb(129 140 248 / 0.15)' }}
+        >
+          <div className={`text-3xl font-black mb-0.5 leading-none ${scoreColor}`}>
+            {studyScore}
+          </div>
+          <p className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">
+            Study Score
+          </p>
+          <p className="text-[9px] text-slate-600 mt-1">
+            {studyScore >= 80 ? 'Excellent!' : studyScore >= 60 ? 'Good work' : 'Needs attention'}
+          </p>
+        </div>
+      </div>
+
+      {/* Score bar */}
+      <div className="mt-3">
+        <div className="flex justify-between text-[9px] text-slate-600 mb-1">
+          <span>Score breakdown</span>
+          <span>60% attend · 40% tasks</span>
+        </div>
+        <div className="h-1 rounded-full bg-white/5 overflow-hidden">
+          <div
+            className="h-full rounded-full transition-all duration-1000"
+            style={{ width: `${studyScore}%`, background: scoreGrad }}
+          />
+        </div>
+      </div>
+
+      <Link
+        href="/dashboard/leaderboard"
+        className="mt-3 flex items-center justify-center gap-1 text-[11px] text-slate-500 hover:text-indigo-400 transition-colors pt-3 border-t border-[#1a1a2e]"
+      >
+        View Leaderboard <ChevronRight className="h-3 w-3" />
+      </Link>
+    </div>
+  );
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 export default function DashboardClient({
   stats,
   profile,
   studentData,
+  attendanceTrend,
+  assignmentBreakdown,
+  streak,
+  studyScore,
 }: {
   stats: any;
   profile: any;
   studentData: StudentData | null;
+  attendanceTrend: TrendPoint[];
+  assignmentBreakdown: AssignmentBreakdown;
+  streak: number;
+  studyScore: number;
 }) {
   const { loading, displayName } = useUser();
   const isStudent = profile?.role === 'student' || !profile?.role;
@@ -443,7 +662,7 @@ export default function DashboardClient({
         </div>
       )}
 
-      {/* ── Charts Row (Faculty view or student analytics) ── */}
+      {/* ── Charts Row ── */}
       <div
         className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
         style={{ animationDelay: '360ms', animationFillMode: 'forwards' }}
@@ -459,25 +678,61 @@ export default function DashboardClient({
             </div>
             <Badge variant="secondary">7 days</Badge>
           </div>
-          <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-            <TrendingUp className="h-8 w-8 text-slate-600/50 mb-2" />
-            <p className="text-[12px] font-medium text-slate-400">Not enough data yet</p>
-          </div>
+          <AttendanceTrendChart data={attendanceTrend} />
+
         </div>
 
-        {/* Tasks donut */}
+        {/* Tasks donut — 1/3 width */}
         <div className="bento-card p-5 flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {isStudent ? 'Tasks' : 'Grading'}
             </h2>
+            <Link href="/dashboard/assignments" className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-0.5">
+              View <ChevronRight className="h-3 w-3" />
+            </Link>
           </div>
-          <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-            <CheckCircle className="h-8 w-8 text-slate-600/50 mb-2" />
-            <p className="text-[12px] font-medium text-slate-400">No active tasks</p>
-          </div>
+          <TasksDonut breakdown={assignmentBreakdown} isStudent={isStudent} />
         </div>
       </div>
+
+      {/* ── Student: Streak Widget + Quick Actions row ── */}
+      {isStudent && (
+        <div
+          className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
+          style={{ animationDelay: '440ms', animationFillMode: 'forwards' }}
+        >
+          {/* Streak + Study Score */}
+          <StreakWidget streak={streak} studyScore={studyScore} />
+
+          {/* Quick Actions — 2/3 width */}
+          <div className="lg:col-span-2 bento-card p-5">
+            <h2 className="text-[15px] font-bold text-white mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              Quick Actions
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {[
+                { label: 'Scan QR', icon: ScanLine, href: '/dashboard/attendance', color: 'text-emerald-400', bg: 'rgb(52 211 153 / 0.08)', border: 'rgb(52 211 153 / 0.2)' },
+                { label: 'Assignments', icon: ClipboardList, href: '/dashboard/assignments', color: 'text-amber-400', bg: 'rgb(251 191 36 / 0.08)', border: 'rgb(251 191 36 / 0.2)' },
+                { label: 'Courses', icon: BookOpen, href: '/dashboard/courses', color: 'text-indigo-400', bg: 'rgb(129 140 248 / 0.08)', border: 'rgb(129 140 248 / 0.2)' },
+                { label: 'Leaderboard', icon: Flame, href: '/dashboard/leaderboard', color: 'text-rose-400', bg: 'rgb(244 63 94 / 0.08)', border: 'rgb(244 63 94 / 0.2)' },
+              ].map(({ label, icon: Icon, href, color, bg, border }) => (
+                <Link
+                  key={label}
+                  href={href}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:brightness-110 transition-all duration-200 active:scale-95 group"
+                  style={{ background: bg, borderColor: border }}
+                >
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style={{ background: bg }}>
+                    <Icon className={`h-5 w-5 ${color}`} />
+                  </div>
+                  <span className="text-[12px] font-semibold text-slate-300">{label}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Faculty: Performance + Sessions Row ── */}
       {!isStudent && (
@@ -505,40 +760,6 @@ export default function DashboardClient({
             <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5 py-8">
               <Users className="h-8 w-8 text-slate-600/50 mb-2" />
               <p className="text-[12px] font-medium text-slate-400">No active students</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Quick Actions (students only) ── */}
-      {isStudent && (
-        <div
-          className="animate-slide-in-up opacity-0"
-          style={{ animationDelay: '440ms', animationFillMode: 'forwards' }}
-        >
-          <div className="bento-card p-5">
-            <h2 className="text-[15px] font-bold text-white mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Quick Actions
-            </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: 'Scan QR', icon: ScanLine, href: '/dashboard/attendance', color: 'text-emerald-400', bg: 'rgb(52 211 153 / 0.08)', border: 'rgb(52 211 153 / 0.2)' },
-                { label: 'Assignments', icon: ClipboardList, href: '/dashboard/assignments', color: 'text-amber-400', bg: 'rgb(251 191 36 / 0.08)', border: 'rgb(251 191 36 / 0.2)' },
-                { label: 'Courses', icon: BookOpen, href: '/dashboard/courses', color: 'text-indigo-400', bg: 'rgb(129 140 248 / 0.08)', border: 'rgb(129 140 248 / 0.2)' },
-                { label: 'Leaderboard', icon: Flame, href: '/dashboard/leaderboard', color: 'text-rose-400', bg: 'rgb(244 63 94 / 0.08)', border: 'rgb(244 63 94 / 0.2)' },
-              ].map(({ label, icon: Icon, href, color, bg, border }) => (
-                <Link
-                  key={label}
-                  href={href}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:brightness-110 transition-all duration-200 active:scale-95 group"
-                  style={{ background: bg, borderColor: border }}
-                >
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style={{ background: bg }}>
-                    <Icon className={`h-5 w-5 ${color}`} />
-                  </div>
-                  <span className="text-[12px] font-semibold text-slate-300">{label}</span>
-                </Link>
-              ))}
             </div>
           </div>
         </div>

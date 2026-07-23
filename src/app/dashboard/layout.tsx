@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Header } from '@/components/layout/header';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
+import { PomodoroTimer } from '@/components/ui/pomodoro-timer';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -49,6 +50,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
       {/* Mobile bottom navigation */}
       <BottomNav />
+
+      {/* Floating Pomodoro Focus Timer — available on all dashboard pages */}
+      <PomodoroTimer />
     </SidebarProvider>
   );
 }

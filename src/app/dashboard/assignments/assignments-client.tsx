@@ -3,8 +3,9 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText, Star, Loader2 } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText, Star, Loader2, Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
+
 import { SubmissionModal } from '@/components/assignments/submission-modal';
 import { CreateAssignmentModal } from '@/components/assignments/create-assignment-modal';
 import { createClient } from '@/lib/supabase/client';
@@ -58,6 +59,26 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
   const [gradeInput, setGradeInput] = useState('');
   const [feedbackInput, setFeedbackInput] = useState('');
   const [isSavingGrade, setIsSavingGrade] = useState(false);
+  const [smartSort, setSmartSort] = useState(false);
+
+  // ─── Smart Sort: urgency score (higher = more urgent) ────────────────────
+  const urgencyScore = (a: Assignment): number => {
+    if (a.status !== 'pending') return 0;
+    const due = new Date(a.due).getTime();
+    const now = Date.now();
+    if (isNaN(due)) return 0;
+    const daysUntilDue = (due - now) / 86400000;
+    if (daysUntilDue < 0) return 1000 + Math.abs(daysUntilDue); // overdue → top priority
+    return 100 - daysUntilDue; // closer deadline → higher score
+  };
+
+  const grouped = (key: AssignmentStatus) => {
+    const items = assignments.filter(a => a.status === key);
+    if (smartSort && key === 'pending') {
+      return [...items].sort((a, b) => urgencyScore(b) - urgencyScore(a));
+    }
+    return items;
+  };
 
   const handleGradeSubmit = async (assignment: Assignment) => {
     const grade = parseInt(gradeInput, 10);
@@ -102,8 +123,6 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
     window.location.reload();
   };
 
-  const grouped = (key: AssignmentStatus) => assignments.filter((a) => a.status === key);
-
   return (
     <div className="space-y-6 max-w-6xl mx-auto">
       {/* Header */}
@@ -116,17 +135,48 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
             {grouped('pending').length} pending · {grouped('submitted').length} submitted · {grouped('graded').length} graded
           </p>
         </div>
-        {isFaculty && (
-          <Button
-            id="add-assignment-btn"
-            className="group"
-            onClick={() => setIsCreateModalOpen(true)}
-          >
-            <Plus className="mr-1.5 h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-300" />
-            New Assignment
-          </Button>
-        )}
+        <div className="flex items-center gap-2">
+          {/* Smart Sort toggle — students only */}
+          {!isFaculty && (
+            <button
+              onClick={() => setSmartSort(s => !s)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all duration-200 ${
+                smartSort
+                  ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
+                  : 'bg-transparent border-[#1f1f23] text-zinc-500 hover:text-zinc-300 hover:border-[#2a2a2e]'
+              }`}
+              title="Sort pending assignments by urgency: overdue first, then by closest deadline"
+            >
+              {smartSort ? <X className="h-3 w-3" /> : <Sparkles className="h-3 w-3" />}
+              Smart Sort
+              {smartSort && (
+                <span className="ml-1 h-1.5 w-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              )}
+            </button>
+          )}
+          {isFaculty && (
+            <Button
+              id="add-assignment-btn"
+              className="group"
+              onClick={() => setIsCreateModalOpen(true)}
+            >
+              <Plus className="mr-1.5 h-3.5 w-3.5 group-hover:rotate-90 transition-transform duration-300" />
+              New Assignment
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Smart Sort info banner */}
+      {smartSort && !isFaculty && (
+        <div
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[12px] text-indigo-300 animate-fade-in opacity-0"
+          style={{ background: 'rgb(99 102 241 / 0.06)', border: '1px solid rgb(99 102 241 / 0.15)', animationFillMode: 'forwards' }}
+        >
+          <Sparkles className="h-3.5 w-3.5 flex-shrink-0" />
+          <span>Pending assignments sorted by urgency — overdue first, then closest deadline.</span>
+        </div>
+      )}
 
       {/* Kanban board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

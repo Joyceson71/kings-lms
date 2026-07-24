@@ -56,8 +56,65 @@
   --color-cyan-glow: var(--cyan-glow);
 }
 
-/* ─── COSMIC MIDNIGHT — Deep Dark Theme ──────────────────── */
+/* ─── Base Light Theme (Default) ──────────────────── */
 :root {
+  --background:         #f8f9ff;
+  --foreground:         #1e1b4b;
+  --card:               #ffffff;
+  --card-foreground:    #1e1b4b;
+  --popover:            #ffffff;
+  --popover-foreground: #1e1b4b;
+  
+  --primary:            #6366f1;
+  --primary-foreground: #ffffff;
+  
+  --secondary:          #f0f0ff;
+  --secondary-foreground:#3730a3;
+  
+  --muted:              #eff0ff;
+  --muted-foreground:   #6b7280;
+  
+  --accent:             #06b6d4;
+  --accent-foreground:  #ffffff;
+  
+  --destructive:        #dc2626;
+  
+  --border:             #e0e0ff;
+  --input:              #e0e0ff;
+  --ring:               #6366f1;
+  --radius:             0.625rem;
+
+  --gold:               #f59e0b;
+  --gold-muted:         rgb(245 158 11 / 0.12);
+  --violet:             #6366f1;
+  --violet-glow:        rgb(99 102 241 / 0.2);
+  --emerald-glow:       rgb(16 185 129 / 0.2);
+  --cyan:               #06b6d4;
+  --cyan-glow:          rgb(6 182 212 / 0.2);
+
+  --sidebar:            #f0f0ff;
+  --sidebar-foreground: #1e1b4b;
+  --sidebar-primary:    #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:     #e0e0ff;
+  --sidebar-accent-foreground:  #3730a3;
+  --sidebar-border:     #e0e0ff;
+  --sidebar-ring:       #6366f1;
+
+  --chart-1: #6366f1;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #06b6d4;
+
+  --primary-glow: rgb(99 102 241 / 0.2);
+  --glass-bg:     rgb(255 255 255 / 0.92);
+  --glass-border: #e0e0ff;
+  --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.05), 0 0 0 1px #e0e0ff;
+}
+
+/* ─── COSMIC MIDNIGHT — Deep Dark Theme ──────────────────── */
+.dark {
   /* Core surfaces — deep cosmic blacks */
   --background:         #04040c;
   --foreground:         #e8eaf6;
@@ -122,35 +179,6 @@
   --glass-bg:     rgb(8 8 24 / 0.92);
   --glass-border: #1e1e40;
   --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.6), 0 0 0 1px #1a1a3a;
-}
-
-.light {
-  --background:         #f8f9ff;
-  --foreground:         #1e1b4b;
-  --card:               #ffffff;
-  --card-foreground:    #1e1b4b;
-  --popover:            #ffffff;
-  --popover-foreground: #1e1b4b;
-  --primary:            #6366f1;
-  --primary-foreground: #ffffff;
-  --secondary:          #f0f0ff;
-  --secondary-foreground:#3730a3;
-  --muted:              #eff0ff;
-  --muted-foreground:   #6b7280;
-  --accent:             #06b6d4;
-  --accent-foreground:  #ffffff;
-  --destructive:        #dc2626;
-  --border:             #e0e0ff;
-  --input:              #e0e0ff;
-  --ring:               #6366f1;
-  --sidebar:            #f0f0ff;
-  --sidebar-foreground: #1e1b4b;
-  --sidebar-primary:    #6366f1;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:     #e0e0ff;
-  --sidebar-accent-foreground:  #3730a3;
-  --sidebar-border:     #e0e0ff;
-  --sidebar-ring:       #6366f1;
 }
 
 /* ─── Base ─────────────────────────────────────────────────── */

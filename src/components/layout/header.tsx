@@ -74,21 +74,21 @@ export const Header = memo(function Header() {
                 boxShadow: '0 0 12px rgb(129 140 248 / 0.4)',
               }}
             >
-              <span className="text-white text-[10px] font-black">K</span>
+              <span className="text-foreground text-[10px] font-black">K</span>
             </div>
           </Link>
 
           {/* Desktop: breadcrumb */}
           <div className="hidden md:flex items-center gap-1.5 text-[13px]">
-            <Link href="/dashboard" className="text-slate-600 hover:text-slate-300 transition-colors font-medium">
+            <Link href="/dashboard" className="text-muted-foreground hover:text-muted-foreground transition-colors font-medium">
               Kings EC
             </Link>
-            <ChevronRight className="h-3 w-3 text-slate-700" />
-            <span className="font-semibold text-white">{pageTitle}</span>
+            <ChevronRight className="h-3 w-3 text-muted-foreground" />
+            <span className="font-semibold text-foreground">{pageTitle}</span>
           </div>
 
           {/* Mobile: page title */}
-          <span className="md:hidden font-bold text-[14px] text-white truncate"
+          <span className="md:hidden font-bold text-[14px] text-foreground truncate"
             style={{ fontFamily: "'Outfit', sans-serif" }}>
             {pageTitle}
           </span>
@@ -97,7 +97,7 @@ export const Header = memo(function Header() {
         {/* Center: search (desktop only) */}
         <div className="hidden md:flex flex-1 max-w-sm">
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-600 pointer-events-none" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             <input
               id="header-search"
               type="search"
@@ -105,15 +105,15 @@ export const Header = memo(function Header() {
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
               className={cn(
-                'w-full pl-9 pr-10 h-[34px] rounded-xl text-[13px] text-white placeholder:text-slate-700 outline-none transition-all duration-200',
+                'w-full pl-9 pr-10 h-[34px] rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200',
                 'border',
                 searchFocused
-                  ? 'border-indigo-500/50 ring-2 ring-indigo-500/10 bg-[#0c0c20]'
-                  : 'border-[#1a1a3a] bg-[#08081c] hover:border-[#2d2d5e]',
+                  ? 'border-indigo-500/50 ring-2 ring-indigo-500/10 bg-background'
+                  : 'border-border bg-background hover:border-border',
               )}
             />
             <kbd
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-700 hidden sm:block"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground hidden sm:block"
               style={{ fontFamily: 'IBM Plex Mono, monospace' }}
             >
               ⌘K
@@ -130,7 +130,7 @@ export const Header = memo(function Header() {
               id="notifications-btn"
               type="button"
               onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
-              className="relative flex h-[34px] w-[34px] items-center justify-center rounded-xl text-slate-500 hover:text-white transition-all duration-150"
+              className="relative flex h-[34px] w-[34px] items-center justify-center rounded-xl text-muted-foreground hover:text-foreground transition-all duration-150"
               style={{ background: showNotifications ? 'rgb(129 140 248 / 0.1)' : undefined }}
               aria-label="Notifications"
               aria-expanded={showNotifications}
@@ -161,8 +161,8 @@ export const Header = memo(function Header() {
               className={cn(
                 'flex items-center gap-2 rounded-xl px-2 h-[34px] text-[13px] font-medium transition-all duration-150',
                 showUserMenu
-                  ? 'bg-[#0c0c20] text-white ring-1 ring-[#1a1a3a]'
-                  : 'text-slate-400 hover:text-white hover:bg-[#08081c]',
+                  ? 'bg-background text-foreground ring-1 ring-[#1a1a3a]'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-background',
               )}
               aria-expanded={showUserMenu}
               aria-label="User menu"
@@ -194,8 +194,8 @@ export const Header = memo(function Header() {
                     <div className="flex items-center gap-3 mb-3">
                       <Avatar name={displayName} size="sm" ring="none" />
                       <div className="min-w-0">
-                        <p className="text-[13px] font-semibold text-white truncate">{displayName}</p>
-                        <p className="text-[11px] text-slate-500 truncate mt-px">{profile?.email ?? '—'}</p>
+                        <p className="text-[13px] font-semibold text-foreground truncate">{displayName}</p>
+                        <p className="text-[11px] text-muted-foreground truncate mt-px">{profile?.email ?? '—'}</p>
                       </div>
                     </div>
                     <span
@@ -222,9 +222,9 @@ export const Header = memo(function Header() {
                         key={label}
                         href={href}
                         onClick={() => setShowUserMenu(false)}
-                        className="flex items-center gap-3 rounded-xl px-3 h-9 text-[13px] text-slate-400 hover:text-white hover:bg-[#0f0f28] transition-colors"
+                        className="flex items-center gap-3 rounded-xl px-3 h-9 text-[13px] text-muted-foreground hover:text-foreground hover:bg-background transition-colors"
                       >
-                        <Icon className="h-3.5 w-3.5 text-slate-600" />
+                        <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                         {label}
                       </Link>
                     ))}

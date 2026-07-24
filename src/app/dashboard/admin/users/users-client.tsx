@@ -248,8 +248,8 @@ function UserDetailDrawer({ user, onClose, isSelf, onChangeRole, onToggleStatus 
     >
       {/* Header */}
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
-        <span className="text-[13px] font-bold text-white">User Profile</span>
-        <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors">
+        <span className="text-[13px] font-bold text-foreground">User Profile</span>
+        <button onClick={onClose} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -264,8 +264,8 @@ function UserDetailDrawer({ user, onClose, isSelf, onChangeRole, onToggleStatus 
             className="h-20 w-20 text-2xl mb-3"
             ring={user.role === 'admin' ? 'gold' : user.role === 'faculty' ? 'violet' : 'none'}
           />
-          <p className="text-lg font-bold text-white leading-tight">{user.name}</p>
-          <p className="text-[12px] text-slate-500 mt-0.5">{user.email}</p>
+          <p className="text-lg font-bold text-foreground leading-tight">{user.name}</p>
+          <p className="text-[12px] text-muted-foreground mt-0.5">{user.email}</p>
           {isSelf && <span className="mt-1 text-[11px] text-amber-400 font-semibold">(you)</span>}
           <div className={`mt-2 px-3 py-1 rounded-full border text-[11px] font-semibold ${roleColor}`}>
             {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
@@ -281,10 +281,10 @@ function UserDetailDrawer({ user, onClose, isSelf, onChangeRole, onToggleStatus 
             { icon: CalendarDays, label: 'Joined', value: user.joined },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="flex items-start gap-3 p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-              <Icon className="h-3.5 w-3.5 text-slate-500 mt-0.5 flex-shrink-0" />
+              <Icon className="h-3.5 w-3.5 text-muted-foreground mt-0.5 flex-shrink-0" />
               <div className="min-w-0">
-                <p className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">{label}</p>
-                <p className="text-[13px] text-slate-200 font-medium mt-0.5 break-all">{value}</p>
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">{label}</p>
+                <p className="text-[13px] text-muted-foreground font-medium mt-0.5 break-all">{value}</p>
               </div>
             </div>
           ))}
@@ -293,7 +293,7 @@ function UserDetailDrawer({ user, onClose, isSelf, onChangeRole, onToggleStatus 
           <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
             <div className="flex items-center gap-2">
               <div className={`h-2 w-2 rounded-full ${user.status === 'active' ? 'bg-emerald-400 animate-pulse' : 'bg-red-400'}`} />
-              <span className="text-[12px] font-semibold text-slate-300">
+              <span className="text-[12px] font-semibold text-muted-foreground">
                 {user.status === 'active' ? 'Active Account' : 'Suspended'}
               </span>
             </div>
@@ -371,9 +371,9 @@ function BroadcastPanel({ onClose }: { onClose: () => void }) {
       <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
         <div className="flex items-center gap-2">
           <Megaphone className="h-4 w-4 text-amber-400" />
-          <span className="text-[13px] font-bold text-white">Broadcast Announcement</span>
+          <span className="text-[13px] font-bold text-foreground">Broadcast Announcement</span>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg text-slate-500 hover:text-white transition-colors">
+        <button onClick={onClose} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -387,30 +387,30 @@ function BroadcastPanel({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Title</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Title</label>
           <input
             value={title}
             onChange={e => setTitle(e.target.value)}
             placeholder="e.g. Campus closed on Friday"
             maxLength={120}
-            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-white placeholder:text-slate-600 outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
-          <p className="text-[10px] text-slate-600 text-right">{title.length}/120</p>
+          <p className="text-[10px] text-muted-foreground text-right">{title.length}/120</p>
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Message</label>
+          <label className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Message</label>
           <textarea
             value={content}
             onChange={e => setContent(e.target.value)}
             placeholder="Write your announcement here…"
             rows={6}
             maxLength={1000}
-            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-white placeholder:text-slate-600 outline-none resize-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
+            className="w-full px-3 py-2.5 rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground outline-none resize-none focus:ring-1 focus:ring-indigo-500/50 transition-all"
             style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
-          <p className="text-[10px] text-slate-600 text-right">{content.length}/1000</p>
+          <p className="text-[10px] text-muted-foreground text-right">{content.length}/1000</p>
         </div>
 
         {status === 'sent' && (
@@ -449,8 +449,8 @@ function DeptChart({ data }: { data: DeptBreakpoint[] }) {
   if (!data.length) {
     return (
       <div className="flex flex-col items-center justify-center py-8 text-center">
-        <BarChart2 className="h-8 w-8 text-slate-600/50 mb-2" />
-        <p className="text-[12px] text-slate-500">No department data yet</p>
+        <BarChart2 className="h-8 w-8 text-muted-foreground/50 mb-2" />
+        <p className="text-[12px] text-muted-foreground">No department data yet</p>
       </div>
     );
   }
@@ -710,8 +710,8 @@ export default function AdminUsersClient({
           >
             <Icon className={`h-4 w-4 flex-shrink-0 ${color}`} />
             <div>
-              <p className="text-xl font-black text-white leading-none">{value}</p>
-              <p className="text-[10px] text-slate-500 mt-0.5 font-medium">{label}</p>
+              <p className="text-xl font-black text-foreground leading-none">{value}</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5 font-medium">{label}</p>
             </div>
           </div>
         ))}
@@ -723,7 +723,7 @@ export default function AdminUsersClient({
         style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}
       >
         {statCards.map((card) => (
-          <div key={card.label} className="bg-card/80 backdrop-blur-xl border border-border hover:border-white/10 hover:bg-[#151518]/90 transition-all duration-300 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md">
+          <div key={card.label} className="bg-card/80 backdrop-blur-xl border border-border hover:border-white/10 hover:bg-muted/90 transition-all duration-300 rounded-2xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md">
             <div className={`h-10 w-10 rounded-xl ${card.bg} flex items-center justify-center flex-shrink-0`}>
               <card.icon className={`h-5 w-5 ${card.color}`} />
             </div>
@@ -942,7 +942,7 @@ export default function AdminUsersClient({
           <div className="bg-card border border-border rounded-2xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-base font-bold text-foreground">Dept. Breakdown</h2>
-              <div className="flex items-center gap-3 text-[10px] text-slate-500">
+              <div className="flex items-center gap-3 text-[10px] text-muted-foreground">
                 <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-full bg-indigo-400" />Students</div>
                 <div className="flex items-center gap-1"><div className="h-2 w-2 rounded-full bg-violet-400" />Faculty</div>
               </div>

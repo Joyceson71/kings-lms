@@ -118,16 +118,16 @@ const StatCard = memo(function StatCard({ stat, index }: {
         >
           <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
         </div>
-        <ArrowUpRight className="h-4 w-4 text-slate-700 group-hover:text-slate-400 transition-colors" />
+        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground transition-colors" />
       </div>
       <div>
-        <p className="text-[11px] font-semibold tracking-wider text-slate-500 uppercase mb-1">{stat.name}</p>
-        <p className="text-3xl font-black text-white tracking-tight leading-none mb-2">
+        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase mb-1">{stat.name}</p>
+        <p className="text-3xl font-black text-foreground tracking-tight leading-none mb-2">
           <AnimatedCounter target={stat.value} duration={900} />
         </p>
         <p className={`text-[11px] font-medium flex items-center gap-1 ${
           stat.changeType === 'positive' ? 'text-emerald-400' :
-          stat.changeType === 'danger' ? 'text-red-400' : 'text-slate-500'
+          stat.changeType === 'danger' ? 'text-red-400' : 'text-muted-foreground'
         }`}>
           {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
           {stat.changeType === 'danger' && <AlertTriangle className="h-3 w-3" />}
@@ -154,7 +154,7 @@ function ActiveSessionBanner({ sessions }: { sessions: ActiveSession[] }) {
           <div className="h-10 w-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
             <ScanLine className="h-5 w-5 text-emerald-400" />
           </div>
-          <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-[#04040c] animate-status-pulse" />
+          <span className="absolute -top-1 -right-1 h-3 w-3 rounded-full bg-emerald-400 border-2 border-border animate-status-pulse" />
         </div>
         <div>
           <p className="text-sm font-bold text-emerald-300">Class is LIVE right now!</p>
@@ -190,14 +190,14 @@ function CourseAttendanceCard({ course }: { course: CourseWithAttendance }) {
       }`} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
-          <p className="text-[12px] font-semibold text-slate-200 truncate">{course.title}</p>
+          <p className="text-[12px] font-semibold text-muted-foreground truncate">{course.title}</p>
           <span className={`text-[12px] font-bold flex-shrink-0 ml-2 ${status.cls}`}>
             {course.rate}%
           </span>
         </div>
         <div className="flex items-center gap-2">
           <Progress value={course.rate} variant={color} size="sm" className="flex-1" />
-          <span className="text-[9px] text-slate-600 flex-shrink-0">{course.attended}/{course.total}</span>
+          <span className="text-[9px] text-muted-foreground flex-shrink-0">{course.attended}/{course.total}</span>
         </div>
       </div>
       {isLow && <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0" />}
@@ -212,9 +212,9 @@ function AttendanceTrendChart({ data }: { data: TrendPoint[] }) {
   if (!hasData) {
     return (
       <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-        <TrendingUp className="h-8 w-8 text-slate-600/50 mb-2" />
-        <p className="text-[12px] font-medium text-slate-400">Not enough data yet</p>
-        <p className="text-[10px] text-slate-600 mt-1">Attendance trend will appear once sessions start</p>
+        <TrendingUp className="h-8 w-8 text-muted-foreground/50 mb-2" />
+        <p className="text-[12px] font-medium text-muted-foreground">Not enough data yet</p>
+        <p className="text-[10px] text-muted-foreground mt-1">Attendance trend will appear once sessions start</p>
       </div>
     );
   }
@@ -274,8 +274,8 @@ function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBreakdown; 
   if (total === 0) {
     return (
       <div className="flex-1 min-h-[200px] flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-        <CheckCircle className="h-8 w-8 text-slate-600/50 mb-2" />
-        <p className="text-[12px] font-medium text-slate-400">No assignments yet</p>
+        <CheckCircle className="h-8 w-8 text-muted-foreground/50 mb-2" />
+        <p className="text-[12px] font-medium text-muted-foreground">No assignments yet</p>
       </div>
     );
   }
@@ -322,9 +322,9 @@ function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBreakdown; 
           <div key={label} className="flex items-center justify-between text-[11px]">
             <div className="flex items-center gap-1.5">
               <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
-              <span className="text-slate-400">{label}</span>
+              <span className="text-muted-foreground">{label}</span>
             </div>
-            <span className="font-semibold text-slate-300">{count}</span>
+            <span className="font-semibold text-muted-foreground">{count}</span>
           </div>
         ))}
       </div>
@@ -348,7 +348,7 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
       style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
           My Progress
         </h2>
         <Flame className="h-4 w-4 text-rose-400 animate-pulse" />
@@ -360,13 +360,13 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
           className="rounded-xl p-3 text-center"
           style={{ background: 'rgb(244 63 94 / 0.06)', border: '1px solid rgb(244 63 94 / 0.15)' }}
         >
-          <div className="text-3xl font-black text-white mb-0.5 leading-none">
+          <div className="text-3xl font-black text-foreground mb-0.5 leading-none">
             {streak}
           </div>
           <p className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider flex items-center justify-center gap-1">
             <Flame className="h-2.5 w-2.5" />Day Streak
           </p>
-          <p className="text-[9px] text-slate-600 mt-1">
+          <p className="text-[9px] text-muted-foreground mt-1">
             {streak === 0 ? 'Start today!' : streak === 1 ? 'Keep it going!' : `${streak} days strong`}
           </p>
         </div>
@@ -382,7 +382,7 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
           <p className="text-[10px] text-indigo-400 font-semibold uppercase tracking-wider">
             Study Score
           </p>
-          <p className="text-[9px] text-slate-600 mt-1">
+          <p className="text-[9px] text-muted-foreground mt-1">
             {studyScore >= 80 ? 'Excellent!' : studyScore >= 60 ? 'Good work' : 'Needs attention'}
           </p>
         </div>
@@ -390,7 +390,7 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
 
       {/* Score bar */}
       <div className="mt-3">
-        <div className="flex justify-between text-[9px] text-slate-600 mb-1">
+        <div className="flex justify-between text-[9px] text-muted-foreground mb-1">
           <span>Score breakdown</span>
           <span>60% attend · 40% tasks</span>
         </div>
@@ -404,7 +404,7 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
 
       <Link
         href="/dashboard/leaderboard"
-        className="mt-3 flex items-center justify-center gap-1 text-[11px] text-slate-500 hover:text-indigo-400 transition-colors pt-3 border-t border-[#1a1a2e]"
+        className="mt-3 flex items-center justify-center gap-1 text-[11px] text-muted-foreground hover:text-indigo-400 transition-colors pt-3 border-t border-border"
       >
         View Leaderboard <ChevronRight className="h-3 w-3" />
       </Link>
@@ -513,12 +513,12 @@ export default function DashboardClient({
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          <h1 className="text-2xl font-black tracking-tight text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
             {loading ? 'Dashboard' : isStudent ? (
               <>Hey, <span className="gradient-text">{displayName.split(' ')[0]}</span> 👋</>
             ) : 'Dashboard Overview'}
           </h1>
-          <p className="text-slate-500 mt-1 text-[13px]">
+          <p className="text-muted-foreground mt-1 text-[13px]">
             {loading ? 'Loading…' : isStudent
               ? new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
               : "Here's what's happening today."}
@@ -554,10 +554,10 @@ export default function DashboardClient({
           <div className="lg:col-span-2 bento-card p-5">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   My Course Attendance
                 </h2>
-                <p className="text-[12px] text-slate-500 mt-0.5">
+                <p className="text-[12px] text-muted-foreground mt-0.5">
                   {coursesDisplay ? `${coursesDisplay.length} enrolled courses` : 'No enrollments yet'}
                 </p>
               </div>
@@ -573,9 +573,9 @@ export default function DashboardClient({
                 ))
               ) : (
                 <div className="flex flex-col items-center py-6 text-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-                  <BookOpen className="h-8 w-8 text-slate-600/50 mb-2" />
-                  <p className="text-[12px] font-medium text-slate-400">No courses enrolled yet</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">Your attendance will appear here once enrolled.</p>
+                  <BookOpen className="h-8 w-8 text-muted-foreground/50 mb-2" />
+                  <p className="text-[12px] font-medium text-muted-foreground">No courses enrolled yet</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">Your attendance will appear here once enrolled.</p>
                 </div>
               )}
             </div>
@@ -600,7 +600,7 @@ export default function DashboardClient({
             {/* Pending Assignments */}
             <div className="bento-card p-5 flex flex-col">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Deadlines
                 </h2>
                 <Link href="/dashboard/assignments" className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-0.5">
@@ -616,7 +616,7 @@ export default function DashboardClient({
                       <div key={a.id} className="flex items-start gap-2.5">
                         <div className={`h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${overdue ? 'bg-red-400' : 'bg-amber-400'}`} />
                         <div className="min-w-0 flex-1">
-                          <p className="text-[12px] font-semibold text-slate-200 truncate leading-snug">{a.title}</p>
+                          <p className="text-[12px] font-semibold text-muted-foreground truncate leading-snug">{a.title}</p>
                           <p className={`text-[10px] font-medium ${overdue ? 'text-red-400' : 'text-amber-400'}`}>
                             {formatDueDate(a.dueDate)}
                           </p>
@@ -627,8 +627,8 @@ export default function DashboardClient({
                 ) : (
                   <div className="flex flex-col items-center py-4 text-center">
                     <CheckCircle className="h-8 w-8 text-emerald-500/30 mb-2" />
-                    <p className="text-[11px] text-slate-500 font-medium">All caught up!</p>
-                    <p className="text-[10px] text-slate-600 mt-0.5">No pending assignments</p>
+                    <p className="text-[11px] text-muted-foreground font-medium">All caught up!</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5">No pending assignments</p>
                   </div>
                 )}
               </div>
@@ -637,10 +637,10 @@ export default function DashboardClient({
             {/* Notifications */}
             <div className="bento-card p-5 flex flex-col">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Updates
                 </h2>
-                <Bell className="h-3.5 w-3.5 text-slate-600" />
+                <Bell className="h-3.5 w-3.5 text-muted-foreground" />
               </div>
               <div className="space-y-2.5">
                 {studentData?.notifications.length ? (
@@ -652,16 +652,16 @@ export default function DashboardClient({
                         n.type === 'error' ? 'bg-red-400' : 'bg-indigo-400'
                       }`} />
                       <div className="min-w-0 flex-1">
-                        <p className="text-[12px] font-semibold text-slate-200 leading-snug truncate">{n.title}</p>
-                        <p className="text-[10px] text-slate-600">{timeAgo(n.created_at)}</p>
+                        <p className="text-[12px] font-semibold text-muted-foreground leading-snug truncate">{n.title}</p>
+                        <p className="text-[10px] text-muted-foreground">{timeAgo(n.created_at)}</p>
                       </div>
                     </div>
                   ))
                 ) : (
-                  <p className="text-[11px] text-slate-600 text-center py-2">No new notifications</p>
+                  <p className="text-[11px] text-muted-foreground text-center py-2">No new notifications</p>
                 )}
               </div>
-              <Link href="/dashboard/announcements" className="mt-3 text-[11px] text-slate-500 hover:text-slate-300 transition-colors flex items-center justify-center gap-1 pt-3 border-t border-[#1a1a2e]">
+              <Link href="/dashboard/announcements" className="mt-3 text-[11px] text-muted-foreground hover:text-muted-foreground transition-colors flex items-center justify-center gap-1 pt-3 border-t border-border">
                 View all announcements <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
@@ -678,10 +678,10 @@ export default function DashboardClient({
         <div className="lg:col-span-2 bento-card p-5">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 {isStudent ? 'Attendance Trend' : 'Overall Attendance'}
               </h2>
-              <p className="text-[12px] text-slate-500 mt-0.5">Last 7 days</p>
+              <p className="text-[12px] text-muted-foreground mt-0.5">Last 7 days</p>
             </div>
             <Badge variant="secondary">7 days</Badge>
           </div>
@@ -692,7 +692,7 @@ export default function DashboardClient({
         {/* Tasks donut — 1/3 width */}
         <div className="bento-card p-5 flex flex-col">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {isStudent ? 'Tasks' : 'Grading'}
             </h2>
             <Link href="/dashboard/assignments" className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-0.5">
@@ -714,7 +714,7 @@ export default function DashboardClient({
 
           {/* Quick Actions — 2/3 width */}
           <div className="lg:col-span-2 bento-card p-5">
-            <h2 className="text-[15px] font-bold text-white mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h2 className="text-[15px] font-bold text-foreground mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Quick Actions
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -733,7 +733,7 @@ export default function DashboardClient({
                   <div className="h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style={{ background: bg }}>
                     <Icon className={`h-5 w-5 ${color}`} />
                   </div>
-                  <span className="text-[12px] font-semibold text-slate-300">{label}</span>
+                  <span className="text-[12px] font-semibold text-muted-foreground">{label}</span>
                 </Link>
               ))}
             </div>
@@ -750,23 +750,23 @@ export default function DashboardClient({
           <div className="lg:col-span-2 bento-card p-5">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Class Averages</h2>
-                <p className="text-[12px] text-slate-500 mt-0.5">Average scores per course</p>
+                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>Class Averages</h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">Average scores per course</p>
               </div>
             </div>
             <div className="h-52 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5">
-              <BookOpen className="h-8 w-8 text-slate-600/50 mb-2" />
-              <p className="text-[12px] font-medium text-slate-400">No courses assigned yet</p>
+              <BookOpen className="h-8 w-8 text-muted-foreground/50 mb-2" />
+              <p className="text-[12px] font-medium text-muted-foreground">No courses assigned yet</p>
             </div>
           </div>
 
           <div className="bento-card p-5 flex flex-col">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-[15px] font-bold text-white" style={{ fontFamily: "'Outfit', sans-serif" }}>Course Attendance</h2>
+              <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>Course Attendance</h2>
             </div>
             <div className="flex-1 flex flex-col items-center justify-center border border-dashed border-border/50 rounded-xl bg-secondary/5 py-8">
-              <Users className="h-8 w-8 text-slate-600/50 mb-2" />
-              <p className="text-[12px] font-medium text-slate-400">No active students</p>
+              <Users className="h-8 w-8 text-muted-foreground/50 mb-2" />
+              <p className="text-[12px] font-medium text-muted-foreground">No active students</p>
             </div>
           </div>
         </div>

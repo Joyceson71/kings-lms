@@ -215,18 +215,18 @@
   }
 
   ::selection {
-    background: rgb(129 140 248 / 0.3);
-    color: #e8eaf6;
+    background: var(--primary-glow);
+    color: var(--primary-foreground);
   }
 
   /* Slim scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb {
-    background: #1a1a3a;
+    background: var(--border);
     border-radius: 999px;
   }
-  ::-webkit-scrollbar-thumb:hover { background: #2d2d5e; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ring); }
 }
 
 /* ─── Keyframes ─────────────────────────────────────────────── */
@@ -343,7 +343,7 @@
   .glass-card {
     background: var(--card);
     border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.4), inset 0 1px 0 rgb(255 255 255 / 0.03);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.05), inset 0 1px 0 rgb(255 255 255 / 0.03);
   }
 
   .glass {
@@ -357,18 +357,18 @@
   .glass-blur {
     backdrop-filter: blur(20px) saturate(1.8);
     -webkit-backdrop-filter: blur(20px) saturate(1.8);
-    background: rgb(8 8 24 / 0.88);
-    border: 1px solid rgb(255 255 255 / 0.05);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
   }
 
   /* ── Cosmic gradient text ── */
   .gradient-text {
     background: linear-gradient(
       135deg,
-      #e8eaf6 0%,
-      #818cf8 40%,
-      #22d3ee 70%,
-      #e8eaf6 100%
+      var(--foreground) 0%,
+      var(--primary) 40%,
+      var(--accent) 70%,
+      var(--foreground) 100%
     );
     background-size: 200% auto;
     -webkit-background-clip: text;
@@ -378,21 +378,21 @@
   }
 
   .gradient-text-violet {
-    background: linear-gradient(135deg, #c7d2fe 0%, #818cf8 50%, #a5b4fc 100%);
+    background: linear-gradient(135deg, var(--primary) 0%, var(--violet) 50%, var(--primary) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .gradient-text-cyan {
-    background: linear-gradient(135deg, #67e8f9 0%, #22d3ee 50%, #06b6d4 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 50%, var(--accent) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
   .gradient-text-gold {
-    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 50%, #f59e0b 100%);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold) 50%, var(--gold) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -400,27 +400,27 @@
 
   /* ── Neon Glow effects ── */
   .glow-violet {
-    box-shadow: 0 0 0 1px rgb(129 140 248 / 0.25),
-                0 4px 20px rgb(129 140 248 / 0.15),
-                0 0 40px rgb(129 140 248 / 0.05);
+    box-shadow: 0 0 0 1px var(--violet-glow),
+                0 4px 20px var(--violet-glow),
+                0 0 40px var(--violet-glow);
   }
 
   .glow-cyan {
-    box-shadow: 0 0 0 1px rgb(34 211 238 / 0.25),
-                0 4px 20px rgb(34 211 238 / 0.15),
-                0 0 40px rgb(34 211 238 / 0.05);
+    box-shadow: 0 0 0 1px var(--cyan-glow),
+                0 4px 20px var(--cyan-glow),
+                0 0 40px var(--cyan-glow);
   }
 
   .glow-emerald {
-    box-shadow: 0 0 0 1px rgb(52 211 153 / 0.25),
-                0 4px 20px rgb(52 211 153 / 0.15),
-                0 0 40px rgb(52 211 153 / 0.05);
+    box-shadow: 0 0 0 1px var(--emerald-glow),
+                0 4px 20px var(--emerald-glow),
+                0 0 40px var(--emerald-glow);
   }
 
   .glow-gold {
-    box-shadow: 0 0 0 1px rgb(251 191 36 / 0.25),
-                0 4px 20px rgb(251 191 36 / 0.15),
-                0 0 40px rgb(251 191 36 / 0.05);
+    box-shadow: 0 0 0 1px var(--gold-muted),
+                0 4px 20px var(--gold-muted),
+                0 0 40px var(--gold-muted);
   }
 
   /* ── Neon border gradient ── */
@@ -435,9 +435,9 @@
     padding: 1px;
     background: linear-gradient(
       135deg,
-      rgb(129 140 248 / 0.5),
-      rgb(34 211 238 / 0.3),
-      rgb(129 140 248 / 0.5)
+      var(--violet-glow),
+      var(--cyan-glow),
+      var(--violet-glow)
     );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -449,35 +449,35 @@
   /* ── Cosmic mesh background ── */
   .bg-mesh {
     background-image:
-      radial-gradient(ellipse at 20% 20%, rgb(129 140 248 / 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgb(34 211 238 / 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgb(52 211 153 / 0.04) 0%, transparent 60%);
+      radial-gradient(ellipse at 20% 20%, var(--violet-glow) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, var(--cyan-glow) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, var(--emerald-glow) 0%, transparent 60%);
   }
 
   .bg-grid {
     background-image:
-      linear-gradient(rgb(255 255 255 / 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 0.025) 1px, transparent 1px);
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
     background-size: 40px 40px;
   }
 
   .bg-dot {
-    background-image: radial-gradient(rgb(255 255 255 / 0.06) 1px, transparent 1px);
+    background-image: radial-gradient(var(--border) 1px, transparent 1px);
     background-size: 20px 20px;
   }
 
   /* ── Cosmic card (bento style) ── */
   .bento-card {
-    background: linear-gradient(145deg, #08081c 0%, #05050f 100%);
-    border: 1px solid #1a1a3a;
-    box-shadow: 0 4px 24px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.04);
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 24px rgb(0 0 0 / 0.05), inset 0 1px 0 rgb(255 255 255 / 0.04);
     border-radius: 16px;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
 
   .bento-card:hover {
-    border-color: #2d2d5e;
-    box-shadow: 0 8px 32px rgb(0 0 0 / 0.6), 0 0 0 1px rgb(129 140 248 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.06);
+    border-color: var(--ring);
+    box-shadow: 0 8px 32px rgb(0 0 0 / 0.05), 0 0 0 1px var(--primary-glow), inset 0 1px 0 rgb(255 255 255 / 0.06);
   }
 
   /* ── Animations ── */
@@ -502,9 +502,9 @@
   .skeleton {
     background: linear-gradient(
       90deg,
-      #08081c 25%,
-      #0f0f28 50%,
-      #08081c 75%
+      var(--muted) 25%,
+      var(--background) 50%,
+      var(--muted) 75%
     );
     background-size: 200% 100%;
     animation: skeleton 1.8s ease-in-out infinite;
@@ -529,7 +529,7 @@
   /* ── Focus ring ── */
   .focus-ring {
     outline: none;
-    box-shadow: 0 0 0 2px #04040c, 0 0 0 4px #818cf8;
+    box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
   }
 
   /* ── Divider ── */
@@ -547,9 +547,9 @@
     border-radius: 6px;
     font-size: 11px;
     font-weight: 500;
-    border: 1px solid #1a1a3a;
-    background: #0f0f28;
-    color: #64748b;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    color: var(--muted-foreground);
   }
 
   /* ── Neon stat accent line ── */

@@ -56,14 +56,14 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               boxShadow: '0 0 24px rgb(129 140 248 / 0.5), 0 0 60px rgb(129 140 248 / 0.15)',
             }}
           >
-            <GraduationCap className="text-white h-5 w-5" />
+            <GraduationCap className="text-foreground h-5 w-5" />
           </div>
           <div>
-            <span className="text-[16px] font-black tracking-tight text-white block"
+            <span className="text-[16px] font-black tracking-tight text-foreground block"
               style={{ fontFamily: "'Outfit', sans-serif" }}>
               Kings EC
             </span>
-            <span className="text-[10px] text-slate-500 tracking-wider font-semibold uppercase">Platform</span>
+            <span className="text-[10px] text-muted-foreground tracking-wider font-semibold uppercase">Platform</span>
           </div>
         </div>
 
@@ -77,7 +77,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </div>
 
             <h2
-              className="text-4xl font-black tracking-tight text-white leading-[1.1] mb-4"
+              className="text-4xl font-black tracking-tight text-foreground leading-[1.1] mb-4"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
               Your campus.
@@ -91,7 +91,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 All in one place.
               </span>
             </h2>
-            <p className="text-[14px] text-slate-400 leading-relaxed max-w-sm">
+            <p className="text-[14px] text-muted-foreground leading-relaxed max-w-sm">
               From attendance to assignments — Kings Engineering College&apos;s
               unified learning platform keeps every student and faculty member connected.
             </p>
@@ -114,7 +114,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 >
                   <f.icon className="h-3.5 w-3.5" style={{ color: f.color }} />
                 </div>
-                <span className="text-[13px] text-slate-300 font-medium">{f.text}</span>
+                <span className="text-[13px] text-muted-foreground font-medium">{f.text}</span>
               </li>
             ))}
           </ul>
@@ -130,7 +130,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               boxShadow: 'inset 0 1px 0 rgb(255 255 255 / 0.04)',
             }}
           >
-            <blockquote className="text-slate-400 text-[13px] leading-relaxed italic">
+            <blockquote className="text-muted-foreground text-[13px] leading-relaxed italic">
               &ldquo;The campus learning platform that keeps all of Kings Engineering College
               connected — from attendance to assignments, in one place.&rdquo;
             </blockquote>
@@ -146,13 +146,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 KE
               </div>
               <div>
-                <p className="text-[12px] font-bold text-white">Kings Engineering College</p>
-                <p className="text-[11px] text-slate-600">Campus Administration</p>
+                <p className="text-[12px] font-bold text-foreground">Kings Engineering College</p>
+                <p className="text-[11px] text-muted-foreground">Campus Administration</p>
               </div>
             </div>
           </div>
 
-          <p className="text-[11px] text-slate-700">
+          <p className="text-[11px] text-muted-foreground">
             © {new Date().getFullYear()} Kings Engineering College. All rights reserved.
           </p>
         </div>
@@ -170,13 +170,13 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               boxShadow: '0 0 24px rgb(129 140 248 / 0.5)',
             }}
           >
-            <GraduationCap className="h-6 w-6 text-white" />
+            <GraduationCap className="h-6 w-6 text-foreground" />
           </div>
           <div className="text-center">
-            <span className="text-[17px] font-black text-white block" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <span className="text-[17px] font-black text-foreground block" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Kings EC Platform
             </span>
-            <span className="text-[11px] text-slate-500">Campus Learning & Management</span>
+            <span className="text-[11px] text-muted-foreground">Campus Learning & Management</span>
           </div>
         </div>
 

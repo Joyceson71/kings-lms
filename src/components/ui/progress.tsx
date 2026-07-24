@@ -33,8 +33,8 @@ export function Progress({
     <div className={cn('w-full', className)}>
       {showLabel && (
         <div className="flex justify-between mb-1 text-[11px]">
-          <span className="text-zinc-500">Progress</span>
-          <span className="font-medium text-white">{clamped}%</span>
+          <span className="text-muted-foreground">Progress</span>
+          <span className="font-medium text-foreground">{clamped}%</span>
         </div>
       )}
       <div

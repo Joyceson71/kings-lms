@@ -84,8 +84,8 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
         'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
         expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
         active
-          ? 'text-white'
-          : 'text-slate-500 hover:text-slate-200',
+          ? 'text-foreground'
+          : 'text-muted-foreground hover:text-muted-foreground',
       )}
       style={active ? {
         background: isAdmin
@@ -129,7 +129,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
           expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]',
           active
             ? isAdmin ? 'text-amber-300' : 'text-indigo-300'
-            : 'text-slate-600 group-hover:text-slate-300',
+            : 'text-muted-foreground group-hover:text-muted-foreground',
         )}
       />
 
@@ -149,7 +149,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       {/* Tooltip for icon-only state */}
       {!expanded && (
         <span
-          className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
+          className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
           style={{
             background: '#0c0c20',
             border: '1px solid #1a1a3a',
@@ -208,7 +208,7 @@ export function Sidebar() {
       >
         <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
           <div
-            className="h-8 w-8 flex-shrink-0 rounded-xl flex items-center justify-center text-white"
+            className="h-8 w-8 flex-shrink-0 rounded-xl flex items-center justify-center text-foreground"
             style={{
               background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
               boxShadow: '0 0 16px rgb(129 140 248 / 0.4), 0 0 40px rgb(129 140 248 / 0.1)',
@@ -218,7 +218,7 @@ export function Sidebar() {
           </div>
           {expanded && (
             <span
-              className="text-[13px] font-bold tracking-tight text-white truncate animate-fade-in"
+              className="text-[13px] font-bold tracking-tight text-foreground truncate animate-fade-in"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
               Kings EC
@@ -231,7 +231,7 @@ export function Sidebar() {
       <div
         className={cn(
           'absolute -right-3 top-[52px] z-20 h-5 w-5 rounded-full items-center justify-center',
-          'border text-slate-500 transition-all duration-300 ease-out',
+          'border text-muted-foreground transition-all duration-300 ease-out',
           expanded ? 'flex opacity-100' : 'hidden opacity-0',
         )}
         style={{ background: '#0c0c20', borderColor: '#1a1a3a' }}
@@ -297,18 +297,18 @@ export function Sidebar() {
                   'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
                   expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
                   active
-                    ? 'text-white'
-                    : 'text-slate-500 hover:text-slate-200',
+                    ? 'text-foreground'
+                    : 'text-muted-foreground hover:text-muted-foreground',
                 )}
                 style={active ? {
                   background: 'rgb(129 140 248 / 0.1)',
                   boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
                 } : {}}
               >
-                <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-slate-600 group-hover:text-slate-300')} />
+                <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-muted-foreground group-hover:text-muted-foreground')} />
                 {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>}
                 {!expanded && (
-                  <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
+                  <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
                     style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
                     {item.name}
                   </span>
@@ -324,14 +324,14 @@ export function Sidebar() {
           title={!expanded ? 'Logout' : undefined}
           className={cn(
             'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out w-full',
-            'text-slate-500 hover:text-red-300 hover:bg-red-500/5',
+            'text-muted-foreground hover:text-red-300 hover:bg-red-500/5',
             expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
           )}
         >
-          <LogOut className={cn('flex-shrink-0 text-slate-600 group-hover:text-red-400 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
+          <LogOut className={cn('flex-shrink-0 text-muted-foreground group-hover:text-red-400 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
           {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>Logout</span>}
           {!expanded && (
-            <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-white opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
+            <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
               style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
               Logout
             </span>
@@ -359,7 +359,7 @@ export function Sidebar() {
             <Avatar name={displayName} size="sm" ring="none" />
             {expanded && (
               <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
-                <p className="text-[12px] font-semibold text-white/90 truncate">{displayName}</p>
+                <p className="text-[12px] font-semibold text-foreground/90 truncate">{displayName}</p>
                 <span
                   className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full capitalize tracking-wide"
                   style={roleStyle}

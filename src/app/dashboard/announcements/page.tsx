@@ -49,7 +49,7 @@ export default function AnnouncementsPage() {
           date: a.created_at,
           color: a.course_id ? 'from-violet-600 to-fuchsia-500' : 'from-amber-500 to-orange-400',
           glow: a.course_id ? 'oklch(0.65 0.26 285 / 0.25)' : 'oklch(0.75 0.16 85 / 0.25)',
-          icon: a.course_id ? <Bell className="h-6 w-6 text-white" /> : <Megaphone className="h-6 w-6 text-white" />,
+          icon: a.course_id ? <Bell className="h-6 w-6 text-foreground" /> : <Megaphone className="h-6 w-6 text-foreground" />,
         }));
         setAnnouncements(formatted);
       }

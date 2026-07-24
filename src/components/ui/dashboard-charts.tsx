@@ -29,8 +29,8 @@ const AttendanceTooltip = memo(function AttendanceTooltip({ active, payload, lab
   if (!active || !payload?.length) return null;
   return (
     <div style={tooltipBoxStyle}>
-      <p className="text-[11px] text-slate-500 mb-0.5">{label}</p>
-      <p className="text-[14px] font-bold text-white">{payload[0]?.value}%</p>
+      <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-[14px] font-bold text-foreground">{payload[0]?.value}%</p>
     </div>
   );
 });
@@ -39,8 +39,8 @@ const PerformanceTooltip = memo(function PerformanceTooltip({ active, payload, l
   if (!active || !payload?.length) return null;
   return (
     <div style={tooltipBoxStyle}>
-      <p className="text-[11px] text-slate-500 mb-0.5">{label}</p>
-      <p className="text-[14px] font-bold text-white">{payload[0]?.value}% avg</p>
+      <p className="text-[11px] text-muted-foreground mb-0.5">{label}</p>
+      <p className="text-[14px] font-bold text-foreground">{payload[0]?.value}% avg</p>
     </div>
   );
 });

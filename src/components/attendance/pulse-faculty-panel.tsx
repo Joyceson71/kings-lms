@@ -34,13 +34,13 @@ function SparkBar({ value, max, color }: { value: number; max: number; color: st
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="w-6 bg-[#1a1a1d] rounded-sm overflow-hidden" style={{ height: 48 }}>
+      <div className="w-6 bg-muted rounded-sm overflow-hidden" style={{ height: 48 }}>
         <div
           className={`w-full rounded-sm transition-all duration-700 ${color}`}
           style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }}
         />
       </div>
-      <span className="text-[9px] text-zinc-600">{value}</span>
+      <span className="text-[9px] text-muted-foreground">{value}</span>
     </div>
   );
 }
@@ -137,9 +137,9 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <p className="text-xs font-semibold text-zinc-300">Class Pulse</p>
+          <p className="text-xs font-semibold text-muted-foreground">Class Pulse</p>
         </div>
-        <p className="text-[10px] text-zinc-600">{counts.total} signals</p>
+        <p className="text-[10px] text-muted-foreground">{counts.total} signals</p>
       </div>
 
       {/* Alert Banner */}
@@ -154,41 +154,41 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
 
       {/* Live Signal Bars */}
       {counts.total === 0 ? (
-        <p className="text-center text-[11px] text-zinc-600 py-3">Waiting for student signals…</p>
+        <p className="text-center text-[11px] text-muted-foreground py-3">Waiting for student signals…</p>
       ) : (
         <div className="space-y-2">
           {/* Confused */}
           <div className="flex items-center gap-2">
             <span className="text-sm w-5 text-center">🤔</span>
-            <div className="flex-1 bg-[#1a1a1d] rounded-full h-2 overflow-hidden">
+            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
               <div
                 className="h-full bg-rose-500 rounded-full transition-all duration-700"
                 style={{ width: `${confusedPct}%` }}
               />
             </div>
-            <span className="text-[10px] text-zinc-500 w-8 text-right">{confusedPct}%</span>
+            <span className="text-[10px] text-muted-foreground w-8 text-right">{confusedPct}%</span>
           </div>
           {/* Got it */}
           <div className="flex items-center gap-2">
             <span className="text-sm w-5 text-center">✅</span>
-            <div className="flex-1 bg-[#1a1a1d] rounded-full h-2 overflow-hidden">
+            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
               <div
                 className="h-full bg-emerald-500 rounded-full transition-all duration-700"
                 style={{ width: `${gotItPct}%` }}
               />
             </div>
-            <span className="text-[10px] text-zinc-500 w-8 text-right">{gotItPct}%</span>
+            <span className="text-[10px] text-muted-foreground w-8 text-right">{gotItPct}%</span>
           </div>
           {/* Question */}
           <div className="flex items-center gap-2">
             <span className="text-sm w-5 text-center">💡</span>
-            <div className="flex-1 bg-[#1a1a1d] rounded-full h-2 overflow-hidden">
+            <div className="flex-1 bg-muted rounded-full h-2 overflow-hidden">
               <div
                 className="h-full bg-amber-500 rounded-full transition-all duration-700"
                 style={{ width: `${questionPct}%` }}
               />
             </div>
-            <span className="text-[10px] text-zinc-500 w-8 text-right">{questionPct}%</span>
+            <span className="text-[10px] text-muted-foreground w-8 text-right">{questionPct}%</span>
           </div>
         </div>
       )}
@@ -196,7 +196,7 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
       {/* Timeline Sparkline */}
       {counts.total > 0 && (
         <div>
-          <p className="text-[9px] text-zinc-700 mb-1 uppercase tracking-wider">Signal timeline</p>
+          <p className="text-[9px] text-muted-foreground mb-1 uppercase tracking-wider">Signal timeline</p>
           <div className="flex items-end gap-1.5">
             {buckets.map((b, i) => (
               <div key={i} className="flex flex-col items-center gap-1 flex-1">
@@ -205,7 +205,7 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
                   <SparkBar value={b.got_it} max={maxBucketVal} color="bg-emerald-500/70" />
                   <SparkBar value={b.question} max={maxBucketVal} color="bg-amber-500/70" />
                 </div>
-                <span className="text-[8px] text-zinc-700">{b.label}</span>
+                <span className="text-[8px] text-muted-foreground">{b.label}</span>
               </div>
             ))}
             <div className="flex flex-col items-center gap-1 flex-1">
@@ -223,7 +223,7 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
                   return t > Date.now() - 60_000 && s.signal === 'question';
                 }).length} max={maxBucketVal} color="bg-amber-500/70" />
               </div>
-              <span className="text-[8px] text-zinc-500 font-semibold">Now</span>
+              <span className="text-[8px] text-muted-foreground font-semibold">Now</span>
             </div>
           </div>
         </div>

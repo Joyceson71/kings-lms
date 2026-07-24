@@ -84,13 +84,13 @@ export function SubmissionModal({ assignment, isOpen, onClose, onSuccess }: Subm
             <span className="text-2xl">{assignment.icon}</span>
             <DialogTitle className="text-xl font-bold">{assignment.title}</DialogTitle>
           </div>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-muted-foreground">
             {assignment.course} ({assignment.code}) • Due: {assignment.due}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
-          <div className="p-4 rounded-xl bg-secondary/20 border border-border/50 text-[13px] leading-relaxed text-zinc-300">
+          <div className="p-4 rounded-xl bg-secondary/20 border border-border/50 text-[13px] leading-relaxed text-muted-foreground">
             {assignment.description || 'No description provided.'}
           </div>
 
@@ -139,7 +139,7 @@ export function SubmissionModal({ assignment, isOpen, onClose, onSuccess }: Subm
                       {file.name}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center text-zinc-500 group-hover:text-zinc-400 transition-colors">
+                    <div className="flex flex-col items-center text-muted-foreground group-hover:text-muted-foreground transition-colors">
                       <Upload className="h-5 w-5 mb-1.5" />
                       <span className="text-[12px] font-medium">Click to upload or drag and drop</span>
                     </div>

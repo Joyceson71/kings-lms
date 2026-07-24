@@ -43,7 +43,7 @@ export const BottomNav = memo(function BottomNav() {
               href={item.href}
               className={cn(
                 'relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 px-1 transition-colors duration-150',
-                active ? 'text-indigo-300' : 'text-slate-600',
+                active ? 'text-indigo-300' : 'text-muted-foreground',
               )}
             >
               {/* Neon top indicator */}
@@ -81,7 +81,7 @@ export const BottomNav = memo(function BottomNav() {
               <span
                 className={cn(
                   'text-[10px] font-semibold transition-all duration-150',
-                  active ? 'text-indigo-300' : 'text-slate-600',
+                  active ? 'text-indigo-300' : 'text-muted-foreground',
                 )}
               >
                 {item.name}

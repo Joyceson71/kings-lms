@@ -99,23 +99,23 @@ export function PulseStudentWidget({ sessionId }: PulseStudentWidgetProps) {
       {/* Confirmation toast */}
       {showConfirm && lastSignal && (
         <div
-          className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-card border border-[#2a2a2e] rounded-xl px-3 py-1.5 text-xs font-medium text-white animate-bounce-in z-10"
+          className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-card border border-border rounded-xl px-3 py-1.5 text-xs font-medium text-foreground animate-bounce-in z-10"
           style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.4)' }}
         >
           {SIGNALS.find(s => s.type === lastSignal)?.emoji} Signal sent anonymously!
         </div>
       )}
 
-      <div className="bg-[#0d0d0f] border border-border rounded-2xl p-4">
+      <div className="bg-background border border-border rounded-2xl p-4">
         <div className="flex items-center gap-2 mb-3">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <p className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider">Live Class Pulse</p>
+          <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Live Class Pulse</p>
         </div>
 
-        <p className="text-[12px] text-zinc-600 mb-3">How are you following along? (Anonymous)</p>
+        <p className="text-[12px] text-muted-foreground mb-3">How are you following along? (Anonymous)</p>
 
         <div className="grid grid-cols-3 gap-2">
           {SIGNALS.map(({ type, emoji, label, color, activeColor, glow }) => {
@@ -136,7 +136,7 @@ export function PulseStudentWidget({ sessionId }: PulseStudentWidgetProps) {
         </div>
 
         {isCoolingDown && (
-          <p className="text-center text-[10px] text-zinc-600 mt-2">
+          <p className="text-center text-[10px] text-muted-foreground mt-2">
             Next signal in {cooldownLeft}s
           </p>
         )}

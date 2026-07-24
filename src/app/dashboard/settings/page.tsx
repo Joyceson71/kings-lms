@@ -163,7 +163,7 @@ export default function SettingsPage() {
                     <div className="relative">
                       <Avatar name={displayName} size="xl" ring="violet" glow />
                       <button className="absolute -bottom-1 -right-1 h-7 w-7 rounded-full bg-primary border-2 border-background flex items-center justify-center hover:bg-primary/90 transition-colors shadow-lg">
-                        <Camera className="h-3.5 w-3.5 text-white" />
+                        <Camera className="h-3.5 w-3.5 text-foreground" />
                       </button>
                     </div>
                     <div>

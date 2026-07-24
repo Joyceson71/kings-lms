@@ -155,13 +155,13 @@ export function PomodoroTimer() {
         <div className="flex items-center gap-1">
           <button
             onClick={() => setIsMinimized(m => !m)}
-            className="h-5 w-5 flex items-center justify-center rounded text-slate-500 hover:text-slate-300 transition-colors"
+            className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-muted-foreground transition-colors"
           >
             {isMinimized ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
           </button>
           <button
             onClick={() => { setIsOpen(false); setRunning(false); }}
-            className="h-5 w-5 flex items-center justify-center rounded text-slate-500 hover:text-red-400 transition-colors"
+            className="h-5 w-5 flex items-center justify-center rounded text-muted-foreground hover:text-red-400 transition-colors"
           >
             <X className="h-3 w-3" />
           </button>
@@ -201,7 +201,7 @@ export function PomodoroTimer() {
               >
                 {formatTime(secs)}
               </div>
-              <div className="text-[9px] text-slate-500 mt-0.5 uppercase tracking-widest">
+              <div className="text-[9px] text-muted-foreground mt-0.5 uppercase tracking-widest">
                 {phase === 'work' ? 'Focus time' : 'Break time'}
               </div>
             </div>
@@ -211,7 +211,7 @@ export function PomodoroTimer() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <button
               onClick={reset}
-              className="h-8 w-8 flex items-center justify-center rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
+              className="h-8 w-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-muted-foreground transition-colors"
               style={{ background: 'rgba(255,255,255,0.04)' }}
               title="Reset"
             >
@@ -239,7 +239,7 @@ export function PomodoroTimer() {
             className="flex items-center justify-between px-3 py-2 rounded-xl"
             style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
           >
-            <span className="text-[10px] text-slate-500 font-medium">Sessions today</span>
+            <span className="text-[10px] text-muted-foreground font-medium">Sessions today</span>
             <div className="flex items-center gap-1">
               {Array.from({ length: Math.min(sessions, 8) }).map((_, i) => (
                 <div
@@ -249,7 +249,7 @@ export function PomodoroTimer() {
                 />
               ))}
               {sessions > 8 && <span className="text-[10px] text-indigo-400 font-bold ml-1">+{sessions - 8}</span>}
-              {sessions === 0 && <span className="text-[10px] text-slate-600">—</span>}
+              {sessions === 0 && <span className="text-[10px] text-muted-foreground">—</span>}
             </div>
           </div>
         </div>

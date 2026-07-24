@@ -511,7 +511,7 @@ function AttendanceContent() {
                       {/* Date divider */}
                       <div className="flex items-center gap-2 py-2 px-1">
                         <div className="flex-1 h-px" style={{ background: '#1f1f23' }} />
-                        <span className="text-[10px] font-medium text-zinc-600 whitespace-nowrap">{date}</span>
+                        <span className="text-[10px] font-medium text-muted-foreground whitespace-nowrap">{date}</span>
                         <div className="flex-1 h-px" style={{ background: '#1f1f23' }} />
                       </div>
                       <div className="space-y-2">

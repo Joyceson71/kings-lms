@@ -16,13 +16,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-indigo-600 text-white border-indigo-500 hover:bg-indigo-500 active:bg-indigo-700',
+          'bg-indigo-600 text-foreground border-indigo-500 hover:bg-indigo-500 active:bg-indigo-700',
         outline:
-          'bg-transparent text-zinc-300 border-[#2a2a2e] hover:bg-[#1a1a1d] hover:text-white active:bg-card',
+          'bg-transparent text-muted-foreground border-border hover:bg-muted hover:text-foreground active:bg-card',
         secondary:
-          'bg-[#1a1a1d] text-zinc-300 border-[#2a2a2e] hover:bg-[#222226] hover:text-white active:bg-card',
+          'bg-muted text-muted-foreground border-border hover:bg-muted hover:text-foreground active:bg-card',
         ghost:
-          'bg-transparent text-zinc-400 hover:bg-card hover:text-white active:bg-[#1a1a1d]',
+          'bg-transparent text-muted-foreground hover:bg-card hover:text-foreground active:bg-muted',
         destructive:
           'bg-red-600/10 text-red-400 border-red-500/20 hover:bg-red-600/20 hover:text-red-300 active:bg-red-600/30',
         link: 'text-indigo-400 underline-offset-4 hover:underline hover:text-indigo-300',

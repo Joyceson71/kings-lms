@@ -128,10 +128,10 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-xl font-semibold tracking-tight text-white">
+          <h1 className="text-xl font-semibold tracking-tight text-foreground">
             Assignments
           </h1>
-          <p className="text-zinc-400 text-[13px] mt-1">
+          <p className="text-muted-foreground text-[13px] mt-1">
             {grouped('pending').length} pending · {grouped('submitted').length} submitted · {grouped('graded').length} graded
           </p>
         </div>
@@ -143,7 +143,7 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[12px] font-semibold border transition-all duration-200 ${
                 smartSort
                   ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300'
-                  : 'bg-transparent border-border text-zinc-500 hover:text-zinc-300 hover:border-[#2a2a2e]'
+                  : 'bg-transparent border-border text-muted-foreground hover:text-muted-foreground hover:border-border'
               }`}
               title="Sort pending assignments by urgency: overdue first, then by closest deadline"
             >
@@ -193,10 +193,10 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
               {/* Column header */}
               <div className="flex items-center gap-2 mb-3 px-1">
                 <Icon className={`h-4 w-4 ${col.color}`} />
-                <span className="text-[13px] font-semibold text-white">
+                <span className="text-[13px] font-semibold text-foreground">
                   {col.label}
                 </span>
-                <span className="ml-auto text-[11px] text-zinc-500 bg-[#1a1a1d] rounded px-1.5 py-0.5 border border-[#2a2a2e]">
+                <span className="ml-auto text-[11px] text-muted-foreground bg-muted rounded px-1.5 py-0.5 border border-border">
                   {items.length}
                 </span>
               </div>
@@ -233,21 +233,21 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
                       </div>
                     </div>
 
-                    <h3 className="text-[13px] font-semibold text-white mb-1 leading-snug">
+                    <h3 className="text-[13px] font-semibold text-foreground mb-1 leading-snug">
                       {assignment.title}
                     </h3>
-                    <p className="text-[12px] text-zinc-400 mb-3 line-clamp-2 leading-relaxed">
+                    <p className="text-[12px] text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
                       {assignment.description}
                     </p>
 
                     <div className="flex items-center justify-between mt-auto">
-                      <span className="text-[11px] font-mono text-zinc-500">{assignment.code}</span>
+                      <span className="text-[11px] font-mono text-muted-foreground">{assignment.code}</span>
                       <div className="flex items-center gap-1.5 text-[11px]">
-                        <Calendar className="h-3 w-3 text-zinc-600" />
+                        <Calendar className="h-3 w-3 text-muted-foreground" />
                         <span className={`font-medium ${
                           assignment.status === 'pending' && isOverdue(assignment.due)
                             ? 'text-red-400'
-                            : 'text-zinc-400'
+                            : 'text-muted-foreground'
                         }`}>
                           {assignment.due}
                         </span>
@@ -301,7 +301,7 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
                         className="mt-3 pt-2.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity"
                         style={{ borderTop: '1px solid #1a1a1d' }}
                       >
-                        <span className="text-[11px] text-zinc-500">{assignment.course}</span>
+                        <span className="text-[11px] text-muted-foreground">{assignment.course}</span>
                         {isFaculty ? (
                           <button
                             className="flex items-center gap-1 text-[11px] font-medium text-amber-400 hover:text-amber-300"
@@ -326,8 +326,8 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
 
                 {items.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-10 text-center">
-                    <FileText className="h-6 w-6 text-zinc-700 mb-2" />
-                    <p className="text-[12px] text-zinc-500">No {col.label.toLowerCase()} assignments</p>
+                    <FileText className="h-6 w-6 text-muted-foreground mb-2" />
+                    <p className="text-[12px] text-muted-foreground">No {col.label.toLowerCase()} assignments</p>
                   </div>
                 )}
               </div>
@@ -341,7 +341,7 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
         <div className="rounded-lg p-4" style={{ background: '#111113', border: '1px solid #1f1f23' }}>
           <div className="flex items-center gap-3">
             <ClipboardList className="h-4 w-4 text-indigo-400" />
-            <p className="text-[13px] font-medium text-white">
+            <p className="text-[13px] font-medium text-foreground">
               You have <span className="text-amber-400">{grouped('pending').length} pending</span> assignments due this week.
               Keep going! 🚀
             </p>

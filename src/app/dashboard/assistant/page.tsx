@@ -128,7 +128,7 @@ export default function AssistantPage() {
 
       {/* Chat container */}
       <div
-        className="flex-1 overflow-y-auto rounded-2xl border border-border/30 bg-[#0a0a1a] p-4 space-y-4 animate-slide-in-up opacity-0"
+        className="flex-1 overflow-y-auto rounded-2xl border border-border/30 bg-background p-4 space-y-4 animate-slide-in-up opacity-0"
         style={{ animationDelay: '100ms', animationFillMode: 'forwards' }}
       >
         {messages.map((msg) => (
@@ -202,7 +202,7 @@ export default function AssistantPage() {
             placeholder="Ask anything about your courses… (Enter to send, Shift+Enter for new line)"
             rows={2}
             disabled={isLoading}
-            className="w-full resize-none rounded-xl border border-border/40 bg-[#0f0f28] px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 disabled:opacity-50"
+            className="w-full resize-none rounded-xl border border-border/40 bg-background px-4 py-3 pr-12 text-sm text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:ring-2 focus:ring-primary/20 outline-none transition-all duration-200 disabled:opacity-50"
           />
           <div className="absolute right-3 bottom-3">
             <Sparkles className="h-4 w-4 text-primary/40" />

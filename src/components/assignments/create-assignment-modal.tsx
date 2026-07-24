@@ -74,7 +74,7 @@ export function CreateAssignmentModal({ isOpen, onClose, onSuccess }: CreateAssi
             </div>
             <DialogTitle className="text-xl font-bold">New Assignment</DialogTitle>
           </div>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription className="text-muted-foreground">
             Create a new assignment for your students.
           </DialogDescription>
         </DialogHeader>
@@ -139,7 +139,7 @@ export function CreateAssignmentModal({ isOpen, onClose, onSuccess }: CreateAssi
             <Button 
               onClick={handleSubmit} 
               disabled={isSubmitting}
-              className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-white font-semibold h-10 px-8 rounded-xl"
+              className="w-full sm:w-auto bg-indigo-500 hover:bg-indigo-600 text-foreground font-semibold h-10 px-8 rounded-xl"
             >
               {isSubmitting ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Creating...</> : 'Create Assignment'}
             </Button>

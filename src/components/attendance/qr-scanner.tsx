@@ -196,7 +196,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
                       onClick={switchCamera}
                       size="icon"
                       variant="secondary"
-                      className="rounded-full bg-black/50 hover:bg-black/70 text-white border border-white/20 backdrop-blur-md"
+                      className="rounded-full bg-black/50 hover:bg-black/70 text-foreground border border-white/20 backdrop-blur-md"
                     >
                       <RefreshCcw className="h-4 w-4" />
                     </Button>
@@ -205,7 +205,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
                     onClick={toggleFlashlight}
                     size="icon"
                     variant="secondary"
-                    className="rounded-full bg-black/50 hover:bg-black/70 text-white border border-white/20 backdrop-blur-md"
+                    className="rounded-full bg-black/50 hover:bg-black/70 text-foreground border border-white/20 backdrop-blur-md"
                   >
                     {isFlashlightOn ? <Zap className="h-4 w-4 text-amber-400" /> : <ZapOff className="h-4 w-4" />}
                   </Button>

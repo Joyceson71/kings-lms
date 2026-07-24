@@ -138,18 +138,18 @@ export const AIAssistant = memo(function AIAssistant() {
                   <Bot className="h-4 w-4 text-indigo-300" />
                 </div>
                 <div>
-                  <h3 className="text-[13px] font-bold text-white flex items-center gap-1.5">
+                  <h3 className="text-[13px] font-bold text-foreground flex items-center gap-1.5">
                     Course AI
                     <Sparkles className="h-3 w-3 text-amber-400" style={{ filter: 'drop-shadow(0 0 4px #fbbf24)' }} />
                   </h3>
-                  <p className="text-[10px] text-slate-500">Always ready to help</p>
+                  <p className="text-[10px] text-muted-foreground">Always ready to help</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost" size="icon"
                   onClick={handleClear}
-                  className="h-7 w-7 hover:bg-red-500/10 hover:text-red-400 rounded-lg text-slate-600"
+                  className="h-7 w-7 hover:bg-red-500/10 hover:text-red-400 rounded-lg text-muted-foreground"
                   title="Clear Chat"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -157,7 +157,7 @@ export const AIAssistant = memo(function AIAssistant() {
                 <Button
                   variant="ghost" size="icon"
                   onClick={() => setIsOpen(false)}
-                  className="h-7 w-7 hover:bg-slate-800 rounded-lg text-slate-600"
+                  className="h-7 w-7 hover:bg-slate-800 rounded-lg text-muted-foreground"
                 >
                   <X className="h-3.5 w-3.5" />
                 </Button>
@@ -184,7 +184,7 @@ export const AIAssistant = memo(function AIAssistant() {
                     }
                   >
                     {msg.type === 'user'
-                      ? <User className="h-3 w-3 text-slate-400" />
+                      ? <User className="h-3 w-3 text-muted-foreground" />
                       : <Bot className="h-3 w-3 text-indigo-300" />
                     }
                   </div>
@@ -234,7 +234,7 @@ export const AIAssistant = memo(function AIAssistant() {
                   placeholder="Ask about a course..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  className="flex-1 h-10 rounded-xl text-[13px] placeholder:text-slate-700 border-[#1a1a3a] bg-[#080818] focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50 text-white"
+                  className="flex-1 h-10 rounded-xl text-[13px] placeholder:text-muted-foreground border-border bg-background focus-visible:ring-1 focus-visible:ring-indigo-500/50 focus-visible:border-indigo-500/50 text-foreground"
                 />
                 <Button
                   type="submit"
@@ -276,10 +276,10 @@ export const AIAssistant = memo(function AIAssistant() {
         }}
       >
         {isOpen ? (
-          <X className="h-6 w-6 text-slate-300 transition-transform rotate-0 hover:rotate-90" />
+          <X className="h-6 w-6 text-muted-foreground transition-transform rotate-0 hover:rotate-90" />
         ) : (
           <div className="relative">
-            <MessageSquare className="h-6 w-6 text-white" />
+            <MessageSquare className="h-6 w-6 text-foreground" />
             <Zap
               className="h-3 w-3 absolute -top-1.5 -right-2 text-amber-300"
               style={{ filter: 'drop-shadow(0 0 4px #fbbf24)', animation: 'pulse 2s ease-in-out infinite' }}

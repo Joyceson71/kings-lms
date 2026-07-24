@@ -1,0 +1,137 @@
+import { createClient } from '@/lib/supabase/server';
+import AdminUsersClient, { ActivityItem } from './users-client';
+import { redirect } from 'next/navigation';
+import { Suspense } from 'react';
+import { Loader2 } from 'lucide-react';
+
+export default async function AdminUsersPage() {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  // Middleware already guards this route but we double-check server-side.
+  if (!profile || profile.role !== 'admin') {
+    redirect('/dashboard');
+  }
+
+  const { data: users } = await supabase
+    .from('profiles')
+    .select('id, full_name, email, role, status, created_at, department, college')
+    .order('created_at', { ascending: false });
+
+  // Fetch recent signups for activity feed
+  const { data: recentSignups } = await supabase
+    .from('profiles')
+    .select('full_name, email, created_at')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  // Fetch recent courses for activity feed
+  const { data: recentCourses } = await supabase
+    .from('courses')
+    .select('title, created_at')
+    .order('created_at', { ascending: false })
+    .limit(3);
+
+  const activities: ActivityItem[] = [];
+
+  if (recentSignups) {
+    recentSignups.forEach((u) => {
+      activities.push({
+        id: `signup-${u.email}`,
+        type: 'user',
+        message: `New user "${u.full_name || u.email}" registered`,
+        time: u.created_at,
+      });
+    });
+  }
+
+  if (recentCourses) {
+    recentCourses.forEach((c) => {
+      activities.push({
+        id: `course-${c.title}`,
+        type: 'course',
+        message: `New course "${c.title}" was created`,
+        time: c.created_at,
+      });
+    });
+  }
+
+  // Sort activities by time descending and take top 5
+  activities.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+  const recentActivity = activities.slice(0, 5);
+
+  // Fetch system stats
+  const { count: coursesCount } = await supabase.from('courses').select('*', { count: 'exact', head: true });
+  const { count: sessionsCount } = await supabase.from('course_sessions').select('*', { count: 'exact', head: true });
+  const { count: enrollmentsCount } = await supabase.from('course_enrollments').select('*', { count: 'exact', head: true });
+  const { count: departmentsCount } = await supabase.from('departments').select('*', { count: 'exact', head: true });
+
+  // Sessions started today
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const { count: todaySessions } = await supabase
+    .from('course_sessions')
+    .select('*', { count: 'exact', head: true })
+    .gte('started_at', todayStart.toISOString());
+
+  // Pending grading count (submitted assignments)
+  const { count: pendingGrading } = await supabase
+    .from('assignment_submissions')
+    .select('*', { count: 'exact', head: true })
+    .eq('status', 'submitted');
+
+  // Department breakdown: count users per department
+  const { data: deptRaw } = await supabase
+    .from('profiles')
+    .select('department, role')
+    .not('department', 'is', null);
+  const deptMap: Record<string, { students: number; faculty: number }> = {};
+  for (const row of deptRaw ?? []) {
+    const dept = (row.department as string) || 'Unknown';
+    if (!deptMap[dept]) deptMap[dept] = { students: 0, faculty: 0 };
+    if (row.role === 'student') deptMap[dept].students++;
+    else if (row.role === 'faculty') deptMap[dept].faculty++;
+  }
+  const departmentBreakdown = Object.entries(deptMap)
+    .map(([dept, counts]) => ({ dept, ...counts, total: counts.students + counts.faculty }))
+    .sort((a, b) => b.total - a.total)
+    .slice(0, 8);
+
+  const systemStats = {
+    courses: coursesCount || 0,
+    sessions: sessionsCount || 0,
+    enrollments: enrollmentsCount || 0,
+    departments: departmentsCount || 0,
+  };
+
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center h-[60vh]">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <AdminUsersClient
+        initialUsers={users || []}
+        currentUserId={user.id}
+        recentActivity={recentActivity}
+        systemStats={systemStats}
+        healthMetrics={{
+          todaySessions: todaySessions ?? 0,
+          pendingGrading: pendingGrading ?? 0,
+          totalEnrollments: enrollmentsCount ?? 0,
+        }}
+        departmentBreakdown={departmentBreakdown}
+      />
+    </Suspense>
+  );
+}

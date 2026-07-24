@@ -298,8 +298,6 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
                       {[
                         { id: 'dark', label: 'Dark', preview: 'from-gray-900 to-slate-800' },
-                        { id: 'light', label: 'Light', preview: 'from-gray-100 to-white' },
-                        { id: 'system', label: 'System', preview: 'from-gray-400 to-gray-500' },
                       ].map((t) => {
                         const active = theme === t.id;
                         return (

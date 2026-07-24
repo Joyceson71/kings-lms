@@ -58,29 +58,29 @@
 
 /* ─── Base Light Theme (Default) ──────────────────── */
 :root {
-  --background:         #f8f9ff;
-  --foreground:         #1e1b4b;
+  --background:         #ffffff;
+  --foreground:         #09090b;
   --card:               #ffffff;
-  --card-foreground:    #1e1b4b;
+  --card-foreground:    #09090b;
   --popover:            #ffffff;
-  --popover-foreground: #1e1b4b;
+  --popover-foreground: #09090b;
   
   --primary:            #6366f1;
   --primary-foreground: #ffffff;
   
-  --secondary:          #f0f0ff;
-  --secondary-foreground:#3730a3;
+  --secondary:          #f4f4f5;
+  --secondary-foreground:#18181b;
   
-  --muted:              #eff0ff;
-  --muted-foreground:   #6b7280;
+  --muted:              #f4f4f5;
+  --muted-foreground:   #71717a;
   
   --accent:             #06b6d4;
   --accent-foreground:  #ffffff;
   
   --destructive:        #dc2626;
   
-  --border:             #e0e0ff;
-  --input:              #e0e0ff;
+  --border:             #e4e4e7;
+  --input:              #e4e4e7;
   --ring:               #6366f1;
   --radius:             0.625rem;
 
@@ -92,13 +92,13 @@
   --cyan:               #06b6d4;
   --cyan-glow:          rgb(6 182 212 / 0.2);
 
-  --sidebar:            #f0f0ff;
-  --sidebar-foreground: #1e1b4b;
+  --sidebar:            #ffffff;
+  --sidebar-foreground: #09090b;
   --sidebar-primary:    #6366f1;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:     #e0e0ff;
-  --sidebar-accent-foreground:  #3730a3;
-  --sidebar-border:     #e0e0ff;
+  --sidebar-accent:     #f4f4f5;
+  --sidebar-accent-foreground:  #18181b;
+  --sidebar-border:     #e4e4e7;
   --sidebar-ring:       #6366f1;
 
   --chart-1: #6366f1;
@@ -109,8 +109,8 @@
 
   --primary-glow: rgb(99 102 241 / 0.2);
   --glass-bg:     rgb(255 255 255 / 0.92);
-  --glass-border: #e0e0ff;
-  --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.05), 0 0 0 1px #e0e0ff;
+  --glass-border: #e4e4e7;
+  --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.05), 0 0 0 1px #e4e4e7;
 }
 
 /* ─── COSMIC MIDNIGHT — Deep Dark Theme ──────────────────── */

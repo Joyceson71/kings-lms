@@ -7,6 +7,7 @@ import { markAttendance } from '@/lib/supabase/queries';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Loader2 } from 'lucide-react';
 const getConfetti = () => import('canvas-confetti').then(mod => mod.default);
+import { getDistanceInMeters } from '@/lib/utils/geo';
 
 function AttendClient() {
   const searchParams = useSearchParams();
@@ -40,6 +41,39 @@ function AttendClient() {
         
         if (session.status !== 'active') {
           throw new Error('This attendance session is closed.');
+        }
+
+        if (session.latitude && session.longitude && session.radius_meters) {
+          await new Promise<void>((resolve, reject) => {
+            if (!navigator.geolocation) {
+              reject(new Error('Geolocation is not supported by your browser. Cannot mark attendance.'));
+              return;
+            }
+
+            setMessage('Verifying your location...');
+
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                const dist = getDistanceInMeters(
+                  position.coords.latitude,
+                  position.coords.longitude,
+                  session.latitude,
+                  session.longitude
+                );
+
+                if (dist > session.radius_meters) {
+                  reject(new Error(`You are too far from the classroom (${Math.round(dist)}m away). You must be within ${session.radius_meters}m.`));
+                } else {
+                  resolve();
+                }
+              },
+              (error) => {
+                console.warn('Geolocation error:', error);
+                reject(new Error('Could not get your location. Please ensure location services are enabled and try again.'));
+              },
+              { timeout: 10000, enableHighAccuracy: true }
+            );
+          });
         }
 
         const { success, error: markError } = await markAttendance(supabase, session.id, user.id);

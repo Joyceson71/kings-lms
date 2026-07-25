@@ -7,13 +7,14 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
-import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle, Download } from 'lucide-react';
+import { QrCode, Plus, Clock, CheckCircle, XCircle, BarChart2, Users, ScanLine, Loader2, AlertTriangle, Download, MapPin } from 'lucide-react';
 import { QRDisplayModal } from '@/components/attendance/qr-display';
 import { QRScannerModal } from '@/components/attendance/qr-scanner';
 import { PulseFacultyPanel } from '@/components/attendance/pulse-faculty-panel';
 import { PulseStudentWidget } from '@/components/attendance/pulse-student-widget';
 const getConfetti = () => import('canvas-confetti').then(mod => mod.default);
 import { toast } from 'sonner';
+import { getDistanceInMeters } from '@/lib/utils/geo';
 
 function AttendanceContent() {
   const { isFaculty, isStudent, profile, loading: userLoading } = useUser();
@@ -127,35 +128,64 @@ function AttendanceContent() {
     }
 
     setIsCreatingSession(true);
-    try {
-      const courseId = myCourses[0].id;
-      const token = crypto.randomUUID();
 
-      const { data, error } = await supabase
-        .from('course_sessions')
-        .insert({
+    const createSessionInDB = async (lat?: number, lng?: number) => {
+      try {
+        const courseId = myCourses[0].id;
+        const token = crypto.randomUUID();
+
+        const insertData: any = {
           course_id: courseId,
           created_by: profile?.id,
           room: 'Main Hall',
           qr_token: token
-        })
-        .select('*, courses(title, code)')
-        .single();
+        };
 
-      if (error) throw error;
+        if (lat !== undefined && lng !== undefined) {
+          insertData.latitude = lat;
+          insertData.longitude = lng;
+          insertData.radius_meters = 50;
+        }
 
-      if (data) {
-        setActiveSessions([data, ...activeSessions]);
-        // Open QR directly
-        setSelectedQRToken(data.qr_token);
-        setSelectedCourseName(data.courses?.title || 'Unknown Course');
-        setIsQRDisplayOpen(true);
+        const { data, error } = await supabase
+          .from('course_sessions')
+          .insert(insertData)
+          .select('*, courses(title, code)')
+          .single();
+
+        if (error) throw error;
+
+        if (data) {
+          setActiveSessions([data, ...activeSessions]);
+          // Open QR directly
+          setSelectedQRToken(data.qr_token);
+          setSelectedCourseName(data.courses?.title || 'Unknown Course');
+          setIsQRDisplayOpen(true);
+          toast.success(lat !== undefined ? 'Session created with geofencing.' : 'Session created without geofencing.');
+        }
+      } catch (err) {
+        console.error('Failed to create session:', err);
+        toast.error('Failed to create session. Please try again.');
+      } finally {
+        setIsCreatingSession(false);
       }
-    } catch (err) {
-      console.error('Failed to create session:', err);
-      toast.error('Failed to create session. Please try again.');
-    } finally {
-      setIsCreatingSession(false);
+    };
+
+    if (navigator.geolocation) {
+      toast.info('Acquiring location for geofencing...');
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          createSessionInDB(position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          console.warn('Geolocation error:', error);
+          toast.warning('Could not get location. Creating session without geofencing.');
+          createSessionInDB();
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    } else {
+      createSessionInDB();
     }
   };
 
@@ -174,7 +204,7 @@ function AttendanceContent() {
       // Find the session with this token
       const { data: sessionData, error: sessionError } = await supabase
         .from('course_sessions')
-        .select('id, course_id, status, created_at, courses(title)')
+        .select('id, course_id, status, created_at, latitude, longitude, radius_meters, courses(title)')
         .eq('qr_token', token)
         .single();
 
@@ -190,6 +220,39 @@ function AttendanceContent() {
       const sessionAge = Date.now() - new Date(sessionData.created_at).getTime();
       if (sessionAge > 2 * 60 * 60 * 1000) {
         throw new Error('Session has expired. Please ask your faculty to start a new session.');
+      }
+
+      // Geofencing Check
+      if (sessionData.latitude && sessionData.longitude && sessionData.radius_meters) {
+        await new Promise<void>((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error('Geolocation is not supported by your browser. Cannot mark attendance for this session.'));
+            return;
+          }
+
+          toast.info('Verifying your location...');
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const dist = getDistanceInMeters(
+                position.coords.latitude,
+                position.coords.longitude,
+                sessionData.latitude,
+                sessionData.longitude
+              );
+
+              if (dist > sessionData.radius_meters) {
+                reject(new Error(`You are too far from the classroom (${Math.round(dist)}m away). You must be within ${sessionData.radius_meters}m.`));
+              } else {
+                resolve();
+              }
+            },
+            (error) => {
+              console.warn('Geolocation error:', error);
+              reject(new Error('Could not get your location. Please ensure location services are enabled and try again.'));
+            },
+            { timeout: 10000, enableHighAccuracy: true }
+          );
+        });
       }
 
       // Check if already enrolled in this course
@@ -403,7 +466,15 @@ function AttendanceContent() {
                             </div>
                             <div>
                               <h3 className="text-sm font-semibold text-foreground">{session.courses?.code}: {session.courses?.title}</h3>
-                              <p className="text-xs text-muted-foreground">Started {new Date(session.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.room}</p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1">
+                                Started {new Date(session.started_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.room}
+                                {session.latitude && (
+                                  <span className="flex items-center gap-1 text-emerald-400 ml-2" title="Geofenced Session">
+                                    <MapPin className="h-3 w-3" />
+                                    Geofenced
+                                  </span>
+                                )}
+                              </p>
                             </div>
                           </div>
                           <Button

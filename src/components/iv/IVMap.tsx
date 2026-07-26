@@ -47,6 +47,8 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const [zoneName, setZoneName] = useState('');
   const [zoneType, setZoneType] = useState('permitted');
 
+  const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
   useEffect(() => {
     const s = localStorage.getItem(`iv-offline-stats-${tripId}`);
     if (s) setOfflineStats(JSON.parse(s));
@@ -131,6 +133,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       if (initialLocs) {
         initialLocs.forEach(l => updateMarker(l, L));
       }
+
+      const { data: existingPhotos } = await supabase.from('iv_messages').select('*').eq('iv_trip_id', tripId).not('photo_url', 'is', null);
+      if (existingPhotos) {
+        existingPhotos.forEach(msg => renderMessage(msg, L, true));
+      }
       
       const { data: alerts } = await supabase.from('iv_alerts').select('*').eq('iv_trip_id', tripId).order('created_at', { ascending: false }).limit(1);
       if (alerts && alerts.length > 0 && alerts[0].gather_lat) {
@@ -163,27 +170,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
            }
         })
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
-          const msg = payload.new as any;
-          if (msg.lat && msg.lng && L && mapInstance.current) {
-            const html = msg.is_broadcast 
-              ? `<div class="w-8 h-8 bg-yellow-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-xs font-bold">BR</div>`
-              : `<div class="w-8 h-8 bg-white rounded-full border-2 border-gray-400 shadow-lg flex items-center justify-center text-xs font-bold relative"><div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-transparent border-t-gray-400"></div>💬</div>`;
-            
-            const icon = L.divIcon({ html, className: 'bg-transparent', iconSize: [32, 32], iconAnchor: [16, 32] });
-            const marker = L.marker([msg.lat, msg.lng], { icon }).addTo(mapInstance.current);
-            
-            const content = msg.content || (msg.photo_url ? '📷 Photo' : 'Message');
-            marker.bindTooltip(content, { permanent: true, direction: 'top', offset: [0, -32] }).openTooltip();
-            
-            messageMarkersRef.current[msg.id] = marker;
-            
-            setTimeout(() => {
-              if (mapInstance.current && messageMarkersRef.current[msg.id]) {
-                mapInstance.current.removeLayer(messageMarkersRef.current[msg.id]);
-                delete messageMarkersRef.current[msg.id];
-              }
-            }, 600000);
-          }
+          renderMessage(payload.new as any, L, false);
         })
         .subscribe();
 
@@ -193,6 +180,40 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     };
 
     initMap();
+
+    function renderMessage(msg: any, L: any, isInitialLoad: boolean) {
+      if (!msg.lat || !msg.lng || !L || !mapInstance.current) return;
+      if (messageMarkersRef.current[msg.id]) return;
+
+      let html = '';
+      if (msg.photo_url) {
+        html = `<div class="w-12 h-12 rounded-lg border-2 border-primary shadow-lg overflow-hidden cursor-pointer bg-white" style="background-image: url('${msg.photo_url}'); background-size: cover; background-position: center;"></div>`;
+      } else if (msg.is_broadcast) {
+        html = `<div class="w-8 h-8 bg-yellow-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-xs font-bold">BR</div>`;
+      } else {
+        html = `<div class="w-8 h-8 bg-white rounded-full border-2 border-gray-400 shadow-lg flex items-center justify-center text-xs font-bold relative"><div class="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[4px] border-r-[4px] border-t-[6px] border-transparent border-t-gray-400"></div>💬</div>`;
+      }
+      
+      const icon = L.divIcon({ html, className: 'bg-transparent', iconSize: msg.photo_url ? [48, 48] : [32, 32], iconAnchor: msg.photo_url ? [24, 24] : [16, 32] });
+      const marker = L.marker([msg.lat, msg.lng], { icon }).addTo(mapInstance.current);
+      
+      if (msg.photo_url) {
+        marker.on('click', () => setSelectedPhoto(msg.photo_url));
+        if (msg.content) marker.bindTooltip(msg.content, { direction: 'top', offset: [0, -24] });
+      } else {
+        marker.bindTooltip(msg.content, { permanent: true, direction: 'top', offset: [0, -32] }).openTooltip();
+        if (!isInitialLoad) {
+          setTimeout(() => {
+            if (mapInstance.current && messageMarkersRef.current[msg.id]) {
+              mapInstance.current.removeLayer(messageMarkersRef.current[msg.id]);
+              delete messageMarkersRef.current[msg.id];
+            }
+          }, 600000);
+        }
+      }
+      
+      messageMarkersRef.current[msg.id] = marker;
+    }
 
     function updateMarker(loc: any, L: any) {
       if (!L || !markerClusterRef.current) return;
@@ -652,6 +673,16 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
               }}>Save Zone</Button>
             </div>
           </div>
+        </div>
+      )}
+
+      {selectedPhoto && (
+        <div className="absolute inset-0 bg-black/90 z-[3000] flex flex-col items-center justify-center p-4" onClick={() => setSelectedPhoto(null)}>
+          <button className="absolute top-4 right-4 text-white bg-black/50 p-2 rounded-full" onClick={() => setSelectedPhoto(null)}>
+            <X size={24} />
+          </button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={selectedPhoto} alt="Gallery view" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
         </div>
       )}
     </div>

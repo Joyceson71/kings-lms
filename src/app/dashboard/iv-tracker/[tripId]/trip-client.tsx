@@ -10,8 +10,10 @@ import { WifiOff, BatteryFull, BatteryLow, BatteryMedium } from 'lucide-react';
 import SOSButton from '@/components/iv/SOSButton';
 import AdminSOSPanel from '@/components/iv/AdminSOSPanel';
 import TripChat from '@/components/iv/TripChat';
+import TripGallery from '@/components/iv/TripGallery';
 import PathReplay from '@/components/iv/PathReplay';
 import QRCode from 'qrcode';
+import { ImageIcon } from 'lucide-react';
 
 const IVMap = dynamic(() => import('@/components/iv/IVMap'), { ssr: false });
 
@@ -32,6 +34,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
   const [showReplay, setShowReplay] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showGallery, setShowGallery] = useState(false);
   const [qrUrl, setQrUrl] = useState('');
 
   // Hook handles location tracking and offline syncing
@@ -213,7 +216,15 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <WifiOff size={16} /> You are offline — location is being queued
           </div>
         )}
-        {role === 'student' && <SOSButton tripId={tripId} studentId={currentUserId} />}
+        <div className="absolute bottom-20 left-4 z-[1000] flex flex-col gap-3 pointer-events-auto">
+          <button 
+            onClick={() => setShowGallery(true)}
+            className="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:scale-105 transition-transform"
+          >
+            <ImageIcon size={24} />
+          </button>
+          <SOSButton tripId={tripId} studentId={currentUserId} />
+        </div>
         {(role === 'faculty' || role === 'admin') && <AdminSOSPanel tripId={tripId} currentUserId={currentUserId} />}
         <IVMap 
           tripId={tripId} 
@@ -244,6 +255,14 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             </button>
           </div>
         </div>
+      )}
+      
+      {showGallery && (
+        <TripGallery 
+          tripId={tripId} 
+          currentUserId={currentUserId} 
+          onClose={() => setShowGallery(false)} 
+        />
       )}
     </>
   );

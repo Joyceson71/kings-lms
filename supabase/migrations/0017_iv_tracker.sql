@@ -42,9 +42,23 @@ CREATE TABLE IF NOT EXISTS push_subscriptions (
   created_at   TIMESTAMPTZ DEFAULT now()
 );
 
--- Enable Realtime on iv_locations and iv_alerts
-ALTER PUBLICATION supabase_realtime ADD TABLE iv_locations;
-ALTER PUBLICATION supabase_realtime ADD TABLE iv_alerts;
+-- Enable Realtime on iv_locations and iv_alerts gracefully
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'iv_locations'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE iv_locations;
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_tables 
+    WHERE pubname = 'supabase_realtime' AND tablename = 'iv_alerts'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE iv_alerts;
+  END IF;
+END $$;
 
 -- RLS policies
 ALTER TABLE iv_locations     ENABLE ROW LEVEL SECURITY;

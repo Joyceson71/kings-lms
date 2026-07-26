@@ -55,14 +55,8 @@ ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 -- iv_locations: students write their own row; everyone on the trip can read
 CREATE POLICY "student_upsert_own_location" ON iv_locations
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
-CREATE POLICY "trip_members_read_locations" ON iv_locations
-  FOR SELECT USING (
-    EXISTS (
-      SELECT 1 FROM iv_locations il2
-      WHERE il2.iv_trip_id = iv_locations.iv_trip_id
-        AND il2.user_id = auth.uid()
-    )
-  );
+CREATE POLICY "all_authenticated_read_locations" ON iv_locations
+  FOR SELECT USING (auth.role() = 'authenticated');
 
 -- iv_alerts: faculty/admin write; everyone on the trip can read
 CREATE POLICY "faculty_admin_write_alerts" ON iv_alerts

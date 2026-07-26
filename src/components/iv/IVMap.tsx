@@ -32,14 +32,13 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds }: IVMapP
     if (typeof window === 'undefined' || !mapContainer.current) return;
 
     let L: any;
-    let LRouting: any;
 
     const initMap = async () => {
       L = (await import('leaflet')).default;
       
       try {
         await import('leaflet-routing-machine');
-      } catch(_) {
+      } catch {
         console.warn('Routing machine failed to load');
       }
 
@@ -191,7 +190,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds }: IVMapP
       toast.success('Gather alert sent');
       setShowGatherModal(false);
       setGatherMessage('');
-    } catch(_) {
+    } catch {
       toast.error('Could not send alert');
     }
   };
@@ -221,7 +220,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds }: IVMapP
         addWaypoints: false
       }).addTo(mapInstance.current);
       
-    } catch(_) {
+    } catch {
       toast.error("Routing not available");
     }
   };
@@ -253,7 +252,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds }: IVMapP
       
       await cache.addAll(urls);
       toast.success('Map downloaded for offline use');
-    } catch(_) {
+    } catch {
       toast.error('Failed to download map');
     }
     setDownloading(false);

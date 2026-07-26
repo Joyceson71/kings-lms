@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 import { GraduationCap, CheckCircle2, Zap, Shield, BarChart3, Bell } from 'lucide-react';
+import { InteractiveBackground } from '@/components/3d/InteractiveBackground';
+import { TiltCard } from '@/components/ui/tilt-card';
 
 const features = [
   { icon: CheckCircle2, text: 'QR-based attendance — mark in seconds',      color: '#34d399' },
@@ -15,6 +17,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       className="relative flex min-h-screen"
       style={{ background: '#04040c' }}
     >
+      <InteractiveBackground />
       {/* Background mesh + grid */}
       <div className="absolute inset-0 bg-grid pointer-events-none opacity-60" />
       <div
@@ -181,28 +184,32 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
 
         {/* Form container */}
-        <div
-          className="w-full max-w-[400px] rounded-3xl p-8"
-          style={{
-            background: 'rgba(8, 8, 24, 0.9)',
-            border: '1px solid #1a1a3a',
-            boxShadow: '0 24px 80px rgb(0 0 0 / 0.6), 0 0 0 1px #1a1a3a, inset 0 1px 0 rgb(255 255 255 / 0.04)',
-            backdropFilter: 'blur(20px)',
-            WebkitBackdropFilter: 'blur(20px)',
-          }}
-        >
-          <Suspense
-            fallback={
-              <div className="flex items-center justify-center h-48">
-                <div className="relative">
-                  <div className="h-8 w-8 rounded-full border-2 border-indigo-900 border-t-indigo-400 animate-spin" />
-                  <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 16px rgb(129 140 248 / 0.3)' }} />
-                </div>
-              </div>
-            }
-          >
-            {children}
-          </Suspense>
+        <div className="w-full max-w-[400px]">
+          <TiltCard className="rounded-3xl" glareEnable={true}>
+            <div
+              className="w-full h-full p-8 rounded-[inherit]"
+              style={{
+                background: 'rgba(8, 8, 24, 0.9)',
+                border: '1px solid #1a1a3a',
+                boxShadow: '0 24px 80px rgb(0 0 0 / 0.6), 0 0 0 1px #1a1a3a, inset 0 1px 0 rgb(255 255 255 / 0.04)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+              }}
+            >
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center h-48">
+                    <div className="relative">
+                      <div className="h-8 w-8 rounded-full border-2 border-indigo-900 border-t-indigo-400 animate-spin" />
+                      <div className="absolute inset-0 rounded-full" style={{ boxShadow: '0 0 16px rgb(129 140 248 / 0.3)' }} />
+                    </div>
+                  </div>
+                }
+              >
+                {children}
+              </Suspense>
+            </div>
+          </TiltCard>
         </div>
       </div>
     </div>

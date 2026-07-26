@@ -3,10 +3,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, CheckCircle, BookOpen, ClipboardList, Settings, MapPin
+  LayoutDashboard, CheckCircle, BookOpen, Settings, MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
+import { motion } from 'framer-motion';
 
 const mobileNavItems = [
   { name: 'Home',        href: '/dashboard',             icon: LayoutDashboard },
@@ -23,13 +24,20 @@ export const BottomNav = memo(function BottomNav() {
     pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-center pointer-events-none">
-      <nav
-        className="flex items-stretch bg-background/80 backdrop-blur-md rounded-[2rem] border border-border shadow-lg overflow-hidden pointer-events-auto px-2"
+    <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-center pointer-events-none" style={{ perspective: 800 }}>
+      <motion.nav
+        initial={{ y: 100, rotateX: -20, opacity: 0 }}
+        animate={{ y: 0, rotateX: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 20 }}
+        className="flex items-stretch bg-background/80 backdrop-blur-xl rounded-[2rem] border border-border shadow-[0_8px_32px_rgba(0,0,0,0.3)] pointer-events-auto px-2 relative"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          transformStyle: "preserve-3d"
         }}
       >
+        {/* Subtle glass rim lighting */}
+        <div className="absolute inset-0 rounded-[2rem] border-t border-white/10 pointer-events-none" />
+
         <div className="flex items-stretch w-full max-w-md mx-auto py-1">
         {mobileNavItems.map((item) => {
           const active = isActive(item.href);
@@ -37,38 +45,39 @@ export const BottomNav = memo(function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
-              className={cn(
-                'relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 px-1 transition-colors duration-150',
-                active ? 'text-primary' : 'text-muted-foreground',
-              )}
+              className="relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 px-1 outline-none"
             >
-              {/* Neon top indicator */}
+              {/* Active Background Pill (Framer Motion Layout) */}
               {active && (
-                <span
-                  className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-8 rounded-b-full bg-primary"
+                <motion.div
+                  layoutId="bottom-nav-active"
+                  className="absolute inset-y-1.5 inset-x-1 rounded-2xl bg-muted border border-border/50 shadow-sm"
+                  transition={{ type: "spring", stiffness: 300, damping: 25 }}
                 />
               )}
 
-              {/* Icon */}
-              <div
+              {/* Icon Container */}
+              <motion.div
+                whileHover={{ y: -4, scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
                 className={cn(
-                  'flex items-center justify-center rounded-xl transition-all duration-150',
-                  active ? 'w-10 h-8 bg-muted text-foreground border border-border shadow-sm' : 'w-8 h-8',
+                  'relative z-10 flex items-center justify-center rounded-xl transition-colors duration-300',
+                  active ? 'w-10 h-8 text-foreground' : 'w-8 h-8 text-muted-foreground hover:text-foreground',
                 )}
               >
                 <item.icon
                   className={cn(
                     'transition-all duration-300',
-                    active ? 'h-5 w-5 text-primary animate-pulse' : 'h-5 w-5 text-muted-foreground',
+                    active ? 'h-5 w-5 text-primary drop-shadow-[0_0_8px_rgba(var(--primary),0.5)]' : 'h-5 w-5',
                   )}
                   strokeWidth={active ? 2.5 : 2}
                 />
-              </div>
+              </motion.div>
 
               <span
                 className={cn(
-                  'text-[10px] font-bold tracking-wider uppercase transition-all duration-150',
-                  active ? 'text-primary' : 'text-muted-foreground',
+                  'relative z-10 text-[10px] font-bold tracking-wider uppercase transition-all duration-300',
+                  active ? 'text-primary' : 'text-muted-foreground opacity-70',
                 )}
               >
                 {item.name}
@@ -77,7 +86,7 @@ export const BottomNav = memo(function BottomNav() {
           );
         })}
         </div>
-      </nav>
+      </motion.nav>
     </div>
   );
 });

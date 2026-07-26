@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
+import { TiltCard } from '@/components/ui/tilt-card';
 
 const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
@@ -108,34 +109,36 @@ const StatCard = memo(function StatCard({ stat, index }: {
 }) {
   return (
     <div
-      className="bento-card p-5 animate-slide-in-up opacity-0 group cursor-default"
+      className="bento-card animate-slide-in-up opacity-0 group cursor-default"
       style={{ animationDelay: `${(index + 1) * 60}ms`, animationFillMode: 'forwards' }}
       title={stat.tooltip}
     >
-      <div className="flex items-start justify-between mb-4">
-        <div
-          className="h-10 w-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
-          style={{ background: stat.iconBg }}
-        >
-          <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+      <TiltCard className="p-5" glareEnable={true}>
+        <div className="flex items-start justify-between mb-4">
+          <div
+            className="h-10 w-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
+            style={{ background: stat.iconBg }}
+          >
+            <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
+          </div>
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground transition-colors" />
         </div>
-        <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground transition-colors" />
-      </div>
-      <div>
-        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase mb-1">{stat.name}</p>
-        <p className="text-3xl font-black text-foreground tracking-tight leading-none mb-2">
-          <AnimatedCounter target={stat.value} duration={900} />
-        </p>
-        <p className={`text-[11px] font-medium flex items-center gap-1 ${
-          stat.changeType === 'positive' ? 'text-emerald-400' :
-          stat.changeType === 'danger' ? 'text-red-400' : 'text-muted-foreground'
-        }`}>
-          {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
-          {stat.changeType === 'danger' && <AlertTriangle className="h-3 w-3" />}
-          {stat.change}
-        </p>
-      </div>
-      <div className="mt-4 h-[2px] rounded-full" style={{ background: stat.accentGrad }} />
+        <div>
+          <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase mb-1">{stat.name}</p>
+          <p className="text-3xl font-black text-foreground tracking-tight leading-none mb-2">
+            <AnimatedCounter target={stat.value} duration={900} />
+          </p>
+          <p className={`text-[11px] font-medium flex items-center gap-1 ${
+            stat.changeType === 'positive' ? 'text-emerald-400' :
+            stat.changeType === 'danger' ? 'text-red-400' : 'text-muted-foreground'
+          }`}>
+            {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
+            {stat.changeType === 'danger' && <AlertTriangle className="h-3 w-3" />}
+            {stat.change}
+          </p>
+        </div>
+        <div className="mt-4 h-[2px] rounded-full" style={{ background: stat.accentGrad }} />
+      </TiltCard>
     </div>
   );
 });

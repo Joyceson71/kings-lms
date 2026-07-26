@@ -13,7 +13,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Kings EC Platform | Campus Learning & Management System",
+  title: {
+    template: "%s | Kings EC Platform",
+    default: "Kings EC Platform | Campus Learning & Management System",
+  },
   description:
     "Kings Engineering College Campus — the all-in-one learning management platform for students, faculty, and administration. Track attendance, manage courses, and stay on top of academics.",
   keywords: ["Kings EC", "LMS", "Campus", "Attendance", "Courses", "College"],

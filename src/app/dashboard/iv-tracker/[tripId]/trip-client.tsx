@@ -13,7 +13,7 @@ import TripChat from '@/components/iv/TripChat';
 import TripGallery from '@/components/iv/TripGallery';
 import PathReplay from '@/components/iv/PathReplay';
 import QRCode from 'qrcode';
-import { ImageIcon } from 'lucide-react';
+import { ImageIcon, Menu, X } from 'lucide-react';
 
 const IVMap = dynamic(() => import('@/components/iv/IVMap'), { ssr: false });
 
@@ -36,6 +36,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
   const [qrUrl, setQrUrl] = useState('');
+  const [showSidebar, setShowSidebar] = useState(false);
 
   // Hook handles location tracking and offline syncing
   useIVLocation(tripId, currentUserId, isActive && sharing, batterySaver);
@@ -88,10 +89,23 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
   return (
     <>
+      {/* MOBILE SIDEBAR TOGGLE */}
+      <button 
+        className="md:hidden absolute top-4 left-4 z-[3000] bg-gradient-to-br from-indigo-950/80 to-purple-900/80 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-white shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+        onClick={() => setShowSidebar(true)}
+      >
+        <Menu size={24} />
+      </button>
+
       {/* SPATIAL SIDEBAR */}
-      <div className="absolute top-4 left-4 z-[2000] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-96px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-gradient-to-br from-indigo-950/70 to-purple-900/60 backdrop-blur-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden text-white pointer-events-auto">
+      <div className={`absolute top-4 left-4 z-[3500] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-gradient-to-br from-indigo-950/90 to-purple-900/90 backdrop-blur-2xl border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden text-white pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
         <div className="p-6 flex flex-col flex-1 overflow-y-auto">
-          <h2 className="font-extrabold text-2xl tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]">IV Tracker Max</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-extrabold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]">IV Tracker Max</h2>
+            <button className="md:hidden text-white/70 hover:text-white bg-white/10 p-2 rounded-full border border-white/20" onClick={() => setShowSidebar(false)}>
+              <X size={20} />
+            </button>
+          </div>
           
           {(role === 'faculty' || role === 'admin') && (
             <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/10 shadow-inner">
@@ -220,12 +234,12 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <WifiOff size={18} /> OFFLINE - QUEUING GPS
           </div>
         )}
-        <div className="absolute bottom-8 right-8 z-[2000] flex flex-col gap-6 pointer-events-auto items-end">
+        <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.8)] hover:scale-110 transition-transform border-4 border-white/20 backdrop-blur-sm"
+            className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.8)] hover:scale-110 transition-transform border-4 border-white/20 backdrop-blur-sm"
           >
-            <ImageIcon size={36} />
+            <ImageIcon size={32} />
           </button>
           <SOSButton tripId={tripId} studentId={currentUserId} />
         </div>

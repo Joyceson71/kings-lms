@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { App } from '@capacitor/app';
+import { toast } from 'sonner';
 
 export function useIVLocation(tripId: string, userId: string, active: boolean, batterySaver: boolean = false) {
   const [location, setLocation] = useState<{ lat: number; lng: number; accuracy: number; isOnline: boolean } | null>(null);
@@ -193,6 +194,11 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         },
         (error) => {
           console.warn('Geolocation error:', error);
+          if (error.code === error.PERMISSION_DENIED) {
+            toast.error('Location permission denied. Please enable it in your browser settings.');
+          } else {
+            toast.error(`Location error: ${error.message}. Please ensure location services are enabled.`);
+          }
         },
         { 
           enableHighAccuracy: !batterySaver, 

@@ -3,16 +3,16 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, CheckCircle, BookOpen, ClipboardList, Settings,
+  LayoutDashboard, CheckCircle, BookOpen, ClipboardList, Settings, MapPin
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { memo } from 'react';
 
 const mobileNavItems = [
   { name: 'Home',        href: '/dashboard',             icon: LayoutDashboard },
+  { name: 'IV Tracker',  href: '/dashboard/iv-tracker',  icon: MapPin },
   { name: 'Attendance',  href: '/dashboard/attendance',  icon: CheckCircle },
   { name: 'Courses',     href: '/dashboard/courses',     icon: BookOpen },
-  { name: 'Assignments', href: '/dashboard/assignments', icon: ClipboardList },
   { name: 'Settings',    href: '/dashboard/settings',    icon: Settings },
 ];
 

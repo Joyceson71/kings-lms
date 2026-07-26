@@ -88,81 +88,83 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
   return (
     <>
-      <div className="w-full md:w-80 bg-card border-r border-border p-4 flex flex-col h-auto md:h-full z-10 shrink-0 overflow-y-auto">
-        <h2 className="font-bold text-lg mb-2">IV Tracker</h2>
-        
-        {(role === 'faculty' || role === 'admin') && (
-          <div className="mb-4 p-3 bg-primary/10 rounded-lg border border-primary/20 text-center">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Live Headcount</p>
-            <p className="text-2xl font-bold text-primary">
-              {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length} / {students.length}
-            </p>
-          </div>
-        )}
-        
-        {isActive && (
-          <div className="flex flex-col gap-2 mb-6">
-            <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-xl border border-border">
-              <Label htmlFor="share-location" className="font-bold">
-                {role === 'student' ? 'Share Location' : 'Act as Guide (Share Location)'}
-              </Label>
-              <input 
-                type="checkbox"
-                id="share-location" 
-                checked={sharing} 
-                onChange={e => setSharing(e.target.checked)} 
-                className="w-5 h-5 rounded border-border"
-              />
+      {/* SPATIAL SIDEBAR */}
+      <div className="absolute top-4 left-4 z-[2000] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-96px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-gradient-to-br from-indigo-950/70 to-purple-900/60 backdrop-blur-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden text-white pointer-events-auto">
+        <div className="p-6 flex flex-col flex-1 overflow-y-auto">
+          <h2 className="font-extrabold text-2xl tracking-tight mb-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]">IV Tracker Max</h2>
+          
+          {(role === 'faculty' || role === 'admin') && (
+            <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/10 shadow-inner">
+              <p className="text-xs font-black text-pink-400 uppercase tracking-[0.2em] mb-1">Live Headcount</p>
+              <p className="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
+                {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length} <span className="text-white/50 text-2xl">/ {students.length}</span>
+              </p>
             </div>
-            
-            {role === 'student' && (
-              <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-xl border border-border">
-                <div className="flex flex-col">
-                  <Label htmlFor="battery-saver" className="font-bold">Battery Saver Mode</Label>
-                  <span className="text-xs text-muted-foreground">Updates every 60s, lower accuracy</span>
-                </div>
+          )}
+          
+          {isActive && (
+            <div className="flex flex-col gap-3 mb-8">
+              <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <Label htmlFor="share-location" className="font-bold text-white tracking-wide">
+                  {role === 'student' ? 'Share Location' : 'Act as Guide (Share Location)'}
+                </Label>
                 <input 
                   type="checkbox"
-                  id="battery-saver" 
-                  checked={batterySaver} 
-                  onChange={e => setBatterySaver(e.target.checked)} 
-                  className="w-5 h-5 rounded border-border"
+                  id="share-location" 
+                  checked={sharing} 
+                  onChange={e => setSharing(e.target.checked)} 
+                  className="w-6 h-6 rounded-lg border-white/20 bg-black/50 accent-pink-500"
                 />
               </div>
-            )}
-          </div>
-        )}
+              
+              {role === 'student' && (
+                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <div className="flex flex-col">
+                    <Label htmlFor="battery-saver" className="font-bold text-white tracking-wide">Battery Saver</Label>
+                    <span className="text-xs text-white/50">Throttles GPS to 60s</span>
+                  </div>
+                  <input 
+                    type="checkbox"
+                    id="battery-saver" 
+                    checked={batterySaver} 
+                    onChange={e => setBatterySaver(e.target.checked)} 
+                    className="w-6 h-6 rounded-lg border-white/20 bg-black/50 accent-pink-500"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
-        {isActive && (role === 'faculty' || role === 'admin') && joinCode && (
-          <button 
-            onClick={async () => {
-              const url = `${window.location.origin}/dashboard/iv-tracker/${tripId}/join?code=${joinCode}`;
-              setQrUrl(await QRCode.toDataURL(url));
-              setShowQrModal(true);
-            }} 
-            className="w-full bg-primary text-primary-foreground py-2 rounded-lg font-bold mb-6"
-          >
-            Share QR Link
-          </button>
-        )}
+          {isActive && (role === 'faculty' || role === 'admin') && joinCode && (
+            <button 
+              onClick={async () => {
+                const url = `${window.location.origin}/dashboard/iv-tracker/${tripId}/join?code=${joinCode}`;
+                setQrUrl(await QRCode.toDataURL(url));
+                setShowQrModal(true);
+              }} 
+              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-2xl font-black text-lg shadow-[0_0_20px_rgba(217,70,239,0.5)] hover:scale-[1.02] transition-transform mb-8"
+            >
+              Share QR Link
+            </button>
+          )}
 
-        {!isActive && (role === 'faculty' || role === 'admin') && (
-          <div className="flex flex-col gap-2 mb-6">
-            <button onClick={() => setShowReplay(!showReplay)} className="bg-primary text-primary-foreground py-2 rounded-lg font-bold">
-              {showReplay ? 'Close Replay' : 'Replay Trip'}
-            </button>
-            <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-secondary text-secondary-foreground py-2 rounded-lg font-bold">
-              {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
-            </button>
-            <button onClick={() => window.open(`/api/iv/trip-report?trip_id=${tripId}`)} className="bg-black text-white py-2 rounded-lg font-bold flex items-center justify-center gap-2">
-              Download PDF Report
-            </button>
-          </div>
-        )}
+          {!isActive && (role === 'faculty' || role === 'admin') && (
+            <div className="flex flex-col gap-3 mb-8">
+              <button onClick={() => setShowReplay(!showReplay)} className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-2xl font-black shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                {showReplay ? 'Close Replay' : 'Replay Trip'}
+              </button>
+              <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-white/10 text-white py-3 rounded-2xl font-black border border-white/20 hover:bg-white/20">
+                {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
+              </button>
+              <button onClick={() => window.open(`/api/iv/trip-report?trip_id=${tripId}`)} className="bg-black text-white py-3 rounded-2xl font-black border border-white/10 shadow-inner flex items-center justify-center gap-2 hover:bg-black/80">
+                Download PDF Report
+              </button>
+            </div>
+          )}
 
-        <div className="flex-1">
-          <h3 className="text-sm font-semibold text-muted-foreground mb-3">Live Participants</h3>
-          <div className="space-y-3">
+          <div className="flex-1">
+            <h3 className="text-xs font-black text-white/50 uppercase tracking-[0.2em] mb-4">Live Participants</h3>
+            <div className="space-y-3">
             {students.map(s => {
               const myLoc = students.find(x => x.user_id === currentUserId);
               let dist = null;
@@ -177,51 +179,53 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
               }
 
               return (
-                <div key={s.user_id} className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg">
+                <div key={s.user_id} className="flex items-center justify-between p-3 bg-black/30 rounded-xl border border-white/5 backdrop-blur-md">
                   <div>
-                    <p className="font-medium text-sm">
+                    <p className="font-bold text-sm tracking-wide">
                       {s.profiles?.first_name} {s.profiles?.last_name}
-                      {s.user_id === currentUserId && ' (You)'}
+                      {s.user_id === currentUserId && <span className="text-pink-400"> (You)</span>}
                     </p>
-                    <p className="text-xs text-muted-foreground flex gap-2">
+                    <p className="text-xs text-white/50 flex gap-2 mt-1">
                       {new Date(s.updated_at).toLocaleTimeString()}
                       {dist !== null && (
-                        <span className={`font-bold ${dist < 50 ? 'text-emerald-500' : dist < 200 ? 'text-yellow-500' : 'text-red-500'}`}>
-                          {dist}m away
+                        <span className={`font-black tracking-wider ${dist < 50 ? 'text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]' : dist < 200 ? 'text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]' : 'text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.8)]'}`}>
+                          {dist}m
                         </span>
                       )}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {s.battery !== null && (
-                      <div className="flex items-center text-xs text-muted-foreground" title={`${s.battery}%`}>
-                        {s.battery > 80 ? <BatteryFull size={14} className="text-emerald-500" /> :
-                         s.battery > 20 ? <BatteryMedium size={14} className="text-yellow-500" /> :
-                         <BatteryLow size={14} className="text-red-500" />}
+                      <div className="flex items-center text-xs font-bold text-white/80" title={`${s.battery}%`}>
+                        {s.battery > 80 ? <BatteryFull size={16} className="text-green-400 drop-shadow-[0_0_5px_rgba(74,222,128,0.8)]" /> :
+                         s.battery > 20 ? <BatteryMedium size={16} className="text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]" /> :
+                         <BatteryLow size={16} className="text-red-400 drop-shadow-[0_0_5px_rgba(248,113,113,0.8)]" />}
                         <span className="ml-1">{s.battery}%</span>
                       </div>
                     )}
-                    <div className={`w-2 h-2 rounded-full ${s.is_online ? 'bg-emerald-500' : 'bg-gray-500'}`} title={s.is_online ? 'Online' : 'Offline'} />
+                    <div className={`w-3 h-3 rounded-full ${s.is_online ? 'bg-green-400 shadow-[0_0_10px_rgba(74,222,128,1)]' : 'bg-gray-600 shadow-inner'}`} title={s.is_online ? 'Online' : 'Offline'} />
                   </div>
                 </div>
               );
             })}
           </div>
         </div>
+        </div>
       </div>
 
-      <div className="flex-1 relative h-[50vh] md:h-full">
+      {/* FULL SCREEN MAP */}
+      <div className="absolute inset-0 z-0">
         {isOffline && (
-          <div className="absolute top-0 left-0 w-full bg-yellow-500/90 text-black text-center text-sm py-1 z-[2000] font-bold flex items-center justify-center gap-2">
-            <WifiOff size={16} /> You are offline — location is being queued
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-2 rounded-full text-sm z-[3000] font-black tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(250,204,21,0.6)]">
+            <WifiOff size={18} /> OFFLINE - QUEUING GPS
           </div>
         )}
-        <div className="absolute bottom-20 left-4 z-[1000] flex flex-col gap-3 pointer-events-auto">
+        <div className="absolute bottom-8 right-8 z-[2000] flex flex-col gap-6 pointer-events-auto items-end">
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center shadow-[0_0_15px_rgba(37,99,235,0.5)] hover:scale-105 transition-transform"
+            className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.8)] hover:scale-110 transition-transform border-4 border-white/20 backdrop-blur-sm"
           >
-            <ImageIcon size={24} />
+            <ImageIcon size={36} />
           </button>
           <SOSButton tripId={tripId} studentId={currentUserId} />
         </div>
@@ -243,14 +247,14 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       </div>
       
       {showQrModal && (
-        <div className="absolute inset-0 bg-black/50 z-[3000] flex items-center justify-center p-4">
-          <div className="bg-white text-black p-8 rounded-xl shadow-2xl flex flex-col items-center">
-            <h3 className="font-bold text-xl mb-4">Trip Join QR Code</h3>
-            <img src={qrUrl} alt="QR Code" className="w-64 h-64 border-4 border-gray-200 rounded-xl mb-4" />
-            <p className="font-mono bg-gray-100 p-2 rounded text-sm mb-6 text-center break-all">
+        <div className="absolute inset-0 bg-black/80 backdrop-blur-xl z-[4000] flex items-center justify-center p-4">
+          <div className="bg-gradient-to-br from-indigo-900 to-purple-900 border border-white/20 text-white p-12 rounded-[3rem] shadow-[0_0_60px_rgba(217,70,239,0.5)] flex flex-col items-center">
+            <h3 className="font-black text-3xl mb-8 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Join Trip</h3>
+            <img src={qrUrl} alt="QR Code" className="w-80 h-80 rounded-3xl mb-8 shadow-2xl shadow-black/50" />
+            <p className="font-mono bg-black/50 p-4 rounded-xl text-sm mb-8 text-center break-all border border-white/10 text-white/70 tracking-widest max-w-[300px]">
               {window.location.origin}/dashboard/iv-tracker/{tripId}/join?code={joinCode}
             </p>
-            <button onClick={() => setShowQrModal(false)} className="w-full bg-black text-white py-2 rounded-lg font-bold">
+            <button onClick={() => setShowQrModal(false)} className="w-full bg-pink-500 text-white py-4 rounded-2xl font-black text-lg shadow-[0_0_20px_rgba(236,72,153,0.5)]">
               Close
             </button>
           </div>

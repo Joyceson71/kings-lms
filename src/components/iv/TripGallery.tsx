@@ -93,69 +93,74 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
   };
 
   return (
-    <div className="fixed inset-0 z-[2500] bg-background flex flex-col animate-in slide-in-from-bottom">
-      <div className="flex items-center justify-between p-4 border-b border-border bg-card">
-        <h2 className="text-xl font-bold flex items-center gap-2">
-          <ImageIcon className="text-primary" /> Live Photo Stream
-        </h2>
-        <button onClick={onClose} className="p-2 bg-secondary rounded-full hover:bg-secondary/80">
-          <X size={20} />
-        </button>
-      </div>
+    <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 md:p-12 animate-in fade-in">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      
+      <div className="relative w-full h-full bg-gradient-to-br from-indigo-950/80 to-purple-900/80 backdrop-blur-3xl rounded-[3rem] border border-white/20 shadow-[0_0_60px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in zoom-in-95">
+        <div className="flex items-center justify-between p-8 border-b border-white/10 bg-black/30 shadow-inner">
+          <h2 className="text-3xl font-black flex items-center gap-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">
+            <ImageIcon className="text-pink-400" size={32} /> LIVE PHOTO STREAM
+          </h2>
+          <button onClick={onClose} className="p-3 bg-white/10 rounded-full hover:bg-white/20 text-white border border-white/20 transition-colors">
+            <X size={24} />
+          </button>
+        </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        {photos.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-4">
-            <Camera size={48} className="opacity-20" />
-            <p>No photos yet. Be the first to add one!</p>
-          </div>
-        ) : (
-          <div className="columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
-            {photos.map((p) => {
-              const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : 'Unknown';
-              return (
-                <div 
-                  key={p.id} 
-                  className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-xl bg-secondary/50 border border-border"
-                  onClick={() => setSelectedPhoto(p.photo_url)}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={p.photo_url} alt="Gallery" className="w-full object-cover transition-transform group-hover:scale-105" />
-                  <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3 pt-8">
-                    <p className="text-white text-xs font-bold truncate">{name}</p>
-                    <p className="text-white/70 text-[10px]">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+        <div className="flex-1 overflow-y-auto p-8">
+          {photos.length === 0 ? (
+            <div className="h-full flex flex-col items-center justify-center text-white/30 gap-6">
+              <Camera size={72} className="opacity-20 animate-pulse" />
+              <p className="font-bold text-xl tracking-widest uppercase">No photos yet.</p>
+            </div>
+          ) : (
+            <div className="columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6">
+              {photos.map((p) => {
+                const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : 'Unknown';
+                return (
+                  <div 
+                    key={p.id} 
+                    className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl bg-black/50 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:-translate-y-2 transition-all duration-300"
+                    onClick={() => setSelectedPhoto(p.photo_url)}
+                  >
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.photo_url} alt="Gallery" className="w-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute bottom-0 inset-x-0 p-5 translate-y-2 group-hover:translate-y-0 transition-transform">
+                      <p className="text-white text-sm font-black tracking-wider truncate drop-shadow-md">{name.toUpperCase()}</p>
+                      <p className="text-pink-300 font-bold text-xs mt-1 drop-shadow-md">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
 
-      <div className="p-4 border-t border-border bg-card flex justify-center">
-        <button 
-          onClick={() => fileInputRef.current?.click()}
-          className="bg-primary text-primary-foreground font-bold px-8 py-3 rounded-full shadow-lg flex items-center gap-2 hover:opacity-90 transition-opacity"
-        >
-          <Camera size={20} /> Add Photo
-        </button>
-        <input 
-          type="file" 
-          ref={fileInputRef} 
+        <div className="p-6 border-t border-white/10 bg-black/40 shadow-inner flex justify-center backdrop-blur-md">
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xl px-12 py-5 rounded-full shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:scale-105 transition-transform flex items-center gap-3 border-2 border-white/20"
+          >
+            <Camera size={28} /> ADD PHOTO TO STREAM
+          </button>
+          <input 
+            type="file" 
+            ref={fileInputRef} 
           className="hidden" 
           accept="image/*" 
           capture="environment"
           onChange={handleUpload} 
         />
+        </div>
       </div>
 
       {selectedPhoto && (
-        <div className="fixed inset-0 bg-black/95 z-[3000] flex flex-col items-center justify-center p-4" onClick={() => setSelectedPhoto(null)}>
-          <button className="absolute top-4 right-4 text-white bg-black/50 p-2 rounded-full hover:bg-black/70" onClick={() => setSelectedPhoto(null)}>
-            <X size={24} />
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-3xl z-[6000] flex flex-col items-center justify-center p-4 animate-in fade-in" onClick={() => setSelectedPhoto(null)}>
+          <button className="absolute top-8 right-8 text-white bg-white/10 p-3 rounded-full hover:bg-white/20 border border-white/20" onClick={() => setSelectedPhoto(null)}>
+            <X size={32} />
           </button>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={selectedPhoto} alt="Full view" className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
+          <img src={selectedPhoto} alt="Full view" className="max-w-full max-h-[90vh] object-contain rounded-[2rem] shadow-[0_0_80px_rgba(0,0,0,1)] border border-white/10" />
         </div>
       )}
     </div>

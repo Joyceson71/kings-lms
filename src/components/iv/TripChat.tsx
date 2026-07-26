@@ -146,44 +146,52 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
     <>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-4 right-4 z-[1000] bg-primary text-primary-foreground p-3 rounded-full shadow-xl"
+        className="absolute top-4 right-4 z-[2000] bg-gradient-to-r from-pink-500 to-purple-600 text-white p-4 rounded-full shadow-[0_0_20px_rgba(236,72,153,0.6)] hover:scale-110 transition-transform border-2 border-white/20"
       >
-        <MessageSquare size={24} />
+        <MessageSquare size={28} />
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 bg-red-600 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full">
+          <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs font-black w-7 h-7 flex items-center justify-center rounded-full shadow-[0_0_15px_rgba(250,204,21,1)] border-2 border-black">
             {unreadCount}
           </div>
         )}
       </button>
 
       {isOpen && (
-        <div className="absolute top-0 right-0 h-full w-full md:w-60 bg-card border-l border-border z-[1500] flex flex-col shadow-2xl transition-transform">
-          <div className="flex items-center justify-between p-4 border-b border-border bg-secondary/30">
-            <h3 className="font-bold text-lg flex items-center gap-2"><MessageSquare size={18} /> Chat</h3>
-            <button onClick={() => setIsOpen(false)}><X size={20} /></button>
+        <div className="absolute top-4 right-4 bottom-4 w-full md:w-[400px] bg-gradient-to-br from-indigo-950/80 to-purple-900/80 backdrop-blur-3xl z-[2500] flex flex-col shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/20 rounded-[2rem] overflow-hidden animate-in slide-in-from-right">
+          <div className="flex items-center justify-between p-6 border-b border-white/10 bg-black/30 shadow-inner">
+            <h3 className="font-black text-2xl flex items-center gap-3 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">
+              <MessageSquare size={24} className="text-pink-400" /> CHAT
+            </h3>
+            <button onClick={() => setIsOpen(false)} className="text-white/70 hover:text-white bg-white/10 p-2 rounded-full"><X size={24} /></button>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
             {messages.map((m) => {
               const isMe = m.sender_id === currentUserId;
               const name = m.profiles ? `${m.profiles.first_name} ${m.profiles.last_name}` : 'Unknown';
               const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2);
 
               return (
-                <div key={m.id} className={`flex gap-2 ${isMe ? 'flex-row-reverse' : ''} ${m.is_broadcast ? 'border-2 border-yellow-500 rounded-lg p-2 bg-yellow-500/10' : ''}`}>
+                <div key={m.id} className={`flex gap-3 ${isMe ? 'flex-row-reverse' : ''}`}>
                   {!isMe && (
-                    <div className="w-8 h-8 shrink-0 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold">
+                    <div className="w-10 h-10 shrink-0 rounded-full bg-gradient-to-br from-pink-500 to-orange-400 flex items-center justify-center text-sm font-black text-white shadow-lg border-2 border-white/20">
                       {initials}
                     </div>
                   )}
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
                     <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-xs font-bold">{isMe ? 'You' : name}</span>
-                      <span className="text-[10px] text-muted-foreground">{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      {m.is_broadcast && <span className="text-[10px] bg-yellow-500 text-black px-1 rounded font-bold">BROADCAST</span>}
+                      <span className="text-xs font-bold text-white/70">{isMe ? 'YOU' : name.toUpperCase()}</span>
+                      <span className="text-[10px] text-white/40">{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      {m.is_broadcast && <span className="text-[10px] bg-yellow-400 text-black px-2 py-0.5 rounded shadow-[0_0_10px_rgba(250,204,21,0.8)] font-black tracking-widest">BROADCAST</span>}
                     </div>
                     {m.content && (
-                      <div className={`px-3 py-2 rounded-2xl text-sm ${isMe ? 'bg-primary text-primary-foreground' : 'bg-secondary'}`}>
+                      <div className={`px-5 py-3 rounded-3xl text-sm font-medium ${
+                        m.is_broadcast 
+                          ? 'bg-yellow-400/20 text-yellow-100 border-2 border-yellow-400 shadow-[0_0_20px_rgba(250,204,21,0.4)] text-lg' 
+                          : isMe 
+                            ? 'bg-pink-600/50 text-white border border-pink-400 shadow-[0_0_15px_rgba(236,72,153,0.3)]' 
+                            : 'bg-white/10 text-white border border-white/20 backdrop-blur-md'
+                      }`}>
                         {m.content}
                       </div>
                     )}
@@ -191,7 +199,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                       <img 
                         src={m.photo_url} 
                         alt="attachment" 
-                        className="max-h-20 rounded-lg cursor-pointer hover:opacity-80 mt-1 border border-border"
+                        className="max-h-32 rounded-2xl cursor-pointer hover:scale-105 transition-transform mt-2 border-2 border-white/20 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
                         onClick={() => setFullPhoto(m.photo_url)}
                       />
                     )}
@@ -201,15 +209,15 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
             })}
           </div>
 
-          <div className="p-3 border-t border-border bg-background">
+          <div className="p-4 border-t border-white/10 bg-black/40 shadow-inner">
             {(role === 'faculty' || role === 'admin') && (
-              <label className="flex items-center gap-2 mb-2 text-xs font-bold text-yellow-600 cursor-pointer">
-                <input type="checkbox" checked={isBroadcast} onChange={e => setIsBroadcast(e.target.checked)} />
-                Send as Broadcast
+              <label className="flex items-center gap-2 mb-3 text-xs font-black text-yellow-400 cursor-pointer uppercase tracking-wider">
+                <input type="checkbox" checked={isBroadcast} onChange={e => setIsBroadcast(e.target.checked)} className="accent-yellow-400 w-4 h-4" />
+                Broadcast Alert
               </label>
             )}
-            <div className="flex items-center gap-2">
-              <button onClick={() => fileInputRef.current?.click()} className="p-2 text-muted-foreground hover:text-foreground">
+            <div className="flex items-center gap-3">
+              <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors border border-white/20">
                 <ImageIcon size={20} />
               </button>
               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhoto} />
@@ -219,11 +227,11 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                 value={text}
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSend()}
-                placeholder="Message..."
-                className="flex-1 bg-secondary/50 border border-border rounded-full px-4 py-2 text-sm focus:outline-none"
+                placeholder="Type a message..."
+                className="flex-1 bg-black/50 border border-white/20 rounded-full px-5 py-3 text-white text-sm focus:outline-none focus:border-pink-500 focus:shadow-[0_0_15px_rgba(236,72,153,0.5)] placeholder:text-white/30"
               />
-              <button onClick={handleSend} className="p-2 bg-primary text-primary-foreground rounded-full shrink-0">
-                <Send size={16} />
+              <button onClick={handleSend} className="p-3 bg-gradient-to-r from-pink-500 to-purple-600 text-white rounded-full shrink-0 shadow-[0_0_15px_rgba(236,72,153,0.5)] hover:scale-105 transition-transform border border-white/20">
+                <Send size={20} />
               </button>
             </div>
           </div>
@@ -231,9 +239,9 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
       )}
 
       {fullPhoto && (
-        <div className="fixed inset-0 bg-black/90 z-[3000] flex items-center justify-center p-4" onClick={() => setFullPhoto(null)}>
-          <img src={fullPhoto} alt="full" className="max-w-full max-h-full object-contain" />
-          <button className="absolute top-4 right-4 text-white"><X size={32} /></button>
+        <div className="fixed inset-0 bg-black/90 backdrop-blur-3xl z-[5000] flex items-center justify-center p-4 animate-in fade-in" onClick={() => setFullPhoto(null)}>
+          <img src={fullPhoto} alt="full" className="max-w-full max-h-[90vh] object-contain rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-white/10" />
+          <button className="absolute top-8 right-8 text-white bg-white/10 p-3 rounded-full hover:bg-white/20 border border-white/20"><X size={32} /></button>
         </div>
       )}
     </>

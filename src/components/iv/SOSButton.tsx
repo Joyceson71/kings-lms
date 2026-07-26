@@ -40,6 +40,7 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
       if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [holding]);
 
   const triggerSOS = async () => {
@@ -96,40 +97,41 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
 
   if (activeSOS) {
     return (
-      <div className="absolute bottom-24 right-4 z-[1000] flex flex-col items-end gap-2">
-        <div className="bg-red-600 text-white p-3 rounded-lg shadow-lg animate-pulse flex items-center justify-center text-center">
-          <p className="font-bold">SOS sent — help is coming</p>
+      <div className="fixed inset-0 z-[5000] bg-red-950/80 backdrop-blur-3xl flex flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md bg-red-600/20 border-2 border-red-500 rounded-[3rem] p-12 text-center shadow-[0_0_100px_rgba(239,68,68,0.8)] animate-pulse">
+          <h1 className="text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-[0_0_20px_rgba(255,255,255,0.8)]">SOS ACTIVE</h1>
+          <p className="text-red-200 font-bold text-xl mb-12">Emergency responders have been notified.</p>
+          {canCancel && (
+            <button 
+              onClick={cancelSOS}
+              className="w-full bg-black/50 hover:bg-black text-white px-8 py-6 rounded-3xl text-2xl font-black border border-red-500/50 shadow-[0_0_30px_rgba(0,0,0,0.5)] transition-colors"
+            >
+              CANCEL (30s)
+            </button>
+          )}
         </div>
-        {canCancel && (
-          <button 
-            onClick={cancelSOS}
-            className="bg-black/80 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-md"
-          >
-            Cancel SOS (30s)
-          </button>
-        )}
       </div>
     );
   }
 
   return (
-    <div className="absolute bottom-24 right-4 z-[1000]">
+    <div className="relative z-[1000]">
       <button
         onPointerDown={() => setHolding(true)}
         onPointerUp={() => setHolding(false)}
         onPointerLeave={() => setHolding(false)}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-20 h-20 rounded-full bg-red-600 text-white font-bold shadow-xl border-4 border-white flex items-center justify-center relative overflow-hidden select-none active:scale-95 transition-transform"
+        className="w-24 h-24 rounded-[2rem] bg-gradient-to-b from-red-500 to-red-700 text-white font-black shadow-[0_0_40px_rgba(239,68,68,0.8)] border-4 border-red-300 flex items-center justify-center relative overflow-hidden select-none hover:scale-105 active:scale-95 transition-transform"
       >
         <div 
-          className="absolute bottom-0 left-0 right-0 bg-red-800 transition-all duration-75" 
+          className="absolute bottom-0 left-0 right-0 bg-red-950 transition-all duration-75" 
           style={{ height: `${holdProgress}%` }}
         />
-        <span className="relative z-10 text-xl">SOS</span>
+        <span className="relative z-10 text-3xl tracking-widest drop-shadow-[0_2px_10px_rgba(0,0,0,0.5)]">SOS</span>
       </button>
       {holding && (
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 text-white px-3 py-1 rounded text-sm">
-          Hold to send
+        <div className="absolute -top-14 left-1/2 -translate-x-1/2 whitespace-nowrap bg-black/80 backdrop-blur-md text-white px-6 py-2 rounded-2xl text-sm font-bold border border-white/20 shadow-xl">
+          HOLD TO SEND
         </div>
       )}
     </div>

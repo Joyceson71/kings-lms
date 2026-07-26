@@ -10,6 +10,7 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import { IVGlobe } from '@/components/iv/IVGlobe';
 
 interface IVMapProps {
   tripId: string;
@@ -48,6 +49,8 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const [zoneType, setZoneType] = useState('permitted');
 
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
+
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('3d');
 
   useEffect(() => {
     const s = localStorage.getItem(`iv-offline-stats-${tripId}`);
@@ -545,7 +548,30 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         </Button>
       </div>
 
-      <div ref={mapContainer} className="w-full h-full z-0 bg-secondary/20" />
+      <div className="absolute top-4 right-4 z-[1000]">
+        <div className="bg-background/80 backdrop-blur border border-border rounded-lg p-1 flex shadow-lg">
+          <button 
+            onClick={() => setViewMode('2d')} 
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === '2d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
+          >
+            2D Map
+          </button>
+          <button 
+            onClick={() => setViewMode('3d')} 
+            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === '3d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
+          >
+            3D Globe
+          </button>
+        </div>
+      </div>
+
+      {viewMode === '3d' ? (
+        <div className="w-full h-full z-0 flex flex-col pt-16">
+          <IVGlobe tripId={tripId} />
+        </div>
+      ) : (
+        <div ref={mapContainer} className="w-full h-full z-0 bg-secondary/20" />
+      )}
 
       {showOfflineModal && (
         <div className="absolute inset-0 bg-black/60 z-[2000] flex items-center justify-center p-4">

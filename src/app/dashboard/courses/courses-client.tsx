@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useState, useEffect } from 'react';
 import { CourseModal } from '@/components/courses/course-modal';
 import { AddCourseModal } from '@/components/courses/add-course-modal';
+import { TiltCard } from '@/components/ui/tilt-card';
 import { createClient } from '@/lib/supabase/client';
 
 export default function CoursesClient({ allCourses, enrolledCourses, profile }: { allCourses: any[], enrolledCourses: any[], profile: any }) {
@@ -150,11 +151,12 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
             className="animate-slide-in-up opacity-0"
             style={{ animationDelay: `${(i + 1) * 60}ms`, animationFillMode: 'forwards' }}
           >
-            <div
-              className="rounded-xl overflow-hidden h-full flex flex-col cursor-pointer hover:border-indigo-500/50 transition-colors group"
-              style={{ background: '#111113', border: '1px solid #1f1f23' }}
-              onClick={() => setActiveCourse(course)}
-            >
+            <TiltCard holoEffect={true} glareEnable={true} className="rounded-xl overflow-hidden h-full">
+              <div
+                className="rounded-xl overflow-hidden h-full flex flex-col cursor-pointer transition-colors group relative z-10"
+                style={{ background: '#111113', border: '1px solid #1f1f23' }}
+                onClick={() => setActiveCourse(course)}
+              >
               <div className="p-4 flex flex-col flex-1">
                 {/* Icon + status */}
                 <div className="flex items-start justify-between mb-4">
@@ -246,7 +248,8 @@ export default function CoursesClient({ allCourses, enrolledCourses, profile }: 
                   )}
                 </div>
               </div>
-            </div>
+              </div>
+            </TiltCard>
           </div>
         ))}
       </div>

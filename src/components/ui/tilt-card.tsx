@@ -8,9 +8,10 @@ interface TiltCardProps {
   children: React.ReactNode;
   className?: string;
   glareEnable?: boolean;
+  holoEffect?: boolean;
 }
 
-export function TiltCard({ children, className, glareEnable = true }: TiltCardProps) {
+export function TiltCard({ children, className, glareEnable = true, holoEffect = false }: TiltCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
 
@@ -53,6 +54,11 @@ export function TiltCard({ children, className, glareEnable = true }: TiltCardPr
   const glareY = useTransform(springY, [0, 1], [100, -100]);
   const glareOpacity = useTransform(springY, [0, 1], [0, 0.4]);
 
+  // Holo effects
+  const holoBgX = useTransform(springX, [0, 1], [0, 100]);
+  const holoBgY = useTransform(springY, [0, 1], [0, 100]);
+  const holoOpacity = useTransform(springY, [0, 1], [0, 0.8]);
+
   return (
     <div
       ref={ref}
@@ -88,6 +94,19 @@ export function TiltCard({ children, className, glareEnable = true }: TiltCardPr
               }}
             />
           </motion.div>
+        )}
+        
+        {holoEffect && (
+          <motion.div
+            className="pointer-events-none absolute inset-0 z-[110] rounded-[inherit] overflow-hidden mix-blend-color-dodge transition-opacity duration-300"
+            style={{
+              opacity: isHovered ? holoOpacity : 0,
+              backgroundImage: 'linear-gradient(115deg, transparent 20%, rgba(255, 0, 200, 0.5) 30%, rgba(0, 255, 255, 0.5) 45%, rgba(255, 255, 0, 0.5) 60%, transparent 80%)',
+              backgroundSize: '250% 250%',
+              backgroundPositionX: useTransform(holoBgX, (val) => `${val}%`),
+              backgroundPositionY: useTransform(holoBgY, (val) => `${val}%`),
+            }}
+          />
         )}
       </motion.div>
     </div>

@@ -102,7 +102,7 @@ const StatCard = memo(function StatCard({ stat, index }: {
   stat: {
     name: string; value: string; icon: React.ElementType;
     change: string; changeType: 'positive' | 'neutral' | 'danger';
-    iconColor: string; iconBg: string; accentGrad: string;
+    iconColor: string; iconBg: string; accentGrad: string; tooltip?: string;
   };
   index: number;
 }) {
@@ -110,6 +110,7 @@ const StatCard = memo(function StatCard({ stat, index }: {
     <div
       className="bento-card p-5 animate-slide-in-up opacity-0 group cursor-default"
       style={{ animationDelay: `${(index + 1) * 60}ms`, animationFillMode: 'forwards' }}
+      title={stat.tooltip}
     >
       <div className="flex items-start justify-between mb-4">
         <div
@@ -446,6 +447,7 @@ export default function DashboardClient({
       iconColor: isAttendanceLow ? 'text-red-400' : 'text-emerald-400',
       iconBg: isAttendanceLow ? 'rgb(239 68 68 / 0.1)' : 'rgb(52 211 153 / 0.1)',
       accentGrad: isAttendanceLow ? 'linear-gradient(90deg, #f87171, transparent)' : 'linear-gradient(90deg, #34d399, transparent)',
+      tooltip: 'Your average attendance percentage across all enrolled courses',
     },
     {
       name: 'Courses',
@@ -455,6 +457,7 @@ export default function DashboardClient({
       changeType: 'neutral' as const,
       iconColor: 'text-indigo-300', iconBg: 'rgb(129 140 248 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #818cf8, transparent)',
+      tooltip: 'Total number of active courses you are currently taking',
     },
     {
       name: 'Pending Tasks',
@@ -464,6 +467,7 @@ export default function DashboardClient({
       changeType: stats.pendingAssignments > 3 ? 'danger' as const : stats.pendingAssignments > 0 ? 'neutral' as const : 'positive' as const,
       iconColor: 'text-amber-300', iconBg: 'rgb(251 191 36 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #fbbf24, transparent)',
+      tooltip: 'Total number of assignments awaiting your submission',
     },
     {
       name: 'Live Now',
@@ -473,6 +477,7 @@ export default function DashboardClient({
       changeType: studentData?.activeSessions.length ? 'positive' as const : 'neutral' as const,
       iconColor: 'text-cyan-300', iconBg: 'rgb(34 211 238 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #22d3ee, transparent)',
+      tooltip: 'Number of classes that are currently running live right now',
     },
   ] : [
     {
@@ -480,24 +485,28 @@ export default function DashboardClient({
       change: 'Total enrolled', changeType: 'positive' as const,
       iconColor: 'text-indigo-300', iconBg: 'rgb(129 140 248 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #818cf8, transparent)',
+      tooltip: 'Total number of unique students enrolled in the system',
     },
     {
       name: 'Total Courses', value: stats.totalCourses.toString(), icon: BookOpen,
       change: 'This semester', changeType: 'positive' as const,
       iconColor: 'text-emerald-400', iconBg: 'rgb(52 211 153 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #34d399, transparent)',
+      tooltip: 'Total number of active courses being taught this semester',
     },
     {
       name: 'Avg Attendance', value: `${stats.attendanceRate}%`, icon: CheckCircle,
       change: 'Across all courses', changeType: 'positive' as const,
       iconColor: 'text-emerald-400', iconBg: 'rgb(52 211 153 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #34d399, transparent)',
+      tooltip: 'Average attendance percentage calculated across all students and courses',
     },
     {
       name: 'To Grade', value: stats.pendingAssignments.toString(), icon: Clock,
       change: 'Pending review', changeType: 'neutral' as const,
       iconColor: 'text-amber-300', iconBg: 'rgb(251 191 36 / 0.1)',
       accentGrad: 'linear-gradient(90deg, #fbbf24, transparent)',
+      tooltip: 'Number of submitted assignments awaiting faculty review and grading',
     },
   ], [isStudent, stats, studentData, overallAttendance, isAttendanceLow]);
 

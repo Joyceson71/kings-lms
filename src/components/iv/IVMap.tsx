@@ -509,7 +509,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col">
+    <div className="relative w-full h-full flex flex-col select-none touch-none">
       {gatherPoint && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-red-500 text-white px-6 py-3 rounded-full shadow-lg font-bold flex items-center gap-3">
           <MapPin className="animate-bounce" />

@@ -35,7 +35,7 @@ export default async function IVTripPage({ params }: { params: Promise<{ tripId:
         role={profile?.role || 'student'}
         mapBounds={trip.map_bounds}
         isActive={trip.active}
-        joinCode={trip.join_code}
+        joinCode={trip.trip_code}
       />
     </div>
   );

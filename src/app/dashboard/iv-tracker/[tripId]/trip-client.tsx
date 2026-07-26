@@ -152,7 +152,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
           {isActive && (role === 'faculty' || role === 'admin') && joinCode && (
             <button 
               onClick={async () => {
-                const url = `${window.location.origin}/dashboard/iv-tracker/${tripId}/join?code=${joinCode}`;
+                const url = `${window.location.origin}/dashboard/iv-tracker/${tripId}`;
                 setQrUrl(await QRCode.toDataURL(url));
                 setShowQrModal(true);
               }} 
@@ -263,11 +263,12 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       {showQrModal && (
         <div className="absolute inset-0 bg-black/80 backdrop-blur-xl z-[4000] flex items-center justify-center p-4">
           <div className="bg-gradient-to-br from-indigo-900 to-purple-900 border border-white/20 text-white p-12 rounded-[3rem] shadow-[0_0_60px_rgba(217,70,239,0.5)] flex flex-col items-center">
-            <h3 className="font-black text-3xl mb-8 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Join Trip</h3>
-            <img src={qrUrl} alt="QR Code" className="w-80 h-80 rounded-3xl mb-8 shadow-2xl shadow-black/50" />
-            <p className="font-mono bg-black/50 p-4 rounded-xl text-sm mb-8 text-center break-all border border-white/10 text-white/70 tracking-widest max-w-[300px]">
-              {window.location.origin}/dashboard/iv-tracker/{tripId}/join?code={joinCode}
-            </p>
+            <h3 className="font-black text-3xl mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Join Trip</h3>
+            <div className="bg-white/10 px-8 py-4 rounded-2xl border border-white/20 mb-8 shadow-inner text-center">
+              <p className="text-sm font-bold text-white/50 uppercase tracking-widest mb-1">Trip Code</p>
+              <p className="font-mono text-5xl font-black text-white tracking-widest">{joinCode}</p>
+            </div>
+            <img src={qrUrl} alt="QR Code" className="w-80 h-80 rounded-3xl mb-8 shadow-2xl shadow-black/50 border-4 border-white/10" />
             <button onClick={() => setShowQrModal(false)} className="w-full bg-pink-500 text-white py-4 rounded-2xl font-black text-lg shadow-[0_0_20px_rgba(236,72,153,0.5)]">
               Close
             </button>

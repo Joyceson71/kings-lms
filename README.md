@@ -267,5 +267,5 @@ All tables have RLS enabled with the following policies:
 ---
 
 <div align="center">
-  <p>Built with ❤️ for Kings Engineering College</p>
+  <p>Built with ❤️ for Pass Time</p>
 </div>

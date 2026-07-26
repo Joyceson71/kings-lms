@@ -13,7 +13,8 @@ import TripChat from '@/components/iv/TripChat';
 import TripGallery from '@/components/iv/TripGallery';
 import PathReplay from '@/components/iv/PathReplay';
 import QRCode from 'qrcode';
-import { ImageIcon, Menu, X } from 'lucide-react';
+import { ImageIcon, Menu, X, Copy } from 'lucide-react';
+import { toast } from 'sonner';
 
 const IVMap = dynamic(() => import('@/components/iv/IVMap'), { ssr: false });
 
@@ -269,9 +270,21 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
         <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[4000] flex items-center justify-center p-4">
           <div className="bg-card border border-border text-foreground p-8 rounded-3xl shadow-xl flex flex-col items-center max-w-sm w-full">
             <h3 className="font-bold text-2xl mb-4">Join Trip</h3>
-            <div className="bg-muted px-8 py-4 rounded-xl border border-border mb-6 text-center w-full">
+            <div className="bg-muted px-8 py-4 rounded-xl border border-border mb-6 text-center w-full relative group">
               <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Trip Code</p>
-              <p className="font-mono text-4xl font-black">{joinCode}</p>
+              <div className="flex items-center justify-center gap-3">
+                <p className="font-mono text-4xl font-black">{joinCode}</p>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(joinCode);
+                    toast.success('Code copied to clipboard');
+                  }}
+                  className="p-2 bg-background border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10 transition-colors"
+                  title="Copy code"
+                >
+                  <Copy size={16} />
+                </button>
+              </div>
             </div>
             <img src={qrUrl} alt="QR Code" className="w-64 h-64 rounded-2xl mb-6 bg-white p-2" />
             <button onClick={() => setShowQrModal(false)} className="w-full bg-secondary text-secondary-foreground py-3 rounded-xl font-bold">

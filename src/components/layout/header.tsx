@@ -172,9 +172,23 @@ export const Header = memo(function Header() {
               ) : (
                 <Avatar name={displayName} size="xs" />
               )}
-              <span className="hidden sm:block max-w-[90px] truncate text-[12px]">
-                {loading ? '' : displayName.split(' ')[0]}
-              </span>
+              <div className="hidden sm:flex items-center gap-2">
+                <span className="max-w-[90px] truncate text-[12px]">
+                  {loading ? '' : displayName.split(' ')[0]}
+                </span>
+                {!loading && (
+                  <span
+                    className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded capitalize"
+                    style={{
+                      background: chip.bg,
+                      color: chip.text,
+                      border: `1px solid ${chip.border}`,
+                    }}
+                  >
+                    {role}
+                  </span>
+                )}
+              </div>
             </button>
 
             {/* Dropdown */}

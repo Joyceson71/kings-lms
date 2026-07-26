@@ -119,7 +119,7 @@ const StatCard = memo(function StatCard({ stat, index }: {
             className="h-10 w-10 rounded-xl flex items-center justify-center transition-transform duration-200 group-hover:scale-110"
             style={{ background: stat.iconBg }}
           >
-            {/* @ts-ignore */}
+            {/* @ts-expect-error dynamic component type mismatch */}
             <stat.icon className={`h-5 w-5 ${stat.iconColor}`} />
           </div>
           <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-muted-foreground transition-colors" />

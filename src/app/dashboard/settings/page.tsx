@@ -137,7 +137,7 @@ export default function SettingsPage() {
                         : 'text-muted-foreground hover:bg-secondary/60 hover:text-foreground'
                     )}
                   >
-                    {/* @ts-ignore */}
+                    {/* @ts-expect-error dynamic component type mismatch */}
                     <Icon className={cn('h-4 w-4', activeTab === tab.key ? 'text-primary' : 'text-muted-foreground')} />
                     {tab.label}
                   </button>

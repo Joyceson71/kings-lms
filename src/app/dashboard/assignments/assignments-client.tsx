@@ -192,7 +192,7 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
             >
               {/* Column header */}
               <div className="flex items-center gap-2 mb-3 px-1">
-                {/* @ts-ignore */}
+                {/* @ts-expect-error dynamic component type mismatch */}
                 <Icon className={`h-4 w-4 ${col.color}`} />
                 <span className="text-[13px] font-semibold text-foreground">
                   {col.label}

@@ -125,7 +125,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
         />
       )}
 
-      {/* @ts-ignore */}
+      {/* @ts-expect-error dynamic component type mismatch */}
       <item.icon
         className={cn(
           'flex-shrink-0 transition-all duration-300 ease-out',
@@ -349,7 +349,7 @@ export function Sidebar() {
                   boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
                 } : {}}
               >
-                {/* @ts-ignore */}
+                {/* @ts-expect-error dynamic component type mismatch */}
         <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-muted-foreground group-hover:text-muted-foreground')} />
                 {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>}
                 {!expanded && (

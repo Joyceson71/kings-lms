@@ -58,6 +58,10 @@ export function TiltCard({ children, className, glareEnable = true, holoEffect =
   const holoBgX = useTransform(springX, [0, 1], [0, 100]);
   const holoBgY = useTransform(springY, [0, 1], [0, 100]);
   const holoOpacity = useTransform(springY, [0, 1], [0, 0.8]);
+  
+  // Create transformed string values at the top level
+  const bgPosX = useTransform(holoBgX, (val) => `${val}%`);
+  const bgPosY = useTransform(holoBgY, (val) => `${val}%`);
 
   return (
     <div
@@ -103,8 +107,8 @@ export function TiltCard({ children, className, glareEnable = true, holoEffect =
               opacity: isHovered ? holoOpacity : 0,
               backgroundImage: 'linear-gradient(115deg, transparent 20%, rgba(255, 0, 200, 0.5) 30%, rgba(0, 255, 255, 0.5) 45%, rgba(255, 255, 0, 0.5) 60%, transparent 80%)',
               backgroundSize: '250% 250%',
-              backgroundPositionX: useTransform(holoBgX, (val) => `${val}%`),
-              backgroundPositionY: useTransform(holoBgY, (val) => `${val}%`),
+              backgroundPositionX: bgPosX,
+              backgroundPositionY: bgPosY,
             }}
           />
         )}

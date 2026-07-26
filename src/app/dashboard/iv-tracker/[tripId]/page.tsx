@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import TripClient from './trip-client'; // Refresh cache
+import TripClient from '@/app/dashboard/iv-tracker/[tripId]/trip-client';
 
 export default async function IVTripPage({ params }: { params: Promise<{ tripId: string }> }) {
   const { tripId } = await params;

@@ -91,27 +91,27 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
     <>
       {/* MOBILE SIDEBAR TOGGLE */}
       <button 
-        className="md:hidden absolute top-4 left-4 z-[3000] bg-gradient-to-br from-indigo-950/80 to-purple-900/80 backdrop-blur-md p-3 rounded-2xl border border-white/20 text-white shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+        className="md:hidden absolute top-4 left-4 z-[3000] bg-background/80 backdrop-blur-md p-3 rounded-2xl border border-border text-foreground shadow-lg"
         onClick={() => setShowSidebar(true)}
       >
         <Menu size={24} />
       </button>
 
       {/* SPATIAL SIDEBAR */}
-      <div className={`absolute top-4 left-4 z-[3500] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-gradient-to-br from-indigo-950/90 to-purple-900/90 backdrop-blur-2xl border border-white/20 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden text-white pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
+      <div className={`absolute top-4 left-4 z-[3500] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-background/60 backdrop-blur-2xl border border-border shadow-2xl flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
         <div className="p-6 flex flex-col flex-1 overflow-y-auto">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-extrabold text-2xl tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400 drop-shadow-[0_0_10px_rgba(232,121,249,0.8)]">IV Tracker Max</h2>
-            <button className="md:hidden text-white/70 hover:text-white bg-white/10 p-2 rounded-full border border-white/20" onClick={() => setShowSidebar(false)}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-extrabold text-2xl tracking-tight text-foreground">IV Tracker</h2>
+            <button className="md:hidden text-muted-foreground hover:text-foreground bg-muted p-2 rounded-full" onClick={() => setShowSidebar(false)}>
               <X size={20} />
             </button>
           </div>
           
           {(role === 'faculty' || role === 'admin') && (
-            <div className="mb-6 p-4 bg-black/40 rounded-2xl border border-white/10 shadow-inner">
-              <p className="text-xs font-black text-pink-400 uppercase tracking-[0.2em] mb-1">Live Headcount</p>
-              <p className="text-4xl font-black text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.6)]">
-                {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length} <span className="text-white/50 text-2xl">/ {students.length}</span>
+            <div className="mb-6 p-4 bg-muted/50 rounded-2xl border border-border">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Live Headcount</p>
+              <p className="text-4xl font-black text-foreground">
+                {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length} <span className="text-muted-foreground text-2xl">/ {students.length}</span>
               </p>
             </div>
           )}
@@ -120,10 +120,10 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <div className="flex flex-col gap-3 mb-8">
               <button
                 onClick={() => setSharing(!sharing)}
-                className={`w-full py-5 rounded-2xl font-black text-xl tracking-[0.2em] transition-all duration-300 border-2 ${
+                className={`w-full py-4 rounded-xl font-bold text-lg tracking-wider transition-all duration-300 border-2 ${
                   sharing 
-                    ? 'bg-gradient-to-r from-red-600 to-pink-600 text-white border-red-400 shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)]'
-                    : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black border-emerald-200 shadow-[0_0_30px_rgba(52,211,153,0.6)] hover:shadow-[0_0_50px_rgba(52,211,153,0.8)]'
+                    ? 'bg-destructive/10 text-destructive border-destructive hover:bg-destructive/20'
+                    : 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
                 }`}
               >
                 {sharing ? (
@@ -137,17 +137,17 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
               </button>
               
               {role === 'student' && (
-                <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
+                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border hover:bg-muted/50 transition-colors">
                   <div className="flex flex-col">
-                    <Label htmlFor="battery-saver" className="font-bold text-white tracking-wide">Battery Saver</Label>
-                    <span className="text-xs text-white/50">Throttles GPS to 60s</span>
+                    <Label htmlFor="battery-saver" className="font-bold text-foreground">Battery Saver</Label>
+                    <span className="text-xs text-muted-foreground">Throttles GPS to 60s</span>
                   </div>
                   <input 
                     type="checkbox"
                     id="battery-saver" 
                     checked={batterySaver} 
                     onChange={e => setBatterySaver(e.target.checked)} 
-                    className="w-6 h-6 rounded-lg border-white/20 bg-black/50 accent-pink-500"
+                    className="w-5 h-5 rounded border-border"
                   />
                 </div>
               )}
@@ -161,7 +161,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
                 setQrUrl(await QRCode.toDataURL(url));
                 setShowQrModal(true);
               }} 
-              className="w-full bg-gradient-to-r from-pink-500 to-purple-600 text-white py-4 rounded-2xl font-black text-lg shadow-[0_0_20px_rgba(217,70,239,0.5)] hover:scale-[1.02] transition-transform mb-8"
+              className="w-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 py-3 rounded-xl font-bold text-sm transition-colors mb-6"
             >
               Share QR Link
             </button>
@@ -169,10 +169,10 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
           {!isActive && (role === 'faculty' || role === 'admin') && (
             <div className="flex flex-col gap-3 mb-8">
-              <button onClick={() => setShowReplay(!showReplay)} className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-2xl font-black shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                {showReplay ? 'Close Replay' : 'Replay Trip'}
+              <button onClick={() => setShowReplay(!showReplay)} className="bg-primary text-primary-foreground py-2 rounded-xl font-bold">
+                {showReplay ? 'Live Map' : 'Path Replay'}
               </button>
-              <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-white/10 text-white py-3 rounded-2xl font-black border border-white/20 hover:bg-white/20">
+              <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-secondary text-secondary-foreground py-2 rounded-xl font-bold">
                 {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
               </button>
               <button onClick={() => window.open(`/api/iv/trip-report?trip_id=${tripId}`)} className="bg-black text-white py-3 rounded-2xl font-black border border-white/10 shadow-inner flex items-center justify-center gap-2 hover:bg-black/80">
@@ -242,9 +242,9 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
         <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-[1.5rem] md:rounded-[2rem] flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.8)] hover:scale-110 transition-transform border-4 border-white/20 backdrop-blur-sm"
+            className="w-14 h-14 md:w-16 md:h-16 bg-background text-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-muted transition-colors border border-border"
           >
-            <ImageIcon size={32} />
+            <ImageIcon size={24} />
           </button>
           <SOSButton tripId={tripId} studentId={currentUserId} />
         </div>
@@ -266,15 +266,15 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       </div>
       
       {showQrModal && (
-        <div className="absolute inset-0 bg-black/80 backdrop-blur-xl z-[4000] flex items-center justify-center p-4">
-          <div className="bg-gradient-to-br from-indigo-900 to-purple-900 border border-white/20 text-white p-12 rounded-[3rem] shadow-[0_0_60px_rgba(217,70,239,0.5)] flex flex-col items-center">
-            <h3 className="font-black text-3xl mb-4 tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">Join Trip</h3>
-            <div className="bg-white/10 px-8 py-4 rounded-2xl border border-white/20 mb-8 shadow-inner text-center">
-              <p className="text-sm font-bold text-white/50 uppercase tracking-widest mb-1">Trip Code</p>
-              <p className="font-mono text-5xl font-black text-white tracking-widest">{joinCode}</p>
+        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-[4000] flex items-center justify-center p-4">
+          <div className="bg-card border border-border text-foreground p-8 rounded-3xl shadow-xl flex flex-col items-center max-w-sm w-full">
+            <h3 className="font-bold text-2xl mb-4">Join Trip</h3>
+            <div className="bg-muted px-8 py-4 rounded-xl border border-border mb-6 text-center w-full">
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-1">Trip Code</p>
+              <p className="font-mono text-4xl font-black">{joinCode}</p>
             </div>
-            <img src={qrUrl} alt="QR Code" className="w-80 h-80 rounded-3xl mb-8 shadow-2xl shadow-black/50 border-4 border-white/10" />
-            <button onClick={() => setShowQrModal(false)} className="w-full bg-pink-500 text-white py-4 rounded-2xl font-black text-lg shadow-[0_0_20px_rgba(236,72,153,0.5)]">
+            <img src={qrUrl} alt="QR Code" className="w-64 h-64 rounded-2xl mb-6 bg-white p-2" />
+            <button onClick={() => setShowQrModal(false)} className="w-full bg-secondary text-secondary-foreground py-3 rounded-xl font-bold">
               Close
             </button>
           </div>

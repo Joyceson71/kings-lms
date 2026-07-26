@@ -96,38 +96,37 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
     <div className="fixed inset-0 z-[2500] flex items-center justify-center p-4 md:p-12 animate-in fade-in">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
       
-      <div className="relative w-full h-full bg-gradient-to-br from-indigo-950/80 to-purple-900/80 backdrop-blur-3xl rounded-[3rem] border border-white/20 shadow-[0_0_60px_rgba(0,0,0,0.8)] flex flex-col overflow-hidden animate-in zoom-in-95">
-        <div className="flex items-center justify-between p-8 border-b border-white/10 bg-black/30 shadow-inner">
-          <h2 className="text-3xl font-black flex items-center gap-4 text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-purple-400">
-            <ImageIcon className="text-pink-400" size={32} /> LIVE PHOTO STREAM
+      <div className="relative w-full h-full bg-background/95 backdrop-blur-sm rounded-[2rem] border border-border shadow-xl flex flex-col overflow-hidden animate-in zoom-in-95">
+        <div className="p-6 md:p-8 flex items-center justify-between border-b border-border bg-muted/20">
+          <h2 className="text-2xl font-bold flex items-center gap-3 text-foreground">
+            <ImageIcon className="text-muted-foreground" size={32} /> LIVE PHOTO STREAM
           </h2>
-          <button onClick={onClose} className="p-3 bg-white/10 rounded-full hover:bg-white/20 text-white border border-white/20 transition-colors">
+          <button onClick={onClose} className="p-3 bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground rounded-full transition-colors">
             <X size={24} />
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-8">
           {photos.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-white/30 gap-6">
-              <Camera size={72} className="opacity-20 animate-pulse" />
-              <p className="font-bold text-xl tracking-widest uppercase">No photos yet.</p>
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-6">
+              <Camera size={72} className="opacity-20" />
+              <p className="font-medium text-xl tracking-widest uppercase">No photos yet.</p>
             </div>
           ) : (
             <div className="columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6">
               {photos.map((p) => {
-                const name = p.profiles ? `${p.profiles.first_name} ${p.profiles.last_name}` : 'Unknown';
                 return (
                   <div 
                     key={p.id} 
-                    className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-3xl bg-black/50 border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.5)] hover:shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:-translate-y-2 transition-all duration-300"
+                    className="break-inside-avoid relative group cursor-pointer overflow-hidden rounded-2xl bg-muted border border-border shadow-sm hover:shadow-md transition-all duration-300"
                     onClick={() => setSelectedPhoto(p.photo_url)}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.photo_url} alt="Gallery" className="w-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-                    <div className="absolute bottom-0 inset-x-0 p-5 translate-y-2 group-hover:translate-y-0 transition-transform">
-                      <p className="text-white text-sm font-black tracking-wider truncate drop-shadow-md">{name.toUpperCase()}</p>
-                      <p className="text-pink-300 font-bold text-xs mt-1 drop-shadow-md">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                    <img src={p.photo_url} alt="Trip Memory" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all text-white">
+                      <p className="text-sm font-medium">{p.profiles?.first_name} {p.profiles?.last_name}</p>
+                      <p className="text-white/70 text-xs mt-1">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </div>
                 );
@@ -135,22 +134,21 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
             </div>
           )}
         </div>
-
-        <div className="p-6 border-t border-white/10 bg-black/40 shadow-inner flex justify-center backdrop-blur-md">
+        <div className="p-6 border-t border-border bg-muted/20 shadow-inner flex justify-center backdrop-blur-md">
           <button 
             onClick={() => fileInputRef.current?.click()}
-            className="bg-gradient-to-r from-pink-500 to-purple-600 text-white font-black text-xl px-12 py-5 rounded-full shadow-[0_0_30px_rgba(236,72,153,0.6)] hover:scale-105 transition-transform flex items-center gap-3 border-2 border-white/20"
+            className="bg-primary text-primary-foreground font-bold text-lg px-8 py-4 rounded-xl shadow-lg hover:bg-primary/90 transition-colors flex items-center gap-3"
           >
-            <Camera size={28} /> ADD PHOTO TO STREAM
+            <Camera size={24} /> ADD PHOTO TO STREAM
           </button>
           <input 
             type="file" 
             ref={fileInputRef} 
-          className="hidden" 
-          accept="image/*" 
-          capture="environment"
-          onChange={handleUpload} 
-        />
+            className="hidden" 
+            accept="image/*" 
+            capture="environment"
+            onChange={handleUpload} 
+          />
         </div>
       </div>
 

@@ -25,7 +25,7 @@ export const BottomNav = memo(function BottomNav() {
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-center pointer-events-none">
       <nav
-        className="flex items-stretch bg-gradient-to-r from-indigo-950/80 via-black/80 to-purple-950/80 backdrop-blur-3xl rounded-[2rem] border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto px-2"
+        className="flex items-stretch bg-background/80 backdrop-blur-md rounded-[2rem] border border-border shadow-lg overflow-hidden pointer-events-auto px-2"
         style={{
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
@@ -39,13 +39,13 @@ export const BottomNav = memo(function BottomNav() {
               href={item.href}
               className={cn(
                 'relative flex flex-1 flex-col items-center justify-center gap-1 py-2.5 px-1 transition-colors duration-150',
-                active ? 'text-indigo-300' : 'text-muted-foreground',
+                active ? 'text-primary' : 'text-muted-foreground',
               )}
             >
               {/* Neon top indicator */}
               {active && (
                 <span
-                  className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-b-full bg-gradient-to-r from-pink-400 to-purple-400 shadow-[0_0_15px_rgba(236,72,153,0.8)]"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-1 w-8 rounded-b-full bg-primary"
                 />
               )}
 
@@ -53,13 +53,13 @@ export const BottomNav = memo(function BottomNav() {
               <div
                 className={cn(
                   'flex items-center justify-center rounded-xl transition-all duration-150',
-                  active ? 'w-10 h-8 bg-white/10 shadow-inner border border-white/10' : 'w-8 h-8',
+                  active ? 'w-10 h-8 bg-muted text-foreground border border-border shadow-sm' : 'w-8 h-8',
                 )}
               >
                 <item.icon
                   className={cn(
                     'transition-all duration-150',
-                    active ? 'h-5 w-5 text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]' : 'h-5 w-5 text-white/50',
+                    active ? 'h-5 w-5 text-primary' : 'h-5 w-5 text-muted-foreground',
                   )}
                   strokeWidth={active ? 2.5 : 2}
                 />
@@ -67,8 +67,8 @@ export const BottomNav = memo(function BottomNav() {
 
               <span
                 className={cn(
-                  'text-[10px] font-black tracking-wider uppercase transition-all duration-150',
-                  active ? 'text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'text-white/40',
+                  'text-[10px] font-bold tracking-wider uppercase transition-all duration-150',
+                  active ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
                 {item.name}

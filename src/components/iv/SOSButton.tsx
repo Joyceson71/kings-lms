@@ -13,6 +13,7 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
   const [holdProgress, setHoldProgress] = useState(0);
   const [activeSOS, setActiveSOS] = useState<string | null>(null);
   const [canCancel, setCanCancel] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   
   const holdTimerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,6 +53,7 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
       return;
     }
 
+    setIsLocating(true);
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const { latitude: lat, longitude: lng } = pos.coords;
       
@@ -68,9 +70,11 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
         
       if (error || !data) {
         toast.error('Failed to send SOS');
+        setIsLocating(false);
         return;
       }
       
+      setIsLocating(false);
       setActiveSOS(data.id);
       setCanCancel(true);
       setTimeout(() => setCanCancel(false), 30000);
@@ -83,6 +87,7 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
       });
       
     }, () => {
+      setIsLocating(false);
       toast.error('Could not get location');
     });
   };
@@ -127,11 +132,11 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
           className="absolute bottom-0 left-0 right-0 bg-black/20 transition-all duration-75" 
           style={{ height: `${holdProgress}%` }}
         />
-        <span className="relative z-10 text-2xl md:text-3xl tracking-widest">SOS</span>
+        <span className="relative z-10 text-2xl md:text-3xl tracking-widest">{isLocating ? '...' : 'SOS'}</span>
       </button>
-      {holding && (
+      {(holding || isLocating) && (
         <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-foreground text-background px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
-          HOLD TO SEND
+          {isLocating ? 'LOCATING...' : 'HOLD TO SEND'}
         </div>
       )}
     </div>

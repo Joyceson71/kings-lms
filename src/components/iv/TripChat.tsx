@@ -4,6 +4,22 @@ import { createClient } from '@/lib/supabase/client';
 import { MessageSquare, Send, Image as ImageIcon, X } from 'lucide-react';
 import { toast } from 'sonner';
 
+function formatMessageTime(dateString: string) {
+  const date = new Date(dateString);
+  const now = new Date();
+  const isToday = date.getDate() === now.getDate() && date.getMonth() === now.getMonth() && date.getFullYear() === now.getFullYear();
+  
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const isYesterday = date.getDate() === yesterday.getDate() && date.getMonth() === yesterday.getMonth() && date.getFullYear() === yesterday.getFullYear();
+
+  const timeStr = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  
+  if (isToday) return `Today, ${timeStr}`;
+  if (isYesterday) return `Yesterday, ${timeStr}`;
+  return `${date.toLocaleDateString()} ${timeStr}`;
+}
+
 interface TripChatProps {
   tripId: string;
   currentUserId: string;
@@ -181,7 +197,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                   <div className={`flex flex-col ${isMe ? 'items-end' : 'items-start'} max-w-[80%]`}>
                     <div className="flex items-baseline gap-2 mb-1">
                       <span className="text-xs font-bold text-muted-foreground">{isMe ? 'YOU' : name.toUpperCase()}</span>
-                      <span className="text-[10px] text-muted-foreground/60">{new Date(m.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className="text-[10px] text-muted-foreground/60">{formatMessageTime(m.created_at)}</span>
                       {m.is_broadcast && <span className="text-[10px] bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 rounded shadow-sm font-bold tracking-widest">BROADCAST</span>}
                     </div>
                     {m.content && (

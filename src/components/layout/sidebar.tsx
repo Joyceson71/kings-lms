@@ -197,14 +197,14 @@ export function Sidebar() {
     /* Desktop-only sidebar — hidden on mobile (bottom nav handles it) */
     <aside
       className={cn(
-        'hidden md:flex h-full flex-col flex-shrink-0 relative',
-        'transition-all duration-300 ease-out',
-        expanded ? 'w-56' : 'w-16',
+        'hidden md:flex h-[calc(100vh-2rem)] my-4 ml-4 flex-col flex-shrink-0 relative rounded-[2rem] overflow-visible z-[1000]',
+        'transition-all duration-300 ease-out border border-white/10',
+        expanded ? 'w-64' : 'w-20',
       )}
       style={{
-        background: 'linear-gradient(180deg, #020210 0%, #04040e 100%)',
-        borderRight: '1px solid #1a1a3a',
-        boxShadow: '4px 0 24px rgb(0 0 0 / 0.3)',
+        background: 'rgba(15, 15, 35, 0.4)',
+        backdropFilter: 'blur(40px) saturate(2)',
+        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
       }}
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}

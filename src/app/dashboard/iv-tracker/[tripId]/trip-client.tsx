@@ -118,18 +118,23 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
           
           {isActive && (
             <div className="flex flex-col gap-3 mb-8">
-              <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">
-                <Label htmlFor="share-location" className="font-bold text-white tracking-wide">
-                  {role === 'student' ? 'Share Location' : 'Act as Guide (Share Location)'}
-                </Label>
-                <input 
-                  type="checkbox"
-                  id="share-location" 
-                  checked={sharing} 
-                  onChange={e => setSharing(e.target.checked)} 
-                  className="w-6 h-6 rounded-lg border-white/20 bg-black/50 accent-pink-500"
-                />
-              </div>
+              <button
+                onClick={() => setSharing(!sharing)}
+                className={`w-full py-5 rounded-2xl font-black text-xl tracking-[0.2em] transition-all duration-300 border-2 ${
+                  sharing 
+                    ? 'bg-gradient-to-r from-red-600 to-pink-600 text-white border-red-400 shadow-[0_0_30px_rgba(239,68,68,0.6)] hover:shadow-[0_0_50px_rgba(239,68,68,0.8)]'
+                    : 'bg-gradient-to-r from-emerald-400 to-cyan-500 text-black border-emerald-200 shadow-[0_0_30px_rgba(52,211,153,0.6)] hover:shadow-[0_0_50px_rgba(52,211,153,0.8)]'
+                }`}
+              >
+                {sharing ? (
+                  <span className="flex items-center justify-center gap-3">
+                    <span className="w-3 h-3 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]" />
+                    LIVE — STOP SHARING
+                  </span>
+                ) : (
+                  'JOIN TRIP'
+                )}
+              </button>
               
               {role === 'student' && (
                 <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-colors">

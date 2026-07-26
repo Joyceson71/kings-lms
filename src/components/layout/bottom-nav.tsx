@@ -23,18 +23,14 @@ export const BottomNav = memo(function BottomNav() {
     pathname === href || (href !== '/dashboard' && pathname.startsWith(href));
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
-      style={{
-        background: 'rgba(4, 4, 14, 0.95)',
-        borderTop: '1px solid #1a1a3a',
-        backdropFilter: 'blur(20px) saturate(1.8)',
-        WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
-        boxShadow: '0 -4px 24px rgb(0 0 0 / 0.5)',
-        paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-      }}
-    >
-      <div className="flex items-stretch">
+    <div className="fixed bottom-4 left-4 right-4 z-50 md:hidden flex justify-center pointer-events-none">
+      <nav
+        className="flex items-stretch bg-gradient-to-r from-indigo-950/80 via-black/80 to-purple-950/80 backdrop-blur-3xl rounded-[2rem] border border-white/20 shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden pointer-events-auto px-2"
+        style={{
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+        }}
+      >
+        <div className="flex items-stretch w-full max-w-md mx-auto py-1">
         {mobileNavItems.map((item) => {
           const active = isActive(item.href);
           return (
@@ -49,11 +45,7 @@ export const BottomNav = memo(function BottomNav() {
               {/* Neon top indicator */}
               {active && (
                 <span
-                  className="absolute top-0 left-1/2 -translate-x-1/2 h-[2px] w-8 rounded-b-full"
-                  style={{
-                    background: 'linear-gradient(90deg, #818cf8, #22d3ee)',
-                    boxShadow: '0 0 8px #818cf8, 0 0 16px rgb(129 140 248 / 0.4)',
-                  }}
+                  className="absolute top-0 left-1/2 -translate-x-1/2 h-[3px] w-10 rounded-b-full bg-gradient-to-r from-pink-400 to-purple-400 shadow-[0_0_15px_rgba(236,72,153,0.8)]"
                 />
               )}
 
@@ -61,27 +53,22 @@ export const BottomNav = memo(function BottomNav() {
               <div
                 className={cn(
                   'flex items-center justify-center rounded-xl transition-all duration-150',
-                  active ? 'w-9 h-7' : 'w-7 h-7',
+                  active ? 'w-10 h-8 bg-white/10 shadow-inner border border-white/10' : 'w-8 h-8',
                 )}
-                style={active ? {
-                  background: 'rgb(129 140 248 / 0.12)',
-                  boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
-                } : {}}
               >
                 <item.icon
                   className={cn(
                     'transition-all duration-150',
-                    active ? 'h-4 w-4' : 'h-4 w-4',
+                    active ? 'h-5 w-5 text-pink-400 drop-shadow-[0_0_8px_rgba(236,72,153,0.8)]' : 'h-5 w-5 text-white/50',
                   )}
-                  strokeWidth={active ? 2.5 : 1.8}
+                  strokeWidth={active ? 2.5 : 2}
                 />
               </div>
 
-              {/* Label */}
               <span
                 className={cn(
-                  'text-[10px] font-semibold transition-all duration-150',
-                  active ? 'text-indigo-300' : 'text-muted-foreground',
+                  'text-[10px] font-black tracking-wider uppercase transition-all duration-150',
+                  active ? 'text-white drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'text-white/40',
                 )}
               >
                 {item.name}
@@ -89,7 +76,8 @@ export const BottomNav = memo(function BottomNav() {
             </Link>
           );
         })}
-      </div>
-    </nav>
+        </div>
+      </nav>
+    </div>
   );
 });

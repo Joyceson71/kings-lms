@@ -23,8 +23,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <SidebarProvider>
       <div
-        className="flex h-screen overflow-hidden"
-        style={{ background: '#04040c' }}
+        className="flex h-screen overflow-hidden bg-gradient-to-br from-indigo-950 via-black to-purple-950"
       >
         {/* Desktop Sidebar — icon rail, hover expands */}
         <Sidebar />

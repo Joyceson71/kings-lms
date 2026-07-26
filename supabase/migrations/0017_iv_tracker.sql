@@ -67,27 +67,34 @@ ALTER TABLE iv_trips         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE push_subscriptions ENABLE ROW LEVEL SECURITY;
 
 -- iv_locations: students write their own row; everyone on the trip can read
+DROP POLICY IF EXISTS "student_upsert_own_location" ON iv_locations;
 CREATE POLICY "student_upsert_own_location" ON iv_locations
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+DROP POLICY IF EXISTS "all_authenticated_read_locations" ON iv_locations;
 CREATE POLICY "all_authenticated_read_locations" ON iv_locations
   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- iv_alerts: faculty/admin write; everyone on the trip can read
+DROP POLICY IF EXISTS "faculty_admin_write_alerts" ON iv_alerts;
 CREATE POLICY "faculty_admin_write_alerts" ON iv_alerts
   FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('faculty','admin'))
   );
+DROP POLICY IF EXISTS "trip_members_read_alerts" ON iv_alerts;
 CREATE POLICY "trip_members_read_alerts" ON iv_alerts
   FOR SELECT USING (true);
 
 -- iv_trips: faculty/admin manage; all authenticated read
+DROP POLICY IF EXISTS "faculty_admin_manage_trips" ON iv_trips;
 CREATE POLICY "faculty_admin_manage_trips" ON iv_trips
   FOR ALL USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('faculty','admin'))
   );
+DROP POLICY IF EXISTS "all_authenticated_read_trips" ON iv_trips;
 CREATE POLICY "all_authenticated_read_trips" ON iv_trips
   FOR SELECT USING (auth.role() = 'authenticated');
 
 -- push_subscriptions: own row only
+DROP POLICY IF EXISTS "own_push_sub" ON push_subscriptions;
 CREATE POLICY "own_push_sub" ON push_subscriptions
   FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);

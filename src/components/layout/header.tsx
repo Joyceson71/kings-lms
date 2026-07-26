@@ -3,10 +3,11 @@
 import { useState, memo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Bell, Search, ChevronRight, Settings, LogOut, User, Sparkles } from 'lucide-react';
+import { Bell, Search, ChevronRight, Settings, LogOut, User, Sparkles, Menu } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
+import { useSidebar } from '@/components/layout/sidebar-provider';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { NotificationsPopover } from '@/components/ui/notifications-popover';
@@ -39,6 +40,7 @@ export const Header = memo(function Header() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [searchFocused, setSearchFocused]         = useState(false);
   const { profile, loading, displayName, role }   = useUser();
+  const { setIsOpen }                             = useSidebar();
 
   const handleLogout = async () => {
     setShowUserMenu(false);
@@ -65,7 +67,14 @@ export const Header = memo(function Header() {
 
         {/* Left: logo (mobile) + breadcrumb */}
         <div className="flex items-center gap-3 min-w-0">
-          {/* Mobile: Logo only (no hamburger — bottom nav handles it) */}
+          {/* Mobile: Hamburger + Logo */}
+          <button 
+            className="md:hidden flex items-center justify-center p-2 -ml-2 text-muted-foreground hover:text-foreground"
+            onClick={() => setIsOpen(true)}
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          
           <Link href="/dashboard" className="md:hidden flex items-center gap-2 flex-shrink-0">
             <div
               className="h-7 w-7 rounded-lg flex items-center justify-center"

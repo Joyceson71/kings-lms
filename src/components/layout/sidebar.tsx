@@ -6,13 +6,14 @@ import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
-  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles, MapPin,
+  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles, MapPin, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useCallback, memo, useEffect } from 'react';
+import { useSidebar } from '@/components/layout/sidebar-provider';
 
 type NavItem = {
   name: string;
@@ -170,6 +171,7 @@ export function Sidebar() {
   const [expanded, setExpanded] = useState(false);
   const [hasActiveIV, setHasActiveIV] = useState(false);
   const { displayName, loading, role } = useUser();
+  const { isOpen, setIsOpen } = useSidebar();
 
   useEffect(() => {
     const checkActiveIV = async () => {
@@ -194,13 +196,28 @@ export function Sidebar() {
   const roleStyle = roleColors[role] ?? roleColors.student;
 
   return (
-    /* Desktop-only sidebar — hidden on mobile (bottom nav handles it) */
-    <aside
-      className={cn(
-        'hidden md:flex h-[calc(100vh-2rem)] my-4 ml-4 flex-col flex-shrink-0 relative rounded-[2rem] overflow-visible z-[1000]',
-        'transition-all duration-300 ease-out border border-white/10',
-        expanded ? 'w-64' : 'w-20',
+    <>
+      {/* Mobile overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 z-[990] bg-black/60 backdrop-blur-sm md:hidden animate-fade-in"
+          onClick={() => setIsOpen(false)}
+        />
       )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          'flex flex-col flex-shrink-0 relative overflow-visible z-[1000]',
+          'transition-all duration-300 ease-out border border-white/10',
+          
+          // Mobile specific classes: fixed full height, slide in/out
+          'fixed inset-y-0 left-0 h-full w-64 rounded-r-[2rem] md:static md:my-4 md:ml-4 md:h-[calc(100vh-2rem)] md:rounded-[2rem]',
+          
+          // Visibility based on state
+          isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+          expanded ? 'md:w-64' : 'md:w-20',
+        )}
       style={{
         background: 'rgba(15, 15, 35, 0.4)',
         backdropFilter: 'blur(40px) saturate(2)',
@@ -212,12 +229,12 @@ export function Sidebar() {
       {/* Brand */}
       <div
         className={cn(
-          'flex h-14 flex-shrink-0 items-center',
-          expanded ? 'px-4 gap-3' : 'justify-center',
+          'flex h-14 flex-shrink-0 items-center justify-between px-4',
+          (expanded || isOpen) ? 'md:gap-3 md:justify-start' : 'md:justify-center md:px-0',
         )}
         style={{ borderBottom: '1px solid #1a1a3a' }}
       >
-        <Link href="/dashboard" className="flex items-center gap-3 min-w-0">
+        <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={() => setIsOpen(false)}>
           <div
             className="h-8 w-8 flex-shrink-0 rounded-xl flex items-center justify-center text-foreground"
             style={{
@@ -227,15 +244,25 @@ export function Sidebar() {
           >
             <GraduationCap className="h-4 w-4" />
           </div>
-          {expanded && (
-            <span
-              className="text-[13px] font-bold tracking-tight text-foreground truncate animate-fade-in"
-              style={{ fontFamily: "'Outfit', sans-serif" }}
-            >
-              Kings EC
-            </span>
-          )}
+          <span
+            className={cn(
+              "text-[13px] font-bold tracking-tight text-foreground truncate animate-fade-in",
+              !expanded && !isOpen ? "md:hidden" : ""
+            )}
+            style={{ fontFamily: "'Outfit', sans-serif" }}
+          >
+            Kings EC
+          </span>
         </Link>
+        {/* Mobile close button */}
+        {isOpen && (
+          <button 
+            className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
+            onClick={() => setIsOpen(false)}
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Expand indicator */}
@@ -279,7 +306,7 @@ export function Sidebar() {
                         item={item}
                         active={active}
                         isAdmin={isAdmin}
-                        expanded={expanded}
+                        expanded={expanded || isOpen}
                       />
                       {showBadge && (
                         <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
@@ -358,12 +385,12 @@ export function Sidebar() {
       {/* User footer */}
       <div
         className="flex-shrink-0 py-3"
-        style={{ borderTop: '1px solid #1a1a3a', padding: expanded ? '12px 16px' : '12px 0', display: 'flex', justifyContent: expanded ? 'flex-start' : 'center' }}
+        style={{ borderTop: '1px solid #1a1a3a', padding: (expanded || isOpen) ? '12px 16px' : '12px 0', display: 'flex', justifyContent: (expanded || isOpen) ? 'flex-start' : 'center' }}
       >
         {loading ? (
-          <div className={cn('flex items-center', expanded ? 'gap-2.5' : 'justify-center')}>
+          <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
             <div className="h-8 w-8 rounded-full skeleton flex-shrink-0" />
-            {expanded && (
+            {(expanded || isOpen) && (
               <div className="flex-1 space-y-1.5 animate-fade-in" style={{ animationDuration: '400ms' }}>
                 <div className="h-2 w-20 rounded skeleton" />
                 <div className="h-2 w-12 rounded skeleton" />
@@ -371,9 +398,9 @@ export function Sidebar() {
             )}
           </div>
         ) : (
-          <div className={cn('flex items-center', expanded ? 'gap-2.5' : 'justify-center')}>
+          <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
             <Avatar name={displayName} size="sm" ring="none" />
-            {expanded && (
+            {(expanded || isOpen) && (
               <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
                 <p className="text-[12px] font-semibold text-foreground/90 truncate">{displayName}</p>
                 <span
@@ -388,5 +415,6 @@ export function Sidebar() {
         )}
       </div>
     </aside>
+    </>
   );
 }

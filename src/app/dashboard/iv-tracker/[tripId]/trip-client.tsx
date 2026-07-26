@@ -276,7 +276,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
                 <p className="font-mono text-4xl font-black">{joinCode}</p>
                 <button 
                   onClick={() => {
-                    navigator.clipboard.writeText(joinCode);
+                    navigator.clipboard.writeText(joinCode || '');
                     toast.success('Code copied to clipboard');
                   }}
                   className="p-2 bg-background border border-border rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted-foreground/10 transition-colors"

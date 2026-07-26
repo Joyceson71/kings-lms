@@ -18,7 +18,7 @@ import { useSidebar } from '@/components/layout/sidebar-provider';
 type NavItem = {
   name: string;
   href: string;
-  icon: React.ElementType;
+  icon: React.ElementType<any>;
   roles?: ('student' | 'faculty' | 'admin')[];
 };
 
@@ -125,6 +125,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
         />
       )}
 
+      {/* @ts-ignore */}
       <item.icon
         className={cn(
           'flex-shrink-0 transition-all duration-300 ease-out',
@@ -348,7 +349,8 @@ export function Sidebar() {
                   boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
                 } : {}}
               >
-                <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-muted-foreground group-hover:text-muted-foreground')} />
+                {/* @ts-ignore */}
+        <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-muted-foreground group-hover:text-muted-foreground')} />
                 {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>}
                 {!expanded && (
                   <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"

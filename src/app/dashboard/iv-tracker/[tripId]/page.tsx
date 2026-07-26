@@ -21,7 +21,6 @@ export default async function IVTripPage({ params }: { params: Promise<{ tripId:
     .from('iv_trips')
     .select('*')
     .eq('id', tripId)
-    .eq('active', true)
     .single();
 
   if (!trip) {
@@ -35,6 +34,8 @@ export default async function IVTripPage({ params }: { params: Promise<{ tripId:
         currentUserId={user.id}
         role={profile?.role || 'student'}
         mapBounds={trip.map_bounds}
+        isActive={trip.active}
+        joinCode={trip.join_code}
       />
     </div>
   );

@@ -82,11 +82,11 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       href={item.href}
       title={!expanded ? item.name : undefined}
       className={cn(
-        'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
+        'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out hover:-translate-y-0.5',
         expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
         active
           ? 'text-foreground'
-          : 'text-muted-foreground hover:text-muted-foreground',
+          : 'text-muted-foreground hover:text-foreground',
       )}
       style={active ? {
         background: isAdmin

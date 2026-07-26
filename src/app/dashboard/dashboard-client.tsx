@@ -1,6 +1,6 @@
 'use client';
 
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState, useEffect } from 'react';
 import { AnimatedCounter } from '@/components/ui/animated-counter';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -13,6 +13,9 @@ import {
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import { TiltCard } from '@/components/ui/tilt-card';
+import { WelcomeSequence } from '@/components/3d/WelcomeSequence';
+import { SpatialChart } from '@/components/3d/SpatialChart';
+import { AnimatePresence } from 'framer-motion';
 
 const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
 const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
@@ -286,37 +289,17 @@ function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBreakdown; 
   }
 
   const chartData = [
-    { name: 'Graded', value: breakdown.graded, color: '#34d399' },
-    { name: 'Submitted', value: breakdown.submitted, color: '#818cf8' },
-    { name: 'Pending', value: breakdown.pending, color: '#fbbf24' },
-  ].filter(d => d.value > 0);
+    { label: 'Graded', value: breakdown.graded, color: '#34d399' },
+    { label: 'Submitted', value: breakdown.submitted, color: '#818cf8' },
+    { label: 'Pending', value: breakdown.pending, color: '#fbbf24' },
+  ];
+  
+  const maxValue = Math.max(...chartData.map(d => d.value), 1);
 
   return (
     <div className="flex-1 flex flex-col">
-      <div style={{ height: 160 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <RadialBarChart
-            cx="50%"
-            cy="50%"
-            innerRadius="40%"
-            outerRadius="85%"
-            data={chartData}
-            startAngle={90}
-            endAngle={-270}
-          >
-            <RadialBar dataKey="value" cornerRadius={4} background={{ fill: '#0f0f28' }}>
-              {chartData.map((entry, index) => (
-                <Cell key={index} fill={entry.color} />
-              ))}
-            </RadialBar>
-            <text x="50%" y="50%" textAnchor="middle" dominantBaseline="middle" fill="#e8eaf6" fontSize={22} fontWeight={800}>
-              {total}
-            </text>
-            <text x="50%" y="50%" dy={18} textAnchor="middle" dominantBaseline="middle" fill="#64748b" fontSize={9}>
-              total
-            </text>
-          </RadialBarChart>
-        </ResponsiveContainer>
+      <div className="relative overflow-hidden rounded-xl border border-border" style={{ height: 220, background: '#080814' }}>
+        <SpatialChart data={chartData} maxValue={maxValue} />
       </div>
       <div className="mt-2 space-y-1.5">
         {[
@@ -438,6 +421,14 @@ export default function DashboardClient({
   const { loading, displayName } = useUser();
   const isStudent = profile?.role === 'student' || !profile?.role;
 
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  useEffect(() => {
+    if (!sessionStorage.getItem('kings_welcome_played')) {
+      setShowWelcome(true);
+    }
+  }, []);
+
   const overallAttendance = stats.attendanceRate;
   const isAttendanceLow = overallAttendance < 75;
 
@@ -522,6 +513,14 @@ export default function DashboardClient({
 
   return (
     <div className="space-y-5 max-w-6xl mx-auto">
+      <AnimatePresence>
+        {showWelcome && (
+          <WelcomeSequence onComplete={() => {
+            sessionStorage.setItem('kings_welcome_played', 'true');
+            setShowWelcome(false);
+          }} />
+        )}
+      </AnimatePresence>
 
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>

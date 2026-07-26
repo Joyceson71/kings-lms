@@ -125,8 +125,8 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
         />
       )}
 
-      {/* @ts-expect-error dynamic component type mismatch */}
       <item.icon
+        // @ts-expect-error dynamic component type mismatch
         className={cn(
           'flex-shrink-0 transition-all duration-300 ease-out',
           expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]',

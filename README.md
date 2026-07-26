@@ -8,9 +8,10 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ecf8e?style=for-the-badge&logo=supabase)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38bdf8?style=for-the-badge&logo=tailwindcss)
+[![Live Demo](https://img.shields.io/badge/Live_App-kings--lms.vercel.app-10b981?style=for-the-badge&logo=vercel)](https://kings-lms.vercel.app/)
 
 **A premium, full-stack Campus LMS for Kings Engineering College.**  
-Features 3D animations, particle backgrounds, real-time attendance, global focus timers, and role-based dashboards.
+Features 3D spatial UI, interactive data visualizations, real-time attendance, and role-based dashboards.
 
 </div>
 
@@ -245,11 +246,14 @@ All tables have RLS enabled with the following policies:
 
 | Feature / Fix | Status |
 |---|---|
+| **Spatial 3D UI Upgrades** | Added `react-three-fiber` Cinematic Welcome Sequence and Interactive 3D Bar Charts for Assignments. |
+| **Mobile Responsiveness** | Built a smooth Framer Motion mobile drawer for the side navbar and fixed bottom nav styling. |
+| **IV Tracker Features** | Enhanced location sharing on mobile, fixed map map dragging selection errors, and added QR code copying. |
 | **Admin Panel Overhaul** | Added User Detail Drawer, Global Broadcasts, and Dept Bar Charts |
 | **Pomodoro Timer** | Implemented global floating focus timer with localStorage persistence |
 | **Smart Sort (Assignments)** | Students can now auto-sort Kanban columns by urgency/deadline |
-| **Dashboard Analytics** | Added Recharts Area & Radial charts for attendance/study scores |
-| **UI Polish** | Added buttery-smooth fade animations to sidebar expansion |
+| **Dashboard Analytics** | Added interactive 3D spatial charts and Recharts Area charts for attendance/study scores |
+| **UI Polish** | Added buttery-smooth fade animations to sidebar expansion and maximalist tilt cards |
 | **Web & App Performance** | Enabled Next.js React Compiler and aggressive dynamic imports for Recharts & Canvas Confetti (reduced initial JS bundle size by ~40% for faster dashboard load and app startup). |
 | **Settings Profile Sync** | Wired the settings form directly to the Supabase `profiles` table |
 | **Auth Fixes** | Purged split-brain mock auth, fully migrated to Supabase SSR sessions |

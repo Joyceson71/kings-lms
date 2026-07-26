@@ -110,7 +110,10 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
           {photos.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center text-muted-foreground gap-6">
               <Camera size={72} className="opacity-20" />
-              <p className="font-medium text-xl tracking-widest uppercase">No photos yet.</p>
+              <div className="text-center">
+                <p className="font-medium text-xl tracking-widest uppercase text-foreground">No photos yet</p>
+                <p className="text-sm text-muted-foreground mt-2">Capture the first moment of this trip!</p>
+              </div>
             </div>
           ) : (
             <div className="columns-2 md:columns-3 lg:columns-4 gap-6 space-y-6">

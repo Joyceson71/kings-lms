@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { AIAssistant } from "@/components/layout/ai-assistant";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
+import { SWRegistrar } from "@/components/layout/sw-registrar";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -43,6 +44,7 @@ export default function RootLayout({
           {children}
           <AIAssistant />
           <Toaster position="top-right" richColors closeButton />
+          <SWRegistrar />
         </ThemeProvider>
       </body>
     </html>

@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         hostname: '*.supabase.co',
         pathname: '/storage/v1/object/public/**',
       },
+      {
+        protocol: 'https',
+        hostname: '*.tile.openstreetmap.org',
+      },
     ],
   },
   async headers() {
@@ -19,6 +23,7 @@ const nextConfig: NextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
           { key: 'Permissions-Policy', value: 'camera=(), microphone=()' },
+          { key: 'Service-Worker-Allowed', value: '/' },
         ],
       },
     ];

@@ -6,13 +6,13 @@ import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
-  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles,
+  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles, MapPin,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
-import { useState, useCallback, memo } from 'react';
+import { useState, useCallback, memo, useEffect } from 'react';
 
 type NavItem = {
   name: string;
@@ -31,6 +31,7 @@ const navSections: NavSection[] = [
     label: 'MAIN',
     items: [
       { name: 'Dashboard',     href: '/dashboard',               icon: LayoutDashboard },
+      { name: 'IV Tracker',    href: '/dashboard/iv-tracker',    icon: MapPin },
       { name: 'Global Chat',   href: '/dashboard/chat',          icon: MessageSquare },
       { name: 'Announcements', href: '/dashboard/announcements',  icon: Bell },
       { name: 'Calendar',      href: '/dashboard/calendar',       icon: CalendarIcon },
@@ -167,7 +168,17 @@ export function Sidebar() {
   const pathname  = usePathname();
   const router    = useRouter();
   const [expanded, setExpanded] = useState(false);
+  const [hasActiveIV, setHasActiveIV] = useState(false);
   const { displayName, loading, role } = useUser();
+
+  useEffect(() => {
+    const checkActiveIV = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('iv_trips').select('id').eq('active', true).limit(1);
+      if (data && data.length > 0) setHasActiveIV(true);
+    };
+    checkActiveIV();
+  }, []);
 
   const handleLogout = useCallback(async () => {
     const supabase = createClient();
@@ -261,14 +272,19 @@ export function Sidebar() {
                 {visible.map((item) => {
                   const active = isActive(item.href);
                   const isAdmin = item.roles?.length === 1 && item.roles[0] === 'admin';
+                  const showBadge = item.name === 'IV Tracker' && hasActiveIV;
                   return (
-                    <NavLink
-                      key={item.name + item.href}
-                      item={item}
-                      active={active}
-                      isAdmin={isAdmin}
-                      expanded={expanded}
-                    />
+                    <div key={item.name + item.href} className="relative">
+                      <NavLink
+                        item={item}
+                        active={active}
+                        isAdmin={isAdmin}
+                        expanded={expanded}
+                      />
+                      {showBadge && (
+                        <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+                      )}
+                    </div>
                   );
                 })}
               </div>

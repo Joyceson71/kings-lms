@@ -58,8 +58,8 @@ export const BottomNav = memo(function BottomNav() {
               >
                 <item.icon
                   className={cn(
-                    'transition-all duration-150',
-                    active ? 'h-5 w-5 text-primary' : 'h-5 w-5 text-muted-foreground',
+                    'transition-all duration-300',
+                    active ? 'h-5 w-5 text-primary animate-pulse' : 'h-5 w-5 text-muted-foreground',
                   )}
                   strokeWidth={active ? 2.5 : 2}
                 />

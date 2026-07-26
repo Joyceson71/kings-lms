@@ -64,7 +64,7 @@ export const Header = memo(function Header() {
       <div className="flex flex-1 items-center justify-between px-4 gap-4">
 
         {/* Left: logo (mobile) + breadcrumb */}
-        <div className="flex items-center gap-2 min-w-0">
+        <div className="flex items-center gap-3 min-w-0">
           {/* Mobile: Logo only (no hamburger — bottom nav handles it) */}
           <Link href="/dashboard" className="md:hidden flex items-center gap-2 flex-shrink-0">
             <div
@@ -88,7 +88,7 @@ export const Header = memo(function Header() {
           </div>
 
           {/* Mobile: page title */}
-          <span className="md:hidden font-bold text-[14px] text-foreground truncate"
+          <span className="md:hidden font-bold text-[14px] text-foreground truncate mt-[1px]"
             style={{ fontFamily: "'Outfit', sans-serif" }}>
             {pageTitle}
           </span>

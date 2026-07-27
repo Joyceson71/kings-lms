@@ -16,3 +16,5 @@ export const maxInArray = (arr: number[]) => Math.max(...arr);
 
 export const minInArray = (arr: number[]) => Math.min(...arr);
 
+export const removeDuplicates = <T>(arr: T[]): T[] => Array.from(new Set(arr));
+

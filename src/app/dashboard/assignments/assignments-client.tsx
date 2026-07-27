@@ -8,6 +8,7 @@ import { useState } from 'react';
 
 import { SubmissionModal } from '@/components/assignments/submission-modal';
 import { CreateAssignmentModal } from '@/components/assignments/create-assignment-modal';
+import { AssignmentColumn } from '@/components/assignments/assignment-column';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 
@@ -185,154 +186,23 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
           const items = grouped(col.key);
 
           return (
-            <div
+            <AssignmentColumn
               key={col.key}
-              className="animate-slide-in-up opacity-0 flex flex-col"
-              style={{ animationDelay: `${colIdx * 60}ms`, animationFillMode: 'forwards' }}
-            >
-              {/* Column header */}
-              <div className="flex items-center gap-2 mb-3 px-1">
-                {/* @ts-expect-error dynamic component type mismatch */}
-                <Icon className={`h-4 w-4 ${col.color}`} />
-                <span className="text-[13px] font-semibold text-foreground">
-                  {col.label}
-                </span>
-                <span className="ml-auto text-[11px] text-muted-foreground bg-muted rounded px-1.5 py-0.5 border border-border">
-                  {items.length}
-                </span>
-              </div>
-
-              {/* Column container */}
-              <div
-                className="rounded-lg p-2.5 min-h-[300px] space-y-2.5 flex-1"
-                style={{ background: '#0a0a0b', border: '1px solid #1a1a1d' }}
-              >
-                {items.map((assignment, i) => (
-                  <div
-                    key={assignment.id}
-                    className="rounded-lg p-3 hover:border-indigo-500/50 transition-colors cursor-pointer group animate-fade-in opacity-0"
-                    style={{ background: '#111113', border: '1px solid #1f1f23', animationDelay: `${(colIdx * 60) + (i * 40)}ms`, animationFillMode: 'forwards' }}
-                    onClick={() => {
-                      if (!isFaculty) {
-                        setSelectedAssignment(assignment);
-                        setIsSubmissionModalOpen(true);
-                      }
-                    }}
-                  >
-                    <div className="flex items-start justify-between mb-2.5">
-                      <span className="text-lg leading-none">{assignment.icon}</span>
-                      <div className="flex items-center gap-1.5">
-                        {assignment.status === 'graded' && assignment.grade && (
-                          <Badge variant="gold">Grade: {assignment.grade}</Badge>
-                        )}
-                        {assignment.status === 'pending' && isOverdue(assignment.due) && (
-                          <Badge variant="destructive" dot>Overdue</Badge>
-                        )}
-                        {assignment.status === 'submitted' && (
-                          <Badge variant="default" dot>In Review</Badge>
-                        )}
-                      </div>
-                    </div>
-
-                    <h3 className="text-[13px] font-semibold text-foreground mb-1 leading-snug">
-                      {assignment.title}
-                    </h3>
-                    <p className="text-[12px] text-muted-foreground mb-3 line-clamp-2 leading-relaxed">
-                      {assignment.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mt-auto">
-                      <span className="text-[11px] font-mono text-muted-foreground">{assignment.code}</span>
-                      <div className="flex items-center gap-1.5 text-[11px]">
-                        <Calendar className="h-3 w-3 text-muted-foreground" />
-                        <span className={`font-medium ${
-                          assignment.status === 'pending' && isOverdue(assignment.due)
-                            ? 'text-red-400'
-                            : 'text-muted-foreground'
-                        }`}>
-                          {assignment.due}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Faculty grade form or student grade display */}
-                    {isFaculty && gradingId === assignment.id ? (
-                      <div
-                        className="mt-3 pt-3 space-y-2"
-                        style={{ borderTop: '1px solid #1a1a1d' }}
-                        onClick={e => e.stopPropagation()}
-                      >
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            min={0}
-                            max={100}
-                            placeholder="Grade (0-100)"
-                            value={gradeInput}
-                            onChange={e => setGradeInput(e.target.value)}
-                            className="h-8 text-xs bg-background/40 border-border/40 rounded-lg flex-1"
-                          />
-                          <Button
-                            size="sm"
-                            onClick={() => handleGradeSubmit(assignment)}
-                            disabled={isSavingGrade}
-                            className="h-8 px-3 rounded-lg text-xs"
-                          >
-                            {isSavingGrade ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Save'}
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => setGradingId(null)}
-                            className="h-8 px-2 rounded-lg text-xs"
-                          >
-                            ✕
-                          </Button>
-                        </div>
-                        <textarea
-                          placeholder="Feedback (optional)"
-                          value={feedbackInput}
-                          onChange={e => setFeedbackInput(e.target.value)}
-                          rows={2}
-                          className="w-full resize-none text-xs rounded-lg border border-border/40 bg-background/40 px-3 py-2 text-foreground placeholder:text-muted-foreground focus:border-primary/50 outline-none"
-                        />
-                      </div>
-                    ) : (
-                      <div
-                        className="mt-3 pt-2.5 flex items-center justify-between opacity-0 group-hover:opacity-100 transition-opacity"
-                        style={{ borderTop: '1px solid #1a1a1d' }}
-                      >
-                        <span className="text-[11px] text-muted-foreground">{assignment.course}</span>
-                        {isFaculty ? (
-                          <button
-                            className="flex items-center gap-1 text-[11px] font-medium text-amber-400 hover:text-amber-300"
-                            onClick={e => {
-                              e.stopPropagation();
-                              setGradingId(assignment.id);
-                              setGradeInput('');
-                              setFeedbackInput('');
-                            }}
-                          >
-                            <Star className="h-3 w-3" /> Grade
-                          </button>
-                        ) : (
-                          <button className="flex items-center gap-1 text-[11px] font-medium text-indigo-400 hover:text-indigo-300">
-                            View <ArrowRight className="h-3 w-3" />
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                {items.length === 0 && (
-                  <div className="flex flex-col items-center justify-center py-10 text-center">
-                    <FileText className="h-6 w-6 text-muted-foreground mb-2" />
-                    <p className="text-[12px] text-muted-foreground">No {col.label.toLowerCase()} assignments</p>
-                  </div>
-                )}
-              </div>
-            </div>
+              col={col}
+              items={items}
+              colIdx={colIdx}
+              isFaculty={isFaculty}
+              gradingId={gradingId}
+              setGradingId={setGradingId}
+              gradeInput={gradeInput}
+              setGradeInput={setGradeInput}
+              feedbackInput={feedbackInput}
+              setFeedbackInput={setFeedbackInput}
+              handleGradeSubmit={handleGradeSubmit}
+              isSavingGrade={isSavingGrade}
+              setSelectedAssignment={setSelectedAssignment}
+              setIsSubmissionModalOpen={setIsSubmissionModalOpen}
+            />
           );
         })}
       </div>

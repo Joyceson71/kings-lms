@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { App } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
+import { Haptics, NotificationType } from '@capacitor/haptics';
 import { toast } from 'sonner';
 
 export function useIVLocation(tripId: string, userId: string, active: boolean, batterySaver: boolean = false) {
@@ -196,10 +197,18 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
           const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
           const dist = R * c;
           if (dist <= (cp.radius_meters || 50)) {
-            await supabase.from('iv_checkpoint_arrivals').insert({
+            const { error } = await supabase.from('iv_checkpoint_arrivals').insert({
               checkpoint_id: cp.id,
               user_id: userId
             });
+            if (!error) {
+              toast.success(`Arrived at ${cp.title || 'checkpoint'}!`);
+              try {
+                await Haptics.notification({ type: NotificationType.Success });
+              } catch (e) {
+                // ignore
+              }
+            }
           }
         });
       }

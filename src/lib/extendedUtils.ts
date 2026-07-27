@@ -1,1 +1,1 @@
-// Extended utility functions\n\nexport const padString = (val: any) => { /* implementation for padString */ return val; };\n\n
+// Extended utility functions\n\nexport const padString = (val: any) => { /* implementation for padString */ return val; };\n\nexport const trimSpaces = (val: any) => { /* implementation for trimSpaces */ return val; };\n\n

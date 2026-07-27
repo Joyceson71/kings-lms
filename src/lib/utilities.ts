@@ -28,3 +28,5 @@ export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export const kebabCase = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
 
+export const camelCase = (str: string) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+

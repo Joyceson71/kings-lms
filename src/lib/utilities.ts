@@ -56,3 +56,5 @@ export const isNull = (val: any) => val === null;
 
 export const isUndefined = (val: any) => val === undefined;
 
+export const isFalsy = (val: any) => !val;
+

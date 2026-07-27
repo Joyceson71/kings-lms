@@ -36,3 +36,5 @@ export const shuffleArray = <T>(arr: T[]): T[] => arr.sort(() => Math.random() -
 
 export const truncateString = (str: string, num: number) => str.length > num ? str.slice(0, num > 3 ? num - 3 : num) + '...' : str;
 
+export const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+

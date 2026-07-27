@@ -38,3 +38,5 @@ export const truncateString = (str: string, num: number) => str.length > num ? s
 
 export const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
 
+export const generateId = () => Math.random().toString(36).substring(2, 9);
+

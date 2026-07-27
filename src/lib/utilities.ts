@@ -20,3 +20,5 @@ export const removeDuplicates = <T>(arr: T[]): T[] => Array.from(new Set(arr));
 
 export const isEmpty = (obj: any) => Object.keys(obj).length === 0;
 
+export const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
+

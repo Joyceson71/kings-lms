@@ -78,3 +78,5 @@ export const celsiusToFahrenheit = (c: number) => (c * 9/5) + 32;
 
 export const fahrenheitToCelsius = (f: number) => ((f - 32) * 5) / 9;
 
+export const rgbToHex = (r: number, g: number, b: number) => '#' + [r, g, b].map(x => { const hex = x.toString(16); return hex.length === 1 ? '0' + hex : hex; }).join('');
+

@@ -30,3 +30,5 @@ export const kebabCase = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2'
 
 export const camelCase = (str: string) => str.replace(/-([a-z])/g, (g) => g[1].toUpperCase());
 
+export const chunkArray = <T>(arr: T[], size: number): T[][] => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) => arr.slice(i * size, i * size + size));
+

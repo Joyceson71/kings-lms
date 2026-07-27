@@ -70,3 +70,5 @@ export const stripTags = (str: string) => str.replace(/<[^>]*>?/gm, '');
 
 export const countWords = (str: string) => str.trim().split(/\s+/).length;
 
+export const degreesToRadians = (deg: number) => deg * (Math.PI / 180);
+

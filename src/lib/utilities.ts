@@ -26,3 +26,5 @@ export const randomInt = (min: number, max: number) => Math.floor(Math.random() 
 
 export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+export const kebabCase = (str: string) => str.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+

@@ -10,7 +10,7 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
-import 'leaflet.heat';
+
 import GeofenceManager from '@/components/iv/GeofenceManager';
 import { IVGlobe } from '@/components/iv/IVGlobe';
 

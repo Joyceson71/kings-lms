@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { CheckCircle2, Circle, MapPin, Plus, Trash2, CalendarClock } from 'lucide-react';
+import { CheckCircle2, Circle, MapPin, Plus, Trash2, CalendarClock, Camera } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface TripItineraryProps {
@@ -15,6 +15,7 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
   const [checkpoints, setCheckpoints] = useState<any[]>([]);
   const [arrivals, setArrivals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingPhotoId, setUploadingPhotoId] = useState<string | null>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -55,6 +56,45 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
 
   const deleteCheckpoint = async (id: string) => {
     await supabase.from('iv_checkpoints').delete().eq('id', id);
+  };
+
+  const handlePhotoUpload = async (checkpointId: string, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setUploadingPhotoId(checkpointId);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${currentUserId}-${checkpointId}-${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('iv_photos')
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: publicUrlData } = supabase.storage
+        .from('iv_photos')
+        .getPublicUrl(fileName);
+
+      const photoUrl = publicUrlData.publicUrl;
+
+      const { error: updateError } = await supabase
+        .from('iv_checkpoint_arrivals')
+        .update({ photo_url: photoUrl })
+        .eq('checkpoint_id', checkpointId)
+        .eq('user_id', currentUserId);
+
+      if (updateError) throw updateError;
+      
+      toast.success('Photo uploaded successfully');
+      fetchCheckpoints();
+    } catch (error) {
+      console.error('Photo upload error:', error);
+      toast.error('Failed to upload photo');
+    } finally {
+      setUploadingPhotoId(null);
+    }
   };
 
   if (loading) return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading itinerary...</div>;
@@ -114,14 +154,33 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
                     </h3>
                     {cp.description && <p className="text-sm text-muted-foreground mt-1">{cp.description}</p>}
                     
-                    <div className="mt-3 flex items-center gap-4 text-xs font-medium">
-                      <span className="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-md">
-                        <MapPin size={12} /> {totalArrived} Arrived
-                      </span>
-                      {myArrival && (
-                        <span className="text-emerald-500">
-                          ✓ Checked in at {new Date(myArrival.arrived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    <div className="mt-3 flex flex-col gap-2">
+                      <div className="flex items-center gap-4 text-xs font-medium">
+                        <span className="flex items-center gap-1 text-primary bg-primary/10 px-2 py-1 rounded-md">
+                          <MapPin size={12} /> {totalArrived} Arrived
                         </span>
+                        {myArrival && (
+                          <span className="text-emerald-500">
+                            ✓ Checked in at {new Date(myArrival.arrived_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        )}
+                      </div>
+                      
+                      {myArrival && (
+                        <div className="mt-1">
+                          {myArrival.photo_url ? (
+                            <div className="relative w-24 h-24 rounded-lg overflow-hidden border border-border mt-2 shadow-sm">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={myArrival.photo_url} alt="Checkpoint proof" className="w-full h-full object-cover hover:scale-105 transition-transform" />
+                            </div>
+                          ) : (
+                            <label className={`inline-flex items-center justify-center gap-2 mt-2 px-4 py-2 text-xs font-bold rounded-xl border-2 border-dashed border-primary/50 text-primary hover:bg-primary/5 cursor-pointer transition-colors w-full sm:w-auto ${uploadingPhotoId === cp.id ? 'opacity-50 pointer-events-none' : ''}`}>
+                              <Camera size={16} />
+                              {uploadingPhotoId === cp.id ? 'Uploading...' : 'Upload Photo Proof'}
+                              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => handlePhotoUpload(cp.id, e)} />
+                            </label>
+                          )}
+                        </div>
                       )}
                     </div>
                   </div>

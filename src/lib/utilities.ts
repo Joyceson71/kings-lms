@@ -18,3 +18,5 @@ export const minInArray = (arr: number[]) => Math.min(...arr);
 
 export const removeDuplicates = <T>(arr: T[]): T[] => Array.from(new Set(arr));
 
+export const isEmpty = (obj: any) => Object.keys(obj).length === 0;
+

@@ -86,3 +86,5 @@ export const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0)
 
 export const getOrdinalSuffix = (i: number) => { const j = i % 10, k = i % 100; if (j === 1 && k !== 11) return i + 'st'; if (j === 2 && k !== 12) return i + 'nd'; if (j === 3 && k !== 13) return i + 'rd'; return i + 'th'; };
 
+export const bytesToSize = (bytes: number) => { const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']; if (bytes === 0) return '0 Byte'; const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)).toString()); return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i]; };
+

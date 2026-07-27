@@ -96,3 +96,5 @@ export const copyToClipboard = (text: string) => navigator.clipboard.writeText(t
 
 export const getSelectedText = () => window.getSelection()?.toString() || '';
 
+export const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+

@@ -22,3 +22,5 @@ export const isEmpty = (obj: any) => Object.keys(obj).length === 0;
 
 export const clamp = (num: number, min: number, max: number) => Math.min(Math.max(num, min), max);
 
+export const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
+

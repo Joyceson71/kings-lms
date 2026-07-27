@@ -79,7 +79,20 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
     const channel = supabase.channel(`trip-sidebar-${tripId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, 
-        () => fetchStudents()
+        (payload) => {
+          if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
+            const newLoc = payload.new as any;
+            setStudents(prev => {
+              const exists = prev.find(s => s.user_id === newLoc.user_id);
+              if (exists) {
+                return prev.map(s => s.user_id === newLoc.user_id ? { ...s, ...newLoc } : s);
+              } else {
+                fetchStudents();
+                return prev;
+              }
+            });
+          }
+        }
       )
       .subscribe();
 

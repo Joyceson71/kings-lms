@@ -1,12 +1,14 @@
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { App } from '@capacitor/app';
+import { Geolocation } from '@capacitor/geolocation';
 import { toast } from 'sonner';
 
 export function useIVLocation(tripId: string, userId: string, active: boolean, batterySaver: boolean = false) {
   const [location, setLocation] = useState<{ lat: number; lng: number; accuracy: number; isOnline: boolean } | null>(null);
   const wakeLockRef = useRef<any>(null);
-  const watchIdRef = useRef<number | null>(null);
+  const watchIdRef = useRef<string | number | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef<number>(0);
 
   useEffect(() => {
@@ -15,9 +17,17 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         wakeLockRef.current.release().catch(console.error);
         wakeLockRef.current = null;
       }
-      if (watchIdRef.current !== null && 'geolocation' in navigator) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
+      if (watchIdRef.current !== null) {
+        if (typeof watchIdRef.current === 'string') {
+          Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.error);
+        } else if ('geolocation' in navigator) {
+          navigator.geolocation.clearWatch(watchIdRef.current as number);
+        }
         watchIdRef.current = null;
+      }
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
       return;
     }
@@ -95,133 +105,204 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       }
     };
 
-    const appStateListener = App.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        syncOfflineData();
-      }
-    });
+    let appStateListener: any = null;
+    try {
+      appStateListener = App.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          syncOfflineData();
+        }
+      });
+    } catch (err) {
+      console.warn('Capacitor App API not available', err);
+    }
     
     window.addEventListener('online', syncOfflineData);
     syncOfflineData();
 
-    if ('geolocation' in navigator) {
-      watchIdRef.current = navigator.geolocation.watchPosition(
-        async (position) => {
-          const now = Date.now();
-          const minInterval = batterySaver ? 60000 : 10000;
-          if (now - lastUpdateRef.current < minInterval) return;
-          lastUpdateRef.current = now;
+    const processLocation = async (lat: number, lng: number, accuracy: number) => {
+      const now = Date.now();
+      const minInterval = batterySaver ? 60000 : 10000;
+      if (now - lastUpdateRef.current < minInterval) return;
+      lastUpdateRef.current = now;
 
-          const { latitude: lat, longitude: lng, accuracy } = position.coords;
-          let battery: number | null = null;
-          
-          try {
-            if ('getBattery' in navigator) {
-              const bm = await (navigator as any).getBattery();
-              battery = Math.round(bm.level * 100);
-            }
-          } catch {}
-
-          const isOnline = navigator.onLine;
-          setLocation({ lat, lng, accuracy, isOnline });
-
-          const ping = {
-            user_id: userId,
-            iv_trip_id: tripId,
-            lat,
-            lng,
-            accuracy,
-            battery,
-            is_online: isOnline,
-            updated_at: new Date().toISOString()
-          };
-
-          if (isOnline) {
-            supabase.from('iv_locations').upsert(ping, { onConflict: 'user_id,iv_trip_id' })
-              .then(({ error }) => { if (error) console.error('Failed to upsert location', error); });
-          } else {
-            try {
-              const db = await new Promise<IDBDatabase>((resolve, reject) => {
-                const req = indexedDB.open('iv-offline', 1);
-                req.onupgradeneeded = () => req.result.createObjectStore('pings', {autoIncrement:true});
-                req.onsuccess = () => resolve(req.result);
-                req.onerror = () => reject(req.error);
-              });
-
-              await new Promise((resolve, reject) => {
-                const tx = db.transaction('pings', 'readwrite');
-                const store = tx.objectStore('pings');
-                const req = store.add(ping);
-                req.onsuccess = resolve;
-                req.onerror = reject;
-              });
-
-              if ('serviceWorker' in navigator && 'SyncManager' in window) {
-                const sw = await navigator.serviceWorker.ready;
-                await (sw as any).sync.register('iv-location-sync');
-              }
-            } catch (err) {
-              console.error('Offline storage error:', err);
-            }
-          }
-
-          if (geofences.length > 0) {
-            for (const zone of geofences) {
-              const inside = isPointInPolygon({lat, lng}, zone.polygon);
-              const isBreach = (zone.zone_type === 'permitted' && !inside) || (zone.zone_type !== 'permitted' && inside);
-              
-              if (isBreach) {
-                const lastBreach = localStorage.getItem(`iv-breach-${zone.id}`);
-                if (!lastBreach || Date.now() - Number(lastBreach) > 60000 * 5) {
-                  localStorage.setItem(`iv-breach-${zone.id}`, Date.now().toString());
-                  
-                  await supabase.from('iv_geofence_events').insert({
-                    zone_id: zone.id,
-                    user_id: userId,
-                    event_type: zone.zone_type === 'permitted' ? 'exit' : 'enter',
-                    lat, lng
-                  });
-                  
-                  fetch('/api/iv/geofence-alert', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ iv_trip_id: tripId, user_id: userId, zone_id: zone.id, lat, lng })
-                  });
-                }
-              }
-            }
-          }
-        },
-        (error) => {
-          console.warn('Geolocation error:', error);
-          if (error.code === error.PERMISSION_DENIED) {
-            toast.error('Location permission denied. Please enable it in your browser settings.');
-          } else {
-            toast.error(`Location error: ${error.message}. Please ensure location services are enabled.`);
-          }
-        },
-        { 
-          enableHighAccuracy: !batterySaver, 
-          maximumAge: batterySaver ? 30000 : 10000, 
-          timeout: batterySaver ? 15000 : 20000 
+      let battery: number | null = null;
+      try {
+        if ('getBattery' in navigator) {
+          const bm = await (navigator as any).getBattery();
+          battery = Math.round(bm.level * 100);
         }
-      );
-    }
+      } catch {}
+
+      const isOnline = navigator.onLine;
+      setLocation({ lat, lng, accuracy, isOnline });
+
+      const ping = {
+        user_id: userId,
+        iv_trip_id: tripId,
+        lat,
+        lng,
+        accuracy,
+        battery,
+        is_online: isOnline,
+        updated_at: new Date().toISOString()
+      };
+
+      if (isOnline) {
+        supabase.from('iv_locations').upsert(ping, { onConflict: 'user_id,iv_trip_id' })
+          .then(({ error }) => { if (error) console.error('Failed to upsert location', error); });
+      } else {
+        try {
+          const db = await new Promise<IDBDatabase>((resolve, reject) => {
+            const req = indexedDB.open('iv-offline', 1);
+            req.onupgradeneeded = () => req.result.createObjectStore('pings', {autoIncrement:true});
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+
+          await new Promise((resolve, reject) => {
+            const tx = db.transaction('pings', 'readwrite');
+            const store = tx.objectStore('pings');
+            const req = store.add(ping);
+            req.onsuccess = resolve;
+            req.onerror = reject;
+          });
+
+          if ('serviceWorker' in navigator && 'SyncManager' in window) {
+            const sw = await navigator.serviceWorker.ready;
+            await (sw as any).sync.register('iv-location-sync');
+          }
+        } catch (err) {
+          console.error('Offline storage error:', err);
+        }
+      }
+
+      if (geofences.length > 0) {
+        for (const zone of geofences) {
+          const inside = isPointInPolygon({lat, lng}, zone.polygon);
+          const isBreach = (zone.zone_type === 'permitted' && !inside) || (zone.zone_type !== 'permitted' && inside);
+          
+          if (isBreach) {
+            const lastBreach = localStorage.getItem(`iv-breach-${zone.id}`);
+            if (!lastBreach || Date.now() - Number(lastBreach) > 60000 * 5) {
+              localStorage.setItem(`iv-breach-${zone.id}`, Date.now().toString());
+              
+              await supabase.from('iv_geofence_events').insert({
+                zone_id: zone.id,
+                user_id: userId,
+                event_type: zone.zone_type === 'permitted' ? 'exit' : 'enter',
+                lat, lng
+              });
+              
+              fetch('/api/iv/geofence-alert', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ iv_trip_id: tripId, user_id: userId, zone_id: zone.id, lat, lng })
+              });
+            }
+          }
+        }
+      }
+    };
+
+    const startTracking = async () => {
+      const minInterval = batterySaver ? 60000 : 10000;
+      
+      try {
+        const permissions = await Geolocation.checkPermissions();
+        if (permissions.location !== 'granted') {
+          const req = await Geolocation.requestPermissions();
+          if (req.location !== 'granted') {
+            toast.error('Location permission denied for app.');
+            return;
+          }
+        }
+        
+        const id = await Geolocation.watchPosition({
+          enableHighAccuracy: !batterySaver,
+          maximumAge: batterySaver ? 30000 : 10000,
+          timeout: batterySaver ? 15000 : 20000
+        }, (position, err) => {
+          if (err) {
+            console.warn('Capacitor Geolocation error:', err);
+            return;
+          }
+          if (position) {
+            processLocation(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+          }
+        });
+        
+        watchIdRef.current = id;
+      } catch (err) {
+        console.warn('Capacitor Geolocation failed, falling back to browser API', err);
+        
+        if ('geolocation' in navigator) {
+          watchIdRef.current = navigator.geolocation.watchPosition(
+            (position) => {
+              processLocation(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+            },
+            (error) => {
+              console.warn('Geolocation error:', error);
+            },
+            { 
+              enableHighAccuracy: !batterySaver, 
+              maximumAge: batterySaver ? 30000 : 10000, 
+              timeout: batterySaver ? 15000 : 20000 
+            }
+          );
+        }
+      }
+
+      // Robust fallback interval to ensure location updates aren't frozen by browser background throttling
+      intervalRef.current = setInterval(async () => {
+        const now = Date.now();
+        if (now - lastUpdateRef.current < minInterval) return;
+        
+        try {
+          const pos = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: !batterySaver,
+            timeout: 10000
+          });
+          processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
+        } catch (err) {
+           if ('geolocation' in navigator) {
+             navigator.geolocation.getCurrentPosition(
+               (pos) => processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
+               () => {},
+               { enableHighAccuracy: !batterySaver, timeout: 10000 }
+             );
+           }
+        }
+      }, minInterval + 5000); // Check 5s after minimum interval
+    };
+
+    startTracking();
 
     return () => {
       window.removeEventListener('online', syncOfflineData);
-      appStateListener.then(l => l.remove()).catch(console.error);
+      if (appStateListener) {
+        appStateListener.then((l: any) => l.remove()).catch(console.error);
+      }
       
-      if (watchIdRef.current !== null && 'geolocation' in navigator) {
-        navigator.geolocation.clearWatch(watchIdRef.current);
+      if (watchIdRef.current !== null) {
+        if (typeof watchIdRef.current === 'string') {
+          Geolocation.clearWatch({ id: watchIdRef.current }).catch(console.error);
+        } else if ('geolocation' in navigator) {
+          navigator.geolocation.clearWatch(watchIdRef.current as number);
+        }
         watchIdRef.current = null;
       }
+      
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+
       if (wakeLockRef.current) {
         wakeLockRef.current.release().catch(console.error);
         wakeLockRef.current = null;
       }
     };
-  }, [active, tripId, userId]);
+  }, [active, tripId, userId, batterySaver]);
 
   return location;
 }

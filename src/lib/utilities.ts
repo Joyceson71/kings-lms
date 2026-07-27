@@ -64,3 +64,5 @@ export const formatCurrency = (amount: number, currency = 'USD') => new Intl.Num
 
 export const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US').format(date);
 
+export const isValidEmail = (email: string) => /^\S+@\S+\.\S+$/.test(email);
+

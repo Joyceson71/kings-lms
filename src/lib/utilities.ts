@@ -80,3 +80,5 @@ export const fahrenheitToCelsius = (f: number) => ((f - 32) * 5) / 9;
 
 export const rgbToHex = (r: number, g: number, b: number) => '#' + [r, g, b].map(x => { const hex = x.toString(16); return hex.length === 1 ? '0' + hex : hex; }).join('');
 
+export const getDaysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate();
+

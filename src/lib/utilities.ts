@@ -62,3 +62,5 @@ export const isTruthy = (val: any) => !!val;
 
 export const formatCurrency = (amount: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
 
+export const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US').format(date);
+

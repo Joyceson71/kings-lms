@@ -60,3 +60,5 @@ export const isFalsy = (val: any) => !val;
 
 export const isTruthy = (val: any) => !!val;
 
+export const formatCurrency = (amount: number, currency = 'USD') => new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);
+

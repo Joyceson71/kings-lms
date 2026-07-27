@@ -90,3 +90,5 @@ export const bytesToSize = (bytes: number) => { const sizes = ['Bytes', 'KB', 'M
 
 export const escapeHTML = (str: string) => str.replace(/[&<>'"]/g, tag => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '\'': '&#39;', '"': '&quot;'})[tag] || tag);
 
+export const unescapeHTML = (str: string) => str.replace(/&amp;|&lt;|&gt;|&#39;|&quot;/g, tag => ({'&amp;': '&', '&lt;': '<', '&gt;': '>', '&#39;': '\'', '&quot;': '"'})[tag] || tag);
+

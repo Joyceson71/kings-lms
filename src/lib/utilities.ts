@@ -68,3 +68,5 @@ export const isValidEmail = (email: string) => /^\S+@\S+\.\S+$/.test(email);
 
 export const stripTags = (str: string) => str.replace(/<[^>]*>?/gm, '');
 
+export const countWords = (str: string) => str.trim().split(/\s+/).length;
+

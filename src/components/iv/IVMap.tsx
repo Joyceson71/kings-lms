@@ -10,6 +10,8 @@ import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet-draw/dist/leaflet.draw.css';
+import 'leaflet.heat';
+import GeofenceManager from '@/components/iv/GeofenceManager';
 import { IVGlobe } from '@/components/iv/IVGlobe';
 
 interface IVMapProps {
@@ -74,7 +76,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       }
 
       if (!mapInstance.current) {
-        mapInstance.current = L.map(mapContainer.current).setView([13.0827, 80.2707], 13);
+        mapInstance.current = L.map(mapContainer.current, { drawControl: false }).setView([13.0827, 80.2707], 13);
+        
+        // Store the map globally so GeofenceManager can access it if needed
+        (window as any)._ivMapInstance = mapInstance.current;
+        (window as any).L = L;
         
         const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
         const satellite = L.tileLayer(process.env.NEXT_PUBLIC_ESRI_TILES || 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
@@ -112,8 +118,6 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         mapInstance.current.on('click', (e: any) => {
           // Handled below due to closure
         });
-        
-        (window as any)._ivMapInstance = mapInstance.current;
       }
 
       const supabase = createClient();
@@ -549,7 +553,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       </div>
 
       <div className="absolute top-4 right-4 z-[1000]">
-        <div className="bg-background/80 backdrop-blur border border-border rounded-lg p-1 flex shadow-lg">
+        <div className="bg-background/80 backdrop-blur border border-border rounded-lg p-1 flex shadow-lg mb-2">
           <button 
             onClick={() => setViewMode('2d')} 
             className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === '2d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
@@ -563,6 +567,10 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
             3D Globe
           </button>
         </div>
+        
+        {viewMode === '2d' && mapInstance.current && (
+          <GeofenceManager tripId={tripId} role={role} mapInstance={mapInstance.current} />
+        )}
       </div>
 
       <div 

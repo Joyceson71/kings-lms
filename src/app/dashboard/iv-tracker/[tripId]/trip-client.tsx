@@ -12,8 +12,11 @@ import AdminSOSPanel from '@/components/iv/AdminSOSPanel';
 import TripChat from '@/components/iv/TripChat';
 import TripGallery from '@/components/iv/TripGallery';
 import PathReplay from '@/components/iv/PathReplay';
+import TripAnalytics from '@/components/iv/TripAnalytics';
+import TripReportGenerator from '@/components/iv/TripReportGenerator';
+import TripItinerary from '@/components/iv/TripItinerary';
 import QRCode from 'qrcode';
-import { ImageIcon, Menu, X, Copy } from 'lucide-react';
+import { ImageIcon, Menu, X, Copy, CalendarClock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const IVMap = dynamic(() => import('@/components/iv/IVMap'), { ssr: false });
@@ -36,8 +39,13 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
   const [showHeatmap, setShowHeatmap] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showGallery, setShowGallery] = useState(false);
+  const [showAnalytics, setShowAnalytics] = useState(false);
+  const [showReportBuilder, setShowReportBuilder] = useState(false);
+  const [showItinerary, setShowItinerary] = useState(false);
   const [qrUrl, setQrUrl] = useState('');
   const [showSidebar, setShowSidebar] = useState(false);
+  const [sosEvents, setSosEvents] = useState<any[]>([]);
+  const [breaches, setBreaches] = useState<any[]>([]);
 
   // Hook handles location tracking and offline syncing
   useIVLocation(tripId, currentUserId, isActive && sharing, batterySaver);
@@ -75,7 +83,19 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       if (data) setStudents(data);
     };
 
+    const fetchAnalyticsData = async () => {
+      const { data: sos } = await supabase.from('iv_sos_events').select('*').eq('iv_trip_id', tripId);
+      if (sos) setSosEvents(sos);
+
+      const { data: zones } = await supabase.from('iv_geofence_zones').select('id').eq('iv_trip_id', tripId);
+      if (zones && zones.length > 0) {
+        const { data: br } = await supabase.from('iv_geofence_events').select('*').in('zone_id', zones.map(z => z.id));
+        if (br) setBreaches(br);
+      }
+    };
+
     fetchStudents();
+    fetchAnalyticsData();
 
     const channel = supabase.channel(`trip-sidebar-${tripId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, 
@@ -189,7 +209,10 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
               <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-secondary text-secondary-foreground py-2 rounded-xl font-bold">
                 {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
               </button>
-              <button onClick={() => window.open(`/api/iv/trip-report?trip_id=${tripId}`)} className="bg-black text-white py-3 rounded-2xl font-black border border-white/10 shadow-inner flex items-center justify-center gap-2 hover:bg-black/80">
+              <button onClick={() => setShowAnalytics(true)} className="bg-accent text-accent-foreground py-2 rounded-xl font-bold border border-border">
+                Live Analytics
+              </button>
+              <button onClick={() => setShowReportBuilder(true)} className="bg-black text-white py-3 rounded-2xl font-black border border-white/10 shadow-inner flex items-center justify-center gap-2 hover:bg-black/80">
                 Download PDF Report
               </button>
             </div>
@@ -255,6 +278,12 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
         )}
         <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
           <button 
+            onClick={() => setShowItinerary(!showItinerary)}
+            className="w-14 h-14 md:w-16 md:h-16 bg-background text-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-muted transition-colors border border-border"
+          >
+            <CalendarClock size={24} />
+          </button>
+          <button 
             onClick={() => setShowGallery(true)}
             className="w-14 h-14 md:w-16 md:h-16 bg-background text-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-muted transition-colors border border-border"
           >
@@ -277,6 +306,11 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
           userName={students.find(s => s.user_id === currentUserId)?.profiles?.full_name?.split(' ')[0] || 'User'} 
         />
         {showReplay && <PathReplay tripId={tripId} mapInstance={(window as any)._ivMapInstance} onClose={() => setShowReplay(false)} />}
+        
+        {/* Itinerary Slide Over */}
+        <div className={`absolute top-0 right-0 bottom-0 z-[2500] transition-transform duration-300 ${showItinerary ? 'translate-x-0' : 'translate-x-full'}`}>
+          <TripItinerary tripId={tripId} role={role} currentUserId={currentUserId} />
+        </div>
       </div>
       
       {showQrModal && (
@@ -312,6 +346,28 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
           tripId={tripId} 
           currentUserId={currentUserId} 
           onClose={() => setShowGallery(false)} 
+        />
+      )}
+      
+      {showAnalytics && (
+        <div className="absolute inset-0 z-[4500] bg-background/95 backdrop-blur-xl flex flex-col">
+          <div className="p-4 flex items-center justify-between border-b border-border">
+            <h2 className="font-bold text-xl tracking-tight">Analytics Dashboard</h2>
+            <button onClick={() => setShowAnalytics(false)} className="p-2 bg-muted rounded-full hover:bg-muted/80">
+              <X size={20} />
+            </button>
+          </div>
+          <TripAnalytics students={students} sosEvents={sosEvents} breaches={breaches} />
+        </div>
+      )}
+      
+      {showReportBuilder && (
+        <TripReportGenerator 
+          tripId={tripId} 
+          students={students} 
+          sosEvents={sosEvents} 
+          breaches={breaches} 
+          onClose={() => setShowReportBuilder(false)} 
         />
       )}
     </>

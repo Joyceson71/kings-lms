@@ -6,10 +6,21 @@ import { toast } from 'sonner';
 
 export function useIVLocation(tripId: string, userId: string, active: boolean, batterySaver: boolean = false) {
   const [location, setLocation] = useState<{ lat: number; lng: number; accuracy: number; isOnline: boolean } | null>(null);
+  const [checkpoints, setCheckpoints] = useState<any[]>([]);
+  const supabase = createClient();
   const wakeLockRef = useRef<any>(null);
   const watchIdRef = useRef<string | number | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const lastUpdateRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!active) return;
+    const fetchCP = async () => {
+      const { data } = await supabase.from('iv_checkpoints').select('*').eq('iv_trip_id', tripId);
+      if (data) setCheckpoints(data);
+    };
+    fetchCP();
+  }, [active, tripId]);
 
   useEffect(() => {
     if (!active) {
@@ -32,7 +43,6 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       return;
     }
 
-    const supabase = createClient();
     let geofences: any[] = [];
 
     const fetchGeofences = async () => {
@@ -174,6 +184,24 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         } catch (err) {
           console.error('Offline storage error:', err);
         }
+      }
+
+      if (checkpoints.length > 0) {
+        checkpoints.forEach(async (cp) => {
+          const R = 6371e3;
+          const φ1 = lat * Math.PI/180, φ2 = cp.lat * Math.PI/180;
+          const Δφ = (cp.lat - lat) * Math.PI/180;
+          const Δλ = (cp.lng - lng) * Math.PI/180;
+          const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+          const dist = R * c;
+          if (dist <= (cp.radius_meters || 50)) {
+            await supabase.from('iv_checkpoint_arrivals').insert({
+              checkpoint_id: cp.id,
+              user_id: userId
+            });
+          }
+        });
       }
 
       if (geofences.length > 0) {

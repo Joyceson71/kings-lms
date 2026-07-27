@@ -31,6 +31,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const messageMarkersRef = useRef<{ [key: string]: any }>({});
   const poiMarkersRef = useRef<{ [key: string]: any }>({});
   const gatherMarkerRef = useRef<any>(null);
+  const profilesRef = useRef<{ [userId: string]: any }>({});
   
   const [gatherPoint, setGatherPoint] = useState<{lat: number, lng: number, message: string} | null>(null);
   const [showGatherModal, setShowGatherModal] = useState(false);
@@ -136,6 +137,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         });
       }
 
+      const { data: profiles } = await supabase.from('profiles').select('id, full_name, avatar_url');
+      if (profiles) {
+        profiles.forEach(p => { profilesRef.current[p.id] = p; });
+      }
+
       const { data: initialLocs } = await supabase.from('iv_locations').select('*').eq('iv_trip_id', tripId);
       if (initialLocs) {
         initialLocs.forEach(l => updateMarker(l, L));
@@ -233,6 +239,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         markersRef.current[loc.user_id].setLatLng([loc.lat, loc.lng]);
         markersRef.current[loc.user_id].setStyle({ fillColor: color });
       } else {
+        const name = isMe ? 'You' : (profilesRef.current[loc.user_id]?.full_name || 'Student');
         const marker = L.circleMarker([loc.lat, loc.lng], {
           radius: 8,
           fillColor: color,
@@ -240,7 +247,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           weight: 2,
           opacity: 1,
           fillOpacity: 0.8
-        }).bindTooltip(isMe ? 'You' : 'Student', { permanent: false });
+        }).bindTooltip(name, { permanent: false });
         
         markerClusterRef.current.addLayer(marker);
         markersRef.current[loc.user_id] = marker;

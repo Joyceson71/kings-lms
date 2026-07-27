@@ -31,9 +31,16 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
 
   useEffect(() => {
     const supabase = createClient();
-    
-    // Fetch initial locations
-    const fetchLocations = async () => {
+    let channel: any;
+
+    const initGlobe = async () => {
+      const { data: profilesData } = await supabase.from('profiles').select('id, full_name, avatar_url, role');
+      const profiles: Record<string, any> = {};
+      if (profilesData) {
+        profilesData.forEach(p => { profiles[p.id] = p; });
+      }
+
+      // Fetch initial locations
       const { data, error } = await supabase
         .from('iv_locations')
         .select('*')
@@ -42,24 +49,41 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
       if (data && !error) {
         const locMap: Record<string, LocationData> = {};
         data.forEach((loc) => {
-          locMap[loc.user_id] = loc;
+          const profile = profiles[loc.user_id];
+          locMap[loc.user_id] = {
+             ...loc,
+             user_name: profile?.full_name || 'Student',
+             avatar_url: profile?.avatar_url,
+             role: profile?.role || loc.role
+          };
         });
         setLocations(locMap);
       }
+
+      // Subscribe to real-time updates
+      channel = supabase.channel(`iv-globe-${tripId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+          const newLoc = payload.new as LocationData;
+          setLocations(prev => {
+             const profile = profiles[newLoc.user_id];
+             return {
+               ...prev, 
+               [newLoc.user_id]: { 
+                 ...newLoc,
+                 user_name: profile?.full_name || 'Student',
+                 avatar_url: profile?.avatar_url,
+                 role: profile?.role || newLoc.role
+               } 
+             };
+          });
+        })
+        .subscribe();
     };
 
-    fetchLocations();
-
-    // Subscribe to real-time updates
-    const channel = supabase.channel(`iv-globe-${tripId}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
-        const newLoc = payload.new as LocationData;
-        setLocations(prev => ({ ...prev, [newLoc.user_id]: newLoc }));
-      })
-      .subscribe();
+    initGlobe();
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) supabase.removeChannel(channel);
     };
   }, [tripId]);
 

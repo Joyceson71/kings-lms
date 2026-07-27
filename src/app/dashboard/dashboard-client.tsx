@@ -87,7 +87,7 @@ function timeAgo(iso: string) {
 // ─── Skeleton ────────────────────────────────────────────────────────────────
 function SkeletonCard() {
   return (
-    <div className="bento-card p-5 animate-pulse">
+    <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 animate-pulse min-w-0">
       <div className="flex items-start justify-between mb-4">
         <div className="h-10 w-10 rounded-xl skeleton" />
         <div className="h-4 w-4 rounded skeleton" />
@@ -332,7 +332,7 @@ function StreakWidget({ streak, studyScore }: { streak: number; studyScore: numb
 
   return (
     <div
-      className="bento-card p-5 animate-slide-in-up opacity-0"
+      className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 animate-slide-in-up min-w-0 opacity-0"
       style={{ animationDelay: '200ms', animationFillMode: 'forwards' }}
     >
       <div className="flex items-center justify-between mb-4">
@@ -559,11 +559,11 @@ export default function DashboardClient({
       {/* ── Student-specific: Attendance + Deadlines Row ── */}
       {isStudent && (
         <div
-          className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
+          className="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-4 animate-slide-in-up opacity-0"
           style={{ animationDelay: '280ms', animationFillMode: 'forwards' }}
         >
           {/* My Course Attendance — 2/3 width */}
-          <div className="lg:col-span-2 bento-card p-5">
+          <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -610,7 +610,7 @@ export default function DashboardClient({
           {/* Upcoming deadlines / Notifications — 1/3 width */}
           <div className="space-y-3">
             {/* Pending Assignments */}
-            <div className="bento-card p-5 flex flex-col">
+            <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Deadlines
@@ -647,7 +647,7 @@ export default function DashboardClient({
             </div>
 
             {/* Notifications */}
-            <div className="bento-card p-5 flex flex-col">
+            <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Updates
@@ -687,7 +687,7 @@ export default function DashboardClient({
         style={{ animationDelay: '360ms', animationFillMode: 'forwards' }}
       >
         {/* Attendance trend chart — 2/3 width */}
-        <div className="lg:col-span-2 bento-card p-5">
+        <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -702,7 +702,7 @@ export default function DashboardClient({
         </div>
 
         {/* Tasks donut — 1/3 width */}
-        <div className="bento-card p-5 flex flex-col">
+        <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {isStudent ? 'Tasks' : 'Grading'}
@@ -725,7 +725,7 @@ export default function DashboardClient({
           <StreakWidget streak={streak} studyScore={studyScore} />
 
           {/* Quick Actions — 2/3 width */}
-          <div className="lg:col-span-2 bento-card p-5">
+          <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
             <h2 className="text-[15px] font-bold text-foreground mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Quick Actions
             </h2>
@@ -739,7 +739,7 @@ export default function DashboardClient({
                 <Link
                   key={label}
                   href={href}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:brightness-110 transition-all duration-200 active:scale-95 group"
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-white/30 backdrop-blur-md transition-all duration-300 active:scale-95 group hover:-translate-y-1 hover:shadow-xl"
                   style={{ background: bg, borderColor: border }}
                 >
                   <div className="h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style={{ background: bg }}>
@@ -759,7 +759,7 @@ export default function DashboardClient({
           className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
           style={{ animationDelay: '440ms', animationFillMode: 'forwards' }}
         >
-          <div className="lg:col-span-2 bento-card p-5">
+          <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
             <div className="flex items-center justify-between mb-5">
               <div>
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>Class Averages</h2>
@@ -772,7 +772,7 @@ export default function DashboardClient({
             </div>
           </div>
 
-          <div className="bento-card p-5 flex flex-col">
+          <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>Course Attendance</h2>
             </div>

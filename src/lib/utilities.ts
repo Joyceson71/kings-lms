@@ -54,3 +54,5 @@ export const isObject = (val: any) => val !== null && typeof val === 'object' &&
 
 export const isNull = (val: any) => val === null;
 
+export const isUndefined = (val: any) => val === undefined;
+

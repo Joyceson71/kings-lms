@@ -48,3 +48,5 @@ export const isBoolean = (val: any) => typeof val === 'boolean';
 
 export const isFunction = (val: any) => typeof val === 'function';
 
+export const isArray = (val: any) => Array.isArray(val);
+

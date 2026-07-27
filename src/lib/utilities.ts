@@ -24,3 +24,5 @@ export const clamp = (num: number, min: number, max: number) => Math.min(Math.ma
 
 export const randomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
+export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+

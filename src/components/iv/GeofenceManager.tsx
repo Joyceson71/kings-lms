@@ -20,6 +20,7 @@ export default function GeofenceManager({ tripId, mapInstance, role }: GeofenceM
     if (!mapInstance || typeof window === 'undefined') return;
 
     const L = (window as any).L;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('leaflet-draw');
 
     // Initialize the FeatureGroup to store editable layers

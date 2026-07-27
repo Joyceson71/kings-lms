@@ -34,3 +34,5 @@ export const chunkArray = <T>(arr: T[], size: number): T[][] => Array.from({ len
 
 export const shuffleArray = <T>(arr: T[]): T[] => arr.sort(() => Math.random() - 0.5);
 
+export const truncateString = (str: string, num: number) => str.length > num ? str.slice(0, num > 3 ? num - 3 : num) + '...' : str;
+

@@ -66,3 +66,5 @@ export const formatDate = (date: Date) => new Intl.DateTimeFormat('en-US').forma
 
 export const isValidEmail = (email: string) => /^\S+@\S+\.\S+$/.test(email);
 
+export const stripTags = (str: string) => str.replace(/<[^>]*>?/gm, '');
+

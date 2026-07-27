@@ -565,13 +565,17 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         </div>
       </div>
 
-      {viewMode === '3d' ? (
-        <div className="w-full h-full z-0 flex flex-col pt-16">
-          <IVGlobe tripId={tripId} />
-        </div>
-      ) : (
-        <div ref={mapContainer} className="w-full h-full z-0 bg-secondary/20" />
-      )}
+      <div 
+        className={`w-full h-full z-[500] flex flex-col pt-16 bg-background absolute inset-0 ${viewMode === '3d' ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
+      >
+        {viewMode === '3d' && <IVGlobe tripId={tripId} />}
+      </div>
+
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full z-0 bg-secondary/20 absolute inset-0" 
+        style={{ opacity: viewMode === '2d' ? 1 : 0, pointerEvents: viewMode === '2d' ? 'auto' : 'none' }}
+      />
 
       {showOfflineModal && (
         <div className="absolute inset-0 bg-black/60 z-[2000] flex items-center justify-center p-4">

@@ -9,7 +9,7 @@ import { createClient } from '@/lib/supabase/client';
 const Globe = dynamic(() => import('react-globe.gl').then(mod => mod.default), { ssr: false });
 
 interface LocationData {
-  student_id: string;
+  user_id: string;
   lat: number;
   lng: number;
   role?: string;
@@ -42,7 +42,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
       if (data && !error) {
         const locMap: Record<string, LocationData> = {};
         data.forEach((loc) => {
-          locMap[loc.student_id] = loc;
+          locMap[loc.user_id] = loc;
         });
         setLocations(locMap);
       }
@@ -54,7 +54,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
     const channel = supabase.channel(`iv-globe-${tripId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
         const newLoc = payload.new as LocationData;
-        setLocations(prev => ({ ...prev, [newLoc.student_id]: newLoc }));
+        setLocations(prev => ({ ...prev, [newLoc.user_id]: newLoc }));
       })
       .subscribe();
 
@@ -76,7 +76,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
       size: 1.5,
       color: loc.role === 'faculty' ? '#ef4444' : '#10b981',
       name: loc.user_name || 'Student',
-      id: loc.student_id,
+      id: loc.user_id,
       avatar: loc.avatar_url
     }));
   }, [locations]);

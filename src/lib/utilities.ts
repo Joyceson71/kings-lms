@@ -40,3 +40,5 @@ export const slugify = (str: string) => str.toLowerCase().replace(/[^a-z0-9]+/g,
 
 export const generateId = () => Math.random().toString(36).substring(2, 9);
 
+export const isString = (val: any) => typeof val === 'string';
+

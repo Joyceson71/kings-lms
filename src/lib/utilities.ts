@@ -82,3 +82,5 @@ export const rgbToHex = (r: number, g: number, b: number) => '#' + [r, g, b].map
 
 export const getDaysInMonth = (month: number, year: number) => new Date(year, month, 0).getDate();
 
+export const isLeapYear = (year: number) => (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+

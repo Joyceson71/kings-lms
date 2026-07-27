@@ -12,3 +12,5 @@ export const sumArray = (arr: number[]) => arr.reduce((a, b) => a + b, 0);
 
 export const averageArray = (arr: number[]) => arr.length ? sumArray(arr) / arr.length : 0;
 
+export const maxInArray = (arr: number[]) => Math.max(...arr);
+

@@ -98,3 +98,5 @@ export const getSelectedText = () => window.getSelection()?.toString() || '';
 
 export const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
+export const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
+

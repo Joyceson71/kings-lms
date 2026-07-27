@@ -68,7 +68,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
     const fetchStudents = async () => {
       const { data } = await supabase
         .from('iv_locations')
-        .select(`*, profiles(first_name, last_name)`)
+        .select(`*, profiles(full_name)`)
         .eq('iv_trip_id', tripId)
         .order('updated_at', { ascending: false });
       
@@ -202,7 +202,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
                 <div key={s.user_id} className="flex items-center justify-between p-3 bg-black/30 rounded-xl border border-white/5 backdrop-blur-md">
                   <div>
                     <p className="font-bold text-sm tracking-wide">
-                      {s.profiles?.first_name} {s.profiles?.last_name}
+                      {s.profiles?.full_name}
                       {s.user_id === currentUserId && <span className="text-pink-400"> (You)</span>}
                     </p>
                     <p className="text-xs text-white/50 flex gap-2 mt-1">
@@ -261,7 +261,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
           tripId={tripId} 
           currentUserId={currentUserId} 
           role={role} 
-          userName={students.find(s => s.user_id === currentUserId)?.profiles?.first_name || 'User'} 
+          userName={students.find(s => s.user_id === currentUserId)?.profiles?.full_name?.split(' ')[0] || 'User'} 
         />
         {showReplay && <PathReplay tripId={tripId} mapInstance={(window as any)._ivMapInstance} onClose={() => setShowReplay(false)} />}
       </div>

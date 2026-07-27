@@ -29,7 +29,7 @@ export default function PathReplay({ tripId, mapInstance, onClose }: PathReplayP
     const fetchHistory = async () => {
       const { data } = await supabase
         .from('iv_location_history')
-        .select('*, profiles(first_name, last_name)')
+        .select('*, profiles(full_name)')
         .eq('iv_trip_id', tripId)
         .order('recorded_at', { ascending: true });
 
@@ -46,7 +46,7 @@ export default function PathReplay({ tripId, mapInstance, onClose }: PathReplayP
         data.forEach(row => {
           if (!st[row.user_id]) {
             st[row.user_id] = {
-              name: `${row.profiles?.first_name} ${row.profiles?.last_name}`,
+              name: row.profiles?.full_name || 'Unknown',
               color: COLORS[colorIdx % COLORS.length]
             };
             colorIdx++;

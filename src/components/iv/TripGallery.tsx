@@ -20,7 +20,7 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
   const fetchPhotos = async () => {
     const { data } = await supabase
       .from('iv_messages')
-      .select('*, profiles(first_name, last_name)')
+      .select('*, profiles(full_name)')
       .eq('iv_trip_id', tripId)
       .not('photo_url', 'is', null)
       .order('created_at', { ascending: false }); // newest first
@@ -35,7 +35,7 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
         if (payload.new.photo_url) {
           // We need to fetch the profile info for the new message to display the name
-          supabase.from('profiles').select('first_name, last_name').eq('id', payload.new.sender_id).single().then(({ data }) => {
+          supabase.from('profiles').select('full_name').eq('id', payload.new.sender_id).single().then(({ data }) => {
             const enriched = { ...payload.new, profiles: data };
             setPhotos(prev => [enriched, ...prev]);
           });
@@ -128,7 +128,7 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
                     <img src={p.photo_url} alt="Trip Memory" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <div className="absolute bottom-0 left-0 right-0 p-4 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all text-white">
-                      <p className="text-sm font-medium">{p.profiles?.first_name} {p.profiles?.last_name}</p>
+                      <p className="text-sm font-medium">{p.profiles?.full_name}</p>
                       <p className="text-white/70 text-xs mt-1">{new Date(p.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
                     </div>
                   </div>

@@ -49,7 +49,7 @@ export default function AdminSOSPanel({ tripId, currentUserId }: { tripId: strin
   const fetchSOS = async () => {
     const { data } = await supabase
       .from('iv_sos_events')
-      .select('*, profiles(first_name, last_name, emergency_contact)')
+      .select('*, profiles(full_name, emergency_contact)')
       .eq('iv_trip_id', tripId)
       .is('resolved_at', null)
       .order('created_at', { ascending: false });
@@ -97,7 +97,7 @@ export default function AdminSOSPanel({ tripId, currentUserId }: { tripId: strin
     <div className="absolute top-0 left-0 right-0 z-[2000] flex flex-col gap-2 p-4 max-h-[50vh] overflow-y-auto pointer-events-none">
       {activeSOS.map(sos => {
         const elapsed = Math.floor((now - new Date(sos.created_at).getTime()) / 1000);
-        const name = `${sos.profiles?.first_name} ${sos.profiles?.last_name}`;
+        const name = sos.profiles?.full_name || 'Unknown';
         const timeout = elapsed > 60 && !sos.acknowledged_at;
         
         return (

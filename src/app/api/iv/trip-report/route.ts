@@ -29,7 +29,7 @@ export async function GET(request: Request) {
   }
 
   // Fetch students in this trip
-  const { data: locations } = await supabase.from('iv_locations').select('*, profiles(first_name, last_name)').eq('iv_trip_id', trip_id);
+  const { data: locations } = await supabase.from('iv_locations').select('*, profiles(full_name)').eq('iv_trip_id', trip_id);
   
   // Fetch sos events
   const { data: sosEvents } = await supabase.from('iv_sos_events').select('*').eq('iv_trip_id', trip_id);
@@ -62,7 +62,7 @@ export async function GET(request: Request) {
   
   if (locations && locations.length > 0) {
     locations.forEach(loc => {
-      const name = `${loc.profiles?.first_name} ${loc.profiles?.last_name}`;
+      const name = loc.profiles?.full_name || 'Unknown';
       const sosCount = sosEvents?.filter(s => s.student_id === loc.user_id).length || 0;
       const breachCount = breaches?.filter(b => b.user_id === loc.user_id).length || 0;
       

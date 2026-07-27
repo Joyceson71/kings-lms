@@ -42,7 +42,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
   const fetchMessages = async () => {
     const { data } = await supabase
       .from('iv_messages')
-      .select('*, profiles(first_name, last_name)')
+      .select('*, profiles(full_name)')
       .eq('iv_trip_id', tripId)
       .order('created_at', { ascending: true });
     
@@ -184,7 +184,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
             {messages.map((m) => {
               const isMe = m.sender_id === currentUserId;
-              const name = m.profiles ? `${m.profiles.first_name} ${m.profiles.last_name}` : 'Unknown';
+              const name = m.profiles?.full_name || 'Unknown';
               const initials = name.split(' ').map((n: string) => n[0]).join('').substring(0, 2);
 
               return (

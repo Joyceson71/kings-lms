@@ -36,7 +36,7 @@ export function useUser() {
           id: session.user.id,
           email: session.user.email || '',
           full_name: profileData?.full_name || session.user.user_metadata?.full_name || null,
-          role: profileData?.role || 'student',
+          role: (profileData?.role?.toLowerCase() || 'student') as UserRole,
           avatar_url: profileData?.avatar_url || session.user.user_metadata?.avatar_url || null,
           department: profileData?.department || null,
           college: profileData?.college || null,

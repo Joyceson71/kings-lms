@@ -94,3 +94,5 @@ export const unescapeHTML = (str: string) => str.replace(/&amp;|&lt;|&gt;|&#39;|
 
 export const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
 
+export const getSelectedText = () => window.getSelection()?.toString() || '';
+

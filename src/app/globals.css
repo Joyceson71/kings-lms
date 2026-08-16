@@ -58,127 +58,127 @@
 
 /* ─── Base Light Theme (Default) ──────────────────── */
 :root {
-  --background:         #ffffff;
-  --foreground:         #09090b;
+  --background:         #fafafa;
+  --foreground:         #050505;
   --card:               #ffffff;
-  --card-foreground:    #09090b;
+  --card-foreground:    #050505;
   --popover:            #ffffff;
-  --popover-foreground: #09090b;
+  --popover-foreground: #050505;
   
-  --primary:            #6366f1;
+  --primary:            #4f46e5;
   --primary-foreground: #ffffff;
   
-  --secondary:          #ffffff;
+  --secondary:          #f4f4f5;
   --secondary-foreground:#18181b;
   
-  --muted:              #ffffff;
+  --muted:              #f4f4f5;
   --muted-foreground:   #71717a;
   
-  --accent:             #06b6d4;
+  --accent:             #0ea5e9;
   --accent-foreground:  #ffffff;
   
-  --destructive:        #dc2626;
+  --destructive:        #ef4444;
   
   --border:             #e4e4e7;
   --input:              #e4e4e7;
-  --ring:               #6366f1;
+  --ring:               #4f46e5;
   --radius:             0.625rem;
 
-  --gold:               #f59e0b;
-  --gold-muted:         rgb(245 158 11 / 0.12);
-  --violet:             #6366f1;
-  --violet-glow:        rgb(99 102 241 / 0.2);
-  --emerald-glow:       rgb(16 185 129 / 0.2);
-  --cyan:               #06b6d4;
-  --cyan-glow:          rgb(6 182 212 / 0.2);
+  --gold:               #d97706;
+  --gold-muted:         rgb(217 119 6 / 0.12);
+  --violet:             #4f46e5;
+  --violet-glow:        rgb(79 70 229 / 0.15);
+  --emerald-glow:       rgb(16 185 129 / 0.15);
+  --cyan:               #0ea5e9;
+  --cyan-glow:          rgb(14 165 233 / 0.15);
 
   --sidebar:            #ffffff;
-  --sidebar-foreground: #09090b;
-  --sidebar-primary:    #6366f1;
+  --sidebar-foreground: #050505;
+  --sidebar-primary:    #4f46e5;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:     #ffffff;
+  --sidebar-accent:     #f4f4f5;
   --sidebar-accent-foreground:  #18181b;
   --sidebar-border:     #e4e4e7;
-  --sidebar-ring:       #6366f1;
+  --sidebar-ring:       #4f46e5;
 
+  --chart-1: #4f46e5;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #0ea5e9;
+
+  --primary-glow: rgb(79 70 229 / 0.15);
+  --glass-bg:     rgb(255 255 255 / 0.85);
+  --glass-border: rgb(228 228 231 / 0.5);
+  --glass-shadow: 0 4px 20px rgb(0 0 0 / 0.04), inset 0 1px 0 rgb(255 255 255 / 1);
+}
+
+/* ─── OBSIDIAN GLASS & SILK — Ultra-Premium Dark Theme ──────────────────── */
+.dark {
+  /* Core surfaces — deep neutral blacks (obsidian) */
+  --background:         #050505;
+  --foreground:         #f4f4f5;
+  --card:               #0a0a0b;
+  --card-foreground:    #f4f4f5;
+  --popover:            #0e0e11;
+  --popover-foreground: #f4f4f5;
+
+  /* Primary — rich indigo */
+  --primary:            #6366f1;
+  --primary-foreground: #ffffff;
+
+  /* Secondary — subtle raised surface */
+  --secondary:          #121214;
+  --secondary-foreground: #a1a1aa;
+
+  /* Muted */
+  --muted:              #121214;
+  --muted-foreground:   #71717a;
+
+  /* Accent — subtle cyan */
+  --accent:             #06b6d4;
+  --accent-foreground:  #ffffff;
+
+  /* Destructive */
+  --destructive:        #ef4444;
+
+  /* Structure */
+  --border:   #1a1a1f;
+  --input:    #121214;
+  --ring:     #6366f1;
+  --radius:   0.625rem;
+
+  /* Extended tokens */
+  --gold:        #f59e0b;
+  --gold-muted:  rgb(245 158 11 / 0.1);
+  --violet:      #6366f1;
+  --violet-glow: rgb(99 102 241 / 0.12);
+  --emerald-glow:rgb(16 185 129 / 0.12);
+  --cyan:        #06b6d4;
+  --cyan-glow:   rgb(6 182 212 / 0.12);
+
+  /* Sidebar */
+  --sidebar:                    #050505;
+  --sidebar-foreground:         #f4f4f5;
+  --sidebar-primary:            #6366f1;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             #121214;
+  --sidebar-accent-foreground:  #a1a1aa;
+  --sidebar-border:             #1a1a1f;
+  --sidebar-ring:               #6366f1;
+
+  /* Charts */
   --chart-1: #6366f1;
   --chart-2: #10b981;
   --chart-3: #f59e0b;
   --chart-4: #ef4444;
   --chart-5: #06b6d4;
 
-  --primary-glow: rgb(99 102 241 / 0.2);
-  --glass-bg:     rgb(255 255 255 / 1);
-  --glass-border: #e4e4e7;
-  --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.05), 0 0 0 1px #e4e4e7;
-}
-
-/* ─── COSMIC MIDNIGHT — Deep Dark Theme ──────────────────── */
-.dark {
-  /* Core surfaces — deep cosmic blacks */
-  --background:         #04040c;
-  --foreground:         #e8eaf6;
-  --card:               #080818;
-  --card-foreground:    #e8eaf6;
-  --popover:            #0c0c20;
-  --popover-foreground: #e8eaf6;
-
-  /* Primary — electric indigo/violet */
-  --primary:            #818cf8;
-  --primary-foreground: #04040c;
-
-  /* Secondary — deep slate */
-  --secondary:          #0f0f28;
-  --secondary-foreground: #94a3b8;
-
-  /* Muted */
-  --muted:              #0a0a1e;
-  --muted-foreground:   #64748b;
-
-  /* Accent — vivid cyan */
-  --accent:             #22d3ee;
-  --accent-foreground:  #04040c;
-
-  /* Destructive */
-  --destructive:        #f87171;
-
-  /* Structure */
-  --border:   #1a1a3a;
-  --input:    #0f0f28;
-  --ring:     #818cf8;
-  --radius:   0.625rem;
-
-  /* Extended tokens */
-  --gold:        #fbbf24;
-  --gold-muted:  rgb(251 191 36 / 0.12);
-  --violet:      #818cf8;
-  --violet-glow: rgb(129 140 248 / 0.2);
-  --emerald-glow:rgb(52 211 153 / 0.2);
-  --cyan:        #22d3ee;
-  --cyan-glow:   rgb(34 211 238 / 0.2);
-
-  /* Sidebar */
-  --sidebar:                    #020210;
-  --sidebar-foreground:         #e8eaf6;
-  --sidebar-primary:            #818cf8;
-  --sidebar-primary-foreground: #04040c;
-  --sidebar-accent:             #0f0f28;
-  --sidebar-accent-foreground:  #94a3b8;
-  --sidebar-border:             #1a1a3a;
-  --sidebar-ring:               #818cf8;
-
-  /* Charts — vivid neon palette */
-  --chart-1: #818cf8;
-  --chart-2: #34d399;
-  --chart-3: #fbbf24;
-  --chart-4: #f87171;
-  --chart-5: #22d3ee;
-
-  /* Glow tokens */
-  --primary-glow: rgb(129 140 248 / 0.3);
-  --glass-bg:     rgb(8 8 24 / 0.92);
-  --glass-border: #1e1e40;
-  --glass-shadow: 0 2px 12px rgb(0 0 0 / 0.6), 0 0 0 1px #1a1a3a;
+  /* Glow & Glass tokens */
+  --primary-glow: rgb(99 102 241 / 0.15);
+  --glass-bg:     rgb(10 10 11 / 0.7);
+  --glass-border: rgb(255 255 255 / 0.05);
+  --glass-shadow: 0 4px 24px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.04);
 }
 
 /* ─── Base ─────────────────────────────────────────────────── */
@@ -204,9 +204,9 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Inter', system-ui, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
   }
 
   code, pre, kbd, samp {
@@ -398,29 +398,25 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* ── Neon Glow effects ── */
+  /* ── Soft Neon Glow effects ── */
   .glow-violet {
     box-shadow: 0 0 0 1px var(--violet-glow),
-                0 4px 20px var(--violet-glow),
-                0 0 40px var(--violet-glow);
+                0 4px 24px var(--violet-glow);
   }
 
   .glow-cyan {
     box-shadow: 0 0 0 1px var(--cyan-glow),
-                0 4px 20px var(--cyan-glow),
-                0 0 40px var(--cyan-glow);
+                0 4px 24px var(--cyan-glow);
   }
 
   .glow-emerald {
     box-shadow: 0 0 0 1px var(--emerald-glow),
-                0 4px 20px var(--emerald-glow),
-                0 0 40px var(--emerald-glow);
+                0 4px 24px var(--emerald-glow);
   }
 
   .glow-gold {
     box-shadow: 0 0 0 1px var(--gold-muted),
-                0 4px 20px var(--gold-muted),
-                0 0 40px var(--gold-muted);
+                0 4px 24px var(--gold-muted);
   }
 
   /* ── Neon border gradient ── */
@@ -468,17 +464,17 @@
 
   /* ── Cosmic card (bento style) ── */
   .bento-card {
-    background: rgba(25, 25, 45, 0.4);
-    backdrop-filter: blur(40px) saturate(2);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-    border-radius: 24px;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+    background: var(--glass-bg);
+    backdrop-filter: blur(24px) saturate(1.8);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 20px;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .bento-card:hover {
-    border-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 20px rgba(139, 92, 246, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-color: rgb(255 255 255 / 0.1);
+    box-shadow: 0 12px 40px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
     transform: translateY(-2px);
   }
 

@@ -1,9 +1,7 @@
 'use client';
 
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { ClipboardList, Clock, CheckCircle2, Plus, Calendar, AlertCircle, ArrowRight, FileText, Star, Loader2, Sparkles, X } from 'lucide-react';
+import { ClipboardList, Clock, CheckCircle2, Plus, AlertCircle, Sparkles, X } from 'lucide-react';
 import { useState } from 'react';
 
 import { SubmissionModal } from '@/components/assignments/submission-modal';
@@ -47,9 +45,7 @@ const columns: { key: AssignmentStatus; label: string; icon: React.ElementType<a
   },
 ];
 
-function isOverdue(due: string): boolean {
-  return new Date(due) < new Date();
-}
+
 
 export default function AssignmentsClient({ initialAssignments, isFaculty }: { initialAssignments: Assignment[], isFaculty: boolean }) {
   const [assignments, setAssignments] = useState(initialAssignments);
@@ -182,7 +178,6 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
       {/* Kanban board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {columns.map((col, colIdx) => {
-          const Icon = col.icon;
           const items = grouped(col.key);
 
           return (

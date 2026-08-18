@@ -1,20 +1,15 @@
 'use client';
 
-import { memo, useMemo, useState, useEffect } from 'react';
-import { AnimatedCounter } from '@/components/ui/animated-counter';
+import { useMemo, useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/lib/hooks/use-user';
 import {
-  Users, BookOpen, CheckCircle, Clock, ArrowUpRight, TrendingUp,
+  Users, BookOpen, CheckCircle, Clock,
   ClipboardList, AlertTriangle, Zap,
   ScanLine, Bell, ChevronRight, Flame,
 } from 'lucide-react';
 import Link from 'next/link';
-import dynamic from 'next/dynamic';
-import { TiltCard } from '@/components/ui/tilt-card';
 import { WelcomeSequence } from '@/components/3d/WelcomeSequence';
-import { SpatialChart } from '@/components/3d/SpatialChart';
 import { AnimatePresence } from 'framer-motion';
 
 import { SkeletonCard } from '@/components/dashboard/SkeletonCard';

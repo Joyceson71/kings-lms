@@ -35,8 +35,8 @@ function Starfield() {
   const points = useMemo(() => generatePoints(5000, 2.5), []);
   
   // Track mouse for interaction
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [targetRotation, setTargetRotation] = useState({ x: 0, y: 0 });
+  
+  const [targetRotation] = useState({ x: 0, y: 0 });
 
   useFrame((state) => {
     if (!ref.current) return;

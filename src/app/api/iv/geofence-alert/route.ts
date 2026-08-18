@@ -12,7 +12,7 @@ if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && pro
 
 export async function POST(request: Request) {
   try {
-    const { iv_trip_id, user_id, zone_id, lat, lng } = await request.json();
+    const { iv_trip_id, user_id, zone_id } = await request.json();
     const serviceClient = createServiceClient();
     
     // Get student name

@@ -279,7 +279,7 @@ export function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-3 gap-px', expanded ? 'px-2' : 'px-1.5')}>
+      <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-3 gap-px [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1.5')}>
         {navSections.map((section) => {
           const visible = section.items.filter(i => !i.roles || i.roles.includes(role));
           if (visible.length === 0) return null;

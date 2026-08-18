@@ -4,8 +4,11 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { 
   Users, Building2, BookOpen, MapPin, 
-  Activity, GraduationCap, ShieldCheck 
+  Activity, GraduationCap, ShieldCheck,
+  Megaphone, UserPlus, Clock
 } from 'lucide-react';
+import { Avatar } from '@/components/ui/avatar';
+import { formatDistanceToNow } from 'date-fns';
 import { useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 
@@ -27,6 +30,7 @@ export default function AdminOverviewClient() {
     trips: 0,
   });
   const [deptData, setDeptData] = useState<any[]>([]);
+  const [recentUsers, setRecentUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -37,12 +41,14 @@ export default function AdminOverviewClient() {
         { count: userCount, data: users },
         { count: deptCount, data: depts },
         { count: courseCount },
-        { count: tripCount }
+        { count: tripCount },
+        { data: recent }
       ] = await Promise.all([
         supabase.from('profiles').select('role, department', { count: 'exact' }),
         supabase.from('departments').select('id, name', { count: 'exact' }),
         supabase.from('courses').select('*', { count: 'exact', head: true }),
-        supabase.from('iv_trips').select('*', { count: 'exact', head: true })
+        supabase.from('iv_trips').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('id, full_name, email, role, created_at, avatar_url').order('created_at', { ascending: false }).limit(5)
       ]);
 
       let students = 0;
@@ -74,6 +80,7 @@ export default function AdminOverviewClient() {
       });
       
       setDeptData(formattedDeptData);
+      setRecentUsers(recent || []);
       setLoading(false);
     };
 
@@ -114,7 +121,7 @@ export default function AdminOverviewClient() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((card, i) => (
-          <div key={i} className="bg-card border border-border rounded-3xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition-shadow">
+          <div key={i} className="bg-card border border-border rounded-3xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
             <div className={`w-16 h-16 rounded-2xl ${card.bg} ${card.color} flex items-center justify-center shrink-0`}>
               <card.icon size={32} />
             </div>
@@ -130,8 +137,8 @@ export default function AdminOverviewClient() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 bg-card border border-border rounded-3xl p-8 shadow-sm">
           <h3 className="text-xl font-bold mb-6 flex items-center gap-3">
             <Activity className="text-primary" /> Top Departments by Size
           </h3>
@@ -156,34 +163,69 @@ export default function AdminOverviewClient() {
           </div>
         </div>
 
-        <div className="bg-card border border-border rounded-3xl p-8 shadow-sm flex flex-col justify-between relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-          <div>
-            <h3 className="text-2xl font-black tracking-tight mb-2">System Health</h3>
-            <p className="text-muted-foreground mb-8">All services are operating normally. Real-time connections are stable.</p>
-            
-            <div className="space-y-6">
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Database Latency</span>
-                <span className="text-emerald-500 font-bold bg-emerald-500/10 px-3 py-1 rounded-full text-sm">~12ms</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Storage Usage</span>
-                <span className="text-indigo-500 font-bold bg-indigo-500/10 px-3 py-1 rounded-full text-sm">1.2 GB / 50 GB</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium">Active Realtime Channels</span>
-                <span className="text-blue-500 font-bold bg-blue-500/10 px-3 py-1 rounded-full text-sm">24</span>
-              </div>
+        <div className="space-y-8">
+          <div className="bg-card border border-border rounded-3xl p-6 shadow-sm">
+            <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
+              <Clock className="text-indigo-400 h-5 w-5" /> Recent Users
+            </h3>
+            <div className="space-y-4">
+              {loading ? (
+                Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-muted animate-pulse shrink-0" />
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 w-24 bg-muted animate-pulse rounded" />
+                      <div className="h-3 w-32 bg-muted animate-pulse rounded" />
+                    </div>
+                  </div>
+                ))
+              ) : recentUsers.map(user => (
+                <div key={user.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-xl transition-colors">
+                  <Avatar className="w-10 h-10 border border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground">
+                    {user.avatar_url ? (
+                      <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
+                    ) : (
+                      user.full_name?.charAt(0) || user.email?.charAt(0) || 'U'
+                    )}
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate text-foreground">{user.full_name || 'New User'}</p>
+                    <p className="text-xs text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
+                      user.role === 'admin' ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                      user.role === 'faculty' ? 'bg-emerald-500/10 text-emerald-500 border border-emerald-500/20' :
+                      'bg-indigo-500/10 text-indigo-500 border border-indigo-500/20'
+                    }`}>
+                      {user.role}
+                    </span>
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          
-          <div className="mt-8 pt-6 border-t border-border flex justify-between items-center text-sm text-muted-foreground">
-            <span>Last checked: Just now</span>
-            <span className="flex items-center gap-2 text-emerald-500 font-bold">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              ONLINE
-            </span>
+
+          <div className="bg-card border border-border rounded-3xl p-6 shadow-sm flex flex-col relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+            <div>
+              <h3 className="text-xl font-black tracking-tight mb-2">System Health</h3>
+              <p className="text-muted-foreground text-sm mb-6">All services are operating normally.</p>
+              
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm">Database Latency</span>
+                  <span className="text-emerald-500 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full text-xs">~12ms</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-sm">Storage Usage</span>
+                  <span className="text-indigo-500 font-bold bg-indigo-500/10 px-2 py-0.5 rounded-full text-xs">1.2 GB</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

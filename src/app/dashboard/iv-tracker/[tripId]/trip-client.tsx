@@ -76,7 +76,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
     const fetchStudents = async () => {
       const { data } = await supabase
         .from('iv_locations')
-        .select(`*, profiles(full_name)`)
+        .select(`*, profiles(full_name, role)`)
         .eq('iv_trip_id', tripId)
         .order('updated_at', { ascending: false });
       
@@ -120,6 +120,34 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       supabase.removeChannel(channel);
     };
   }, [tripId]);
+
+  useEffect(() => {
+    if (role !== 'student' || !sharing) return;
+    
+    const myLoc = students.find(s => s.user_id === currentUserId);
+    const facultyLoc = students.find(s => s.profiles?.role === 'faculty' || s.profiles?.role === 'admin');
+    
+    if (myLoc && facultyLoc && myLoc.lat && facultyLoc.lat) {
+      const R = 6371e3;
+      const φ1 = myLoc.lat * Math.PI/180, φ2 = facultyLoc.lat * Math.PI/180;
+      const Δφ = (facultyLoc.lat - myLoc.lat) * Math.PI/180;
+      const Δλ = (facultyLoc.lng - myLoc.lng) * Math.PI/180;
+      const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      const dist = Math.round(R * c);
+      
+      if (dist > 200) {
+        const lastAlert = localStorage.getItem(`iv-stray-alert-${tripId}`);
+        if (!lastAlert || Date.now() - Number(lastAlert) > 60000 * 5) {
+          localStorage.setItem(`iv-stray-alert-${tripId}`, Date.now().toString());
+          toast.error(`⚠️ Stray Alert: You are ${dist}m away from the faculty!`);
+          if ('vibrate' in navigator) {
+            navigator.vibrate([500, 200, 500, 200, 500]);
+          }
+        }
+      }
+    }
+  }, [students, currentUserId, role, sharing, tripId]);
 
   return (
     <>

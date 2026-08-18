@@ -100,20 +100,45 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
     toast.success('SOS cancelled');
   };
 
+  const [facultyPhone, setFacultyPhone] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (activeSOS) {
+      const getPhone = async () => {
+        const { data: trip } = await supabase.from('iv_trips').select('created_by').eq('id', tripId).single();
+        if (trip?.created_by) {
+          const { data: profile } = await supabase.from('profiles').select('phone_number').eq('id', trip.created_by).single();
+          if (profile?.phone_number) {
+            setFacultyPhone(profile.phone_number);
+          }
+        }
+      };
+      getPhone();
+    }
+  }, [activeSOS, tripId, supabase]);
+
   if (activeSOS) {
     return (
       <div className="fixed inset-0 z-[5000] bg-background/95 backdrop-blur-md flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-md bg-destructive/10 border border-destructive rounded-[2rem] p-12 text-center shadow-2xl animate-pulse">
+        <div className="w-full max-w-md bg-destructive/10 border border-destructive rounded-[2rem] p-8 text-center shadow-2xl animate-pulse">
           <h1 className="text-5xl font-black text-destructive tracking-tighter mb-4">SOS ACTIVE</h1>
-          <p className="text-foreground font-medium text-lg mb-12">Emergency responders have been notified.</p>
-          {canCancel && (
-            <button 
-              onClick={cancelSOS}
-              className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground px-8 py-6 rounded-2xl text-xl font-bold border border-border shadow-sm transition-colors"
+          <p className="text-foreground font-medium text-lg mb-8">Emergency responders have been notified.</p>
+          <div className="flex flex-col gap-4">
+            <a 
+              href={`tel:${facultyPhone || '911'}`}
+              className="w-full bg-green-500 hover:bg-green-600 text-white px-8 py-4 rounded-2xl text-xl font-bold shadow-lg transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              CANCEL (30s)
-            </button>
-          )}
+              📞 CALL FACULTY
+            </a>
+            {canCancel && (
+              <button 
+                onClick={cancelSOS}
+                className="w-full bg-secondary hover:bg-secondary/80 text-secondary-foreground px-8 py-4 rounded-2xl text-xl font-bold border border-border shadow-sm transition-colors"
+              >
+                CANCEL (30s)
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

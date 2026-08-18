@@ -36,8 +36,23 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [fullPhoto, setFullPhoto] = useState<string | null>(null);
+  const [offlineQueue, setOfflineQueue] = useState<any[]>([]);
 
   const supabase = createClient();
+
+  useEffect(() => {
+    const handleOnline = async () => {
+      if (offlineQueue.length > 0) {
+        for (const msg of offlineQueue) {
+          await supabase.from('iv_messages').insert(msg);
+        }
+        setOfflineQueue([]);
+        toast.success('Offline messages sent!');
+      }
+    };
+    window.addEventListener('online', handleOnline);
+    return () => window.removeEventListener('online', handleOnline);
+  }, [offlineQueue, supabase]);
 
   const fetchMessages = async () => {
     const { data } = await supabase
@@ -90,14 +105,24 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
       }
     }
 
-    const { error } = await supabase.from('iv_messages').insert({
+    const dbMsg = {
       iv_trip_id: tripId,
       sender_id: currentUserId,
       content: text.trim(),
       is_broadcast: isBroadcast,
       lat,
       lng
-    });
+    };
+
+    if (!navigator.onLine) {
+      setOfflineQueue(prev => [...prev, dbMsg]);
+      setMessages(prev => [...prev, { ...dbMsg, id: `offline-${Date.now()}`, profiles: { full_name: userName }, created_at: new Date().toISOString(), isOffline: true }]);
+      toast.info('Message queued (Offline)');
+      setText('');
+      return;
+    }
+
+    const { error } = await supabase.from('iv_messages').insert(dbMsg);
 
     if (error) {
       toast.error('Failed to send message');
@@ -209,6 +234,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                             : 'bg-muted text-foreground border border-border'
                       }`}>
                         {m.content}
+                        {m.isOffline && <span className="block text-[10px] mt-1 opacity-70">Queued...</span>}
                       </div>
                     )}
                     {m.photo_url && (

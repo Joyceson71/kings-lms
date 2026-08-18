@@ -304,7 +304,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
            if ('geolocation' in navigator) {
              navigator.geolocation.getCurrentPosition(
                (pos) => processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-               () => {},
+               (err) => { console.warn(err); },
                { enableHighAccuracy: !batterySaver, timeout: 10000 }
              );
            }

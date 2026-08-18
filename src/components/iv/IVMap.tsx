@@ -233,24 +233,28 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       if (!loc || !loc.lat || !loc.lng) return;
 
       const isMe = loc.user_id === currentUserId;
-      const color = isMe ? '#10b981' : (loc.is_online ? '#3b82f6' : '#6b7280');
+      const name = isMe ? 'You' : (profilesRef.current[loc.user_id]?.full_name || 'Student');
+      const avatar = profilesRef.current[loc.user_id]?.avatar_url;
+      const ringClass = isMe ? 'ring-emerald-500' : (loc.is_online ? 'ring-blue-500' : 'ring-gray-500');
       
+      const html = avatar 
+        ? `<div class="w-10 h-10 rounded-full border-2 border-background ring-2 ${ringClass} overflow-hidden shadow-lg"><img src="${avatar}" class="w-full h-full object-cover" /></div>`
+        : `<div class="w-10 h-10 rounded-full border-2 border-background ring-2 ${ringClass} bg-secondary flex items-center justify-center text-foreground font-bold shadow-lg">${name.charAt(0)}</div>`;
+
       if (markersRef.current[loc.user_id]) {
         markersRef.current[loc.user_id].setLatLng([loc.lat, loc.lng]);
-        markersRef.current[loc.user_id].setStyle({ fillColor: color });
+        const icon = L.divIcon({ html, className: 'bg-transparent', iconSize: [40, 40], iconAnchor: [20, 20] });
+        markersRef.current[loc.user_id].setIcon(icon);
       } else {
-        const name = isMe ? 'You' : (profilesRef.current[loc.user_id]?.full_name || 'Student');
-        const marker = L.circleMarker([loc.lat, loc.lng], {
-          radius: 8,
-          fillColor: color,
-          color: '#fff',
-          weight: 2,
-          opacity: 1,
-          fillOpacity: 0.8
-        }).bindTooltip(name, { permanent: false });
+        const icon = L.divIcon({ html, className: 'bg-transparent', iconSize: [40, 40], iconAnchor: [20, 20] });
+        const marker = L.marker([loc.lat, loc.lng], { icon }).bindTooltip(name, { permanent: false, direction: 'top', offset: [0, -20] });
         
         markerClusterRef.current.addLayer(marker);
         markersRef.current[loc.user_id] = marker;
+        
+        if (isMe) {
+          mapInstance.current.setView([loc.lat, loc.lng], 16);
+        }
       }
       
       if (isMe && mapBounds) {

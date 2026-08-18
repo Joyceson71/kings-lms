@@ -41,8 +41,8 @@ export default function AdminOverviewClient() {
       ] = await Promise.all([
         supabase.from('profiles').select('role, department', { count: 'exact' }),
         supabase.from('departments').select('id, name', { count: 'exact' }),
-        supabase.from('courses').select('id', { count: 'exact' }),
-        supabase.from('iv_trips').select('id', { count: 'exact' })
+        supabase.from('courses').select('*', { count: 'exact', head: true }),
+        supabase.from('iv_trips').select('*', { count: 'exact', head: true })
       ]);
 
       let students = 0;

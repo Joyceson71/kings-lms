@@ -3,7 +3,7 @@
 import { useState, useMemo, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Building2, Plus, Edit2, Trash2, Users, Search, Loader2 } from 'lucide-react';
+import { Building2, Plus, Edit2, Trash2, Users, Search, Loader2, Download } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -172,6 +172,8 @@ export default function AdminDepartmentsClient({
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [editDept, setEditDept] = useState<DepartmentData | null>(null);
   const [deleteDept, setDeleteDept] = useState<DepartmentData | null>(null);
+  const [selectedDepts, setSelectedDepts] = useState<Set<string>>(new Set());
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -220,6 +222,44 @@ export default function AdminDepartmentsClient({
     router.refresh();
   }
 
+  const handleExport = () => {
+    const csvContent = [
+      ['Code', 'Name', 'HOD', 'Student Count'],
+      ...filtered.map(d => [d.code, d.name, d.head_name || 'Unassigned', d.student_count.toString()])
+    ].map(e => e.join(",")).join("\n");
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `departments_export_${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedDepts.size === 0 || !confirm(`Are you sure you want to delete ${selectedDepts.size} departments?`)) return;
+    setIsBulkDeleting(true);
+    for (const id of selectedDepts) {
+      await fetch('/api/admin/departments', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+    }
+    setDepartments(prev => prev.filter(d => !selectedDepts.has(d.id)));
+    setSelectedDepts(new Set());
+    setIsBulkDeleting(false);
+    router.refresh();
+  };
+
+  const toggleSelect = (id: string) => {
+    const newSet = new Set(selectedDepts);
+    if (newSet.has(id)) newSet.delete(id);
+    else newSet.add(id);
+    setSelectedDepts(newSet);
+  };
+
+
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -233,31 +273,58 @@ export default function AdminDepartmentsClient({
           </div>
           <p className="text-muted-foreground text-sm">Manage academic departments</p>
         </div>
-        <Button
-          onClick={() => setIsAddOpen(true)}
-          className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
-        >
-          <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
-          Add Department
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleExport}
+            variant="outline"
+            className="h-10 px-4 rounded-xl border-border/40 hover:bg-secondary/80 transition-colors"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Export CSV
+          </Button>
+          <Button
+            onClick={() => setIsAddOpen(true)}
+            className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl hover:-translate-y-0.5 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all duration-200 group"
+          >
+            <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
+            Add Department
+          </Button>
+        </div>
       </div>
 
-      <div className="flex gap-3 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
+      <div className="flex flex-col sm:flex-row justify-between gap-3 animate-slide-in-up opacity-0" style={{ animationDelay: '80ms', animationFillMode: 'forwards' }}>
         <div className="relative max-w-sm w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input 
+          <Input
             placeholder="Search departments..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-9 h-10 bg-secondary/40 border-border/40 rounded-xl"
           />
         </div>
+        {selectedDepts.size > 0 && (
+          <div className="flex items-center gap-2 animate-in fade-in zoom-in">
+            <span className="text-sm font-medium text-muted-foreground">{selectedDepts.size} selected</span>
+            <Button onClick={handleBulkDelete} disabled={isBulkDeleting} variant="destructive" size="sm" className="h-10 rounded-xl">
+              {isBulkDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Bulk Delete
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 animate-slide-in-up opacity-0" style={{ animationDelay: '160ms', animationFillMode: 'forwards' }}>
         {filtered.map(dept => (
-          <div key={dept.id} className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 border border-border hover:border-primary/30 hover:bg-muted/90 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full group">
-            <div className="flex items-start justify-between mb-4">
+          <div key={dept.id} className={`bg-card/80 backdrop-blur-xl rounded-2xl p-5 border ${selectedDepts.has(dept.id) ? 'border-primary shadow-sm bg-primary/5' : 'border-border hover:border-primary/30'} hover:bg-muted/90 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col h-full group relative`}>
+            <div className="absolute top-4 right-4 z-10">
+              <input 
+                type="checkbox" 
+                checked={selectedDepts.has(dept.id)} 
+                onChange={() => toggleSelect(dept.id)}
+                className="w-4 h-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
+              />
+            </div>
+            <div className="flex items-start justify-between mb-4 pr-6">
               <div className="h-12 w-12 rounded-xl bg-primary/10 group-hover:bg-primary/20 transition-colors flex items-center justify-center">
                 <span className="font-bold text-primary text-sm">{dept.code}</span>
               </div>

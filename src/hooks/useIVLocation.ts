@@ -159,8 +159,15 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       };
 
       if (isOnline) {
-        supabase.from('iv_locations').upsert(ping, { onConflict: 'user_id,iv_trip_id' })
-          .then(({ error }) => { if (error) console.error('Failed to upsert location', error); });
+        const sendLoc = async () => {
+          const { data } = await supabase.from('iv_locations').select('id').eq('user_id', userId).eq('iv_trip_id', tripId).maybeSingle();
+          if (data?.id) {
+            await supabase.from('iv_locations').update(ping).eq('id', data.id);
+          } else {
+            await supabase.from('iv_locations').insert(ping);
+          }
+        };
+        sendLoc().catch(err => console.error('Failed to update location', err));
       } else {
         try {
           const db = await new Promise<IDBDatabase>((resolve, reject) => {
@@ -249,8 +256,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         if (permissions.location !== 'granted') {
           const req = await Geolocation.requestPermissions();
           if (req.location !== 'granted') {
-            toast.error('Location permission denied for app.');
-            return;
+            throw new Error('Capacitor permission denied, falling back');
           }
         }
         

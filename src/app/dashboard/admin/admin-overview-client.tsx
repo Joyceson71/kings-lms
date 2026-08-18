@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { 
   Users, Building2, BookOpen, MapPin, 
-  Activity, GraduationCap, ShieldCheck,
-  Megaphone, UserPlus, Clock
+  Activity, GraduationCap, ShieldCheck, Clock
 } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
@@ -181,13 +180,12 @@ export default function AdminOverviewClient() {
                 ))
               ) : recentUsers.map(user => (
                 <div key={user.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-xl transition-colors">
-                  <Avatar className="w-10 h-10 border border-border bg-secondary flex items-center justify-center text-sm font-bold text-muted-foreground">
-                    {user.avatar_url ? (
-                      <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" />
-                    ) : (
-                      user.full_name?.charAt(0) || user.email?.charAt(0) || 'U'
-                    )}
-                  </Avatar>
+                  <Avatar 
+                    name={user.full_name || user.email || 'User'} 
+                    src={user.avatar_url} 
+                    size="md" 
+                    className="shrink-0" 
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate text-foreground">{user.full_name || 'New User'}</p>
                     <p className="text-xs text-muted-foreground truncate">{user.email}</p>

@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
 import { Haptics, NotificationType } from '@capacitor/haptics';
@@ -7,7 +8,7 @@ import { toast } from 'sonner';
 
 export function useIVLocation(tripId: string, userId: string, active: boolean, batterySaver: boolean = false) {
   const [location, setLocation] = useState<{ lat: number; lng: number; accuracy: number; isOnline: boolean } | null>(null);
-  const [checkpoints, setCheckpoints] = useState<any[]>([]);
+  const checkpointsRef = useRef<any[]>([]);
   const supabase = createClient();
   const wakeLockRef = useRef<any>(null);
   const watchIdRef = useRef<string | number | null>(null);

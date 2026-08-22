@@ -17,7 +17,7 @@ export const StatCard = memo(function StatCard({ stat, index }: {
       style={{ animationDelay: `${(index + 1) * 60}ms`, animationFillMode: 'forwards' }}
       title={stat.tooltip}
     >
-      <TiltCard className="p-6 h-full relative" glareEnable={true} glareMaxOpacity={0.15} glareColor="#ffffff" glarePosition="all">
+      <TiltCard className="p-6 h-full relative" glareEnable={true}>
         <div className="absolute inset-0 bg-gradient-to-br from-white/[0.03] to-transparent pointer-events-none rounded-2xl" />
         <div className="flex items-start justify-between mb-5">
           <div
@@ -34,10 +34,9 @@ export const StatCard = memo(function StatCard({ stat, index }: {
           <p className="text-4xl md:text-5xl font-black text-foreground tracking-tighter leading-none mb-3 drop-shadow-sm">
             <AnimatedCounter target={stat.value} duration={1000} />
           </p>
-          <p className={`text-[12px] font-semibold flex items-center gap-1.5 ${
-            stat.changeType === 'positive' ? 'text-emerald-400' :
-            stat.changeType === 'danger' ? 'text-red-400' : 'text-amber-400'
-          }`}>
+          <p className={`text-[12px] font-semibold flex items-center gap-1.5 ${stat.changeType === 'positive' ? 'text-emerald-400' :
+              stat.changeType === 'danger' ? 'text-red-400' : 'text-amber-400'
+            }`}>
             {stat.changeType === 'positive' && <TrendingUp className="h-3.5 w-3.5" />}
             {stat.changeType === 'danger' && <AlertTriangle className="h-3.5 w-3.5" />}
             {stat.change}

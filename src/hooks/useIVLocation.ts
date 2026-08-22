@@ -19,7 +19,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
     if (!active) return;
     const fetchCP = async () => {
       const { data } = await supabase.from('iv_checkpoints').select('*').eq('iv_trip_id', tripId);
-      if (data) setCheckpoints(data);
+      if (data) checkpointsRef.current = data;
     };
     fetchCP();
   }, [active, tripId]);
@@ -195,8 +195,8 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         }
       }
 
-      if (checkpoints.length > 0) {
-        checkpoints.forEach(async (cp) => {
+      if (checkpointsRef.current.length > 0) {
+        checkpointsRef.current.forEach(async (cp) => {
           const R = 6371e3;
           const φ1 = lat * Math.PI/180, φ2 = cp.lat * Math.PI/180;
           const Δφ = (cp.lat - lat) * Math.PI/180;

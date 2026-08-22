@@ -240,6 +240,11 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
 @keyframes slide-in-right {
   from { opacity: 0; transform: translateX(-10px); }
   to   { opacity: 1; transform: translateX(0); }
@@ -469,13 +474,14 @@
     border: 1px solid var(--glass-border);
     box-shadow: var(--glass-shadow);
     border-radius: 20px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   .bento-card:hover {
-    border-color: rgb(255 255 255 / 0.1);
-    box-shadow: 0 12px 40px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.08);
-    transform: translateY(-2px);
+    border-color: rgb(255 255 255 / 0.15);
+    box-shadow: 0 15px 45px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.12);
+    transform: translateY(-4px) scale(1.01);
+    background: var(--glass-bg);
   }
 
   /* ── Animations ── */

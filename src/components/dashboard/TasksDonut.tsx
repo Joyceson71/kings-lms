@@ -25,21 +25,21 @@ export function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBrea
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="relative overflow-hidden rounded-xl border border-border" style={{ height: 220, background: '#080814' }}>
+      <div className="relative overflow-hidden rounded-2xl border border-white/5 shadow-inner" style={{ height: 220, background: 'rgba(8, 8, 20, 0.4)' }}>
         <SpatialChart data={chartData} maxValue={maxValue} />
       </div>
-      <div className="mt-2 space-y-1.5">
+      <div className="mt-4 space-y-2.5 px-1">
         {[
           { label: isStudent ? 'Graded' : 'Graded', count: breakdown.graded, color: 'bg-emerald-400' },
           { label: 'Submitted', count: breakdown.submitted, color: 'bg-indigo-400' },
           { label: 'Pending', count: breakdown.pending, color: 'bg-amber-400' },
         ].map(({ label, count, color }) => (
-          <div key={label} className="flex items-center justify-between text-[11px]">
-            <div className="flex items-center gap-1.5">
-              <div className={`h-1.5 w-1.5 rounded-full ${color}`} />
-              <span className="text-muted-foreground">{label}</span>
+          <div key={label} className="flex items-center justify-between text-[12px]">
+            <div className="flex items-center gap-2.5">
+              <div className={`h-2 w-2 rounded-full shadow-sm ${color}`} />
+              <span className="text-muted-foreground/90 font-medium">{label}</span>
             </div>
-            <span className="font-semibold text-muted-foreground">{count}</span>
+            <span className="font-bold text-foreground/80">{count}</span>
           </div>
         ))}
       </div>

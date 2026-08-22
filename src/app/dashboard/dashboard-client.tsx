@@ -134,7 +134,7 @@ export default function DashboardClient({
   const lowAttendanceCourses = coursesDisplay?.filter(c => c.rate < 75) ?? [];
 
   return (
-    <div className="space-y-5 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto pb-10">
       <AnimatePresence>
         {showWelcome && (
           <WelcomeSequence onComplete={() => {
@@ -147,12 +147,12 @@ export default function DashboardClient({
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground drop-shadow-sm" style={{ fontFamily: "'Outfit', sans-serif" }}>
             {loading ? 'Dashboard' : isStudent ? (
               <>Hey, <span className="gradient-text">{displayName.split(' ')[0]}</span> 👋</>
             ) : 'Dashboard Overview'}
           </h1>
-          <p className="text-muted-foreground mt-1 text-[13px]">
+          <p className="text-muted-foreground mt-2 text-[14px] md:text-[15px] font-medium">
             {loading ? 'Loading…' : isStudent
               ? new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })
               : "Here's what's happening today."}
@@ -351,7 +351,7 @@ export default function DashboardClient({
             <h2 className="text-[15px] font-bold text-foreground mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Quick Actions
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { label: 'Scan QR', icon: ScanLine, href: '/dashboard/attendance', color: 'text-emerald-400', bg: 'rgb(52 211 153 / 0.08)', border: 'rgb(52 211 153 / 0.2)' },
                 { label: 'Assignments', icon: ClipboardList, href: '/dashboard/assignments', color: 'text-amber-400', bg: 'rgb(251 191 36 / 0.08)', border: 'rgb(251 191 36 / 0.2)' },
@@ -361,13 +361,13 @@ export default function DashboardClient({
                 <Link
                   key={label}
                   href={href}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border hover:border-white/30 backdrop-blur-md transition-all duration-300 active:scale-95 group hover:-translate-y-1 hover:shadow-xl"
+                  className="flex flex-col items-center gap-3 p-5 rounded-2xl border hover:border-white/30 backdrop-blur-md transition-all duration-300 active:scale-95 group hover:-translate-y-2 hover:shadow-2xl"
                   style={{ background: bg, borderColor: border }}
                 >
-                  <div className="h-10 w-10 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-200" style={{ background: bg }}>
+                  <div className="h-12 w-12 rounded-2xl flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-all duration-300 shadow-inner" style={{ background: bg }}>
                     <Icon className={`h-5 w-5 ${color}`} />
                   </div>
-                  <span className="text-[12px] font-semibold text-muted-foreground">{label}</span>
+                  <span className="text-[13px] font-bold text-foreground/90">{label}</span>
                 </Link>
               ))}
             </div>

@@ -29,23 +29,48 @@ export default function AssistantPage() {
   const [courseContext, setCourseContext] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch enrolled courses for context
+  // Fetch enrolled courses & context
+  const [aiContext, setAiContext] = useState<any>(null);
+
   useEffect(() => {
     if (!profile?.id) return;
-    const supabase = createClient();
-    supabase
-      .from('course_enrollments')
-      .select('courses(title)')
-      .eq('student_id', profile.id)
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          const titles = data
-            .map((e: any) => e.courses?.title)
-            .filter(Boolean)
-            .join(', ');
+    const fetchContext = async () => {
+      const supabase = createClient();
+      try {
+        // Courses
+        const { data: enrollments } = await supabase
+          .from('course_enrollments')
+          .select('course_id, courses(title)')
+          .eq('student_id', profile.id);
+        
+        let titles = '';
+        let courseIds: string[] = [];
+        if (enrollments && enrollments.length > 0) {
+          titles = enrollments.map((e: any) => e.courses?.title).filter(Boolean).join(', ');
+          courseIds = enrollments.map((e: any) => e.course_id);
           setCourseContext(titles);
         }
-      });
+
+        // Attendance (simplified for assistant context)
+        const { data: sessions } = await supabase.from('course_sessions').select('id').in('course_id', courseIds);
+        const { count: attended } = await supabase.from('attendance_logs').select('*', { count: 'exact', head: true }).eq('student_id', profile.id);
+        const total = sessions?.length || 0;
+        const attPercentage = total > 0 && attended ? Math.round((attended / total) * 100) : 100;
+
+        // Weak subjects
+        const { data: marks } = await supabase.from('internal_marks').select('course_id, marks_obtained, courses(title)').eq('student_id', profile.id);
+        const weak = marks?.filter(m => (m.marks_obtained || 0) < 50).map(m => (m.courses as any)?.title).filter(Boolean).join(', ') || 'None';
+
+        setAiContext({
+          enrolledCourses: titles,
+          attendancePercentage: attPercentage,
+          weakSubjects: weak
+        });
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchContext();
   }, [profile?.id]);
 
   useEffect(() => {
@@ -70,7 +95,7 @@ export default function AssistantPage() {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, courseContext }),
+        body: JSON.stringify({ message: text, context: aiContext }),
       });
 
       const data = await res.json();

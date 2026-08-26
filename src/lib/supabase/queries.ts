@@ -368,7 +368,7 @@ export async function getNotifications(supabase: SupabaseClient, userId: string)
 export async function markNotificationRead(supabase: SupabaseClient, notificationId: string): Promise<boolean> {
   const { error } = await supabase
     .from('notifications')
-    .update({ is_read: true })
+    .update({ read: true })
     .eq('id', notificationId);
     
   if (error) {

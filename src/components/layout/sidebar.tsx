@@ -42,6 +42,8 @@ const navSections: NavSection[] = [
     label: 'ACADEMICS',
     items: [
       { name: 'Attendance',    href: '/dashboard/attendance',    icon: CheckCircle },
+      { name: 'Internal Marks',href: '/dashboard/internal-marks',icon: FileText },
+      { name: 'Timetable',     href: '/dashboard/timetable',     icon: CalendarIcon },
       { name: 'Courses',       href: '/dashboard/courses',       icon: BookOpen },
       { name: 'Assignments',   href: '/dashboard/assignments',   icon: ClipboardList },
       { name: 'Resources',     href: '/dashboard/resources',     icon: Library },

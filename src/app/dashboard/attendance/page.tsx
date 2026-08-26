@@ -197,8 +197,24 @@ function AttendanceContent() {
     try {
       // Decode URL if scanned from full QR
       let token = decodedText;
-      if (decodedText.includes('token=')) {
-        token = new URL(decodedText).searchParams.get('token') || decodedText;
+      let urlObj: URL | null = null;
+      try {
+        urlObj = new URL(decodedText);
+      } catch (e) {
+        // Not a URL
+      }
+
+      if (urlObj && urlObj.searchParams.has('session')) {
+        token = urlObj.searchParams.get('session') || decodedText;
+        const ts = urlObj.searchParams.get('ts');
+        if (ts) {
+          const qrTime = parseInt(ts, 10);
+          const now = Date.now();
+          // Allow up to 120 seconds of drift/window to be safe
+          if (Math.abs(now - qrTime) > 120000) {
+            throw new Error('QR Code expired. Please scan the current code on the screen.');
+          }
+        }
       }
 
       // Find the session with this token

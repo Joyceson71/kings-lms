@@ -2,7 +2,7 @@
 
 import { X, Maximize, Minimize, Download } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -15,11 +15,22 @@ interface QRDisplayModalProps {
 
 export function QRDisplayModal({ isOpen, onClose, token, courseName }: QRDisplayModalProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [timestamp, setTimestamp] = useState(Date.now());
   const qrRef = useRef<SVGSVGElement>(null);
+
+  // Update timestamp every 10 seconds to create a rolling QR effect
+  // (In production, this would sync with a server salt/HMAC for 60s rolling windows)
+  useEffect(() => {
+    if (!isOpen) return;
+    const interval = setInterval(() => {
+      setTimestamp(Date.now());
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [isOpen]);
 
   if (!isOpen) return null;
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  const qrValue = `${baseUrl}/attend?session=${token}`;
+  const qrValue = `${baseUrl}/attend?session=${token}&ts=${Math.floor(timestamp / 60000) * 60000}`;
 
   const downloadQR = () => {
     if (!qrRef.current) return;

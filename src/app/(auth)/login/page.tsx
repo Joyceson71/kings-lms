@@ -332,6 +332,22 @@ export default function LoginPage() {
             <>Continue <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" /></>
           )}
         </button>
+
+        {/* Demo Login Button */}
+        <button
+          type="button"
+          onClick={async (e) => {
+            e.preventDefault();
+            const demoEmail = loginType === 'student' ? 'student@demo.com' : 'faculty@demo.com';
+            setEmail(demoEmail);
+            setPassword('demo123');
+            toast.info(`Filled demo credentials for ${loginType}. Click Continue to login (if accounts exist in DB).`);
+          }}
+          disabled={isProcessing}
+          className="w-full h-10 rounded-lg text-[13px] font-semibold text-foreground transition-all duration-200 hover:bg-secondary border border-border"
+        >
+          Demo Login (SIH Pitch)
+        </button>
       </form>
 
       {/* Sign up Link */}

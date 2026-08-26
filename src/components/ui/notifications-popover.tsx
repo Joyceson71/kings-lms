@@ -22,10 +22,10 @@ export function NotificationsPopover({ onClose }: { onClose: () => void }) {
       setNotifications(notifs.map((n: any) => ({
         id: n.id,
         title: n.title,
-        message: n.message,
+        message: n.body,
         time: new Date(n.created_at).toLocaleDateString(),
         type: n.type === 'error' ? 'warning' : n.type,
-        read: n.is_read,
+        read: n.read,
       })));
       setIsLoading(false);
     }

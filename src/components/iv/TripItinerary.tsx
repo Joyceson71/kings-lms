@@ -27,6 +27,7 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tripId]);
 
   const fetchCheckpoints = async () => {
@@ -128,7 +129,7 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
             {/* Vertical timeline line */}
             <div className="absolute left-4 top-2 bottom-2 w-0.5 bg-border -z-10" />
             
-            {checkpoints.map((cp, idx) => {
+            {checkpoints.map((cp) => {
               const myArrival = arrivals.find(a => a.checkpoint_id === cp.id && a.user_id === currentUserId);
               const totalArrived = arrivals.filter(a => a.checkpoint_id === cp.id).length;
               

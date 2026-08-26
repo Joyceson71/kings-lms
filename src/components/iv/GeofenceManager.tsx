@@ -52,10 +52,10 @@ export default function GeofenceManager({ tripId, mapInstance, role }: GeofenceM
     mapInstance.addControl(drawControl);
 
     const handleDrawCreated = async (e: any) => {
-      const type = e.layerType;
       const layer = e.layer;
       
       drawnItems.addLayer(layer);
+
       
       // Convert layer to GeoJSON-like polygon coordinates
       const latlngs = layer.getLatLngs()[0].map((ll: any) => ({ lat: ll.lat, lng: ll.lng }));
@@ -92,6 +92,7 @@ export default function GeofenceManager({ tripId, mapInstance, role }: GeofenceM
       mapInstance.removeLayer(drawnItems);
       mapInstance.off(L.Draw.Event.CREATED, handleDrawCreated);
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mapInstance, role, tripId]);
 
   const fetchZones = async (group?: any, LObj?: any) => {
@@ -106,7 +107,7 @@ export default function GeofenceManager({ tripId, mapInstance, role }: GeofenceM
             const polygonLayer = LObj.polygon(points, { color: z.is_safe_zone ? '#10b981' : '#ef4444' });
             polygonLayer.bindTooltip(z.name);
             group.addLayer(polygonLayer);
-          } catch (e) {}
+          } catch { /* invalid polygon coords — skip */ }
         });
       }
     }

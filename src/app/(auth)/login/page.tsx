@@ -73,8 +73,8 @@ export default function LoginPage() {
         }
 
         toast.success('Signed in successfully!');
-        // Use router.push so navigation stays inside the WebView / App
-        router.push(nextPath);
+        // Use replace so the back button cannot return to the login page
+        router.replace(nextPath);
         router.refresh();
       } catch {
         const msg = 'Something went wrong. Please try again.';

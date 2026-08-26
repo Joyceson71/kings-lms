@@ -43,7 +43,7 @@ export default function AdminSOSPanel({ tripId, currentUserId }: { tripId: strin
         osc2.start();
         setTimeout(() => osc2.stop(), 200);
       }, 300);
-    } catch (_) {}
+    } catch { /* ignore audio errors */ }
   };
 
   const fetchSOS = async () => {

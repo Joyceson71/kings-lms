@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useMemo } from 'react';
+import { useRef, useMemo } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Points, PointMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -34,9 +34,8 @@ function Starfield() {
   // Create 5000 points
   const points = useMemo(() => generatePoints(5000, 2.5), []);
   
-  // Track mouse for interaction
-  
-  const [targetRotation] = useState({ x: 0, y: 0 });
+  // Rotation target tracked via ref for performance (no re-render needed)
+  const targetRotation = useRef({ x: 0, y: 0 });
 
   useFrame((state) => {
     if (!ref.current) return;
@@ -45,15 +44,13 @@ function Starfield() {
     ref.current.rotation.x -= 0.0005;
     ref.current.rotation.y -= 0.0005;
 
-    // Interactive rotation based on mouse
-    const pointer = state.pointer; // Normalised -1 to +1
+    // Interactive rotation based on mouse pointer (normalised -1 to +1)
+    targetRotation.current.x = state.pointer.y * 0.2;
+    targetRotation.current.y = state.pointer.x * 0.2;
     
     // Smooth dampening towards target rotation
-    targetRotation.x = pointer.y * 0.2;
-    targetRotation.y = pointer.x * 0.2;
-    
-    ref.current.rotation.x += (targetRotation.x - ref.current.rotation.x) * 0.05;
-    ref.current.rotation.y += (targetRotation.y - ref.current.rotation.y) * 0.05;
+    ref.current.rotation.x += (targetRotation.current.x - ref.current.rotation.x) * 0.05;
+    ref.current.rotation.y += (targetRotation.current.y - ref.current.rotation.y) * 0.05;
   });
 
   const isDark = theme === 'dark' || (theme === 'system' && systemTheme === 'dark');

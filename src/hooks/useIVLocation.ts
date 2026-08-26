@@ -22,6 +22,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       if (data) checkpointsRef.current = data;
     };
     fetchCP();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, tripId]);
 
   useEffect(() => {
@@ -213,8 +214,8 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
               toast.success(`Arrived at ${cp.title || 'checkpoint'}!`);
               try {
                 await Haptics.notification({ type: NotificationType.Success });
-              } catch (e) {
-                // ignore
+              } catch {
+                // ignore haptics error
               }
             }
           }
@@ -307,7 +308,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
             timeout: 10000
           });
           processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy);
-        } catch (err) {
+        } catch {
            if ('geolocation' in navigator) {
              navigator.geolocation.getCurrentPosition(
                (pos) => processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
@@ -346,6 +347,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         wakeLockRef.current = null;
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, tripId, userId, batterySaver]);
 
   return location;

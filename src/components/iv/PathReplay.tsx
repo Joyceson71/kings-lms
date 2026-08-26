@@ -58,9 +58,10 @@ export default function PathReplay({ tripId, mapInstance, onClose }: PathReplayP
     fetchHistory();
     
     return () => {
-      // Cleanup layers
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const layers = layersRef.current;
       if (mapInstance) {
-        Object.values(layersRef.current).forEach(({ polyline, marker }) => {
+        Object.values(layers).forEach(({ polyline, marker }) => {
           mapInstance.removeLayer(polyline);
           mapInstance.removeLayer(marker);
         });

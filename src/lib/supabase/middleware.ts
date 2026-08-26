@@ -31,8 +31,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const isAuthPage = request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/signup');
-  const isDashboardPage = request.nextUrl.pathname.startsWith('/dashboard');
+  const { pathname } = request.nextUrl;
+
+  // Routes that are accessible without authentication (or handle their own auth)
+  const isAuthPage =
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/signup') ||
+    pathname.startsWith('/auth') ||
+    pathname.startsWith('/reset-password') ||
+    pathname.startsWith('/update-password');
+
+  const isDashboardPage = pathname.startsWith('/dashboard');
 
   if (!user && isDashboardPage) {
     const url = request.nextUrl.clone();

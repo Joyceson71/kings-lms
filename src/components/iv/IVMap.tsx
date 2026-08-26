@@ -116,7 +116,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           });
         }
 
-        mapInstance.current.on('click', (e: any) => {
+        mapInstance.current.on('click', () => {
           // Handled below due to closure
         });
       }
@@ -469,8 +469,9 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       const centerLng = (mapBounds.east + mapBounds.west) / 2;
       const latRad = centerLat * Math.PI / 180;
       const n = Math.pow(2, z);
-      const xtile = Math.floor(n * ((centerLng + 180) / 360));
-      const ytile = Math.floor(n * (1 - (Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI)) / 2);
+      // Tile position approximation for count estimate
+      Math.floor(n * ((centerLng + 180) / 360));
+      Math.floor(n * (1 - (Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI)) / 2);
       
       const range = z === 12 ? 1 : z === 13 ? 2 : z === 14 ? 4 : 8; // Approximation based on zoom
       total += Math.pow((range * 2 + 1), 2) * 2; // * 2 for both street and satellite
@@ -509,7 +510,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         try {
           const res = await fetch(url);
           if (res.ok) await cache.put(url, res);
-        } catch (_) {}
+        } catch { /* tile fetch failed */ }
         done++;
         setDownloadProgress(Math.round((done / urls.length) * 100));
       }

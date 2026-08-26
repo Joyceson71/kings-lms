@@ -100,7 +100,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
         });
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
-      } catch (err) {
+      } catch {
         // ignore location error for messages
       }
     }
@@ -168,7 +168,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
         });
         lat = pos.coords.latitude;
         lng = pos.coords.longitude;
-      } catch (_) {}
+      } catch { /* ignore location error */ }
     }
 
     await supabase.from('iv_messages').insert({

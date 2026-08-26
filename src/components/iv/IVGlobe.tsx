@@ -91,7 +91,8 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
     if (globeRef.current) {
       globeRef.current.pointOfView(initialCenter, 4000);
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally run only on mount to set initial camera position
 
   const globeData = useMemo(() => {
     return Object.values(locations).map(loc => ({

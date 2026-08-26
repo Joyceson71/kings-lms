@@ -39,7 +39,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
               // Supabase realtime uses WebSockets
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://fonts.googleapis.com https://fonts.gstatic.com https://raw.githack.com",
               "media-src 'self' blob:",
               "worker-src 'self' blob:",
               "frame-ancestors 'none'",

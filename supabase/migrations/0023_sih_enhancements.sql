@@ -26,14 +26,17 @@ CREATE TABLE IF NOT EXISTS public.internal_marks (
 
 ALTER TABLE public.internal_marks ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Students read own marks" ON public.internal_marks;
 CREATE POLICY "Students read own marks" ON public.internal_marks
   FOR SELECT USING (student_id = auth.uid());
 
+DROP POLICY IF EXISTS "Faculty read marks for their courses" ON public.internal_marks;
 CREATE POLICY "Faculty read marks for their courses" ON public.internal_marks
   FOR SELECT USING (
     EXISTS (SELECT 1 FROM public.courses WHERE id = internal_marks.course_id AND created_by = auth.uid())
   );
 
+DROP POLICY IF EXISTS "Faculty manage marks for their courses" ON public.internal_marks;
 CREATE POLICY "Faculty manage marks for their courses" ON public.internal_marks
   FOR ALL USING (
     EXISTS (SELECT 1 FROM public.courses WHERE id = internal_marks.course_id AND created_by = auth.uid())
@@ -53,9 +56,11 @@ CREATE TABLE IF NOT EXISTS public.notifications (
 
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users read own notifications" ON public.notifications;
 CREATE POLICY "Users read own notifications" ON public.notifications
   FOR SELECT USING (user_id = auth.uid());
   
+DROP POLICY IF EXISTS "Users update own notifications" ON public.notifications;
 CREATE POLICY "Users update own notifications" ON public.notifications
   FOR UPDATE USING (user_id = auth.uid());
 
@@ -74,9 +79,11 @@ CREATE TABLE IF NOT EXISTS public.timetable (
 
 ALTER TABLE public.timetable ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Anyone can read timetable" ON public.timetable;
 CREATE POLICY "Anyone can read timetable" ON public.timetable
   FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Faculty manage timetable" ON public.timetable;
 CREATE POLICY "Faculty manage timetable" ON public.timetable
   FOR ALL USING (
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role IN ('faculty', 'admin'))

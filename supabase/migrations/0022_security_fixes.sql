@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- 0022_security_fixes.sql
 -- Security hardening: role constraints, RLS policy fixes,
 -- attendance uniqueness, and audit trail protection.
@@ -10,12 +10,12 @@ DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE table_name = ''profiles''
-      AND constraint_name = ''profiles_role_check''
+    WHERE table_name = 'profiles'
+      AND constraint_name = 'profiles_role_check'
   ) THEN
     ALTER TABLE profiles
       ADD CONSTRAINT profiles_role_check
-      CHECK (role IN (''student'', ''faculty'', ''admin''));
+      CHECK (role IN ('student', 'faculty', 'admin'));
   END IF;
 END $$;
 
@@ -53,7 +53,7 @@ BEGIN
   -- Allow admins to change roles (they go through service-role key)
   -- Callers using the service-role key bypass RLS, so this function
   -- only fires for anon/authenticated key callers.
-  RAISE EXCEPTION ''Changing your own role is not allowed.'';
+  RAISE EXCEPTION 'Changing your own role is not allowed.';
 END;
 $$;
 
@@ -69,8 +69,8 @@ DO $$
 BEGIN
   IF NOT EXISTS (
     SELECT 1 FROM information_schema.table_constraints
-    WHERE table_name   = ''attendance_records''
-      AND constraint_name = ''attendance_records_session_student_uniq''
+    WHERE table_name   = 'attendance_records'
+      AND constraint_name = 'attendance_records_session_student_uniq'
   ) THEN
     ALTER TABLE attendance_records
       ADD CONSTRAINT attendance_records_session_student_uniq

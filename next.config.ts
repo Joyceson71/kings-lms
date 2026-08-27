@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: '*.tile.openstreetmap.org',
       },
+      {
+        protocol: 'https',
+        hostname: '*.googleusercontent.com',
+      },
+      {
+        protocol: 'https',
+        hostname: 'avatars.githubusercontent.com',
+      },
     ],
   },
   async headers() {
@@ -39,7 +47,7 @@ const nextConfig: NextConfig = {
               "font-src 'self' https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
               // Supabase realtime uses WebSockets
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://fonts.googleapis.com https://fonts.gstatic.com https://raw.githack.com https://raw.githubusercontent.com",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://fonts.googleapis.com https://fonts.gstatic.com https://raw.githack.com https://raw.githubusercontent.com https://*.googleusercontent.com https://avatars.githubusercontent.com",
               "media-src 'self' blob:",
               "worker-src 'self' blob:",
               "frame-ancestors 'none'",

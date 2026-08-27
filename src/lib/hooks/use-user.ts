@@ -14,6 +14,8 @@ export interface UserProfile {
   avatar_url: string | null;
   department?: string | null;
   college?: string | null;
+  semester?: number | null;
+  roll_number?: string | null;
 }
 
 export function useUser() {
@@ -40,6 +42,8 @@ export function useUser() {
           avatar_url: profileData?.avatar_url || session.user.user_metadata?.avatar_url || null,
           department: profileData?.department || null,
           college: profileData?.college || null,
+          semester: profileData?.semester || null,
+          roll_number: profileData?.roll_number || null,
         });
       } else {
         setProfile(null);

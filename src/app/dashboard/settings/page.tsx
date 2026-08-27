@@ -40,6 +40,9 @@ export default function SettingsPage() {
   const { theme, setTheme } = useTheme();
   const [nameValue, setNameValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
+  const [deptValue, setDeptValue] = useState('');
+  const [semesterValue, setSemesterValue] = useState('');
+  const [rollValue, setRollValue] = useState('');
 
   // Sync controlled inputs once the hook has hydrated the profile
   useEffect(() => {
@@ -48,6 +51,13 @@ export default function SettingsPage() {
   useEffect(() => {
     if (profile?.email) setEmailValue(profile.email);
   }, [profile?.email]);
+  useEffect(() => {
+    if (profile) {
+      if (profile.department) setDeptValue(profile.department);
+      if (profile.semester) setSemesterValue(profile.semester.toString());
+      if (profile.roll_number) setRollValue(profile.roll_number);
+    }
+  }, [profile]);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -60,7 +70,12 @@ export default function SettingsPage() {
       
       const { error } = await supabase
         .from('profiles')
-        .update({ full_name: nameValue })
+        .update({ 
+          full_name: nameValue,
+          department: deptValue || null,
+          semester: semesterValue ? parseInt(semesterValue, 10) : null,
+          roll_number: rollValue || null
+        })
         .eq('id', profile.id);
         
       if (error) throw error;
@@ -134,6 +149,12 @@ export default function SettingsPage() {
                   setNameValue={setNameValue}
                   emailValue={emailValue}
                   setEmailValue={setEmailValue}
+                  deptValue={deptValue}
+                  setDeptValue={setDeptValue}
+                  semesterValue={semesterValue}
+                  setSemesterValue={setSemesterValue}
+                  rollValue={rollValue}
+                  setRollValue={setRollValue}
                 />
               )}
 

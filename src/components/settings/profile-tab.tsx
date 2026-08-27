@@ -11,6 +11,12 @@ interface ProfileTabProps {
   setNameValue: (val: string) => void;
   emailValue: string;
   setEmailValue: (val: string) => void;
+  deptValue: string;
+  setDeptValue: (val: string) => void;
+  semesterValue: string;
+  setSemesterValue: (val: string) => void;
+  rollValue: string;
+  setRollValue: (val: string) => void;
 }
 
 export function ProfileTab({
@@ -20,6 +26,12 @@ export function ProfileTab({
   setNameValue,
   emailValue,
   setEmailValue,
+  deptValue,
+  setDeptValue,
+  semesterValue,
+  setSemesterValue,
+  rollValue,
+  setRollValue,
 }: ProfileTabProps) {
   return (
     <div className="space-y-8">
@@ -83,16 +95,59 @@ export function ProfileTab({
           <Label htmlFor="settings-dept" className="text-sm font-medium">Department</Label>
           <div className="relative">
             <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input id="settings-dept" placeholder="Enter department" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+            <Input 
+              id="settings-dept" 
+              placeholder="Enter department (e.g., ECE, CSE)" 
+              value={deptValue}
+              onChange={(e) => setDeptValue(e.target.value)}
+              className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" 
+            />
           </div>
         </div>
-        <div className="space-y-1.5">
-          <Label htmlFor="settings-office" className="text-sm font-medium">Office Location</Label>
-          <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input id="settings-office" placeholder="e.g. Block A, Room 204" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+        
+        {role === 'student' && (
+          <>
+            <div className="space-y-1.5">
+              <Label htmlFor="settings-roll" className="text-sm font-medium">Roll Number</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="settings-roll" 
+                  placeholder="Enter roll number" 
+                  value={rollValue}
+                  onChange={(e) => setRollValue(e.target.value)}
+                  className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" 
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="settings-semester" className="text-sm font-medium">Semester</Label>
+              <div className="relative">
+                <Book className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  id="settings-semester" 
+                  type="number"
+                  min="1"
+                  max="8"
+                  placeholder="Enter semester (1-8)" 
+                  value={semesterValue}
+                  onChange={(e) => setSemesterValue(e.target.value)}
+                  className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" 
+                />
+              </div>
+            </div>
+          </>
+        )}
+
+        {role !== 'student' && (
+          <div className="space-y-1.5">
+            <Label htmlFor="settings-office" className="text-sm font-medium">Office Location</Label>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input id="settings-office" placeholder="e.g. Block A, Room 204" className="pl-9 h-11 bg-background/40 border-border/60 rounded-xl" />
+            </div>
           </div>
-        </div>
+        )}
         <div className="space-y-1.5">
           <Label htmlFor="settings-courses" className="text-sm font-medium">Courses Handling</Label>
           <div className="relative">

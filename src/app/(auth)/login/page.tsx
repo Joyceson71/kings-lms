@@ -98,7 +98,7 @@ export default function LoginPage() {
           import('@capacitor/app'),
         ]).then(([b, a]) => ({ Browser: b.Browser, App: a.App }));
 
-        const redirectTo = `${DEPLOYED_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+        const redirectTo = 'com.kingslms.app://login-callback';
 
         const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
           provider,
@@ -115,14 +115,20 @@ export default function LoginPage() {
         }
 
         // Listen for the deep-link callback (com.kingslms.app://login-callback)
-        const listener = await App.addListener('appUrlOpen', async () => {
+        const listener = await App.addListener('appUrlOpen', async (event: any) => {
           try {
             await listener.remove();
             await Browser.close();
           } catch {
             // Browser might already be closed by user
           }
-          router.push(nextPath);
+          
+          if (event.url && event.url.includes('?')) {
+            const queryParams = event.url.substring(event.url.indexOf('?'));
+            router.push(`/auth/callback${queryParams}&next=${encodeURIComponent(nextPath)}`);
+          } else {
+            router.push(nextPath);
+          }
           router.refresh();
         });
 

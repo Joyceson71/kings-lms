@@ -200,7 +200,7 @@ function AttendanceContent() {
       let urlObj: URL | null = null;
       try {
         urlObj = new URL(decodedText);
-      } catch (e) {
+      } catch {
         // Not a URL
       }
 

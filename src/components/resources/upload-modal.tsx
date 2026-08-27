@@ -8,7 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/hooks/use-user';
-import confetti from 'canvas-confetti';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -146,6 +145,7 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
       if (dbError) throw dbError;
 
       // Premium UI: Fire confetti on successful upload!
+      const confetti = (await import('canvas-confetti')).default;
       confetti({
         particleCount: 100,
         spread: 70,

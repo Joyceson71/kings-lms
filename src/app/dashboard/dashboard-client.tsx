@@ -9,7 +9,7 @@ import {
   ScanLine, Bell, ChevronRight, Flame,
 } from 'lucide-react';
 import Link from 'next/link';
-import { WelcomeSequence } from '@/components/3d/WelcomeSequence';
+
 import { AnimatePresence } from 'framer-motion';
 
 import { SkeletonCard } from '@/components/dashboard/SkeletonCard';
@@ -23,25 +23,9 @@ import { StudentData, TrendPoint, AssignmentBreakdown } from '@/components/dashb
 import { formatDueDate, isOverdue, timeAgo } from '@/components/dashboard/utils';
 import dynamic from 'next/dynamic';
 
-const AreaChart = dynamic(() => import('recharts').then(mod => mod.AreaChart), { ssr: false });
-const Area = dynamic(() => import('recharts').then(mod => mod.Area), { ssr: false });
-const XAxis = dynamic(() => import('recharts').then(mod => mod.XAxis), { ssr: false });
-const YAxis = dynamic(() => import('recharts').then(mod => mod.YAxis), { ssr: false });
-const Tooltip = dynamic(() => import('recharts').then(mod => mod.Tooltip), { ssr: false });
-const ResponsiveContainer = dynamic(() => import('recharts').then(mod => mod.ResponsiveContainer), { ssr: false });
+const WelcomeSequence = dynamic(() => import('@/components/3d/WelcomeSequence').then(mod => mod.WelcomeSequence), { ssr: false });
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-type CourseWithAttendance = {
-  id: string; title: string; code: string;
-  total: number; attended: number; rate: number;
-};
-type ActiveSession = {
-  id: string; course_id: string; room: string | null;
-  qr_token: string; started_at: string;
-  courses: { title: string; code: string } | null;
-};
-type PendingAssignment = { id: string; title: string; dueDate: string | null; course: string };
-type Notification = { id: string; title: string; message: string; type: string; created_at: string };
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 
 

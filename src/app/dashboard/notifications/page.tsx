@@ -1,7 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
-import { Bell, CheckCircle2, AlertCircle, Clock, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Bell, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default async function NotificationsPage() {
   const supabase = await createClient();

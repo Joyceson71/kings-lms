@@ -8,9 +8,13 @@ const config: CapacitorConfig = {
     url: 'https://kings-lms.vercel.app',
     cleartext: false,
     androidScheme: 'https',
-    // Only allow navigation within the Supabase auth domain.
+    // Only allow navigation within the Supabase auth domain and the Vercel app domain.
     // Everything else stays inside the WebView.
-    allowNavigation: ['vkusqelpzpaocnwaawkw.supabase.co'],
+    allowNavigation: [
+      'vkusqelpzpaocnwaawkw.supabase.co',
+      'kings-lms.vercel.app',
+      '*.vercel.app'
+    ],
   },
   plugins: {
     SplashScreen: {

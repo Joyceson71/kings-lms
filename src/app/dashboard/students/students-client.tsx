@@ -145,10 +145,8 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
                       <Mail className="h-3.5 w-3.5" />
                     </button>
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" aria-label="More options">
-                          <MoreVertical className="h-3.5 w-3.5" />
-                        </button>
+                      <DropdownMenuTrigger className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" aria-label="More options">
+                        <MoreVertical className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end" className="w-48">
                         <DropdownMenuItem className="gap-2 cursor-pointer">

@@ -5,7 +5,14 @@ import { Avatar } from '@/components/ui/avatar';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, UserPlus, Mail, MoreVertical } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Search, Filter, UserPlus, Mail, MoreVertical, User, Edit, Ban } from 'lucide-react';
 import { useState } from 'react';
 export default function StudentsClient({ initialStudents }: { initialStudents: any[] }) {
   const [search, setSearch] = useState('');
@@ -137,9 +144,28 @@ export default function StudentsClient({ initialStudents }: { initialStudents: a
                     <button className="p-1.5 rounded-lg text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" aria-label="Email student">
                       <Mail className="h-3.5 w-3.5" />
                     </button>
-                    <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" aria-label="More options">
-                      <MoreVertical className="h-3.5 w-3.5" />
-                    </button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-colors" aria-label="More options">
+                          <MoreVertical className="h-3.5 w-3.5" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <User className="h-4 w-4 text-muted-foreground" />
+                          View Profile
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="gap-2 cursor-pointer">
+                          <Edit className="h-4 w-4 text-muted-foreground" />
+                          Edit Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="gap-2 text-red-500 hover:text-red-600 focus:text-red-600 focus:bg-red-500/10 cursor-pointer">
+                          <Ban className="h-4 w-4" />
+                          Suspend Student
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               ))}

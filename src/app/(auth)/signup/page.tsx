@@ -46,6 +46,14 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   return { score, label: 'Excellent', color: 'bg-emerald-400' };
 }
 
+/**
+ * Detect whether we are running inside a Capacitor WebView.
+ * window.Capacitor is injected by the Capacitor runtime on Android/iOS.
+ */
+function isCapacitor(): boolean {
+  return typeof window !== 'undefined' && !!(window as unknown as { Capacitor?: unknown }).Capacitor;
+}
+
 export default function SignupPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -148,37 +156,62 @@ export default function SignupPage() {
     }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleOAuth = async (provider: 'google' | 'github') => {
     try {
       setIsLoading(true);
+      setError(null);
       const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${getURL()}auth/callback`,
-        },
-      });
-      if (error) throw error;
-    } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to sign up with Google';
-      setError(errorMsg);
-      setIsLoading(false);
-    }
-  };
 
-  const handleGithubSignup = async () => {
-    try {
-      setIsLoading(true);
-      const supabase = createClient();
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'github',
-        options: {
-          redirectTo: `${getURL()}auth/callback`,
-        },
-      });
-      if (error) throw error;
+      if (isCapacitor()) {
+        const { Browser, App } = await Promise.all([
+          import('@capacitor/browser'),
+          import('@capacitor/app'),
+        ]).then(([b, a]) => ({ Browser: b.Browser, App: a.App }));
+
+        const redirectTo = 'com.kingslms.app://login-callback';
+
+        const { data, error: oauthError } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo,
+            skipBrowserRedirect: true,
+          },
+        });
+
+        if (oauthError || !data.url) {
+          setError(oauthError?.message ?? 'Could not start OAuth flow.');
+          setIsLoading(false);
+          return;
+        }
+
+        const listener = await App.addListener('appUrlOpen', async (event: any) => {
+          try {
+            await listener.remove();
+            await Browser.close();
+          } catch {
+            // Browser might already be closed by user
+          }
+          
+          if (event.url && event.url.includes('?')) {
+            const queryParams = event.url.substring(event.url.indexOf('?'));
+            window.location.href = `/auth/callback${queryParams}&next=${encodeURIComponent('/dashboard')}`;
+          } else {
+            router.push('/dashboard');
+          }
+        });
+
+        await Browser.open({ url: data.url });
+      } else {
+        const { error } = await supabase.auth.signInWithOAuth({
+          provider,
+          options: {
+            redirectTo: `${getURL()}auth/callback`,
+          },
+        });
+        if (error) throw error;
+      }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'Failed to sign up with GitHub';
+      const errorMsg = err instanceof Error ? err.message : `Failed to sign up with ${provider}`;
       setError(errorMsg);
       setIsLoading(false);
     }
@@ -511,7 +544,7 @@ export default function SignupPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={handleGoogleSignup}
+              onClick={() => handleOAuth('google')}
               disabled={isLoading}
               className="w-full h-11 rounded-xl border-border/60 hover:bg-secondary/40 font-semibold gap-2"
             >
@@ -527,7 +560,7 @@ export default function SignupPage() {
             <Button
               type="button"
               variant="outline"
-              onClick={handleGithubSignup}
+              onClick={() => handleOAuth('github')}
               disabled={isLoading}
               className="w-full h-11 rounded-xl border-border/60 hover:bg-secondary/40 font-semibold gap-2"
             >

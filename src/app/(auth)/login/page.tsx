@@ -56,17 +56,15 @@ export default function LoginPage() {
 
     startTransition(async () => {
       try {
-        const supabase = createClient();
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
-          password,
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email.trim().toLowerCase(), password }),
         });
 
-        if (authError) {
-          const msg =
-            authError.message === 'Invalid login credentials'
-              ? 'Incorrect email or password.'
-              : authError.message;
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const msg = data.error || 'Incorrect email or password.';
           setError(msg);
           toast.error(msg);
           return;
@@ -135,7 +133,7 @@ export default function LoginPage() {
         await Browser.open({ url: data.url });
       } else {
         // ── Web path ──────────────────────────────────────────────────────────
-        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+        const redirectTo = `${DEPLOYED_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`;
         const { error: oauthError } = await supabase.auth.signInWithOAuth({
           provider,
           options: { redirectTo },

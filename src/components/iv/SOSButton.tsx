@@ -146,18 +146,27 @@ export default function SOSButton({ tripId, studentId }: SOSButtonProps) {
 
   return (
     <div className="relative z-[1000]">
+      {/* Radiating pulse effect when not holding */}
+      {!holding && !isLocating && (
+        <>
+          <div className="absolute inset-0 rounded-[2rem] bg-destructive/40 animate-ping opacity-75" style={{ animationDuration: '3s' }} />
+          <div className="absolute inset-0 rounded-[2rem] bg-destructive/20 animate-ping opacity-50" style={{ animationDuration: '3s', animationDelay: '1s' }} />
+        </>
+      )}
+      
       <button
         onPointerDown={() => setHolding(true)}
         onPointerUp={() => setHolding(false)}
         onPointerLeave={() => setHolding(false)}
         onContextMenu={(e) => e.preventDefault()}
-        className="w-20 h-20 md:w-24 md:h-24 rounded-[2rem] bg-destructive text-destructive-foreground font-black shadow-lg border border-destructive/20 flex items-center justify-center relative overflow-hidden select-none hover:bg-destructive/90 active:scale-95 transition-all"
+        className={`w-20 h-20 md:w-24 md:h-24 rounded-[2rem] bg-destructive text-destructive-foreground font-black shadow-[0_0_40px_rgba(220,38,38,0.4)] border border-destructive/20 flex items-center justify-center relative overflow-hidden select-none transition-all duration-300 ${holding ? 'scale-95 shadow-[0_0_60px_rgba(220,38,38,0.8)]' : 'hover:scale-105 hover:bg-destructive/90 hover:shadow-[0_0_50px_rgba(220,38,38,0.6)]'}`}
       >
         <div 
-          className="absolute bottom-0 left-0 right-0 bg-black/20 transition-all duration-75" 
+          className="absolute bottom-0 left-0 right-0 bg-black/30 transition-all duration-75" 
           style={{ height: `${holdProgress}%` }}
         />
-        <span className="relative z-10 text-2xl md:text-3xl tracking-widest">{isLocating ? '...' : 'SOS'}</span>
+        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
+        <span className={`relative z-10 text-2xl md:text-3xl tracking-widest ${holding ? 'animate-pulse' : ''}`}>{isLocating ? '...' : 'SOS'}</span>
       </button>
       {(holding || isLocating) && (
         <div className="absolute -top-12 left-1/2 -translate-x-1/2 whitespace-nowrap bg-foreground text-background px-4 py-2 rounded-xl text-xs font-bold shadow-lg">

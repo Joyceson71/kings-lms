@@ -120,16 +120,17 @@ export default function AdminOverviewClient() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((card, i) => (
-          <div key={i} className="bg-card border border-border rounded-3xl p-6 flex items-center gap-6 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-            <div className={`w-16 h-16 rounded-2xl ${card.bg} ${card.color} flex items-center justify-center shrink-0`}>
+          <div key={i} className="group relative bg-card border border-border rounded-3xl p-6 flex items-center gap-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
+            <div className={`absolute inset-0 opacity-0 group-hover:opacity-[0.03] transition-opacity duration-300 bg-current ${card.color}`} />
+            <div className={`relative z-10 w-16 h-16 rounded-2xl ${card.bg} ${card.color} flex items-center justify-center shrink-0 shadow-inner group-hover:scale-110 transition-transform duration-300`}>
               <card.icon size={32} />
             </div>
-            <div>
-              <p className="text-muted-foreground font-medium">{card.title}</p>
+            <div className="relative z-10">
+              <p className="text-muted-foreground font-medium group-hover:text-foreground/80 transition-colors">{card.title}</p>
               {loading ? (
                 <div className="h-10 w-24 bg-muted animate-pulse rounded-lg mt-2" />
               ) : (
-                <h3 className="text-4xl font-black text-foreground mt-1">{card.value}</h3>
+                <h3 className="text-4xl font-black text-foreground mt-1 tracking-tight">{card.value}</h3>
               )}
             </div>
           </div>
@@ -216,13 +217,13 @@ export default function AdminOverviewClient() {
                     </div>
                   </div>
                 ))
-              ) : recentUsers.map(user => (
-                <div key={user.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-xl transition-colors">
+              ) : recentUsers.map((user, i) => (
+                <div key={user.id} className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-xl transition-all duration-300 hover:translate-x-1 cursor-pointer animate-in fade-in slide-in-from-right-4" style={{ animationDelay: `${i * 100}ms`, animationFillMode: 'both' }}>
                   <Avatar 
                     name={user.full_name || user.email || 'User'} 
                     src={user.avatar_url} 
                     size="md" 
-                    className="shrink-0" 
+                    className="shrink-0 shadow-sm" 
                   />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold truncate text-foreground">{user.full_name || 'New User'}</p>
@@ -236,7 +237,7 @@ export default function AdminOverviewClient() {
                     }`}>
                       {user.role}
                     </span>
-                    <p className="text-[10px] text-muted-foreground mt-1">
+                    <p className="text-[10px] text-muted-foreground mt-1 font-medium">
                       {formatDistanceToNow(new Date(user.created_at), { addSuffix: true })}
                     </p>
                   </div>

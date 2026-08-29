@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <div className="flex flex-1 flex-col overflow-hidden min-w-0">
           <Header />
 
-          <main className="flex-1 overflow-y-auto relative">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative w-full">
             {/* Cosmic mesh background */}
             <div className="absolute inset-0 bg-mesh pointer-events-none" />
             <div className="absolute inset-0 bg-dot pointer-events-none opacity-60" />

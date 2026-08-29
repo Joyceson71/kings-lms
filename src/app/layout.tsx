@@ -45,10 +45,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${outfit.variable} ${ibmPlexMono.variable} font-sans h-full antialiased`}
+      className={`${inter.variable} ${outfit.variable} ${ibmPlexMono.variable} font-sans h-full antialiased overflow-x-hidden`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden w-full">
         <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
           {children}
           <AIAssistant />

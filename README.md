@@ -31,6 +31,7 @@ Features 3D spatial UI, interactive data visualizations, real-time attendance, a
 | 🛡️ **Admin Panel** | Powerful admin tools: **User Details Drawer**, **Global Broadcast Announcements**, live **Health Metrics**, and **Department Breakdown Charts** |
 | 👥 **Students** | Searchable student table with attendance bars |
 | ⚙️ **Settings** | Real-time profile syncing, notifications, security, and appearance tabs |
+| 📍 **IV Tracker** | Industrial Visit tracker with geofencing, real-time location sharing, and SOS alerts |
 | 🌐 **Responsive** | Works beautifully on desktop, tablet, and mobile with animated side nav |
 
 ---
@@ -82,7 +83,7 @@ npm install
 2. Once your project is ready, navigate to:
    - **Project Settings → API** to get your keys
    
-3. Run the database migrations by going to **SQL Editor** in your Supabase dashboard. You must paste and run the contents of **all SQL files** in the migrations folder sequentially (from 0000 to 0014):
+3. Run the database migrations by going to **SQL Editor** in your Supabase dashboard. You must paste and run the contents of **all SQL files** in the migrations folder sequentially (from 0000 to 0023):
    ```
    supabase/migrations/
    ```
@@ -257,6 +258,8 @@ All tables have RLS enabled with the following policies:
 | **Web & App Performance** | Enabled Next.js React Compiler and aggressive dynamic imports for Recharts & Canvas Confetti (reduced initial JS bundle size by ~40% for faster dashboard load and app startup). |
 | **Settings Profile Sync** | Wired the settings form directly to the Supabase `profiles` table |
 | **Auth Fixes** | Purged split-brain mock auth, fully migrated to Supabase SSR sessions |
+| **Login Rate Limiting & OAuth** | Fixed the login issue by wiring up the rate-limited Next.js API endpoint and correctly configuring Capacitor web fallback URL for OAuth. |
+| **SIH Enhancements & IV Tracker** | Upgraded database schema with IV Tracker checkpoints, geofencing, and live class pulse features. |
 
 ---
 

@@ -22,16 +22,16 @@ export async function POST(req: Request) {
       parts: [{ text: msg.content }],
     }));
 
-    let systemInstruction = "You are IBM Bob, an expert engineering course assistant for students at Kings Engineering College. You are helpful, encouraging, and provide concise, accurate technical answers.";
+    let systemInstruction = "You are IBM Bob, a highly advanced expert engineering course assistant for students at Kings Engineering College. You possess deep knowledge across all engineering disciplines. Provide highly detailed, step-by-step, and technically accurate answers. Always format your responses beautifully using Markdown.";
     if (profile) {
       const yearStr = profile.year_of_study ? `${profile.year_of_study}${profile.year_of_study === 1 ? 'st' : profile.year_of_study === 2 ? 'nd' : profile.year_of_study === 3 ? 'rd' : 'th'} year ` : '';
       const deptStr = profile.department ? `${profile.department} ` : '';
-      systemInstruction = `You are IBM Bob, an expert engineering course assistant. You are currently helping a ${yearStr}${deptStr}student at Kings Engineering College. You are helpful, encouraging, and provide concise, accurate technical answers relevant to their specific department when possible.`;
+      systemInstruction = `You are IBM Bob, a highly advanced expert engineering course assistant. You are currently helping a ${yearStr}${deptStr}student at Kings Engineering College. Provide highly detailed, step-by-step, and technically accurate answers relevant to their specific department. Always format your responses beautifully using Markdown and use a supportive, encouraging tone.`;
     }
 
     // Use Gemini 2.5 Flash for fast chat responses
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.5-pro',
       contents: [
         ...history,
         { role: 'user', parts: [{ text: userMessage }] }

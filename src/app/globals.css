@@ -511,9 +511,7 @@
   }
 
   /* ── Legacy Bento map to Clay ── */
-  .bento-card {
-    @apply clay-card;
-  }
+  /* .bento-card is no longer used, components use .clay-card directly */
 
   /* ── Animations ── */
   .animate-fade-in        { animation: fade-in 0.25s ease-out forwards; }

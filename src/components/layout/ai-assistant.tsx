@@ -18,7 +18,7 @@ type Message = {
 const INITIAL_MESSAGE: Message = {
   id: '1',
   type: 'bot',
-  content: 'Hi! I\'m your **AI Course Assistant**. Ask me anything about your courses, assignments, or campus life! 🎓',
+  content: 'Hi! I\'m **IBM Bob**, your AI Course Assistant. Ask me anything about your courses, assignments, or campus life! 🎓',
 };
 
 const TypingIndicator = memo(function TypingIndicator() {
@@ -139,7 +139,7 @@ export const AIAssistant = memo(function AIAssistant() {
                 </div>
                 <div>
                   <h3 className="text-[13px] font-bold text-foreground flex items-center gap-1.5">
-                    Course AI
+                    IBM Bob
                     <Sparkles className="h-3 w-3 text-amber-400" style={{ filter: 'drop-shadow(0 0 4px #fbbf24)' }} />
                   </h3>
                   <p className="text-[10px] text-muted-foreground">Always ready to help</p>

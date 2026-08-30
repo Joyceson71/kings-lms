@@ -21,7 +21,7 @@ export default function AssistantPage() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: `👋 Hi! I'm your AI Study Assistant powered by Gemini.\n\nI can help you with:\n- **Concept explanations** for your courses\n- **Exam preparation** and revision tips\n- **Problem solving** and worked examples\n- **Study strategies** and time management\n\nWhat would you like to learn today?`,
+      content: `👋 Hi! I'm **IBM Bob**, your AI Study Assistant.\n\nI can help you with:\n- **Concept explanations** for your courses\n- **Exam preparation** and revision tips\n- **Problem solving** and worked examples\n- **Study strategies** and time management\n\nWhat would you like to learn today?`,
     },
   ]);
   const [input, setInput] = useState('');
@@ -137,10 +137,10 @@ export default function AssistantPage() {
       >
         <div>
           <h1 className="text-3xl font-black tracking-tight" style={{ fontFamily: "'Outfit', sans-serif" }}>
-            <span className="gradient-text">AI Assistant</span>
+            <span className="gradient-text">IBM Bob</span>
           </h1>
           <p className="text-muted-foreground text-sm mt-1">
-            Your personal study companion powered by Gemini
+            Your personal study companion powered by IBM
           </p>
         </div>
         {courseContext && (

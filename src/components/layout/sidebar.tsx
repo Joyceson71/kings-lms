@@ -47,7 +47,7 @@ const navSections: NavSection[] = [
       { name: 'Courses',       href: '/dashboard/courses',       icon: BookOpen },
       { name: 'Assignments',   href: '/dashboard/assignments',   icon: ClipboardList },
       { name: 'Resources',     href: '/dashboard/resources',     icon: Library },
-      { name: 'AI Assistant',  href: '/dashboard/assistant',     icon: Sparkles },
+      { name: 'IBM Bob',       href: '/dashboard/assistant',     icon: Sparkles },
       { name: 'Leaderboard',   href: '/dashboard/leaderboard',   icon: Trophy,      roles: ['student'] },
     ],
   },

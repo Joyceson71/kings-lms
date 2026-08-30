@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { message, context } = await request.json();
+    const { message, context, messages } = await request.json();
 
     if (!message?.trim()) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
@@ -37,9 +37,30 @@ You possess deep knowledge across all engineering disciplines. Answer academic q
 If the student asks about their weak subjects or attendance, use the provided context to guide them. Suggest comprehensive study plans based on weak areas. Generate practice questions per syllabus unit if requested. If their attendance is close to the 75% cutoff, gently but firmly remind them to attend classes to avoid penalties.
 Keep responses beautifully formatted using Markdown, with clear headings, bullet points, and code blocks when needed. If asked about topics outside academics, politely redirect to academic help.`;
 
+    let historyMessages = messages || [];
+    // Remove the welcome message to ensure history starts with user if needed
+    if (historyMessages.length > 0 && historyMessages[0].id === 'welcome') {
+      historyMessages = historyMessages.slice(1);
+    }
+
+    const userMessageContent = historyMessages.length > 0 
+      ? historyMessages[historyMessages.length - 1].content 
+      : message;
+      
+    const history = historyMessages.slice(0, -1).map((msg: any) => ({
+      role: msg.role === 'user' ? 'user' : 'model',
+      parts: [{ text: msg.content }],
+    }));
+
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-pro',
-      contents: `${systemPrompt}\n\nStudent: ${message}`,
+      contents: [
+        ...history,
+        { role: 'user', parts: [{ text: userMessageContent }] }
+      ],
+      config: {
+        systemInstruction: systemPrompt,
+      }
     });
 
     const reply = response.text;

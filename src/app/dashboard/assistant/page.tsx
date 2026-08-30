@@ -95,7 +95,11 @@ export default function AssistantPage() {
       const res = await fetch('/api/assistant', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: text, context: aiContext }),
+        body: JSON.stringify({ 
+          message: text, 
+          context: aiContext,
+          messages: [...messages, userMessage] 
+        }),
       });
 
       const data = await res.json();

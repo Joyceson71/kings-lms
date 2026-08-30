@@ -100,7 +100,7 @@ export const AIAssistant = memo(function AIAssistant() {
     }
   }, [input, messages, profile]);
 
-  if (!profile) return null;
+
 
   return (
     <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-[60] flex flex-col items-end">

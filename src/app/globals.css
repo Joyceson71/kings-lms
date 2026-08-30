@@ -466,21 +466,53 @@
     background-size: 20px 20px;
   }
 
-  /* ── Cosmic card (bento style) ── */
-  .bento-card {
-    background: var(--glass-bg);
+  /* ── Maximal Claymorphism Card ── */
+  .clay-card {
+    background: var(--card);
+    position: relative;
+    overflow: hidden;
+    border-radius: 32px;
+    box-shadow: 
+      inset 2px 2px 8px rgba(255, 255, 255, 0.08),
+      inset -6px -6px 16px rgba(0, 0, 0, 0.7),
+      8px 16px 32px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     backdrop-filter: blur(24px) saturate(1.8);
-    border: 1px solid var(--glass-border);
-    box-shadow: var(--glass-shadow);
-    border-radius: 20px;
-    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .clay-card:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: 
+      inset 3px 3px 12px rgba(255, 255, 255, 0.12),
+      inset -6px -6px 16px rgba(0, 0, 0, 0.8),
+      12px 24px 48px rgba(0, 0, 0, 0.7),
+      0 0 0 1px var(--primary-glow);
   }
 
-  .bento-card:hover {
-    border-color: rgb(255 255 255 / 0.15);
-    box-shadow: 0 15px 45px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.12);
-    transform: translateY(-4px) scale(1.01);
-    background: var(--glass-bg);
+  /* ── Ultramorphism Glow ── */
+  .ultra-glow {
+    position: relative;
+  }
+  .ultra-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: linear-gradient(135deg, var(--primary), var(--accent), var(--violet));
+    background-size: 200% 200%;
+    filter: blur(16px);
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    animation: gradient-x 4s linear infinite;
+  }
+  .ultra-glow:hover::before {
+    opacity: 0.5;
+  }
+
+  /* ── Legacy Bento map to Clay ── */
+  .bento-card {
+    @apply clay-card;
   }
 
   /* ── Animations ── */

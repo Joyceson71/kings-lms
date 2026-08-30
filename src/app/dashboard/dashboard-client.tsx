@@ -188,14 +188,14 @@ export default function DashboardClient({
             ))}
       </div>
 
-      {/* ── Student-specific: Attendance + Deadlines Row ── */}
+      {/* ── Student Bento Grid ── */}
       {isStudent && (
         <div
-          className="grid grid-cols-1 gap-4 lg:grid-cols-3 mb-4 animate-slide-in-up opacity-0"
+          className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 auto-rows-[minmax(180px,auto)] gap-5 animate-slide-in-up opacity-0"
           style={{ animationDelay: '280ms', animationFillMode: 'forwards' }}
         >
-          {/* My Course Attendance — 2/3 width */}
-          <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
+          {/* 1. Hero Widget: My Course Attendance — Spans 2x2 */}
+          <div className="clay-card ultra-glow xl:col-span-2 md:col-span-2 row-span-2 p-6 flex flex-col group min-w-0">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -239,11 +239,14 @@ export default function DashboardClient({
             )}
           </div>
 
-          {/* Upcoming deadlines / Notifications — 1/3 width */}
-          <div className="space-y-3">
-            {/* Pending Assignments */}
-            <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
-              <div className="flex items-center justify-between mb-4">
+          {/* 2. Streak Widget — Spans 1x1 */}
+          <div className="clay-card col-span-1 row-span-1 group min-w-0">
+            <StreakWidget streak={streak} studyScore={studyScore} />
+          </div>
+
+          {/* 3. Deadlines — Spans 1x2 */}
+          <div className="clay-card col-span-1 row-span-2 p-6 flex flex-col group min-w-0">
+            <div className="flex items-center justify-between mb-4">
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Deadlines
                 </h2>
@@ -278,8 +281,8 @@ export default function DashboardClient({
               </div>
             </div>
 
-            {/* Notifications */}
-            <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
+          {/* 4. Updates / Notifications — Spans 1x2 */}
+          <div className="clay-card col-span-1 row-span-2 p-6 flex flex-col group min-w-0">
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Updates
@@ -309,17 +312,8 @@ export default function DashboardClient({
                 View all announcements <ChevronRight className="h-3 w-3" />
               </Link>
             </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Charts Row ── */}
-      <div
-        className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
-        style={{ animationDelay: '360ms', animationFillMode: 'forwards' }}
-      >
-        {/* Attendance trend chart — 2/3 width */}
-        <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
+          {/* 5. Attendance Trend Chart — Spans 2x1 */}
+        <div className="clay-card xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
@@ -330,11 +324,10 @@ export default function DashboardClient({
             <Badge variant="secondary">7 days</Badge>
           </div>
           <AttendanceTrendChart data={attendanceTrend} />
-
         </div>
 
-        {/* Tasks donut — 1/3 width */}
-        <div className="bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 flex flex-col min-w-0">
+        {/* 6. Tasks Donut — Spans 1x1 */}
+        <div className="clay-card col-span-1 row-span-1 p-6 flex flex-col group min-w-0">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {isStudent ? 'Tasks' : 'Grading'}
@@ -345,19 +338,9 @@ export default function DashboardClient({
           </div>
           <TasksDonut breakdown={assignmentBreakdown} isStudent={isStudent} />
         </div>
-      </div>
 
-      {/* ── Student: Streak Widget + Quick Actions row ── */}
-      {isStudent && (
-        <div
-          className="grid grid-cols-1 gap-4 lg:grid-cols-3 animate-slide-in-up opacity-0"
-          style={{ animationDelay: '440ms', animationFillMode: 'forwards' }}
-        >
-          {/* Streak + Study Score */}
-          <StreakWidget streak={streak} studyScore={studyScore} />
-
-          {/* Quick Actions — 2/3 width */}
-          <div className="lg:col-span-2 bento-card p-5 relative overflow-hidden group hover:border-white/20 transition-all duration-500 backdrop-blur-xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-lg hover:shadow-indigo-500/10 hover:-translate-y-1 min-w-0">
+        {/* 7. Quick Actions — Spans 2x1 */}
+        <div className="clay-card xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0">
             <h2 className="text-[15px] font-bold text-foreground mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Quick Actions
             </h2>

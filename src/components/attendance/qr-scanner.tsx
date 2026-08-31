@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
-import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw } from 'lucide-react';
+import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 
@@ -13,9 +13,10 @@ interface QRScannerModalProps {
   isProcessing: boolean;
   scanError: string | null;
   scanSuccess: string | null;
+  currentDistance?: number | null;
 }
 
-export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, scanError, scanSuccess }: QRScannerModalProps) {
+export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, scanError, scanSuccess, currentDistance }: QRScannerModalProps) {
   const [cameras, setCameras] = useState<{ id: string; label: string }[]>([]);
   const [activeCameraId, setActiveCameraId] = useState<string>('');
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
@@ -151,9 +152,35 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
                 </Button>
               </div>
             ) : isProcessing ? (
-              <div className="flex flex-col items-center z-10 absolute inset-0 bg-background/80 backdrop-blur-sm justify-center">
-                <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
-                <p className="text-sm font-medium text-foreground">Processing attendance...</p>
+              <div className="flex flex-col items-center z-10 absolute inset-0 bg-background/95 backdrop-blur-md justify-center w-full h-full animate-in zoom-in duration-300">
+                {/* Radar Map Animation (IRCTC Style) */}
+                <div className="relative h-32 w-32 flex items-center justify-center mb-6">
+                  {/* Concentric radar circles */}
+                  <div className="absolute h-full w-full rounded-full border border-emerald-500/20" />
+                  <div className="absolute h-3/4 w-3/4 rounded-full border border-emerald-500/30" />
+                  <div className="absolute h-1/2 w-1/2 rounded-full border border-emerald-500/40 bg-emerald-500/5" />
+                  
+                  {/* Campus pin in center */}
+                  <div className="absolute h-4 w-4 bg-emerald-500 rounded-full z-10 shadow-[0_0_15px_rgba(16,185,129,0.8)]" />
+                  
+                  {/* Sweeping radar arm */}
+                  <div className="absolute inset-0 rounded-full bg-[conic-gradient(from_0deg,transparent_0deg,transparent_270deg,rgba(16,185,129,0.4)_360deg)] animate-[spin_2s_linear_infinite]" />
+                  
+                  {/* User location blip (pulsing) */}
+                  <div className="absolute bottom-4 right-4 h-3 w-3 bg-cyan-400 rounded-full shadow-[0_0_10px_rgba(34,211,238,0.8)] animate-pulse" />
+                </div>
+                
+                <h3 className="text-xl font-bold font-outfit text-foreground mb-1 tracking-tight">Verifying Location</h3>
+                <p className="text-sm font-medium text-emerald-400/80 mb-4 animate-pulse">Checking Geofence Status...</p>
+                
+                {currentDistance !== undefined && currentDistance !== null && (
+                  <div className="bg-secondary/40 border border-border/50 rounded-xl px-4 py-2 flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-emerald-400" />
+                    <span className="text-sm font-semibold text-foreground">
+                      {Math.round(currentDistance)}m from Campus
+                    </span>
+                  </div>
+                )}
               </div>
             ) : hasPermission === false ? (
               <div className="flex flex-col items-center p-6 text-center">

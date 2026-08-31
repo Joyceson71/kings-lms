@@ -16,6 +16,12 @@ const getConfetti = () => import('canvas-confetti').then(mod => mod.default);
 import { toast } from 'sonner';
 import { getDistanceInMeters } from '@/lib/utils/geo';
 
+// Kings Engineering College Campus Coordinates
+const CAMPUS_LAT = 13.0116;
+const CAMPUS_LNG = 79.9868;
+const MAX_CAMPUS_RADIUS_METERS = 2000; // 2km IRCTC-style radius
+const MIN_ACCURACY_METERS = 100; // Require accurate GPS
+
 function AttendanceContent() {
   const { isFaculty, isStudent, profile, loading: userLoading } = useUser();
   const supabase = createClient();
@@ -29,13 +35,16 @@ function AttendanceContent() {
   const [stats, setStats] = useState({ attended: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
 
+  // Geofencing UI State
+  const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
+  const [currentDistance, setCurrentDistance] = useState<number | null>(null);
+
   // Modal State
   const [isQRDisplayOpen, setIsQRDisplayOpen] = useState(false);
   const [selectedQRToken, setSelectedQRToken] = useState('');
   const [selectedCourseName, setSelectedCourseName] = useState('');
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [isProcessingScan, setIsProcessingScan] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
   const [scanSuccess, setScanSuccess] = useState<string | null>(null);
 
@@ -190,7 +199,7 @@ function AttendanceContent() {
   };
 
   async function handleScanSuccess(decodedText: string) {
-    setIsProcessingScan(true);
+    setVerificationStatus('verifying');
     setScanError(null);
     setScanSuccess(null);
 
@@ -238,38 +247,66 @@ function AttendanceContent() {
         throw new Error('Session has expired. Please ask your faculty to start a new session.');
       }
 
-      // Geofencing Check
-      if (sessionData.latitude && sessionData.longitude && sessionData.radius_meters) {
-        await new Promise<void>((resolve, reject) => {
-          if (!navigator.geolocation) {
-            reject(new Error('Geolocation is not supported by your browser. Cannot mark attendance for this session.'));
-            return;
-          }
+      // Geofencing Check (IRCTC Style)
+      setVerificationStatus('verifying');
+      await new Promise<void>((resolve, reject) => {
+        if (!navigator.geolocation) {
+          reject(new Error('Geolocation is not supported by your browser. Cannot mark attendance.'));
+          return;
+        }
 
-          toast.info('Verifying your location...');
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              const dist = getDistanceInMeters(
+        toast.info('Acquiring high-accuracy GPS signal...');
+        
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const accuracy = position.coords.accuracy;
+            if (accuracy > MIN_ACCURACY_METERS) {
+              reject(new Error(`GPS signal too weak (Accuracy: ${Math.round(accuracy)}m). Please move to an open area.`));
+              return;
+            }
+
+            // 1. Check against Global Campus Perimeter (IRCTC Station Logic)
+            const distToCampus = getDistanceInMeters(
+              position.coords.latitude,
+              position.coords.longitude,
+              CAMPUS_LAT,
+              CAMPUS_LNG
+            );
+            
+            setCurrentDistance(distToCampus);
+
+            const isWithinCampus = distToCampus <= MAX_CAMPUS_RADIUS_METERS;
+            
+            // 2. Hackathon Pitch Fallback (Dynamic Classroom Geofence)
+            // If they are outside the campus (e.g. pitching in a different city), we fallback to checking if they are within 100m of the faculty who created the session.
+            let isWithinClassroom = false;
+            let distToClassroom = 0;
+            if (sessionData.latitude && sessionData.longitude) {
+              distToClassroom = getDistanceInMeters(
                 position.coords.latitude,
                 position.coords.longitude,
                 sessionData.latitude,
                 sessionData.longitude
               );
+              isWithinClassroom = distToClassroom <= (sessionData.radius_meters || 100);
+            }
 
-              if (dist > sessionData.radius_meters) {
-                reject(new Error(`You are too far from the classroom (${Math.round(dist)}m away). You must be within ${sessionData.radius_meters}m.`));
-              } else {
-                resolve();
-              }
-            },
-            (error) => {
-              console.warn('Geolocation error:', error);
-              reject(new Error('Could not get your location. Please ensure location services are enabled and try again.'));
-            },
-            { timeout: 10000, enableHighAccuracy: true }
-          );
-        });
-      }
+            if (!isWithinCampus && !isWithinClassroom) {
+              const displayDist = sessionData.latitude ? distToClassroom : distToCampus;
+              const maxDist = sessionData.latitude ? (sessionData.radius_meters || 100) : MAX_CAMPUS_RADIUS_METERS;
+              reject(new Error(`Geofence violation: You are ${Math.round(displayDist)}m away. You must be within ${maxDist}m of the premises.`));
+            } else {
+              setVerificationStatus('success');
+              resolve();
+            }
+          },
+          (error) => {
+            console.warn('Geolocation error:', error);
+            reject(new Error('Could not get your location. Please ensure location services are enabled.'));
+          },
+          { timeout: 15000, enableHighAccuracy: true, maximumAge: 0 }
+        );
+      });
 
       // Check if already enrolled in this course
       const { data: enrollmentData } = await supabase
@@ -321,15 +358,16 @@ function AttendanceContent() {
     } catch (error) {
       const msg = error instanceof Error ? error.message : 'Failed to mark attendance.';
       setScanError(msg);
+      setVerificationStatus('error');
       toast.error(msg);
-    } finally {
-      setIsProcessingScan(false);
     }
   };
 
   function openQRScanner() {
     setScanError(null);
     setScanSuccess(null);
+    setVerificationStatus('idle');
+    setCurrentDistance(null);
     setIsScannerOpen(true);
   };
 
@@ -665,9 +703,10 @@ function AttendanceContent() {
         isOpen={isScannerOpen}
         onClose={() => setIsScannerOpen(false)}
         onScanSuccess={handleScanSuccess}
-        isProcessing={isProcessingScan}
+        isProcessing={verificationStatus === 'verifying'}
         scanError={scanError}
         scanSuccess={scanSuccess}
+        currentDistance={currentDistance}
       />
     </div>
   );

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServiceClient } from '@/lib/supabase/server';
+import { createServiceClient, createClient } from '@/lib/supabase/server';
 import webpush from 'web-push';
 
 if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
@@ -12,10 +12,21 @@ if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && pro
 
 export async function POST(request: Request) {
   try {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { iv_trip_id, lat, lng, student_id, sos_id } = await request.json();
     
     if (!iv_trip_id || !lat || !lng || !student_id) {
       return NextResponse.json({ error: 'Missing params' }, { status: 400 });
+    }
+
+    if (user.id !== student_id) {
+      return NextResponse.json({ error: 'Forbidden: Student ID mismatch' }, { status: 403 });
     }
 
     const serviceClient = createServiceClient();

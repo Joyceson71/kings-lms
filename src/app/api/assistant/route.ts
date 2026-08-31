@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,12 +29,6 @@ export async function POST(request: NextRequest) {
       if (context.weakSubjects) contextStr += `- Weak Subjects (below 50% internal marks): ${context.weakSubjects}\n`;
     }
 
-    const systemPrompt = `You are IBM Bob, a highly advanced, expert study assistant for Kings Engineering College students. 
-${contextStr}
-You possess deep knowledge across all engineering disciplines. Answer academic questions in a highly detailed, step-by-step, and concise manner. Focus on helping with coursework, exam preparation, and concept explanations. Provide code examples, formulas, and diagrams where applicable.
-If the student asks about their weak subjects or attendance, use the provided context to guide them. Suggest comprehensive study plans based on weak areas. Generate practice questions per syllabus unit if requested. If their attendance is close to the 75% cutoff, gently but firmly remind them to attend classes to avoid penalties.
-Keep responses beautifully formatted using Markdown, with clear headings, bullet points, and code blocks when needed. If asked about topics outside academics, politely redirect to academic help.`;
-
     let historyMessages = messages || [];
     // Remove the welcome message to ensure history starts with user if needed
     if (historyMessages.length > 0 && historyMessages[0].id === 'welcome') {
@@ -43,6 +38,43 @@ Keep responses beautifully formatted using Markdown, with clear headings, bullet
     const userMessageContent = historyMessages.length > 0 
       ? historyMessages[historyMessages.length - 1].content 
       : message;
+
+    // RAG Pipeline Implementation
+    let ragContextStr = '';
+    try {
+      if (process.env.GEMINI_API_KEY && context?.courseIds?.length > 0) {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const embeddingModel = genAI.getGenerativeModel({ model: 'text-embedding-004' });
+        
+        // Generate embedding for user message
+        const result = await embeddingModel.embedContent(userMessageContent);
+        const embedding = result.embedding.values;
+        
+        // Search Supabase pgvector using our new RPC
+        const { data: chunks, error } = await supabase.rpc('match_course_materials', {
+          query_embedding: embedding,
+          match_threshold: 0.5,
+          match_count: 3,
+          filter_course_ids: context.courseIds
+        });
+        
+        if (!error && chunks && chunks.length > 0) {
+          ragContextStr = '\n\nReference Course Materials:\n';
+          chunks.forEach((chunk: any, i: number) => {
+            ragContextStr += `[Source ${i+1}]: ${chunk.content}\n\n`;
+          });
+        }
+      }
+    } catch (e) {
+      console.error("RAG embedding error:", e);
+      // Fail gracefully so normal chat still works
+    }
+
+    const systemPrompt = `You are IBM Bob, a highly advanced, expert study assistant for Kings Engineering College students. 
+${contextStr}${ragContextStr ? `\nUse the following extracted course material to answer the student's question accurately. If the answer is found in the material, cite it (e.g. "According to your course material..."). If not, answer generally.${ragContextStr}` : ''}
+You possess deep knowledge across all engineering disciplines. Answer academic questions in a highly detailed, step-by-step, and concise manner. Focus on helping with coursework, exam preparation, and concept explanations. Provide code examples, formulas, and diagrams where applicable.
+If the student asks about their weak subjects or attendance, use the provided context to guide them. Suggest comprehensive study plans based on weak areas. Generate practice questions per syllabus unit if requested. If their attendance is close to the 75% cutoff, gently but firmly remind them to attend classes to avoid penalties.
+Keep responses beautifully formatted using Markdown, with clear headings, bullet points, and code blocks when needed. If asked about topics outside academics, politely redirect to academic help.`;
       
     const history = historyMessages.slice(0, -1).map((msg: any) => ({
       role: msg.role === 'user' ? 'user' : 'assistant',

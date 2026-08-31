@@ -63,6 +63,7 @@ export default function AssistantPage() {
 
         setAiContext({
           enrolledCourses: titles,
+          courseIds: courseIds,
           attendancePercentage: attPercentage,
           weakSubjects: weak
         });

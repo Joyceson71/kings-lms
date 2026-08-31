@@ -76,39 +76,40 @@ You possess deep knowledge across all engineering disciplines. Answer academic q
 If the student asks about their weak subjects or attendance, use the provided context to guide them. Suggest comprehensive study plans based on weak areas. Generate practice questions per syllabus unit if requested. If their attendance is close to the 75% cutoff, gently but firmly remind them to attend classes to avoid penalties.
 Keep responses beautifully formatted using Markdown, with clear headings, bullet points, and code blocks when needed. If asked about topics outside academics, politely redirect to academic help.`;
       
-    const history = historyMessages.slice(0, -1).map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content,
-    }));
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
-    const response = await fetch('https://api.us-east.bob.ibm.com/inference/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.BOB_API_KEY}`,
-      },
-      body: JSON.stringify({
-        model: 'ibm/granite-13b-chat-v2', // Or default if they don't specify
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...history,
-          { role: 'user', content: userMessageContent }
-        ],
-        max_tokens: 1000,
-        temperature: 0.7,
-      })
-    });
+        const formattedHistory = historyMessages.slice(0, -1).map((msg: any) => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }],
+        }));
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('IBM Bob API error:', errorText);
-      throw new Error(`IBM Bob API error: ${response.status}`);
+        const chat = model.startChat({
+          history: [
+            { role: 'user', parts: [{ text: systemPrompt }] },
+            { role: 'model', parts: [{ text: 'Understood. I will act as IBM Bob.' }] },
+            ...formattedHistory
+          ]
+        });
+
+        const result = await chat.sendMessage(userMessageContent);
+        const reply = result.response.text();
+
+        return NextResponse.json({ reply });
+      } catch (geminiErr) {
+        console.error('Gemini completion error:', geminiErr);
+        throw new Error('Gemini API error');
+      }
+    } else {
+      // Fallback mock response for Hackathon pitch if no API key is provided
+      const mockReply = `**(Mock Response)** Hello! I am IBM Bob. It looks like you haven't configured a \`GEMINI_API_KEY\` in your \`.env.local\` file yet.\n\nTo make this AI Learning Assistant fully functional, please add a Gemini API key. In the meantime, I can confirm that your context includes:\n\n${contextStr}\n${ragContextStr}`;
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      return NextResponse.json({ reply: mockReply });
     }
-
-    const data = await response.json();
-    const reply = data.choices[0].message.content;
-
-    return NextResponse.json({ reply });
   } catch (err) {
     console.error('AI assistant error:', err);
     return NextResponse.json(

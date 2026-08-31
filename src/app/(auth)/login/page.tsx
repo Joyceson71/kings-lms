@@ -9,8 +9,8 @@ import { toast } from 'sonner';
 
 /* ── Reusable focused-input style helper ── */
 const inputBase =
-  'w-full h-10 px-3 rounded-lg text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200 disabled:opacity-50 ' +
-  'bg-card border border-border focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20';
+  'w-full h-10 px-3 rounded-md text-[13px] text-foreground placeholder:text-muted-foreground transition-all duration-200 disabled:opacity-50 neo-input ' +
+  'focus:border-primary';
 
 /**
  * Detect whether we are running inside a Capacitor WebView.
@@ -155,22 +155,23 @@ export default function LoginPage() {
   return (
     <div>
       {/* Heading */}
-      <div className="mb-6 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
-        <h1 className="text-[24px] font-bold tracking-tight text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
-          Welcome back
+      <div className="mb-8 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
+        <h1 className="text-[32px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.02em' }}>
+          Welcome Back
         </h1>
-        <p className="text-[13px] text-muted-foreground mt-1">
-          Sign in to continue to Kings EC Platform
+        <div className="energy-bar-thin mt-1" style={{ width: '80px' }} />
+        <p className="text-[13px] text-muted-foreground mt-3 font-semibold uppercase tracking-wider">
+          Sign in to Kings EC Platform
         </p>
       </div>
 
       {/* Role Switcher Tabs */}
-      <div className="flex bg-card p-1 rounded-lg border border-border mb-6 animate-slide-in-up opacity-0" style={{ animationDelay: '30ms', animationFillMode: 'forwards' }}>
+      <div className="flex p-1 rounded-md mb-6 animate-slide-in-up opacity-0 neo-inset" style={{ animationDelay: '30ms', animationFillMode: 'forwards' }}>
         <button
           type="button"
           onClick={() => { setLoginType('student'); setError(null); }}
-          className={`flex-1 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
-            loginType === 'student' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground'
+          className={`flex-1 py-1.5 text-[12px] font-black uppercase tracking-wider rounded-sm transition-all duration-200 ${
+            loginType === 'student' ? 'bg-[#FF006E] text-white shadow-[0_0_12px_rgba(255,0,110,0.5)]' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Student
@@ -178,8 +179,8 @@ export default function LoginPage() {
         <button
           type="button"
           onClick={() => { setLoginType('faculty'); setError(null); }}
-          className={`flex-1 py-1.5 text-[13px] font-medium rounded-md transition-all duration-200 ${
-            loginType === 'faculty' ? 'bg-muted text-foreground shadow-sm' : 'text-muted-foreground hover:text-muted-foreground'
+          className={`flex-1 py-1.5 text-[12px] font-black uppercase tracking-wider rounded-sm transition-all duration-200 ${
+            loginType === 'faculty' ? 'bg-[#00F5FF] text-black shadow-[0_0_12px_rgba(0,245,255,0.5)]' : 'text-muted-foreground hover:text-foreground'
           }`}
         >
           Faculty / Admin
@@ -189,8 +190,8 @@ export default function LoginPage() {
       {/* Error display */}
       {error && (
         <div
-          className="flex items-start gap-2.5 px-3 py-2.5 rounded-lg text-[13px] text-red-400 mb-5 animate-bounce-in"
-          style={{ background: 'rgb(239 68 68 / 0.08)', border: '1px solid rgb(239 68 68 / 0.2)' }}
+          className="flex items-start gap-2.5 px-3 py-2.5 rounded-md text-[12px] font-bold text-white mb-5 animate-bounce-in"
+          style={{ background: 'rgb(255 0 110 / 0.2)', border: '1px solid #FF006E', boxShadow: '0 0 12px rgba(255,0,110,0.3)' }}
         >
           <AlertCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
           <span>{error}</span>
@@ -207,7 +208,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleOAuth('google')}
             disabled={isProcessing}
-            className="flex items-center justify-center gap-2 h-10 rounded-lg text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted disabled:opacity-40 bg-card border border-border hover:border-border"
+            className="flex items-center justify-center gap-2 h-10 rounded-md text-[12px] font-bold uppercase tracking-wider text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted disabled:opacity-40 neo-btn"
           >
             {oauthLoading === 'google' ? (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -225,7 +226,7 @@ export default function LoginPage() {
             type="button"
             onClick={() => handleOAuth('github')}
             disabled={isProcessing}
-            className="flex items-center justify-center gap-2 h-10 rounded-lg text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted disabled:opacity-40 bg-card border border-border hover:border-border"
+            className="flex items-center justify-center gap-2 h-10 rounded-md text-[12px] font-bold uppercase tracking-wider text-muted-foreground transition-all duration-200 hover:text-foreground hover:bg-muted disabled:opacity-40 neo-btn"
           >
             {oauthLoading === 'github' ? (
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -245,9 +246,9 @@ export default function LoginPage() {
           className="flex items-center gap-3 mb-5 animate-slide-in-up opacity-0"
           style={{ animationDelay: '120ms', animationFillMode: 'forwards' }}
         >
-          <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
-          <span className="text-[11px] text-muted-foreground font-medium">or continue with email</span>
-          <div className="flex-1 h-px" style={{ background: '#1a1a1d' }} />
+          <div className="flex-1 h-px" style={{ background: '#252545' }} />
+          <span className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest">or continue with email</span>
+          <div className="flex-1 h-px" style={{ background: '#252545' }} />
         </div>
       )}
 
@@ -269,7 +270,7 @@ export default function LoginPage() {
 
         {/* Email Input */}
         <div>
-          <label htmlFor="email" className="block text-[12px] font-medium text-muted-foreground mb-1.5">
+          <label htmlFor="email" className="block text-[10px] font-bold uppercase tracking-wider text-muted-foreground mb-1.5">
             Email address
           </label>
           <input
@@ -287,10 +288,10 @@ export default function LoginPage() {
         {/* Password Input */}
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label htmlFor="password" className="text-[12px] font-medium text-muted-foreground">
+            <label htmlFor="password" className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
               Password
             </label>
-            <Link href="/reset-password" className="text-[12px] text-indigo-400 hover:text-indigo-300 transition-colors">
+            <Link href="/reset-password" className="text-[10px] text-primary hover:text-white font-bold uppercase tracking-wider transition-colors">
               Forgot password?
             </Link>
           </div>
@@ -322,17 +323,30 @@ export default function LoginPage() {
           id="login-submit-btn"
           type="submit"
           disabled={isProcessing}
-          className="w-full h-10 rounded-lg text-[13px] font-semibold text-foreground transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 group mt-1 hover:brightness-110 active:scale-[0.98]"
+          className="w-full h-10 rounded-md text-[13px] font-black uppercase tracking-wider transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 group mt-4 clip-corner-sm"
           style={{
-            background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
-            boxShadow: isPending ? 'none' : '0 0 20px rgb(99 102 241 / 0.25)',
-            border: '1px solid rgb(99 102 241 / 0.5)',
+            background: 'linear-gradient(135deg, #FF006E, #BF00FF)',
+            color: '#ffffff',
+            boxShadow: isPending ? 'none' : '4px 4px 0 rgb(255 0 110 / 0.3)',
+            border: 'none',
+          }}
+          onMouseEnter={e => {
+            if (!isPending) {
+              (e.currentTarget as HTMLElement).style.transform = 'translate(-2px, -2px)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '6px 6px 0 rgb(255 0 110 / 0.4)';
+            }
+          }}
+          onMouseLeave={e => {
+            if (!isPending) {
+              (e.currentTarget as HTMLElement).style.transform = 'translate(0, 0)';
+              (e.currentTarget as HTMLElement).style.boxShadow = '4px 4px 0 rgb(255 0 110 / 0.3)';
+            }
           }}
         >
           {isPending ? (
-            <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Signing in…</>
+            <><Loader2 className="h-4 w-4 animate-spin" /> ENGAGING…</>
           ) : (
-            <>Continue <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" /></>
+            <>LOGIN <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" /></>
           )}
         </button>
 
@@ -344,10 +358,10 @@ export default function LoginPage() {
             const demoEmail = loginType === 'student' ? 'student@demo.com' : 'faculty@demo.com';
             setEmail(demoEmail);
             setPassword('demo123');
-            toast.info(`Filled demo credentials for ${loginType}. Click Continue to login (if accounts exist in DB).`);
+            toast.info(`Filled demo credentials for ${loginType}. Click LOGIN to continue.`);
           }}
           disabled={isProcessing}
-          className="w-full h-10 rounded-lg text-[13px] font-semibold text-foreground transition-all duration-200 hover:bg-secondary border border-border"
+          className="w-full h-10 rounded-md text-[12px] font-bold uppercase tracking-wider text-muted-foreground transition-all duration-200 neo-btn"
         >
           Demo Login (SIH Pitch)
         </button>
@@ -360,7 +374,7 @@ export default function LoginPage() {
           style={{ animationDelay: '240ms', animationFillMode: 'forwards' }}
         >
           Don&apos;t have an account?{' '}
-          <Link href="/signup" className="text-indigo-400 hover:text-indigo-300 transition-colors font-medium">
+          <Link href="/signup" className="text-primary hover:text-white transition-colors font-black uppercase tracking-wider">
             Sign up
           </Link>
         </p>

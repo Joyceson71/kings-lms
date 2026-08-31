@@ -1,25 +1,22 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 
 export async function POST(req: Request) {
   try {
     const { messages, profile } = await req.json();
 
-    if (!process.env.GEMINI_API_KEY) {
+    if (!process.env.BOB_API_KEY) {
       return NextResponse.json(
-        { error: 'Gemini API key is missing. Please add GEMINI_API_KEY to your .env.local file.' },
-        { status: 500 }
+        { error: 'AI service not configured. BOB_API_KEY is missing.' },
+        { status: 503 }
       );
     }
 
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-    // Format history for Gemini
+    // Format history for Bob API
     // We assume the last message is the user prompt
     const userMessage = messages[messages.length - 1].content;
     const history = messages.slice(0, -1).map((msg: any) => ({
-      role: msg.type === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
+      role: msg.type === 'user' ? 'user' : 'assistant',
+      content: msg.content,
     }));
 
     let systemInstruction = "You are IBM Bob, a highly advanced expert engineering course assistant for students at Kings Engineering College. You possess deep knowledge across all engineering disciplines. Provide highly detailed, step-by-step, and technically accurate answers. Always format your responses beautifully using Markdown.";
@@ -29,20 +26,32 @@ export async function POST(req: Request) {
       systemInstruction = `You are IBM Bob, a highly advanced expert engineering course assistant. You are currently helping a ${yearStr}${deptStr}student at Kings Engineering College. Provide highly detailed, step-by-step, and technically accurate answers relevant to their specific department. Always format your responses beautifully using Markdown and use a supportive, encouraging tone.`;
     }
 
-    // Use Gemini 2.5 Flash for fast chat responses
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
-      contents: [
-        ...history,
-        { role: 'user', parts: [{ text: userMessage }] }
-      ],
-      config: {
-        systemInstruction,
+    const response = await fetch('https://api.us-east.bob.ibm.com/inference/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.BOB_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'ibm/granite-13b-chat-v2', // Or default if they don't specify
+        messages: [
+          { role: 'system', content: systemInstruction },
+          ...history,
+          { role: 'user', content: userMessage }
+        ],
+        max_tokens: 1000,
         temperature: 0.7,
-      }
+      })
     });
 
-    const replyText = response.text;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('IBM Bob API error:', errorText);
+      throw new Error(`IBM Bob API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const replyText = data.choices[0].message.content;
 
     return NextResponse.json({ reply: replyText });
 

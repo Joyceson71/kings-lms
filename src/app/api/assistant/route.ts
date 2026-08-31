@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenAI } from '@google/genai';
 import { createClient } from '@/lib/supabase/server';
 
 export async function POST(request: NextRequest) {
@@ -17,11 +16,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: 'AI service not configured' }, { status: 503 });
+    if (!process.env.BOB_API_KEY) {
+      return NextResponse.json({ error: 'AI service not configured. BOB_API_KEY is missing.' }, { status: 503 });
     }
-
-    const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
     let contextStr = '';
     if (context) {
@@ -48,22 +45,36 @@ Keep responses beautifully formatted using Markdown, with clear headings, bullet
       : message;
       
     const history = historyMessages.slice(0, -1).map((msg: any) => ({
-      role: msg.role === 'user' ? 'user' : 'model',
-      parts: [{ text: msg.content }],
+      role: msg.role === 'user' ? 'user' : 'assistant',
+      content: msg.content,
     }));
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-pro',
-      contents: [
-        ...history,
-        { role: 'user', parts: [{ text: userMessageContent }] }
-      ],
-      config: {
-        systemInstruction: systemPrompt,
-      }
+    const response = await fetch('https://api.us-east.bob.ibm.com/inference/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${process.env.BOB_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: 'ibm/granite-13b-chat-v2', // Or default if they don't specify
+        messages: [
+          { role: 'system', content: systemPrompt },
+          ...history,
+          { role: 'user', content: userMessageContent }
+        ],
+        max_tokens: 1000,
+        temperature: 0.7,
+      })
     });
 
-    const reply = response.text;
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('IBM Bob API error:', errorText);
+      throw new Error(`IBM Bob API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const reply = data.choices[0].message.content;
 
     return NextResponse.json({ reply });
   } catch (err) {

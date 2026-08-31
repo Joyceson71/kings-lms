@@ -81,7 +81,7 @@
   --border:             #e4e4e7;
   --input:              #e4e4e7;
   --ring:               #4f46e5;
-  --radius:             0.625rem;
+  --radius:             1.5rem;
 
   --gold:               #d97706;
   --gold-muted:         rgb(217 119 6 / 0.12);
@@ -145,7 +145,7 @@
   --border:   #252545;
   --input:    #16162A;
   --ring:     #FF006E;
-  --radius:   1rem;
+  --radius:   1.5rem;
 
   /* ─ Extended Anime Tokens ─ */
   --gold:        #FFD700;
@@ -863,3 +863,54 @@
     background: linear-gradient(90deg, var(--primary), var(--accent));
   }
 }
+
+/* ── Total Website Claymorphism Overrides ── */
+.bg-card, .bg-popover {
+  border-radius: var(--radius) !important;
+  border: none !important;
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.06),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.8),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .bg-card, .dark .bg-popover {
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.06),
+    inset -4px -4px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bg-primary, .bg-sidebar-primary {
+  border-radius: calc(var(--radius) - 4px) !important;
+  border: none !important;
+  box-shadow: 
+    4px 4px 10px rgba(0, 0, 0, 0.1),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.15) !important;
+}
+
+.dark .bg-primary, .dark .bg-sidebar-primary {
+  box-shadow: 
+    4px 4px 10px rgba(0, 0, 0, 0.4),
+    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
+    inset -3px -3px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+.bg-secondary, .bg-muted, input, textarea, select {
+  border-radius: calc(var(--radius) - 6px) !important;
+  border: none !important;
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.05),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.6) !important;
+}
+
+.dark .bg-secondary, .dark .bg-muted, .dark input, .dark textarea, .dark select {
+  box-shadow: 
+    inset 3px 3px 6px rgba(0, 0, 0, 0.4),
+    inset -3px -3px 6px rgba(255, 255, 255, 0.05) !important;
+}
+
+.border {
+  border-color: transparent !important;
+}

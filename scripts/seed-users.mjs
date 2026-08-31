@@ -33,9 +33,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 
 async function seedUsers() {
   const users = [
-    { email: 'student@kingsecc.in', password: 'student123', name: 'Arun K.', role: 'student' },
-    { email: 'faculty@kingsecc.in', password: 'faculty123', name: 'Joyceson D.', role: 'faculty' },
-    { email: 'admin@kingsecc.in', password: 'admin123', name: 'System Admin', role: 'admin' },
+    { email: 'student@kingsece.in', password: 'student123', name: 'Arun K.', role: 'student' },
+    { email: 'faculty@kingsece.in', password: 'faculty123', name: 'Joyceson', role: 'faculty' },
+    { email: '210824106036@kingsedu.ac.in', password: 'admin123', name: 'System Admin', role: 'admin' },
   ];
 
   for (const u of users) {

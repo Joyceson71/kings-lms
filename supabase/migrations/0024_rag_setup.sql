@@ -29,7 +29,7 @@ CREATE POLICY "Students can view chunks for enrolled courses." ON public.course_
 -- Faculty can manage chunks for their courses
 DROP POLICY IF EXISTS "Faculty can manage chunks for their courses." ON public.course_material_chunks;
 CREATE POLICY "Faculty can manage chunks for their courses." ON public.course_material_chunks FOR ALL USING (
-    EXISTS (SELECT 1 FROM public.courses WHERE id = public.course_material_chunks.course_id AND faculty_id = auth.uid())
+    EXISTS (SELECT 1 FROM public.courses WHERE id = public.course_material_chunks.course_id AND created_by = auth.uid())
 );
 
 -- 5. Create the search function (RPC)

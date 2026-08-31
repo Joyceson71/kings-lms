@@ -7,9 +7,9 @@ import { SWRegistrar } from "@/components/layout/sw-registrar";
 import { CapacitorInit } from "@/components/layout/capacitor-init";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap" });
-const ibmPlexMono = IBM_Plex_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-ibm-plex-mono", display: "swap" });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap", preload: false });
+const ibmPlexMono = IBM_Plex_Mono({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-ibm-plex-mono", display: "swap", preload: false });
 
 export const viewport: Viewport = {
   themeColor: "#0a0a0b",

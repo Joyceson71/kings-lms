@@ -85,46 +85,20 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       href={item.href}
       title={!expanded ? item.name : undefined}
       className={cn(
-        'group relative flex items-center rounded-lg text-[13px] font-semibold transition-all duration-300 ease-out',
-        expanded ? 'gap-3 px-3 h-10' : 'justify-center h-10 w-10 mx-auto',
+        'group relative flex items-center rounded-xl text-[13px] font-bold transition-all duration-300 ease-out',
+        expanded ? 'gap-3 px-3 h-10 mx-2' : 'justify-center h-10 w-10 mx-auto',
         active
-          ? 'text-foreground'
-          : 'text-muted-foreground hover:text-foreground',
+          ? 'bg-primary text-primary-foreground shadow-sm'
+          : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
       )}
-      style={active ? {
-        background: isAdmin
-          ? 'rgb(255 215 0 / 0.08)'
-          : 'rgb(255 0 110 / 0.1)',
-        boxShadow: isAdmin
-          ? '4px 4px 0 rgb(255 215 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)'
-          : '4px 4px 0 rgb(255 0 110 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)',
-        borderLeft: isAdmin ? '2px solid #FFD700' : '2px solid #FF006E',
-      } : {
-        transition: 'all 0.2s ease',
-      }}
     >
-      {/* Active left-stripe indicator — brutalist */}
-      {active && !expanded && (
-        <span
-          className="absolute inset-0 rounded-lg"
-          style={{
-            background: isAdmin
-              ? 'rgb(255 215 0 / 0.1)'
-              : 'rgb(255 0 110 / 0.1)',
-            boxShadow: isAdmin
-              ? '0 0 12px rgb(255 215 0 / 0.3)'
-              : '0 0 12px rgb(255 0 110 / 0.3)',
-          }}
-        />
-      )}
-
       <item.icon
         // @ts-expect-error dynamic component type mismatch
         className={cn(
           'flex-shrink-0 transition-all duration-300 ease-out',
-          expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]',
+          expanded ? 'h-[18px] w-[18px]' : 'h-[18px] w-[18px]',
           active
-            ? isAdmin ? 'text-yellow-300 drop-shadow-[0_0_8px_#FFD700]' : 'text-pink-400 drop-shadow-[0_0_8px_#FF006E]'
+            ? 'text-primary-foreground drop-shadow-md'
             : 'text-muted-foreground group-hover:text-foreground',
         )}
       />
@@ -134,7 +108,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       )}
 
       {expanded && isAdmin && (
-        <span className="anime-badge anime-badge-gold text-[8px] px-1.5 py-0.5 animate-fade-in">
+        <span className="anime-badge anime-badge-gold text-[9px] px-2 py-0.5 animate-fade-in rounded-full">
           ADMIN
         </span>
       )}
@@ -142,12 +116,7 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       {/* Tooltip for icon-only state */}
       {!expanded && (
         <span
-          className="pointer-events-none absolute left-[calc(100%+10px)] rounded-md px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200] animate-slide-in-right"
-          style={{
-            background: '#0D0D1E',
-            border: '1px solid #252545',
-            boxShadow: '4px 4px 0 rgb(255 0 110 / 0.2)',
-          }}
+          className="pointer-events-none absolute left-[calc(100%+14px)] rounded-xl px-3 py-2 text-xs font-bold text-popover-foreground opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[200] bg-popover shadow-sm border"
         >
           {item.name}
         </span>
@@ -199,49 +168,36 @@ export function Sidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'flex flex-col flex-shrink-0 relative overflow-visible z-[1000]',
+          'flex flex-col flex-shrink-0 relative overflow-visible z-[1000] bg-card',
           'transition-all duration-300 ease-out',
           // Mobile specific classes
-          'fixed inset-y-0 left-0 h-full w-64 md:static md:my-3 md:ml-3 md:h-[calc(100vh-1.5rem)] md:rounded-2xl',
+          'fixed inset-y-0 left-0 h-full w-64 md:static md:my-4 md:ml-4 md:h-[calc(100vh-2rem)] md:rounded-[1.75rem]',
           // Visibility based on state
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
-          expanded ? 'md:w-64' : 'md:w-20',
+          expanded ? 'md:w-[260px]' : 'md:w-20',
         )}
-        style={{
-          background: '#0D0D1E',
-          border: '1px solid #252545',
-          boxShadow:
-            '8px 8px 20px #06060F, -4px -4px 12px #1E1E38, inset 0 1px 0 rgba(255,255,255,0.04)',
-        }}
         onMouseEnter={() => setExpanded(true)}
         onMouseLeave={() => setExpanded(false)}
       >
-        {/* Anime energy bar at top of sidebar */}
-        <div className="energy-bar-thin" />
         {/* Brand */}
         <div
           className={cn(
-            'flex h-14 flex-shrink-0 items-center justify-between px-4',
+            'flex h-16 flex-shrink-0 items-center justify-between px-4 border-b border-white/5',
             (expanded || isOpen) ? 'md:gap-3 md:justify-start' : 'md:justify-center md:px-0',
           )}
-          style={{ borderBottom: '1px solid #252545' }}
         >
           <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={() => setIsOpen(false)}>
             <div
-              className="h-8 w-8 flex-shrink-0 rounded-lg flex items-center justify-center glitch-text"
-              style={{
-                background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 100%)',
-                boxShadow: '0 0 16px rgb(255 0 110 / 0.5), 4px 4px 0 rgb(255 0 110 / 0.2)',
-              }}
+              className="h-9 w-9 flex-shrink-0 rounded-xl flex items-center justify-center bg-primary shadow-sm"
             >
-              <GraduationCap className="h-4 w-4 text-white" />
+              <GraduationCap className="h-5 w-5 text-primary-foreground drop-shadow-md" />
             </div>
             <span
               className={cn(
-                "text-[14px] font-black tracking-tighter text-foreground truncate animate-fade-in brutalist-heading",
+                "text-[15px] font-black tracking-tighter text-foreground truncate animate-fade-in brutalist-heading",
                 !expanded && !isOpen ? "md:hidden" : ""
               )}
-              style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px' }}
+              style={{ fontFamily: "'Outfit', sans-serif" }}
             >
               KINGS EC
             </span>
@@ -260,17 +216,16 @@ export function Sidebar() {
       {/* Expand indicator */}
       <div
         className={cn(
-          'absolute -right-3 top-[52px] z-20 h-5 w-5 rounded-full items-center justify-center',
-          'border text-muted-foreground transition-all duration-300 ease-out',
+          'absolute -right-3 top-[60px] z-20 h-6 w-6 rounded-full items-center justify-center bg-card shadow-sm border border-white/10',
+          'text-muted-foreground transition-all duration-300 ease-out hover:text-foreground cursor-pointer',
           expanded ? 'flex opacity-100' : 'hidden opacity-0',
         )}
-        style={{ background: '#0c0c20', borderColor: '#1a1a3a' }}
       >
-        <ChevronRight className="h-2.5 w-2.5" />
+        <ChevronRight className="h-3 w-3" />
       </div>
 
         {/* Nav */}
-        <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-3 gap-px [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1.5')}>
+        <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-4 gap-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1')}>
           {navSections.map((section) => {
             const visible = section.items.filter(i => !i.roles || i.roles.includes(role));
             if (visible.length === 0) return null;
@@ -278,12 +233,11 @@ export function Sidebar() {
             return (
               <div key={section.label} className="mb-4">
                 {expanded ? (
-                  <p className="px-3 mb-1.5 text-[9px] font-black tracking-[0.2em] uppercase animate-brutalist-slide brutalist-stripe"
-                    style={{ color: '#FF006E', paddingLeft: '12px' }}>
+                  <p className="px-4 mb-2 text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70">
                     {section.label}
                   </p>
                 ) : (
-                  <div className="my-1.5 mx-1.5 divider-pink" />
+                  <div className="my-3 mx-auto h-[3px] w-6 rounded-full bg-secondary" />
                 )}
 
                 <div className="flex flex-col gap-0.5">
@@ -313,10 +267,7 @@ export function Sidebar() {
         <div className="flex-1" />
 
         {/* Bottom nav items */}
-        <div
-          className="my-1.5 mx-1.5 h-px"
-          style={{ background: 'linear-gradient(90deg, transparent, #1a1a3a, transparent)' }}
-        />
+        <div className="my-2 mx-4 h-[2px] rounded-full bg-secondary" />
 
         {bottomNavigation
           .filter(i => !i.roles || i.roles.includes(role))
@@ -328,23 +279,18 @@ export function Sidebar() {
                 href={item.href}
                 title={!expanded ? item.name : undefined}
                 className={cn(
-                  'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out',
-                  expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
+                  'group relative flex items-center rounded-xl text-[13px] font-bold transition-all duration-300 ease-out mb-1',
+                  expanded ? 'gap-3 px-3 h-10 mx-2' : 'justify-center h-10 w-10 mx-auto',
                   active
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-muted-foreground',
+                    ? 'bg-secondary text-foreground'
+                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground',
                 )}
-                style={active ? {
-                  background: 'rgb(129 140 248 / 0.1)',
-                  boxShadow: '0 0 0 1px rgb(129 140 248 / 0.2)',
-                } : {}}
               >
                 {/* @ts-expect-error dynamic component type mismatch */}
-        <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-indigo-300' : 'text-muted-foreground group-hover:text-muted-foreground')} />
+                <item.icon className={cn('flex-shrink-0 transition-all duration-300 ease-out', expanded ? 'h-[18px] w-[18px]' : 'h-[18px] w-[18px]', active ? 'text-foreground' : 'text-muted-foreground group-hover:text-foreground')} />
                 {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>}
                 {!expanded && (
-                  <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
-                    style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
+                  <span className="pointer-events-none absolute left-[calc(100%+14px)] rounded-xl px-3 py-2 text-xs font-bold text-popover-foreground opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[200] bg-popover shadow-sm border">
                     {item.name}
                   </span>
                 )}
@@ -358,16 +304,15 @@ export function Sidebar() {
           id="sidebar-logout-btn"
           title={!expanded ? 'Logout' : undefined}
           className={cn(
-            'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out w-full',
-            'text-muted-foreground hover:text-red-300 hover:bg-red-500/5',
-            expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
+            'group relative flex items-center rounded-xl text-[13px] font-bold transition-all duration-300 ease-out w-full',
+            'text-muted-foreground hover:text-destructive hover:bg-destructive/10',
+            expanded ? 'gap-3 px-3 h-10 mx-2 mb-2' : 'justify-center h-10 w-10 mx-auto mb-2',
           )}
         >
-          <LogOut className={cn('flex-shrink-0 text-muted-foreground group-hover:text-red-400 transition-all duration-300 ease-out', expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]')} />
+          <LogOut className={cn('flex-shrink-0 text-muted-foreground group-hover:text-destructive transition-all duration-300 ease-out', expanded ? 'h-[18px] w-[18px]' : 'h-[18px] w-[18px]')} />
           {expanded && <span className="animate-fade-in" style={{ animationDuration: '400ms' }}>Logout</span>}
           {!expanded && (
-            <span className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
-              style={{ background: '#0c0c20', border: '1px solid #1a1a3a', boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)' }}>
+            <span className="pointer-events-none absolute left-[calc(100%+14px)] rounded-xl px-3 py-2 text-xs font-bold text-popover-foreground opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap z-[200] bg-popover shadow-sm border">
               Logout
             </span>
           )}
@@ -376,31 +321,28 @@ export function Sidebar() {
 
         {/* User footer */}
         <div
-          className="flex-shrink-0 py-3"
-          style={{
-            borderTop: '1px solid #252545',
-            padding: (expanded || isOpen) ? '12px 16px' : '12px 0',
-            display: 'flex',
-            justifyContent: (expanded || isOpen) ? 'flex-start' : 'center',
-          }}
+          className={cn(
+            'flex-shrink-0 py-4 border-t border-white/5 transition-all duration-300',
+            (expanded || isOpen) ? 'px-4' : 'px-0 flex justify-center'
+          )}
         >
           {loading ? (
-            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
-              <div className="h-8 w-8 rounded-full skeleton flex-shrink-0" />
+            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-3' : 'justify-center')}>
+              <div className="h-9 w-9 rounded-full bg-secondary flex-shrink-0" />
               {(expanded || isOpen) && (
-                <div className="flex-1 space-y-1.5 animate-fade-in" style={{ animationDuration: '400ms' }}>
-                  <div className="h-2 w-20 rounded skeleton" />
-                  <div className="h-2 w-12 rounded skeleton" />
+                <div className="flex-1 space-y-2 animate-fade-in" style={{ animationDuration: '400ms' }}>
+                  <div className="h-2.5 w-20 rounded bg-secondary" />
+                  <div className="h-2 w-12 rounded bg-secondary" />
                 </div>
               )}
             </div>
           ) : (
-            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
+            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-3' : 'justify-center')}>
               <Avatar name={displayName} size="sm" ring="none" />
               {(expanded || isOpen) && (
                 <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
-                  <p className="text-[12px] font-bold text-foreground/90 truncate">{displayName}</p>
-                  <span className={cn('anime-badge mt-0.5 inline-block capitalize', roleStyle.badgeClass)}>
+                  <p className="text-[13px] font-bold text-foreground truncate">{displayName}</p>
+                  <span className={cn('anime-badge mt-1 inline-block capitalize', roleStyle.badgeClass)}>
                     {role}
                   </span>
                 </div>

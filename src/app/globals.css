@@ -864,53 +864,136 @@
   }
 }
 
-/* ── Total Website Claymorphism Overrides ── */
+/* ── Total Website Claymorphism Overrides (Enhanced) ── */
+
+/* 1. Surfaces (Cards, Popovers, Dialogs) */
 .bg-card, .bg-popover {
   border-radius: var(--radius) !important;
-  border: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
   box-shadow: 
-    8px 8px 16px rgba(0, 0, 0, 0.06),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.8),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.04) !important;
+    16px 16px 32px rgba(0, 0, 0, 0.05),
+    -8px -8px 24px rgba(255, 255, 255, 0.6),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.9),
+    inset -4px -4px 12px rgba(0, 0, 0, 0.03) !important;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.bg-card:hover, .bg-popover:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    20px 20px 40px rgba(0, 0, 0, 0.06),
+    -10px -10px 30px rgba(255, 255, 255, 0.7),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.9),
+    inset -4px -4px 12px rgba(0, 0, 0, 0.03) !important;
 }
 
 .dark .bg-card, .dark .bg-popover {
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
   box-shadow: 
-    8px 8px 16px rgba(0, 0, 0, 0.4),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.06),
-    inset -4px -4px 8px rgba(0, 0, 0, 0.3) !important;
+    16px 16px 32px rgba(0, 0, 0, 0.4),
+    -8px -8px 24px rgba(255, 255, 255, 0.02),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.08),
+    inset -4px -4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
+.dark .bg-card:hover, .dark .bg-popover:hover {
+  box-shadow: 
+    20px 20px 40px rgba(0, 0, 0, 0.5),
+    -10px -10px 30px rgba(255, 255, 255, 0.03),
+    inset 2px 2px 8px rgba(255, 255, 255, 0.1),
+    inset -4px -4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* 2. Interactive Elements (Primary Buttons) */
 .bg-primary, .bg-sidebar-primary {
   border-radius: calc(var(--radius) - 4px) !important;
-  border: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   box-shadow: 
-    4px 4px 10px rgba(0, 0, 0, 0.1),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.15) !important;
+    6px 6px 16px rgba(0, 0, 0, 0.12),
+    -4px -4px 12px rgba(255, 255, 255, 0.4),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.4),
+    inset -3px -3px 8px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform: translateY(0);
+}
+
+.bg-primary:hover, .bg-sidebar-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    8px 8px 20px rgba(0, 0, 0, 0.15),
+    -6px -6px 16px rgba(255, 255, 255, 0.5),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.5),
+    inset -3px -3px 8px rgba(0, 0, 0, 0.15) !important;
+}
+
+.bg-primary:active, .bg-sidebar-primary:active {
+  transform: translateY(2px);
+  box-shadow: 
+    2px 2px 8px rgba(0, 0, 0, 0.1),
+    -2px -2px 6px rgba(255, 255, 255, 0.3),
+    inset 4px 4px 8px rgba(0, 0, 0, 0.1),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.3) !important;
 }
 
 .dark .bg-primary, .dark .bg-sidebar-primary {
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
   box-shadow: 
-    4px 4px 10px rgba(0, 0, 0, 0.4),
-    inset 2px 2px 4px rgba(255, 255, 255, 0.2),
-    inset -3px -3px 6px rgba(0, 0, 0, 0.3) !important;
+    6px 6px 16px rgba(0, 0, 0, 0.4),
+    -4px -4px 12px rgba(255, 255, 255, 0.05),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.2),
+    inset -3px -3px 8px rgba(0, 0, 0, 0.4) !important;
 }
 
+.dark .bg-primary:hover, .dark .bg-sidebar-primary:hover {
+  box-shadow: 
+    8px 8px 20px rgba(0, 0, 0, 0.5),
+    -6px -6px 16px rgba(255, 255, 255, 0.08),
+    inset 3px 3px 6px rgba(255, 255, 255, 0.25),
+    inset -3px -3px 8px rgba(0, 0, 0, 0.4) !important;
+}
+
+.dark .bg-primary:active, .dark .bg-sidebar-primary:active {
+  box-shadow: 
+    2px 2px 8px rgba(0, 0, 0, 0.4),
+    -2px -2px 6px rgba(255, 255, 255, 0.05),
+    inset 4px 4px 8px rgba(0, 0, 0, 0.3),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 3. Inset Elements (Inputs, Textareas, Selects, Muted areas) */
 .bg-secondary, .bg-muted, input, textarea, select {
   border-radius: calc(var(--radius) - 6px) !important;
-  border: none !important;
+  border: 1px solid transparent !important;
   box-shadow: 
-    inset 3px 3px 6px rgba(0, 0, 0, 0.05),
-    inset -3px -3px 6px rgba(255, 255, 255, 0.6) !important;
+    inset 4px 4px 10px rgba(0, 0, 0, 0.07),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.8),
+    0 2px 4px rgba(255, 255, 255, 0.5) !important;
+  transition: all 0.2s ease;
+}
+
+.bg-secondary:focus-within, input:focus, textarea:focus, select:focus {
+  box-shadow: 
+    inset 6px 6px 12px rgba(0, 0, 0, 0.1),
+    inset -6px -6px 12px rgba(255, 255, 255, 0.9),
+    0 0 0 2px var(--primary) !important;
+  outline: none;
 }
 
 .dark .bg-secondary, .dark .bg-muted, .dark input, .dark textarea, .dark select {
   box-shadow: 
-    inset 3px 3px 6px rgba(0, 0, 0, 0.4),
-    inset -3px -3px 6px rgba(255, 255, 255, 0.05) !important;
+    inset 4px 4px 10px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 10px rgba(255, 255, 255, 0.03),
+    0 1px 2px rgba(255, 255, 255, 0.02) !important;
 }
 
+.dark .bg-secondary:focus-within, .dark input:focus, .dark textarea:focus, .dark select:focus {
+  box-shadow: 
+    inset 6px 6px 12px rgba(0, 0, 0, 0.6),
+    inset -6px -6px 12px rgba(255, 255, 255, 0.04),
+    0 0 0 2px var(--primary) !important;
+}
+
+/* Base border reset */
 .border {
   border-color: transparent !important;
 }

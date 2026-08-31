@@ -35,9 +35,9 @@ export async function POST(req: Request) {
       systemInstruction = `You are IBM Bob, a highly advanced expert engineering course assistant. You are currently helping a ${yearStr}${deptStr}student at Kings Engineering College. Provide highly detailed, step-by-step, and technically accurate answers relevant to their specific department. Always format your responses beautifully using Markdown and use a supportive, encouraging tone.`;
     }
 
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.BOB_API_KEY) {
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const genAI = new GoogleGenerativeAI(process.env.BOB_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const formattedHistory = history.map((msg: any) => ({
@@ -62,7 +62,7 @@ export async function POST(req: Request) {
         throw new Error('Gemini API error');
       }
     } else {
-      const mockReply = `**(Mock Response)** Hello! I am IBM Bob (Global Chat). You have not configured a \`GEMINI_API_KEY\` in your \`.env.local\`. Please add one for full functionality.`;
+      const mockReply = `**(Mock Response)** Hello! I am IBM Bob (Global Chat). You have not configured a \`BOB_API_KEY\` in your \`.env.local\`. Please add one for full functionality.`;
       await new Promise(resolve => setTimeout(resolve, 1500));
       return NextResponse.json({ reply: mockReply });
     }

@@ -153,14 +153,14 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
     <>
       {/* MOBILE SIDEBAR TOGGLE */}
       <button 
-        className="md:hidden absolute top-4 left-4 z-[3000] bg-background/80 backdrop-blur-md p-3 rounded-2xl border border-border text-foreground shadow-lg"
+        className="md:hidden absolute top-6 left-6 z-[3000] clay-card p-3 shadow-xl"
         onClick={() => setShowSidebar(true)}
       >
         <Menu size={24} />
       </button>
 
       {/* SPATIAL SIDEBAR */}
-      <div className={`absolute top-4 left-4 z-[3500] w-[calc(100vw-32px)] md:w-[360px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-32px)] rounded-[2rem] bg-background/60 backdrop-blur-2xl border border-border shadow-2xl flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
+      <div className={`absolute top-6 left-6 z-[3500] w-[calc(100vw-48px)] md:w-[380px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-48px)] clay-card flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
         <div className="p-6 flex flex-col flex-1 overflow-y-auto">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-extrabold text-2xl tracking-tight text-foreground">IV Tracker</h2>
@@ -182,10 +182,10 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <div className="flex flex-col gap-3 mb-8">
               <button
                 onClick={() => setSharing(!sharing)}
-                className={`w-full py-4 rounded-xl font-bold text-lg tracking-wider transition-all duration-300 border-2 ${
+                className={`w-full py-4 rounded-full font-bold text-lg tracking-wider transition-all duration-300 shadow-xl ${
                   sharing 
-                    ? 'bg-destructive/10 text-destructive border-destructive hover:bg-destructive/20'
-                    : 'bg-primary text-primary-foreground border-primary hover:bg-primary/90'
+                    ? 'clay-card text-destructive hover:scale-[1.02]'
+                    : 'bg-primary text-primary-foreground hover:scale-[1.02] shadow-[0_10px_30px_rgba(79,70,229,0.4)]'
                 }`}
               >
                 {sharing ? (
@@ -199,7 +199,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
               </button>
               
               {role === 'student' && (
-                <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl border border-border hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between p-4 clay-card rounded-2xl hover:scale-[1.02] transition-transform">
                   <div className="flex flex-col">
                     <Label htmlFor="battery-saver" className="font-bold text-foreground">Battery Saver</Label>
                     <span className="text-xs text-muted-foreground">Throttles GPS to 60s</span>
@@ -223,7 +223,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
                 setQrUrl(await QRCode.toDataURL(url));
                 setShowQrModal(true);
               }} 
-              className="w-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 py-3 rounded-xl font-bold text-sm transition-colors mb-6"
+              className="w-full clay-card text-primary py-3 rounded-full font-bold text-sm transition-transform hover:scale-[1.02] mb-6 shadow-md"
             >
               Share QR Link
             </button>
@@ -231,16 +231,16 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
           {!isActive && (role === 'faculty' || role === 'admin') && (
             <div className="flex flex-col gap-3 mb-8">
-              <button onClick={() => setShowReplay(!showReplay)} className="bg-primary text-primary-foreground py-2 rounded-xl font-bold">
+              <button onClick={() => setShowReplay(!showReplay)} className="clay-card py-2 rounded-full font-bold text-primary hover:scale-[1.02] transition-transform shadow-md">
                 {showReplay ? 'Live Map' : 'Path Replay'}
               </button>
-              <button onClick={() => setShowHeatmap(!showHeatmap)} className="bg-secondary text-secondary-foreground py-2 rounded-xl font-bold">
+              <button onClick={() => setShowHeatmap(!showHeatmap)} className="clay-card py-2 rounded-full font-bold text-secondary-foreground hover:scale-[1.02] transition-transform shadow-md">
                 {showHeatmap ? 'Hide Heatmap' : 'Show Heatmap'}
               </button>
-              <button onClick={() => setShowAnalytics(true)} className="bg-accent text-accent-foreground py-2 rounded-xl font-bold border border-border">
+              <button onClick={() => setShowAnalytics(true)} className="clay-card py-2 rounded-full font-bold text-accent hover:scale-[1.02] transition-transform shadow-md">
                 Live Analytics
               </button>
-              <button onClick={() => setShowReportBuilder(true)} className="bg-black text-white py-3 rounded-2xl font-black border border-white/10 shadow-inner flex items-center justify-center gap-2 hover:bg-black/80">
+              <button onClick={() => setShowReportBuilder(true)} className="clay-card py-3 rounded-full font-black text-foreground hover:scale-[1.02] transition-transform shadow-lg flex items-center justify-center gap-2">
                 Download PDF Report
               </button>
             </div>
@@ -263,7 +263,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
               }
 
               return (
-                <div key={s.user_id} className="flex items-center justify-between p-3 bg-black/30 rounded-xl border border-white/5 backdrop-blur-md">
+                <div key={s.user_id} className="flex items-center justify-between p-3 clay-card rounded-2xl shadow-sm">
                   <div>
                     <p className="font-bold text-sm tracking-wide">
                       {s.profiles?.full_name}
@@ -304,16 +304,16 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <WifiOff size={18} /> OFFLINE - QUEUING GPS
           </div>
         )}
-        <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
+        <div className="absolute bottom-24 right-4 md:bottom-10 md:right-10 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
           <button 
             onClick={() => setShowItinerary(!showItinerary)}
-            className="w-14 h-14 md:w-16 md:h-16 bg-background text-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-muted transition-colors border border-border"
+            className="w-14 h-14 md:w-16 md:h-16 clay-card rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
           >
             <CalendarClock size={24} />
           </button>
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-14 h-14 md:w-16 md:h-16 bg-background text-foreground rounded-full flex items-center justify-center shadow-lg hover:bg-muted transition-colors border border-border"
+            className="w-14 h-14 md:w-16 md:h-16 clay-card rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
           >
             <ImageIcon size={24} />
           </button>

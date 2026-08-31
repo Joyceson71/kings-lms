@@ -53,7 +53,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
-  const [viewMode, setViewMode] = useState<'2d' | '3d'>('3d');
+  const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
 
   useEffect(() => {
     const s = localStorage.getItem(`iv-offline-stats-${tripId}`);
@@ -559,22 +559,22 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       )}
 
       <div className="absolute bottom-6 left-6 z-[1000] flex flex-col gap-2">
-        <Button onClick={() => setShowOfflineModal(true)} variant="secondary" className="shadow-lg font-bold">
+        <Button onClick={() => setShowOfflineModal(true)} variant="secondary" className="clay-card font-bold py-2 px-4 shadow-xl">
           <Download className="mr-2" size={16} /> Offline Map Cache
         </Button>
       </div>
 
-      <div className="absolute top-4 right-4 z-[1000]">
-        <div className="bg-background/80 backdrop-blur border border-border rounded-lg p-1 flex shadow-lg mb-2">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2000] flex flex-col items-center">
+        <div className="clay-card rounded-full p-2 flex shadow-2xl mb-2 items-center">
           <button 
             onClick={() => setViewMode('2d')} 
-            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === '2d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
+            className={`px-5 py-2.5 text-sm font-bold rounded-full transition-all ${viewMode === '2d' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
           >
             2D Map
           </button>
           <button 
             onClick={() => setViewMode('3d')} 
-            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-colors ${viewMode === '3d' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary'}`}
+            className={`px-5 py-2.5 text-sm font-bold rounded-full transition-all ${viewMode === '3d' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
           >
             3D Globe
           </button>

@@ -42,8 +42,8 @@ export async function POST(request: NextRequest) {
     // RAG Pipeline Implementation
     let ragContextStr = '';
     try {
-      if (process.env.GEMINI_API_KEY && context?.courseIds?.length > 0) {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+      if (process.env.BOB_API_KEY && context?.courseIds?.length > 0) {
+        const genAI = new GoogleGenerativeAI(process.env.BOB_API_KEY);
         const embeddingModel = genAI.getGenerativeModel({ model: 'text-embedding-004' });
         
         // Generate embedding for user message
@@ -76,9 +76,9 @@ You possess deep knowledge across all engineering disciplines. Answer academic q
 If the student asks about their weak subjects or attendance, use the provided context to guide them. Suggest comprehensive study plans based on weak areas. Generate practice questions per syllabus unit if requested. If their attendance is close to the 75% cutoff, gently but firmly remind them to attend classes to avoid penalties.
 Keep responses beautifully formatted using Markdown, with clear headings, bullet points, and code blocks when needed. If asked about topics outside academics, politely redirect to academic help.`;
       
-    if (process.env.GEMINI_API_KEY) {
+    if (process.env.BOB_API_KEY) {
       try {
-        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const genAI = new GoogleGenerativeAI(process.env.BOB_API_KEY);
         const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
 
         const formattedHistory = historyMessages.slice(0, -1).map((msg: any) => ({
@@ -104,7 +104,7 @@ Keep responses beautifully formatted using Markdown, with clear headings, bullet
       }
     } else {
       // Fallback mock response for Hackathon pitch if no API key is provided
-      const mockReply = `**(Mock Response)** Hello! I am IBM Bob. It looks like you haven't configured a \`GEMINI_API_KEY\` in your \`.env.local\` file yet.\n\nTo make this AI Learning Assistant fully functional, please add a Gemini API key. In the meantime, I can confirm that your context includes:\n\n${contextStr}\n${ragContextStr}`;
+      const mockReply = `**(Mock Response)** Hello! I am IBM Bob. It looks like you haven't configured a \`BOB_API_KEY\` in your \`.env.local\` file yet.\n\nTo make this AI Learning Assistant fully functional, please add a Gemini API key. In the meantime, I can confirm that your context includes:\n\n${contextStr}\n${ragContextStr}`;
       
       // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 1500));

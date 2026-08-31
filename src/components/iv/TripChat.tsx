@@ -187,7 +187,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
     <>
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="absolute top-4 right-4 z-[2000] bg-background text-foreground p-4 rounded-full shadow-lg hover:bg-muted transition-colors border border-border"
+        className="absolute top-6 right-6 z-[2000] clay-card p-4 rounded-full shadow-2xl transition-transform hover:scale-110"
       >
         <MessageSquare size={28} />
         {unreadCount > 0 && (
@@ -198,12 +198,12 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
       </button>
 
       {isOpen && (
-        <div className="absolute top-4 right-4 bottom-4 w-full md:w-[400px] bg-background/95 backdrop-blur-sm z-[2500] flex flex-col shadow-2xl border border-border rounded-[2rem] overflow-hidden animate-in slide-in-from-right">
-          <div className="flex items-center justify-between p-6 border-b border-border bg-muted/20 shadow-sm">
+        <div className="absolute top-6 right-6 bottom-6 w-[calc(100vw-48px)] md:w-[420px] clay-card z-[2500] flex flex-col overflow-hidden animate-in slide-in-from-right">
+          <div className="flex items-center justify-between p-6 border-b border-border/50 bg-background/10 backdrop-blur-md">
             <h3 className="font-bold text-xl flex items-center gap-3 text-foreground">
-              <MessageSquare size={24} className="text-muted-foreground" /> CHAT
+              <MessageSquare size={24} className="text-primary" /> CHAT
             </h3>
-            <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground bg-muted p-2 rounded-full"><X size={20} /></button>
+            <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground bg-muted/50 p-2 rounded-full hover:scale-110 transition-transform"><X size={20} /></button>
           </div>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -226,12 +226,12 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                       {m.is_broadcast && <span className="text-[10px] bg-destructive/10 text-destructive border border-destructive/20 px-2 py-0.5 rounded shadow-sm font-bold tracking-widest">BROADCAST</span>}
                     </div>
                     {m.content && (
-                      <div className={`px-5 py-3 rounded-2xl text-sm font-medium ${
+                      <div className={`px-5 py-3 text-sm font-medium transition-all ${
                         m.is_broadcast 
-                          ? 'bg-destructive/10 text-destructive border-2 border-destructive/30 shadow-sm text-lg' 
+                          ? 'clay-card text-destructive shadow-lg text-lg' 
                           : isMe 
-                            ? 'bg-primary text-primary-foreground border border-primary shadow-sm' 
-                            : 'bg-muted text-foreground border border-border'
+                            ? 'bg-primary text-primary-foreground shadow-lg rounded-2xl rounded-tr-sm' 
+                            : 'neo-inset text-foreground rounded-2xl rounded-tl-sm'
                       }`}>
                         {m.content}
                         {m.isOffline && <span className="block text-[10px] mt-1 opacity-70">Queued...</span>}
@@ -251,7 +251,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
             })}
           </div>
 
-          <div className="p-4 border-t border-border bg-muted/20 shadow-sm">
+          <div className="p-4 border-t border-border/50 bg-background/10 backdrop-blur-md">
             {(role === 'faculty' || role === 'admin') && (
               <label className="flex items-center gap-2 mb-3 text-xs font-bold text-destructive cursor-pointer uppercase tracking-wider">
                 <input type="checkbox" checked={isBroadcast} onChange={e => setIsBroadcast(e.target.checked)} className="accent-destructive w-4 h-4" />
@@ -259,7 +259,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
               </label>
             )}
             <div className="flex items-center gap-2">
-              <button onClick={() => fileInputRef.current?.click()} className="p-3 bg-muted hover:bg-muted/80 rounded-xl text-muted-foreground transition-colors border border-border">
+              <button onClick={() => fileInputRef.current?.click()} className="p-3 clay-card rounded-2xl text-muted-foreground hover:text-foreground hover:scale-105 transition-all">
                 <ImageIcon size={20} />
               </button>
               <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handlePhoto} />
@@ -270,9 +270,9 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
                 onChange={e => setText(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleSend()}
                 placeholder="Type a message..."
-                className="flex-1 bg-background border border-border rounded-xl px-4 py-3 text-foreground text-sm focus:outline-none focus:border-primary placeholder:text-muted-foreground"
+                className="flex-1 neo-input rounded-2xl px-5 py-3 text-foreground text-sm placeholder:text-muted-foreground"
               />
-              <button onClick={handleSend} className="p-3 bg-primary text-primary-foreground rounded-xl shrink-0 shadow-sm hover:opacity-90 transition-opacity">
+              <button onClick={handleSend} className="p-3 bg-primary text-primary-foreground rounded-2xl shrink-0 shadow-[0_4px_15px_rgba(79,70,229,0.3)] hover:scale-105 transition-all">
                 <Send size={20} />
               </button>
             </div>

@@ -157,9 +157,9 @@ export default function DashboardClient({
       {/* ── Page Header ── */}
       <div className="flex items-center justify-between animate-fade-in opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight text-foreground drop-shadow-sm" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          <h1 className="text-3xl md:text-4xl font-black text-foreground drop-shadow-sm uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
             {loading ? 'Dashboard' : isStudent ? (
-              <>Hey, <span className="gradient-text">{displayName.split(' ')[0]}</span> 👋</>
+              <>Hey, <span style={{ color: '#00F5FF', textShadow: '0 0 12px rgba(0, 245, 255, 0.6)' }} className="glitch-text">{displayName.split(' ')[0]}</span> 👋</>
             ) : 'Dashboard Overview'}
           </h1>
           <p className="text-muted-foreground mt-2 text-[14px] md:text-[15px] font-medium">
@@ -169,8 +169,8 @@ export default function DashboardClient({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {!isStudent && <Badge variant="active" dot>Live</Badge>}
-          {isStudent && <Badge variant="student" dot>Student</Badge>}
+          {!isStudent && <Badge variant="active" className="anime-badge anime-badge-pink">Live</Badge>}
+          {isStudent && <Badge variant="student" className="anime-badge anime-badge-cyan">Student</Badge>}
         </div>
       </div>
 
@@ -195,18 +195,18 @@ export default function DashboardClient({
           style={{ animationDelay: '280ms', animationFillMode: 'forwards' }}
         >
           {/* 1. Hero Widget: My Course Attendance — Spans 2x2 */}
-          <div className="clay-card ultra-glow xl:col-span-2 md:col-span-2 row-span-2 p-6 flex flex-col group min-w-0">
+          <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] xl:col-span-2 md:col-span-2 row-span-2 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   My Course Attendance
                 </h2>
-                <p className="text-[12px] text-muted-foreground mt-0.5">
+                <p className="text-[11px] font-bold text-muted-foreground mt-0.5 tracking-widest uppercase">
                   {coursesDisplay ? `${coursesDisplay.length} enrolled courses` : 'No enrollments yet'}
                 </p>
               </div>
-              <Link href="/dashboard/attendance" className="text-[11px] text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors">
-                Details <ChevronRight className="h-3 w-3" />
+              <Link href="/dashboard/attendance" className="text-[11px] text-[#00F5FF] font-black uppercase tracking-widest hover:text-white flex items-center gap-1 transition-colors">
+                Details <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
 
@@ -227,12 +227,12 @@ export default function DashboardClient({
             {/* Critical alert if any course is low */}
             {lowAttendanceCourses.length > 0 && (
               <div
-                className="mt-3 p-3 rounded-xl flex items-start gap-2"
-                style={{ background: 'rgb(248 113 113 / 0.08)', border: '1px solid rgb(248 113 113 / 0.2)' }}
+                className="mt-3 p-3 flex items-start gap-2 clip-corner-sm neo-inset"
+                style={{ background: 'rgb(255 0 110 / 0.1)', border: '2px solid #FF006E' }}
               >
-                <AlertTriangle className="h-3.5 w-3.5 text-red-400 flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-red-400 font-medium leading-relaxed">
-                  <span className="font-bold">{lowAttendanceCourses.map(c => c.code || c.title).join(', ')}</span>
+                <AlertTriangle className="h-4 w-4 text-[#FF006E] flex-shrink-0 mt-0.5 animate-pulse" />
+                <p className="text-[11px] text-[#FF006E] font-black uppercase tracking-widest leading-relaxed">
+                  <span className="text-white drop-shadow-[0_0_8px_rgba(255,0,110,0.8)]">{lowAttendanceCourses.map(c => c.code || c.title).join(', ')}</span>
                   {' '}— below 75% minimum. Risk of not being allowed to sit exams.
                 </p>
               </div>
@@ -240,14 +240,14 @@ export default function DashboardClient({
           </div>
 
           {/* 2. Streak Widget — Spans 1x1 */}
-          <div className="clay-card col-span-1 row-span-1 group min-w-0">
+          <div className="col-span-1 row-span-1 group min-w-0">
             <StreakWidget streak={streak} studyScore={studyScore} />
           </div>
 
           {/* 3. Deadlines — Spans 1x2 */}
-          <div className="clay-card col-span-1 row-span-2 p-6 flex flex-col group min-w-0">
+          <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] col-span-1 row-span-2 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Deadlines
                 </h2>
                 <Link href="/dashboard/assignments" className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-0.5">
@@ -282,9 +282,9 @@ export default function DashboardClient({
             </div>
 
           {/* 4. Updates / Notifications — Spans 1x2 */}
-          <div className="clay-card col-span-1 row-span-2 p-6 flex flex-col group min-w-0">
+          <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] col-span-1 row-span-2 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+                <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
                   Updates
                 </h2>
                 <Bell className="h-3.5 w-3.5 text-muted-foreground" />
@@ -313,35 +313,35 @@ export default function DashboardClient({
               </Link>
             </div>
           {/* 5. Attendance Trend Chart — Spans 2x1 */}
-        <div className="clay-card xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0">
+        <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
           <div className="flex items-center justify-between mb-5">
             <div>
-              <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
                 {isStudent ? 'Attendance Trend' : 'Overall Attendance'}
               </h2>
-              <p className="text-[12px] text-muted-foreground mt-0.5">Last 7 days</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5 font-bold tracking-widest uppercase">Last 7 days</p>
             </div>
-            <Badge variant="secondary">7 days</Badge>
+            <Badge variant="secondary" className="anime-badge">7 days</Badge>
           </div>
           <AttendanceTrendChart data={attendanceTrend} />
         </div>
 
         {/* 6. Tasks Donut — Spans 1x1 */}
-        <div className="clay-card col-span-1 row-span-1 p-6 flex flex-col group min-w-0">
+        <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] col-span-1 row-span-1 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[15px] font-bold text-foreground" style={{ fontFamily: "'Outfit', sans-serif" }}>
+            <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
               {isStudent ? 'Tasks' : 'Grading'}
             </h2>
-            <Link href="/dashboard/assignments" className="text-[11px] text-indigo-400 hover:text-indigo-300 transition-colors flex items-center gap-0.5">
-              View <ChevronRight className="h-3 w-3" />
+            <Link href="/dashboard/assignments" className="text-[11px] text-[#00F5FF] font-black uppercase tracking-widest hover:text-white transition-colors flex items-center gap-0.5">
+              View <ChevronRight className="h-4 w-4" />
             </Link>
           </div>
           <TasksDonut breakdown={assignmentBreakdown} isStudent={isStudent} />
         </div>
 
         {/* 7. Quick Actions — Spans 2x1 */}
-        <div className="clay-card xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0">
-            <h2 className="text-[15px] font-bold text-foreground mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <div className="neo-raised clip-corner-sm border-2 border-[#252545] bg-[#0D0D1E] xl:col-span-2 md:col-span-3 row-span-1 p-6 flex flex-col group min-w-0 shadow-[4px_4px_0_rgba(0,0,0,0.4)]">
+            <h2 className="text-[18px] font-black text-foreground uppercase brutalist-heading mb-4" style={{ fontFamily: "'Outfit', sans-serif" }}>
               Quick Actions
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">

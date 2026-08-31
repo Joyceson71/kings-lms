@@ -16,30 +16,33 @@ export function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBrea
   }
 
   const chartData = [
-    { label: 'Graded', value: breakdown.graded, color: '#34d399' },
-    { label: 'Submitted', value: breakdown.submitted, color: '#818cf8' },
-    { label: 'Pending', value: breakdown.pending, color: '#fbbf24' },
+    { label: 'Graded', value: breakdown.graded, color: '#39FF14' },
+    { label: 'Submitted', value: breakdown.submitted, color: '#BF00FF' },
+    { label: 'Pending', value: breakdown.pending, color: '#FF006E' },
   ];
   
   const maxValue = Math.max(...chartData.map(d => d.value), 1);
 
   return (
     <div className="flex-1 flex flex-col">
-      <div className="relative overflow-hidden rounded-2xl border border-white/5 shadow-inner" style={{ height: 220, background: 'rgba(8, 8, 20, 0.4)' }}>
+      <div className="relative overflow-hidden rounded-none border-2 shadow-inner neo-inset clip-corner-sm" style={{ height: 220, background: '#111120', borderColor: '#252545' }}>
         <SpatialChart data={chartData} maxValue={maxValue} />
+        {/* Cyberpunk radar overlay */}
+        <div className="absolute inset-0 pointer-events-none opacity-20 bg-[radial-gradient(circle_at_center,transparent_30%,#00F5FF_150%)]" />
+        <div className="absolute inset-0 pointer-events-none bg-grid-sm opacity-30" />
       </div>
-      <div className="mt-4 space-y-2.5 px-1">
+      <div className="mt-4 space-y-2 px-1">
         {[
-          { label: isStudent ? 'Graded' : 'Graded', count: breakdown.graded, color: 'bg-emerald-400' },
-          { label: 'Submitted', count: breakdown.submitted, color: 'bg-indigo-400' },
-          { label: 'Pending', count: breakdown.pending, color: 'bg-amber-400' },
+          { label: isStudent ? 'Graded' : 'Graded', count: breakdown.graded, color: '#39FF14' },
+          { label: 'Submitted', count: breakdown.submitted, color: '#BF00FF' },
+          { label: 'Pending', count: breakdown.pending, color: '#FF006E' },
         ].map(({ label, count, color }) => (
-          <div key={label} className="flex items-center justify-between text-[12px]">
-            <div className="flex items-center gap-2.5">
-              <div className={`h-2 w-2 rounded-full shadow-sm ${color}`} />
-              <span className="text-muted-foreground/90 font-medium">{label}</span>
+          <div key={label} className="flex items-center justify-between text-[11px] p-2 rounded-md" style={{ border: '1px solid #252545', background: '#0D0D1E' }}>
+            <div className="flex items-center gap-3">
+              <div className="h-2 w-2 shadow-sm animate-pulse" style={{ background: color, boxShadow: `0 0 8px ${color}` }} />
+              <span className="text-muted-foreground font-black tracking-widest uppercase">{label}</span>
             </div>
-            <span className="font-bold text-foreground/80">{count}</span>
+            <span className="font-black text-foreground text-[14px]" style={{ color }}>{count}</span>
           </div>
         ))}
       </div>

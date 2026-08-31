@@ -17,12 +17,18 @@ export const StatCard = memo(function StatCard({ stat, index }: {
       style={{ animationDelay: `${(index + 1) * 60}ms`, animationFillMode: 'forwards' }}
       title={stat.tooltip}
     >
-      <TiltCard className="h-full" glareEnable={true}>
-        <div className="bento-card p-6 h-full relative flex flex-col overflow-hidden group border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent hover:border-white/10 transition-colors">
+      <TiltCard className="h-full clip-corner" glareEnable={true}>
+        <div className="p-5 h-full relative flex flex-col overflow-hidden group transition-all duration-300 neo-raised"
+          style={{
+            background: '#111120',
+            border: '2px solid #252545',
+            boxShadow: '4px 4px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+          }}
+        >
           {/* Subtle top highlight */}
           <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
 
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-4">
           <div
             className="h-12 w-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg"
             style={{ background: stat.iconBg }}
@@ -33,21 +39,23 @@ export const StatCard = memo(function StatCard({ stat, index }: {
           <ArrowUpRight className="h-5 w-5 text-muted-foreground/50 group-hover:text-foreground transition-colors group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </div>
         <div className="relative z-10 flex-1 flex flex-col justify-end">
-          <p className="text-[12px] font-bold tracking-[0.1em] text-muted-foreground/70 uppercase mb-2 group-hover:text-muted-foreground transition-colors">{stat.name}</p>
-          <p className="text-4xl md:text-5xl font-black text-foreground tracking-tight leading-none mb-4 drop-shadow-sm">
+          <p className="text-[10px] font-black tracking-widest text-muted-foreground/70 uppercase mb-1 brutalist-stripe group-hover:text-primary transition-colors">{stat.name}</p>
+          <p className="text-4xl md:text-5xl font-black text-foreground tracking-tighter leading-none mb-3 drop-shadow-sm uppercase glitch-text" style={{ fontFamily: "'Outfit', sans-serif" }}>
             <AnimatedCounter target={stat.value} duration={1000} />
           </p>
-          <p className={`text-[12px] font-semibold flex items-center gap-1.5 ${stat.changeType === 'positive' ? 'text-emerald-400' :
-              stat.changeType === 'danger' ? 'text-red-400' : 'text-amber-400'
-            }`}>
-            {stat.changeType === 'positive' && <TrendingUp className="h-3.5 w-3.5" />}
-            {stat.changeType === 'danger' && <AlertTriangle className="h-3.5 w-3.5" />}
-            {stat.change}
-          </p>
+          <div className="inline-flex">
+            <p className={`text-[10px] font-bold px-1.5 py-0.5 rounded-sm uppercase tracking-wider flex items-center gap-1 border ${stat.changeType === 'positive' ? 'text-[#39FF14] bg-[#39FF14]/10 border-[#39FF14]/30' :
+                stat.changeType === 'danger' ? 'text-[#FF006E] bg-[#FF006E]/10 border-[#FF006E]/30' : 'text-[#FFD700] bg-[#FFD700]/10 border-[#FFD700]/30'
+              }`}>
+              {stat.changeType === 'positive' && <TrendingUp className="h-3 w-3" />}
+              {stat.changeType === 'danger' && <AlertTriangle className="h-3 w-3" />}
+              {stat.change}
+            </p>
+          </div>
         </div>
         {/* Accent Bar at the very bottom edge */}
         <div 
-          className="absolute bottom-0 left-0 right-0 h-[4px] opacity-80" 
+          className="absolute bottom-0 left-0 right-0 h-[3px] energy-bar-thin opacity-80 group-hover:opacity-100 transition-opacity" 
           style={{ background: stat.accentGrad }} 
         />
         </div>

@@ -119,6 +119,17 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 
 # Supabase Service Role key — NEVER expose publicly
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
+
+# IBM Bob API Key (for IBM Bob Study Assistant)
+BOB_API_KEY="your_bob_api_key"
+
+# Web Push Notifications (VAPID Keys)
+NEXT_PUBLIC_VAPID_PUBLIC_KEY="your_vapid_public_key"
+VAPID_PRIVATE_KEY="your_vapid_private_key"
+VAPID_SUBJECT="mailto:your_email@kingsedu.ac.in"
+
+# Resend API Key (for Emails)
+RESEND_API_KEY="your_resend_api_key"
 ```
 
 ### 3.5. OAuth Setup (Google & GitHub)

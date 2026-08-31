@@ -6,9 +6,12 @@ import { redirect } from 'next/navigation';
 export async function createClient() {
   const cookieStore = await cookies();
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vkusqelpzpaocnwaawkw.supabase.co';
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZrdXNxZWxwenBhb2Nud2Fhd2t3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MDcxMDEsImV4cCI6MjA5Nzk4MzEwMX0.kre4tGOz_HO15y1as4Qm8p4c19GlSeOlAFGlANZa7KI';
+
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {
@@ -31,8 +34,10 @@ export async function createClient() {
 }
 
 export function createServiceClient() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://vkusqelpzpaocnwaawkw.supabase.co';
+
   return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseUrl,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
       auth: {

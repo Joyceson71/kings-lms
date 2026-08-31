@@ -4,103 +4,105 @@ import { InteractiveBackground } from '@/components/3d/InteractiveBackground';
 import { TiltCard } from '@/components/ui/tilt-card';
 
 const features = [
-  { icon: CheckCircle2, text: 'QR-based attendance — mark in seconds',      color: '#34d399' },
-  { icon: Zap,          text: 'Live session tracking for every course',       color: '#818cf8' },
-  { icon: BarChart3,    text: 'Assignment submissions & real-time grading',   color: '#22d3ee' },
-  { icon: Bell,         text: 'Leaderboard, resources & announcements',       color: '#fbbf24' },
-  { icon: Shield,       text: 'Role-based access — students, faculty, admin', color: '#f87171' },
+  { icon: CheckCircle2, text: 'QR-based attendance — mark in seconds',       color: '#39FF14' },
+  { icon: Zap,          text: 'Live session tracking for every course',        color: '#00F5FF' },
+  { icon: BarChart3,    text: 'Assignment submissions & real-time grading',    color: '#BF00FF' },
+  { icon: Bell,         text: 'Leaderboard, resources & announcements',        color: '#FFD700' },
+  { icon: Shield,       text: 'Role-based access — students, faculty, admin',  color: '#FF006E' },
 ];
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="relative flex min-h-screen"
-      style={{ background: '#04040c' }}
+      style={{ background: '#0A0A14' }}
     >
       <InteractiveBackground />
-      {/* Background mesh + grid */}
-      <div className="absolute inset-0 bg-grid pointer-events-none opacity-60" />
+      {/* Anime spatial background */}
+      <div className="absolute inset-0 bg-grid-sm pointer-events-none opacity-50" />
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse at 15% 50%, rgb(129 140 248 / 0.12) 0%, transparent 50%),
-            radial-gradient(ellipse at 85% 20%, rgb(34 211 238 / 0.08) 0%, transparent 45%),
-            radial-gradient(ellipse at 50% 100%, rgb(52 211 153 / 0.06) 0%, transparent 40%)
+            radial-gradient(ellipse at 10% 40%, rgb(255 0 110 / 0.18) 0%, transparent 50%),
+            radial-gradient(ellipse at 90% 20%, rgb(0 245 255 / 0.12) 0%, transparent 45%),
+            radial-gradient(ellipse at 50% 90%, rgb(191 0 255 / 0.1) 0%, transparent 45%)
           `,
         }}
       />
+      {/* Scan lines */}
+      <div className="absolute inset-0 bg-scanlines opacity-70 pointer-events-none" />
 
       {/* ── Left panel — branding (desktop only) ── */}
       <div
         className="hidden lg:flex lg:w-[460px] xl:w-[520px] flex-shrink-0 flex-col justify-between p-12 relative overflow-hidden"
         style={{ borderRight: '1px solid #1a1a3a' }}
       >
-        {/* Animated orbs */}
+        {/* Anime orbs */}
         <div
           className="absolute -top-32 -left-32 h-80 w-80 rounded-full blur-3xl opacity-25 animate-orb-float-1"
-          style={{ background: 'radial-gradient(circle, #818cf8 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(circle, #FF006E 0%, transparent 65%)' }}
         />
         <div
           className="absolute bottom-16 -right-24 h-72 w-72 rounded-full blur-3xl opacity-20 animate-orb-float-2"
-          style={{ background: 'radial-gradient(circle, #22d3ee 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(circle, #00F5FF 0%, transparent 65%)' }}
         />
         <div
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-56 w-56 rounded-full blur-3xl opacity-10 animate-float"
-          style={{ background: 'radial-gradient(circle, #34d399 0%, transparent 65%)' }}
+          style={{ background: 'radial-gradient(circle, #BF00FF 0%, transparent 65%)' }}
         />
 
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div
-            className="h-10 w-10 rounded-2xl flex items-center justify-center shadow-2xl"
+            className="h-10 w-10 rounded-lg flex items-center justify-center shadow-2xl glitch-text"
             style={{
-              background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-              boxShadow: '0 0 24px rgb(129 140 248 / 0.5), 0 0 60px rgb(129 140 248 / 0.15)',
+              background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 100%)',
+              boxShadow: '0 0 24px rgb(255 0 110 / 0.5), 4px 4px 0 rgb(255 0 110 / 0.2)',
+              clipPath: 'polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%)',
             }}
           >
-            <GraduationCap className="text-foreground h-5 w-5" />
+            <GraduationCap className="text-white h-5 w-5" />
           </div>
           <div>
-            <span className="text-[16px] font-black tracking-tight text-foreground block"
-              style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Kings EC
+            <span className="text-[18px] font-black tracking-tighter text-foreground block uppercase brutalist-heading"
+              style={{ fontFamily: "'Outfit', sans-serif", letterSpacing: '-0.05em' }}>
+              KINGS EC
             </span>
-            <span className="text-[10px] text-muted-foreground tracking-wider font-semibold uppercase">Platform</span>
+            <div className="energy-bar-thin mt-0.5" style={{ width: '60px' }} />
           </div>
         </div>
 
         {/* Hero */}
         <div className="relative z-10 space-y-10">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full mb-6"
-              style={{ background: 'rgb(129 140 248 / 0.08)', border: '1px solid rgb(129 140 248 / 0.2)' }}>
-              <span className="h-1.5 w-1.5 rounded-full bg-indigo-400 animate-status-pulse" />
-              <span className="text-[11px] font-semibold text-indigo-300 tracking-wider">Campus Learning Platform</span>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-none mb-6 anime-badge anime-badge-cyan">
+              <span className="h-1.5 w-1.5 rounded-full animate-status-pulse" style={{ background: '#00F5FF', boxShadow: '0 0 6px #00F5FF' }} />
+              <span className="text-[10px] font-black tracking-widest uppercase">Campus Learning Platform</span>
             </div>
 
             <h2
-              className="text-4xl font-black tracking-tight text-foreground leading-[1.1] mb-4"
+              className="text-5xl font-black text-foreground leading-[0.95] mb-4 brutalist-heading"
               style={{ fontFamily: "'Outfit', sans-serif" }}
             >
-              Your campus.
-              <br />
+              YOUR<br />
+              CAMPUS.<br />
               <span style={{
-                background: 'linear-gradient(135deg, #a5b4fc 0%, #818cf8 40%, #22d3ee 100%)',
+                background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 40%, #00F5FF 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
               }}>
-                All in one place.
+                ALL IN ONE.
               </span>
             </h2>
-            <p className="text-[14px] text-muted-foreground leading-relaxed max-w-sm">
+            <p className="text-[13px] text-muted-foreground leading-relaxed max-w-sm brutalist-stripe">
               From attendance to assignments — Kings Engineering College&apos;s
               unified learning platform keeps every student and faculty member connected.
             </p>
           </div>
 
-          {/* Feature list */}
+          {/* Feature list — brutalist */}
           <ul className="space-y-3">
             {features.map((f, i) => (
               <li
@@ -109,10 +111,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
                 style={{ animationDelay: `${i * 80 + 200}ms`, animationFillMode: 'forwards' }}
               >
                 <div
-                  className="h-8 w-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  className="h-8 w-8 rounded-md flex items-center justify-center flex-shrink-0"
                   style={{
-                    background: `${f.color}18`,
-                    border: `1px solid ${f.color}30`,
+                    background: `${f.color}15`,
+                    border: `1px solid ${f.color}40`,
+                    boxShadow: `0 0 10px ${f.color}20`,
+                    clipPath: 'polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%)',
                   }}
                 >
                   <f.icon className="h-3.5 w-3.5" style={{ color: f.color }} />
@@ -139,11 +143,11 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </blockquote>
             <div className="mt-3 flex items-center gap-2.5">
               <div
-                className="h-8 w-8 rounded-xl flex items-center justify-center text-[11px] font-black"
+                className="h-8 w-8 rounded-md flex items-center justify-center text-[11px] font-black clip-corner-sm"
                 style={{
-                  background: 'linear-gradient(135deg, #312e81, #1e1b4b)',
-                  color: '#a5b4fc',
-                  border: '1px solid rgb(129 140 248 / 0.2)',
+                  background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 100%)',
+                  color: '#ffffff',
+                  boxShadow: '0 0 12px rgb(255 0 110 / 0.4)',
                 }}
               >
                 KE
@@ -167,17 +171,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Mobile: top logo */}
         <div className="lg:hidden flex flex-col items-center gap-3 mb-10">
           <div
-            className="h-12 w-12 rounded-2xl flex items-center justify-center shadow-2xl"
+            className="h-12 w-12 rounded-lg flex items-center justify-center shadow-2xl glitch-text clip-corner"
             style={{
-              background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-              boxShadow: '0 0 24px rgb(129 140 248 / 0.5)',
+              background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 100%)',
+              boxShadow: '0 0 24px rgb(255 0 110 / 0.5), 4px 4px 0 rgb(255 0 110 / 0.2)',
             }}
           >
-            <GraduationCap className="h-6 w-6 text-foreground" />
+            <GraduationCap className="h-6 w-6 text-white" />
           </div>
           <div className="text-center">
-            <span className="text-[17px] font-black text-foreground block" style={{ fontFamily: "'Outfit', sans-serif" }}>
-              Kings EC Platform
+            <span className="text-[18px] font-black text-foreground block uppercase brutalist-heading" style={{ fontFamily: "'Outfit', sans-serif" }}>
+              KINGS EC
             </span>
             <span className="text-[11px] text-muted-foreground">Campus Learning & Management</span>
           </div>

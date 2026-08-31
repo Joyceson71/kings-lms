@@ -3,7 +3,7 @@
 import { useState, memo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Bell, Search, ChevronRight, Settings, LogOut, User, Sparkles, Menu } from 'lucide-react';
+import { Bell, Search, Settings, LogOut, User, Sparkles, Menu } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
@@ -27,10 +27,10 @@ const breadcrumbMap: Record<string, string> = {
   '/dashboard/calendar':      'Calendar',
 };
 
-const roleChipStyle: Record<string, { bg: string; text: string; border: string; glow: string }> = {
-  admin:   { bg: 'rgb(251 191 36 / 0.1)',  text: '#fde68a', border: 'rgb(251 191 36 / 0.2)',  glow: '#fbbf24' },
-  faculty: { bg: 'rgb(52 211 153 / 0.1)',  text: '#6ee7b7', border: 'rgb(52 211 153 / 0.2)',  glow: '#34d399' },
-  student: { bg: 'rgb(129 140 248 / 0.1)', text: '#a5b4fc', border: 'rgb(129 140 248 / 0.2)', glow: '#818cf8' },
+const roleChipStyle: Record<string, { bg: string; text: string; border: string; glow: string; badgeClass: string }> = {
+  admin:   { bg: 'rgb(255 215 0 / 0.1)',  text: '#FFD700', border: 'rgb(255 215 0 / 0.3)',  glow: '#FFD700', badgeClass: 'anime-badge-gold' },
+  faculty: { bg: 'rgb(57 255 20 / 0.1)',  text: '#39FF14', border: 'rgb(57 255 20 / 0.3)',  glow: '#39FF14', badgeClass: 'anime-badge-volt' },
+  student: { bg: 'rgb(0 245 255 / 0.1)',  text: '#00F5FF', border: 'rgb(0 245 255 / 0.3)',  glow: '#00F5FF', badgeClass: 'anime-badge-cyan' },
 };
 
 export const Header = memo(function Header() {
@@ -56,13 +56,16 @@ export const Header = memo(function Header() {
     <header
       className="sticky top-0 z-30 flex h-14 flex-shrink-0 items-center"
       style={{
-        background: 'rgba(4, 4, 12, 0.92)',
-        borderBottom: '1px solid #1a1a3a',
-        backdropFilter: 'blur(20px) saturate(1.6)',
-        WebkitBackdropFilter: 'blur(20px) saturate(1.6)',
-        boxShadow: '0 1px 0 #1a1a3a, 0 4px 20px rgb(0 0 0 / 0.3)',
+        background: 'rgba(13, 13, 30, 0.95)',
+        borderBottom: '2px solid #252545',
+        backdropFilter: 'blur(20px) saturate(1.8)',
+        WebkitBackdropFilter: 'blur(20px) saturate(1.8)',
+        boxShadow: '0 1px 0 #252545, 0 4px 20px rgb(0 0 0 / 0.4), 0 0 40px rgb(255 0 110 / 0.03)',
       }}
     >
+      {/* Anime energy bar at very top of header */}
+      <div className="absolute top-0 left-0 right-0 energy-bar-thin" />
+
       <div className="flex flex-1 items-center justify-between px-4 gap-4">
 
         {/* Left: logo (mobile) + breadcrumb */}
@@ -87,23 +90,23 @@ export const Header = memo(function Header() {
             </div>
           </Link>
 
-          {/* Desktop: breadcrumb */}
-          <div className="hidden md:flex items-center gap-1.5 text-[13px]">
-            <Link href="/dashboard" className="text-muted-foreground hover:text-muted-foreground transition-colors font-medium">
+          {/* Desktop: brutalist breadcrumb */}
+          <div className="hidden md:flex items-center gap-2 text-[13px]">
+            <Link href="/dashboard" className="text-muted-foreground hover:text-primary transition-colors font-black text-[11px] tracking-wider uppercase">
               Kings EC
             </Link>
-            <ChevronRight className="h-3 w-3 text-muted-foreground" />
-            <span className="font-semibold text-foreground">{pageTitle}</span>
+            <span className="text-muted-foreground/40 font-black">{'»'}</span>
+            <span className="font-black text-foreground tracking-tight uppercase text-[14px] glitch-text">{pageTitle}</span>
           </div>
 
           {/* Mobile: page title */}
-          <span className="md:hidden font-bold text-[14px] text-foreground truncate mt-[1px]"
+          <span className="md:hidden font-black text-[15px] text-foreground truncate mt-[1px] uppercase tracking-tight glitch-text"
             style={{ fontFamily: "'Outfit', sans-serif" }}>
             {pageTitle}
           </span>
         </div>
 
-        {/* Center: search (desktop only) */}
+        {/* Center: neomorphic search (desktop only) */}
         <div className="hidden md:flex flex-1 max-w-sm">
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
@@ -114,11 +117,8 @@ export const Header = memo(function Header() {
               onFocus={() => setSearchFocused(true)}
               onBlur={() => setSearchFocused(false)}
               className={cn(
-                'w-full pl-9 pr-10 h-[34px] rounded-xl text-[13px] text-foreground placeholder:text-muted-foreground outline-none transition-all duration-200',
-                'border',
-                searchFocused
-                  ? 'border-indigo-500/50 ring-2 ring-indigo-500/10 bg-background'
-                  : 'border-border bg-background hover:border-border',
+                'w-full pl-9 pr-10 h-[34px] rounded-md text-[13px] text-foreground placeholder:text-muted-foreground transition-all duration-200 neo-input',
+                searchFocused ? 'border-primary' : '',
               )}
             />
             <kbd
@@ -139,15 +139,14 @@ export const Header = memo(function Header() {
               id="notifications-btn"
               type="button"
               onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
-              className="relative flex h-[34px] w-[34px] items-center justify-center rounded-xl text-muted-foreground hover:text-foreground transition-all duration-150"
-              style={{ background: showNotifications ? 'rgb(129 140 248 / 0.1)' : undefined }}
+              className="relative flex h-[34px] w-[34px] items-center justify-center rounded-md text-muted-foreground hover:text-foreground transition-all duration-150 neo-btn"
               aria-label="Notifications"
               aria-expanded={showNotifications}
             >
               <Bell className="h-4 w-4" />
               <span
                 className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full animate-status-pulse"
-                style={{ background: '#818cf8', boxShadow: '0 0 6px #818cf8' }}
+                style={{ background: '#FF006E', boxShadow: '0 0 8px #FF006E' }}
               />
             </button>
             {showNotifications && (
@@ -159,7 +158,7 @@ export const Header = memo(function Header() {
           </div>
 
           {/* Divider */}
-          <div className="h-5 w-px mx-0.5" style={{ background: '#1a1a3a' }} />
+          <div className="h-5 w-px mx-0.5" style={{ background: '#252545' }} />
 
           {/* User menu */}
           <div className="relative">
@@ -168,10 +167,10 @@ export const Header = memo(function Header() {
               type="button"
               onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
               className={cn(
-                'flex items-center gap-2 rounded-xl px-2 h-[34px] text-[13px] font-medium transition-all duration-150',
+                'flex items-center gap-2 rounded-md px-2 h-[34px] text-[13px] font-semibold transition-all duration-150',
                 showUserMenu
-                  ? 'bg-background text-foreground ring-1 ring-[#1a1a3a]'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-background',
+                  ? 'text-foreground neo-inset'
+                  : 'text-muted-foreground hover:text-foreground neo-btn',
               )}
               aria-expanded={showUserMenu}
               aria-label="User menu"
@@ -186,14 +185,7 @@ export const Header = memo(function Header() {
                   {loading ? '' : displayName.split(' ')[0]}
                 </span>
                 {!loading && (
-                  <span
-                    className="inline-flex items-center gap-1 text-[9px] font-bold px-1.5 py-0.5 rounded capitalize"
-                    style={{
-                      background: chip.bg,
-                      color: chip.text,
-                      border: `1px solid ${chip.border}`,
-                    }}
-                  >
+                  <span className={cn('anime-badge inline-flex items-center gap-1', chip.badgeClass)}>
                     {role}
                   </span>
                 )}
@@ -205,11 +197,11 @@ export const Header = memo(function Header() {
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowUserMenu(false)} />
                 <div
-                  className="absolute right-0 top-full mt-2 w-60 rounded-2xl z-50 overflow-hidden animate-slide-in-down"
+                  className="absolute right-0 top-full mt-2 w-60 rounded-xl z-50 overflow-hidden animate-slide-in-down"
                   style={{
-                    background: '#08081c',
-                    border: '1px solid #1a1a3a',
-                    boxShadow: '0 16px 48px rgb(0 0 0 / 0.7), 0 0 0 1px #1a1a3a, 0 0 40px rgb(129 140 248 / 0.05)',
+                    background: '#0D0D1E',
+                    border: '2px solid #252545',
+                    boxShadow: '8px 8px 0 rgb(255 0 110 / 0.15), 0 20px 50px rgb(0 0 0 / 0.8)',
                   }}
                 >
                   {/* User info */}

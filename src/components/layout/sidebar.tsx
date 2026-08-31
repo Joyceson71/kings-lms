@@ -66,10 +66,10 @@ const bottomNavigation: NavItem[] = [
   { name: 'Reports', href: '/dashboard/reports', icon: FileText,  roles: ['student'] },
 ];
 
-const roleColors: Record<string, { bg: string; text: string; border: string }> = {
-  student: { bg: 'rgb(129 140 248 / 0.12)', text: '#a5b4fc', border: 'rgb(129 140 248 / 0.25)' },
-  faculty: { bg: 'rgb(52 211 153 / 0.12)',  text: '#6ee7b7', border: 'rgb(52 211 153 / 0.25)' },
-  admin:   { bg: 'rgb(251 191 36 / 0.12)',  text: '#fde68a', border: 'rgb(251 191 36 / 0.25)' },
+const roleColors: Record<string, { bg: string; text: string; border: string; badgeClass: string }> = {
+  student: { bg: 'rgb(0 245 255 / 0.1)',   text: '#00F5FF', border: 'rgb(0 245 255 / 0.3)',  badgeClass: 'anime-badge-cyan' },
+  faculty: { bg: 'rgb(57 255 20 / 0.1)',   text: '#39FF14', border: 'rgb(57 255 20 / 0.3)',  badgeClass: 'anime-badge-volt' },
+  admin:   { bg: 'rgb(255 215 0 / 0.12)',  text: '#FFD700', border: 'rgb(255 215 0 / 0.3)',  badgeClass: 'anime-badge-gold' },
 };
 
 interface NavLinkProps {
@@ -85,44 +85,35 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       href={item.href}
       title={!expanded ? item.name : undefined}
       className={cn(
-        'group relative flex items-center rounded-xl text-[13px] font-medium transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-lg',
-        expanded ? 'gap-3 px-3 h-9' : 'justify-center h-10 w-10 mx-auto',
+        'group relative flex items-center rounded-lg text-[13px] font-semibold transition-all duration-300 ease-out',
+        expanded ? 'gap-3 px-3 h-10' : 'justify-center h-10 w-10 mx-auto',
         active
           ? 'text-foreground'
-          : 'text-muted-foreground hover:text-foreground hover:bg-white/5',
+          : 'text-muted-foreground hover:text-foreground',
       )}
       style={active ? {
         background: isAdmin
-          ? 'rgb(251 191 36 / 0.1)'
-          : 'rgb(129 140 248 / 0.12)',
+          ? 'rgb(255 215 0 / 0.08)'
+          : 'rgb(255 0 110 / 0.1)',
         boxShadow: isAdmin
-          ? '0 0 0 1px rgb(251 191 36 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)'
-          : '0 0 0 1px rgb(129 140 248 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)',
-      } : {}}
+          ? '4px 4px 0 rgb(255 215 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)'
+          : '4px 4px 0 rgb(255 0 110 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.05)',
+        borderLeft: isAdmin ? '2px solid #FFD700' : '2px solid #FF006E',
+      } : {
+        transition: 'all 0.2s ease',
+      }}
     >
-      {/* Active pill indicator */}
-      {active && expanded && (
-        <span
-          className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full animate-fade-in"
-          style={{
-            background: isAdmin
-              ? 'linear-gradient(180deg, #fbbf24, #f59e0b)'
-              : 'linear-gradient(180deg, #818cf8, #22d3ee)',
-            boxShadow: isAdmin ? '0 0 8px #fbbf24' : '0 0 8px #818cf8',
-          }}
-        />
-      )}
-
+      {/* Active left-stripe indicator — brutalist */}
       {active && !expanded && (
         <span
-          className="absolute inset-0 rounded-xl"
+          className="absolute inset-0 rounded-lg"
           style={{
             background: isAdmin
-              ? 'rgb(251 191 36 / 0.12)'
-              : 'rgb(129 140 248 / 0.12)',
+              ? 'rgb(255 215 0 / 0.1)'
+              : 'rgb(255 0 110 / 0.1)',
             boxShadow: isAdmin
-              ? '0 0 0 1px rgb(251 191 36 / 0.2)'
-              : '0 0 0 1px rgb(129 140 248 / 0.2)',
+              ? '0 0 12px rgb(255 215 0 / 0.3)'
+              : '0 0 12px rgb(255 0 110 / 0.3)',
           }}
         />
       )}
@@ -133,20 +124,17 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
           'flex-shrink-0 transition-all duration-300 ease-out',
           expanded ? 'h-4 w-4' : 'h-[18px] w-[18px]',
           active
-            ? isAdmin ? 'text-amber-300' : 'text-indigo-300'
-            : 'text-muted-foreground group-hover:text-muted-foreground',
+            ? isAdmin ? 'text-yellow-300 drop-shadow-[0_0_8px_#FFD700]' : 'text-pink-400 drop-shadow-[0_0_8px_#FF006E]'
+            : 'text-muted-foreground group-hover:text-foreground',
         )}
       />
 
       {expanded && (
-        <span className="flex-1 truncate animate-fade-in" style={{ animationDuration: '400ms' }}>{item.name}</span>
+        <span className="flex-1 truncate animate-fade-in" style={{ animationDuration: '300ms' }}>{item.name}</span>
       )}
 
       {expanded && isAdmin && (
-        <span
-          className="text-[9px] font-bold px-1.5 py-0.5 rounded-md tracking-wider animate-fade-in"
-          style={{ background: 'rgb(251 191 36 / 0.12)', color: '#fbbf24', border: '1px solid rgb(251 191 36 / 0.2)' }}
-        >
+        <span className="anime-badge anime-badge-gold text-[8px] px-1.5 py-0.5 animate-fade-in">
           ADMIN
         </span>
       )}
@@ -154,11 +142,11 @@ const NavLink = memo(function NavLink({ item, active, isAdmin, expanded }: NavLi
       {/* Tooltip for icon-only state */}
       {!expanded && (
         <span
-          className="pointer-events-none absolute left-[calc(100%+8px)] rounded-lg px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200]"
+          className="pointer-events-none absolute left-[calc(100%+10px)] rounded-md px-2.5 py-1.5 text-xs text-foreground opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-[200] animate-slide-in-right"
           style={{
-            background: '#0c0c20',
-            border: '1px solid #1a1a3a',
-            boxShadow: '0 4px 16px rgb(0 0 0 / 0.6)',
+            background: '#0D0D1E',
+            border: '1px solid #252545',
+            boxShadow: '4px 4px 0 rgb(255 0 110 / 0.2)',
           }}
         >
           {item.name}
@@ -212,61 +200,62 @@ export function Sidebar() {
       <aside
         className={cn(
           'flex flex-col flex-shrink-0 relative overflow-visible z-[1000]',
-          'transition-all duration-300 ease-out border border-white/10',
-          
-          // Mobile specific classes: fixed full height, slide in/out
-          'fixed inset-y-0 left-0 h-full w-64 rounded-r-[2rem] md:static md:my-4 md:ml-4 md:h-[calc(100vh-2rem)] md:rounded-[2rem]',
-          
+          'transition-all duration-300 ease-out',
+          // Mobile specific classes
+          'fixed inset-y-0 left-0 h-full w-64 md:static md:my-3 md:ml-3 md:h-[calc(100vh-1.5rem)] md:rounded-2xl',
           // Visibility based on state
           isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
           expanded ? 'md:w-64' : 'md:w-20',
         )}
-      style={{
-        background: 'rgba(15, 15, 35, 0.4)',
-        backdropFilter: 'blur(40px) saturate(2)',
-        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(255, 255, 255, 0.05)',
-      }}
-      onMouseEnter={() => setExpanded(true)}
-      onMouseLeave={() => setExpanded(false)}
-    >
-      {/* Brand */}
-      <div
-        className={cn(
-          'flex h-14 flex-shrink-0 items-center justify-between px-4',
-          (expanded || isOpen) ? 'md:gap-3 md:justify-start' : 'md:justify-center md:px-0',
-        )}
-        style={{ borderBottom: '1px solid #1a1a3a' }}
+        style={{
+          background: '#0D0D1E',
+          border: '1px solid #252545',
+          boxShadow:
+            '8px 8px 20px #06060F, -4px -4px 12px #1E1E38, inset 0 1px 0 rgba(255,255,255,0.04)',
+        }}
+        onMouseEnter={() => setExpanded(true)}
+        onMouseLeave={() => setExpanded(false)}
       >
-        <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={() => setIsOpen(false)}>
-          <div
-            className="h-8 w-8 flex-shrink-0 rounded-xl flex items-center justify-center text-foreground"
-            style={{
-              background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
-              boxShadow: '0 0 16px rgb(129 140 248 / 0.4), 0 0 40px rgb(129 140 248 / 0.1)',
-            }}
-          >
-            <GraduationCap className="h-4 w-4" />
-          </div>
-          <span
-            className={cn(
-              "text-[13px] font-bold tracking-tight text-foreground truncate animate-fade-in",
-              !expanded && !isOpen ? "md:hidden" : ""
-            )}
-            style={{ fontFamily: "'Outfit', sans-serif" }}
-          >
-            Kings EC
-          </span>
-        </Link>
-        {/* Mobile close button */}
-        {isOpen && (
-          <button 
-            className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
-            onClick={() => setIsOpen(false)}
-          >
-            <X className="h-5 w-5" />
-          </button>
-        )}
-      </div>
+        {/* Anime energy bar at top of sidebar */}
+        <div className="energy-bar-thin" />
+        {/* Brand */}
+        <div
+          className={cn(
+            'flex h-14 flex-shrink-0 items-center justify-between px-4',
+            (expanded || isOpen) ? 'md:gap-3 md:justify-start' : 'md:justify-center md:px-0',
+          )}
+          style={{ borderBottom: '1px solid #252545' }}
+        >
+          <Link href="/dashboard" className="flex items-center gap-3 min-w-0" onClick={() => setIsOpen(false)}>
+            <div
+              className="h-8 w-8 flex-shrink-0 rounded-lg flex items-center justify-center glitch-text"
+              style={{
+                background: 'linear-gradient(135deg, #FF006E 0%, #BF00FF 100%)',
+                boxShadow: '0 0 16px rgb(255 0 110 / 0.5), 4px 4px 0 rgb(255 0 110 / 0.2)',
+              }}
+            >
+              <GraduationCap className="h-4 w-4 text-white" />
+            </div>
+            <span
+              className={cn(
+                "text-[14px] font-black tracking-tighter text-foreground truncate animate-fade-in brutalist-heading",
+                !expanded && !isOpen ? "md:hidden" : ""
+              )}
+              style={{ fontFamily: "'Outfit', sans-serif", fontSize: '15px' }}
+            >
+              KINGS EC
+            </span>
+          </Link>
+          {/* Mobile close button */}
+          {isOpen && (
+            <button
+              className="md:hidden text-muted-foreground hover:text-foreground transition-colors p-1"
+              onClick={() => setIsOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
+        </div>
 
       {/* Expand indicator */}
       <div
@@ -280,25 +269,24 @@ export function Sidebar() {
         <ChevronRight className="h-2.5 w-2.5" />
       </div>
 
-      {/* Nav */}
-      <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-3 gap-px [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1.5')}>
-        {navSections.map((section) => {
-          const visible = section.items.filter(i => !i.roles || i.roles.includes(role));
-          if (visible.length === 0) return null;
+        {/* Nav */}
+        <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-3 gap-px [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1.5')}>
+          {navSections.map((section) => {
+            const visible = section.items.filter(i => !i.roles || i.roles.includes(role));
+            if (visible.length === 0) return null;
 
-          return (
-            <div key={section.label} className="mb-3">
-              {expanded && (
-                <p className="px-3 mb-1.5 text-[9px] font-bold tracking-[0.15em] uppercase animate-fade-in"
-                  style={{ color: '#2d2d5e' }}>
-                  {section.label}
-                </p>
-              )}
-              {!expanded && (
-                <div className="my-1.5 mx-1.5 h-px" style={{ background: 'linear-gradient(90deg, transparent, #1a1a3a, transparent)' }} />
-              )}
+            return (
+              <div key={section.label} className="mb-4">
+                {expanded ? (
+                  <p className="px-3 mb-1.5 text-[9px] font-black tracking-[0.2em] uppercase animate-brutalist-slide brutalist-stripe"
+                    style={{ color: '#FF006E', paddingLeft: '12px' }}>
+                    {section.label}
+                  </p>
+                ) : (
+                  <div className="my-1.5 mx-1.5 divider-pink" />
+                )}
 
-              <div className="flex flex-col gap-0.5">
+                <div className="flex flex-col gap-0.5">
                 {visible.map((item) => {
                   const active = isActive(item.href);
                   const isAdmin = item.roles?.length === 1 && item.roles[0] === 'admin';
@@ -386,39 +374,41 @@ export function Sidebar() {
         </button>
       </nav>
 
-      {/* User footer */}
-      <div
-        className="flex-shrink-0 py-3"
-        style={{ borderTop: '1px solid #1a1a3a', padding: (expanded || isOpen) ? '12px 16px' : '12px 0', display: 'flex', justifyContent: (expanded || isOpen) ? 'flex-start' : 'center' }}
-      >
-        {loading ? (
-          <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
-            <div className="h-8 w-8 rounded-full skeleton flex-shrink-0" />
-            {(expanded || isOpen) && (
-              <div className="flex-1 space-y-1.5 animate-fade-in" style={{ animationDuration: '400ms' }}>
-                <div className="h-2 w-20 rounded skeleton" />
-                <div className="h-2 w-12 rounded skeleton" />
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
-            <Avatar name={displayName} size="sm" ring="none" />
-            {(expanded || isOpen) && (
-              <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
-                <p className="text-[12px] font-semibold text-foreground/90 truncate">{displayName}</p>
-                <span
-                  className="inline-block mt-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-full capitalize tracking-wide"
-                  style={roleStyle}
-                >
-                  {role}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    </aside>
+        {/* User footer */}
+        <div
+          className="flex-shrink-0 py-3"
+          style={{
+            borderTop: '1px solid #252545',
+            padding: (expanded || isOpen) ? '12px 16px' : '12px 0',
+            display: 'flex',
+            justifyContent: (expanded || isOpen) ? 'flex-start' : 'center',
+          }}
+        >
+          {loading ? (
+            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
+              <div className="h-8 w-8 rounded-full skeleton flex-shrink-0" />
+              {(expanded || isOpen) && (
+                <div className="flex-1 space-y-1.5 animate-fade-in" style={{ animationDuration: '400ms' }}>
+                  <div className="h-2 w-20 rounded skeleton" />
+                  <div className="h-2 w-12 rounded skeleton" />
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-2.5' : 'justify-center')}>
+              <Avatar name={displayName} size="sm" ring="none" />
+              {(expanded || isOpen) && (
+                <div className="flex-1 min-w-0 animate-fade-in" style={{ animationDuration: '400ms' }}>
+                  <p className="text-[12px] font-bold text-foreground/90 truncate">{displayName}</p>
+                  <span className={cn('anime-badge mt-0.5 inline-block capitalize', roleStyle.badgeClass)}>
+                    {role}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </aside>
     </>
   );
 }

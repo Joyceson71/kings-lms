@@ -112,73 +112,81 @@
   --glass-shadow: 0 4px 20px rgb(0 0 0 / 0.04), inset 0 1px 0 rgb(255 255 255 / 1);
 }
 
-/* ─── EXTREME NEO-CLAYMORPHISM — Vibrant 3D Theme ──────────────────── */
+/* ─── ANIME × NEO × BRUTALISM × SPATIAL — Dark Theme ──────────────────── */
 .dark {
-  /* Core surfaces — deep vibrant indigo */
-  --background:         #110B29;
-  --foreground:         #F0E6FF;
-  --card:               #1E1644;
-  --card-foreground:    #F0E6FF;
-  --popover:            #2A1B54;
-  --popover-foreground: #F0E6FF;
+  /* ─ Core Surfaces — Deep space indigo-black ─ */
+  --background:         #0A0A14;
+  --foreground:         #F0F0FF;
+  --card:               #111120;
+  --card-foreground:    #F0F0FF;
+  --popover:            #16162A;
+  --popover-foreground: #F0F0FF;
 
-  /* Primary — neon pink */
-  --primary:            #FF2A6D;
+  /* ─ Anime Pink — Primary energy ─ */
+  --primary:            #FF006E;
   --primary-foreground: #ffffff;
 
-  /* Secondary — subtle raised purple */
-  --secondary:          #3A2A7A;
-  --secondary-foreground: #D3C6F9;
+  /* ─ Secondary — Neomorphic raised surface ─ */
+  --secondary:          #1A1A2E;
+  --secondary-foreground: #C0C0F0;
 
-  /* Muted */
-  --muted:              #2A1B54;
-  --muted-foreground:   #A89BDE;
+  /* ─ Muted ─ */
+  --muted:              #16162A;
+  --muted-foreground:   #6060A0;
 
-  /* Accent — neon cyan */
-  --accent:             #05D9E8;
-  --accent-foreground:  #ffffff;
+  /* ─ Cyber Cyan — Accent ─ */
+  --accent:             #00F5FF;
+  --accent-foreground:  #0A0A14;
 
-  /* Destructive */
-  --destructive:        #FF3366;
+  /* ─ Destructive ─ */
+  --destructive:        #FF006E;
 
-  /* Structure */
-  --border:   #4A379A;
-  --input:    #2A1B54;
-  --ring:     #FF2A6D;
+  /* ─ Structure ─ */
+  --border:   #252545;
+  --input:    #16162A;
+  --ring:     #FF006E;
   --radius:   1rem;
 
-  /* Extended tokens */
-  --gold:        #FFEA00;
-  --gold-muted:  rgb(255 234 0 / 0.15);
-  --violet:      #B92B27;
-  --violet-glow: rgb(255 42 109 / 0.25);
-  --emerald-glow:rgb(1 255 229 / 0.25);
-  --cyan:        #05D9E8;
-  --cyan-glow:   rgb(5 217 232 / 0.25);
+  /* ─ Extended Anime Tokens ─ */
+  --gold:        #FFD700;
+  --gold-muted:  rgb(255 215 0 / 0.18);
+  --violet:      #BF00FF;
+  --violet-glow: rgb(191 0 255 / 0.3);
+  --emerald-glow:rgb(57 255 20 / 0.25);
+  --cyan:        #00F5FF;
+  --cyan-glow:   rgb(0 245 255 / 0.3);
 
-  /* Sidebar */
-  --sidebar:                    #110B29;
-  --sidebar-foreground:         #F0E6FF;
-  --sidebar-primary:            #FF2A6D;
+  /* ─ Sidebar ─ */
+  --sidebar:                    #0D0D1E;
+  --sidebar-foreground:         #F0F0FF;
+  --sidebar-primary:            #FF006E;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:             #2A1B54;
-  --sidebar-accent-foreground:  #D3C6F9;
-  --sidebar-border:             #3A2A7A;
-  --sidebar-ring:               #FF2A6D;
+  --sidebar-accent:             #16162A;
+  --sidebar-accent-foreground:  #C0C0F0;
+  --sidebar-border:             #252545;
+  --sidebar-ring:               #FF006E;
 
-  /* Charts */
-  --chart-1: #FF2A6D;
-  --chart-2: #01FFE5;
-  --chart-3: #FFEA00;
-  --chart-4: #FF3366;
-  --chart-5: #05D9E8;
+  /* ─ Charts ─ */
+  --chart-1: #FF006E;
+  --chart-2: #39FF14;
+  --chart-3: #FFD700;
+  --chart-4: #BF00FF;
+  --chart-5: #00F5FF;
 
-  /* Glow & Glass tokens */
-  --primary-glow: rgb(255 42 109 / 0.3);
-  --glass-bg:     rgb(30 22 68 / 0.85);
-  --glass-border: rgb(255 255 255 / 0.1);
-  --glass-shadow: 0 10px 40px rgb(0 0 0 / 0.6), inset 0 2px 0 rgb(255 255 255 / 0.1);
+  /* ─ Neomorphism Dark Tokens ─ */
+  --neo-bg:           #111120;
+  --neo-shadow-dark:  #06060F;
+  --neo-shadow-light: #1E1E38;
+  --neo-inset-dark:   #080812;
+  --neo-inset-light:  #1A1A32;
+
+  /* ─ Glow & Glass ─ */
+  --primary-glow:  rgb(255 0 110 / 0.35);
+  --glass-bg:      rgb(17 17 32 / 0.88);
+  --glass-border:  rgb(255 255 255 / 0.07);
+  --glass-shadow:  0 10px 40px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.08);
 }
+
 
 /* ─── Base ─────────────────────────────────────────────────── */
 @layer base {
@@ -266,14 +274,27 @@
 
 @keyframes neon-pulse {
   0%, 100% {
-    box-shadow: 0 0 0 1px rgb(129 140 248 / 0.2),
-                0 0 12px rgb(129 140 248 / 0.15),
-                0 0 30px rgb(129 140 248 / 0.05);
+    box-shadow: 0 0 0 1px rgb(255 0 110 / 0.3),
+                0 0 12px rgb(255 0 110 / 0.2),
+                0 0 30px rgb(255 0 110 / 0.08);
   }
   50% {
-    box-shadow: 0 0 0 1px rgb(129 140 248 / 0.4),
-                0 0 20px rgb(129 140 248 / 0.3),
-                0 0 50px rgb(129 140 248 / 0.1);
+    box-shadow: 0 0 0 1px rgb(255 0 110 / 0.6),
+                0 0 24px rgb(255 0 110 / 0.4),
+                0 0 60px rgb(255 0 110 / 0.15);
+  }
+}
+
+@keyframes cyan-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 1px rgb(0 245 255 / 0.3),
+                0 0 12px rgb(0 245 255 / 0.2),
+                0 0 30px rgb(0 245 255 / 0.08);
+  }
+  50% {
+    box-shadow: 0 0 0 1px rgb(0 245 255 / 0.6),
+                0 0 24px rgb(0 245 255 / 0.4),
+                0 0 60px rgb(0 245 255 / 0.15);
   }
 }
 
@@ -340,6 +361,69 @@
   to   { transform: scaleX(1); }
 }
 
+/* ANIME × BRUTALISM × SPATIAL NEW KEYFRAMES */
+@keyframes glitch {
+  0%   { transform: translate(0, 0); }
+  10%  { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  20%  { transform: translate(2px, -1px); filter: none; }
+  30%  { transform: translate(-1px, 2px); filter: hue-rotate(180deg); }
+  40%  { transform: translate(0, 0); filter: none; }
+  100% { transform: translate(0, 0); }
+}
+
+@keyframes energy-flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  92%       { opacity: 1; }
+  93%       { opacity: 0.4; }
+  94%       { opacity: 1; }
+  96%       { opacity: 0.6; }
+  97%       { opacity: 1; }
+}
+
+@keyframes plasma-wave {
+  0%   { transform: scale(1) rotate(0deg); opacity: 0.6; }
+  50%  { transform: scale(1.3) rotate(180deg); opacity: 0.3; }
+  100% { transform: scale(1) rotate(360deg); opacity: 0.6; }
+}
+
+@keyframes brutalist-slide {
+  from { transform: translateX(-4px) skewX(-2deg); opacity: 0; }
+  to   { transform: translateX(0) skewX(0deg); opacity: 1; }
+}
+
+@keyframes spatial-rise {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes volt-surge {
+  0%, 100% {
+    box-shadow: 0 0 5px #39FF14, 0 0 15px #39FF14, 0 0 30px #39FF14;
+  }
+  50% {
+    box-shadow: 0 0 10px #39FF14, 0 0 30px #39FF14, 0 0 70px #39FF14;
+  }
+}
+
+@keyframes sakura-drift {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+@keyframes orb-float-3 {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%       { transform: translate(15px, 25px) scale(1.05); }
+  66%       { transform: translate(-25px, -10px) scale(0.95); }
+}
+
 /* ─── Utility Classes ───────────────────────────────────────── */
 @layer utilities {
 
@@ -347,7 +431,7 @@
   .glass-card {
     background: var(--card);
     border: 1px solid var(--border);
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.05), inset 0 1px 0 rgb(255 255 255 / 0.03);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1), inset 0 1px 0 rgb(255 255 255 / 0.05);
   }
 
   .glass {
@@ -363,6 +447,182 @@
     -webkit-backdrop-filter: blur(20px) saturate(1.8);
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
+  }
+
+  /* ══ NEOMORPHISM ══ */
+  .neo-raised {
+    background: var(--neo-bg);
+    box-shadow: 6px 6px 14px var(--neo-shadow-dark), -6px -6px 14px var(--neo-shadow-light);
+    border: none;
+  }
+
+  .neo-inset {
+    background: var(--neo-bg);
+    box-shadow: inset 4px 4px 10px var(--neo-inset-dark, #080812), inset -4px -4px 10px var(--neo-inset-light, #1A1A32);
+    border: none;
+  }
+
+  .neo-card {
+    background: var(--neo-bg);
+    border-radius: 20px;
+    box-shadow:
+      8px 8px 20px var(--neo-shadow-dark),
+      -8px -8px 20px var(--neo-shadow-light),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.04);
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .neo-card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      12px 12px 30px var(--neo-shadow-dark),
+      -12px -12px 30px var(--neo-shadow-light),
+      inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+
+  .neo-btn {
+    background: var(--neo-bg);
+    box-shadow: 4px 4px 10px var(--neo-shadow-dark), -4px -4px 10px var(--neo-shadow-light);
+    border: none;
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+  .neo-btn:hover {
+    box-shadow: 6px 6px 14px var(--neo-shadow-dark), -6px -6px 14px var(--neo-shadow-light);
+  }
+  .neo-btn:active {
+    box-shadow: inset 3px 3px 8px var(--neo-shadow-dark), inset -3px -3px 8px var(--neo-shadow-light);
+  }
+
+  .neo-input {
+    background: var(--neo-bg);
+    box-shadow: inset 3px 3px 8px var(--neo-inset-dark, #080812), inset -3px -3px 8px var(--neo-inset-light, #1A1A32);
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+  .neo-input:focus {
+    border-color: var(--primary);
+    box-shadow:
+      inset 3px 3px 8px var(--neo-inset-dark, #080812),
+      inset -3px -3px 8px var(--neo-inset-light, #1A1A32),
+      0 0 0 2px rgb(255 0 110 / 0.2),
+      0 0 20px rgb(255 0 110 / 0.15);
+  }
+
+  /* ══ MAXIMALIST BRUTALISM ══ */
+  .brutalist-border { border: 3px solid var(--foreground); box-shadow: 4px 4px 0 var(--primary); }
+  .brutalist-border-accent { border: 2px solid var(--accent); box-shadow: 4px 4px 0 var(--primary); }
+
+  .brutalist-card {
+    border: 2px solid var(--border);
+    box-shadow: 5px 5px 0 var(--primary), 10px 10px 0 rgba(0, 245, 255, 0.1);
+    transition: all 0.2s ease;
+    border-radius: 4px;
+  }
+  .brutalist-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 8px 8px 0 var(--primary), 14px 14px 0 rgba(0, 245, 255, 0.15);
+  }
+
+  .clip-corner    { clip-path: polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 0 100%); }
+  .clip-corner-sm { clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); }
+  .brutalist-heading { font-weight: 900; letter-spacing: -0.04em; text-transform: uppercase; line-height: 0.9; }
+  .brutalist-stripe { border-left: 4px solid var(--primary); padding-left: 12px; }
+  .brutalist-stripe-cyan { border-left: 4px solid var(--accent); padding-left: 12px; }
+
+  /* ══ ANIME UTILITIES ══ */
+  .energy-bar {
+    height: 4px;
+    border-radius: 0;
+    background: linear-gradient(90deg, #FF006E, #00F5FF, #39FF14);
+    background-size: 200% 100%;
+    animation: energy-flow 3s ease-in-out infinite;
+    box-shadow: 0 0 8px #FF006E, 0 0 20px rgba(255, 0, 110, 0.4);
+  }
+  .energy-bar-thin {
+    height: 2px;
+    border-radius: 0;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    background-size: 200% 100%;
+    animation: energy-flow 2s ease-in-out infinite;
+    box-shadow: 0 0 6px var(--primary);
+  }
+  .glitch-text:hover { animation: glitch 0.4s steps(1) forwards; }
+
+  .anime-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 10px;
+    border-radius: 2px;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border: 1px solid currentColor;
+    clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
+  }
+  .anime-badge-pink  { background: rgb(255 0 110 / 0.12); color: #FF006E; border-color: rgb(255 0 110 / 0.4); box-shadow: 0 0 8px rgb(255 0 110 / 0.2); }
+  .anime-badge-cyan  { background: rgb(0 245 255 / 0.1);  color: #00F5FF; border-color: rgb(0 245 255 / 0.4);  box-shadow: 0 0 8px rgb(0 245 255 / 0.2); }
+  .anime-badge-volt  { background: rgb(57 255 20 / 0.1);  color: #39FF14; border-color: rgb(57 255 20 / 0.4);  box-shadow: 0 0 8px rgb(57 255 20 / 0.2); }
+  .anime-badge-gold  { background: rgb(255 215 0 / 0.12); color: #FFD700; border-color: rgb(255 215 0 / 0.4);  box-shadow: 0 0 8px rgb(255 215 0 / 0.2); }
+
+  /* ══ SPATIAL UI ══ */
+  .perspective-800  { perspective: 800px; }
+  .perspective-1000 { perspective: 1000px; }
+  .perspective-1500 { perspective: 1500px; }
+  .transform-3d     { transform-style: preserve-3d; }
+
+  .spatial-card {
+    transform: translateZ(0);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease;
+    will-change: transform;
+  }
+  .spatial-card:hover {
+    transform: translateZ(12px) translateY(-4px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 0, 110, 0.2);
+  }
+
+  .bg-anime-orbs {
+    background-image:
+      radial-gradient(ellipse at 15% 25%, rgb(255 0 110 / 0.18) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 75%, rgb(0 245 255 / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgb(191 0 255 / 0.1) 0%, transparent 60%),
+      radial-gradient(ellipse at 75% 10%, rgb(57 255 20 / 0.08) 0%, transparent 40%),
+      radial-gradient(ellipse at 20% 90%, rgb(255 215 0 / 0.08) 0%, transparent 40%);
+  }
+  .bg-scanlines {
+    background-image: repeating-linear-gradient(0deg, transparent 0px, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
+  }
+  .bg-grid-sm {
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* ══ GLOW EFFECTS ══ */
+  .glow-pink   { box-shadow: 0 0 0 1px rgb(255 0 110 / 0.3), 0 0 20px rgb(255 0 110 / 0.25); }
+  .glow-cyan   { box-shadow: 0 0 0 1px rgb(0 245 255 / 0.3), 0 0 20px rgb(0 245 255 / 0.25); }
+  .glow-volt   { box-shadow: 0 0 0 1px rgb(57 255 20 / 0.3), 0 0 20px rgb(57 255 20 / 0.25); }
+  .glow-gold   { box-shadow: 0 0 0 1px rgb(255 215 0 / 0.3), 0 0 20px rgb(255 215 0 / 0.25); }
+  .glow-plasma { box-shadow: 0 0 0 1px rgb(191 0 255 / 0.3), 0 0 20px rgb(191 0 255 / 0.25); }
+
+  /* ══ GRADIENT TEXT ══ */
+  .gradient-text-anime {
+    background: linear-gradient(135deg, #FF006E 0%, #BF00FF 40%, #00F5FF 80%, #FF006E 100%);
+    background-size: 300% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
+  }
+  .gradient-text-volt {
+    background: linear-gradient(135deg, #39FF14 0%, #00F5FF 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   /* ── Cosmic gradient text ── */
@@ -514,22 +774,33 @@
   /* .bento-card is no longer used, components use .clay-card directly */
 
   /* ── Animations ── */
-  .animate-fade-in        { animation: fade-in 0.25s ease-out forwards; }
-  .animate-slide-in-up    { animation: slide-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-slide-in-down  { animation: slide-in-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-slide-in-right { animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-shimmer        { animation: shimmer 4s linear infinite; }
-  .animate-gradient-x     { animation: gradient-x 5s ease infinite; }
-  .animate-neon-pulse     { animation: neon-pulse 2.5s ease-in-out infinite; }
-  .animate-status-pulse   { animation: status-pulse 2s ease-in-out infinite; }
-  .animate-scan-ring      { animation: scan-ring 1.5s ease-out infinite; }
-  .animate-spin-slow      { animation: spin-slow 10s linear infinite; }
-  .animate-float          { animation: float 6s ease-in-out infinite; }
-  .animate-orb-float-1    { animation: orb-float-1 10s ease-in-out infinite; }
-  .animate-orb-float-2    { animation: orb-float-2 13s ease-in-out infinite; }
-  .animate-bounce-in      { animation: bounce-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-scan           { animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-  .animate-mesh-shift     { animation: mesh-shift 12s ease infinite; }
+  .animate-fade-in          { animation: fade-in 0.25s ease-out forwards; }
+  .animate-slide-in-up      { animation: slide-in-up 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-slide-in-down    { animation: slide-in-down 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-slide-in-right   { animation: slide-in-right 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-shimmer          { animation: shimmer 4s linear infinite; }
+  .animate-gradient-x       { animation: gradient-x 5s ease infinite; }
+  .animate-neon-pulse       { animation: neon-pulse 2.5s ease-in-out infinite; }
+  .animate-cyan-pulse       { animation: cyan-pulse 2.5s ease-in-out infinite; }
+  .animate-status-pulse     { animation: status-pulse 2s ease-in-out infinite; }
+  .animate-scan-ring        { animation: scan-ring 1.5s ease-out infinite; }
+  .animate-spin-slow        { animation: spin-slow 10s linear infinite; }
+  .animate-float            { animation: float 6s ease-in-out infinite; }
+  .animate-orb-float-1      { animation: orb-float-1 10s ease-in-out infinite; }
+  .animate-orb-float-2      { animation: orb-float-2 13s ease-in-out infinite; }
+  .animate-orb-float-3      { animation: orb-float-3 17s ease-in-out infinite; }
+  .animate-bounce-in        { animation: bounce-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-scan             { animation: scan 3s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
+  .animate-mesh-shift       { animation: mesh-shift 12s ease infinite; }
+  .animate-glitch           { animation: glitch 0.4s steps(1) forwards; }
+  .animate-energy-flow      { animation: energy-flow 3s ease-in-out infinite; }
+  .animate-flicker          { animation: flicker 5s linear infinite; }
+  .animate-plasma-wave      { animation: plasma-wave 8s ease-in-out infinite; }
+  .animate-brutalist-slide  { animation: brutalist-slide 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-spatial-rise     { animation: spatial-rise 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-sakura-drift     { animation: sakura-drift 8s linear infinite; }
+  .animate-volt-surge       { animation: volt-surge 1.5s ease-in-out infinite; }
+  .animate-pulse-soft       { animation: pulse-soft 3s ease-in-out infinite; }
 
   /* ── Skeleton shimmer ── */
   .skeleton {

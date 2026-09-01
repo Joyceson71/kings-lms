@@ -108,7 +108,7 @@ export default function TimetableClient({ initialData, isFaculty, courses }: Pro
       setTimetable(prev => prev.filter(e => e.id !== existing.id));
       toast.success('Entry removed');
       setSelectedCell(null);
-    } catch (err) {
+    } catch {
       toast.error('Failed to remove entry');
     } finally {
       setLoading(false);

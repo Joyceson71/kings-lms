@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useUser } from '@/lib/hooks/use-user';
 import { useTheme } from 'next-themes';
 import { createClient } from '@/lib/supabase/client';
+import { toast } from 'sonner';
 
 import { ProfileTab } from '@/components/settings/profile-tab';
 import { NotificationsTab } from '@/components/settings/notifications-tab';
@@ -84,10 +85,12 @@ export default function SettingsPage() {
         data: { full_name: nameValue }
       });
       
+      toast.success("Profile saved");
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to save profile:', err);
+      toast.error(err.message || 'Failed to save profile');
     } finally {
       setIsSaving(false);
     }

@@ -7,6 +7,9 @@ import { toast } from 'sonner';
 import { MapPin, Download, CheckCircle, Crosshair, X, Info } from 'lucide-react';
 import GeofenceManager from '@/components/iv/GeofenceManager';
 import { IVGlobe } from '@/components/iv/IVGlobe';
+import iconUrl from 'leaflet/dist/images/marker-icon.png';
+import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
+import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 interface IVMapProps {
   tripId: string;
@@ -62,6 +65,8 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     const initMap = async () => {
       L = (await import('leaflet')).default;
       await import('leaflet.markercluster');
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({ iconUrl: iconUrl.src, iconRetinaUrl: iconRetinaUrl.src, shadowUrl: shadowUrl.src });
       
       try {
         await import('leaflet-routing-machine');

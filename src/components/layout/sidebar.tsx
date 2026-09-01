@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
-  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, Sparkles, MapPin, X
+  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, MapPin, X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
@@ -47,7 +47,6 @@ const navSections: NavSection[] = [
       { name: 'Courses',       href: '/dashboard/courses',       icon: BookOpen },
       { name: 'Assignments',   href: '/dashboard/assignments',   icon: ClipboardList },
       { name: 'Resources',     href: '/dashboard/resources',     icon: Library },
-      { name: 'IBM Bob',       href: '/dashboard/assistant',     icon: Sparkles },
       { name: 'Leaderboard',   href: '/dashboard/leaderboard',   icon: Trophy,      roles: ['student'] },
     ],
   },
@@ -319,13 +318,19 @@ export function Sidebar() {
         </button>
       </nav>
 
-        {/* User footer */}
         <div
           className={cn(
-            'flex-shrink-0 py-4 border-t border-white/5 transition-all duration-300',
-            (expanded || isOpen) ? 'px-4' : 'px-0 flex justify-center'
+            'flex-shrink-0 py-4 border-t border-white/5 transition-all duration-300 flex flex-col',
+            (expanded || isOpen) ? 'px-4' : 'px-0 flex items-center'
           )}
         >
+          {/* IBM watsonx badge */}
+          <div className={cn(
+            'mb-4 transition-all duration-300',
+            (expanded || isOpen) ? 'text-center' : 'hidden'
+          )}>
+            <span className="text-[10px] text-muted-foreground/60 font-medium">Bob AI • Powered by IBM watsonx</span>
+          </div>
           {loading ? (
             <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-3' : 'justify-center')}>
               <div className="h-9 w-9 rounded-full bg-secondary flex-shrink-0" />

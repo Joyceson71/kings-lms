@@ -1,73 +1,31 @@
-import type { NextConfig } from 'next';
-
+import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: '*.supabase.co',
-        pathname: '/storage/v1/object/public/**',
+        protocol: "https",
+        hostname: "*.supabase.co",
+        pathname: "/storage/v1/object/public/**",
       },
       {
-        protocol: 'https',
-        hostname: '*.tile.openstreetmap.org',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.googleusercontent.com',
-      },
-      {
-        protocol: 'https',
-        hostname: 'avatars.githubusercontent.com',
+        protocol: "https",
+        hostname: "*.tile.openstreetmap.org",
       },
     ],
   },
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
-          // Security headers
-          { key: 'X-Frame-Options', value: 'DENY' },
-          { key: 'X-Content-Type-Options', value: 'nosniff' },
-          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
-          {
-            key: 'Permissions-Policy',
-            value: 'camera=(), microphone=(), geolocation=()',
-          },
-          { key: 'Service-Worker-Allowed', value: '/' },
-          // Content Security Policy
-          {
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              // Next.js requires unsafe-inline for its inline scripts; prefer nonce in production
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-              "font-src 'self' https://fonts.gstatic.com",
-              "img-src 'self' data: blob: https:",
-              // Supabase realtime uses WebSockets
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://openrouter.ai https://fonts.googleapis.com https://fonts.gstatic.com https://raw.githack.com https://raw.githubusercontent.com https://*.googleusercontent.com https://avatars.githubusercontent.com",
-              "media-src 'self' blob:",
-              "worker-src 'self' blob:",
-              "frame-ancestors 'none'",
-            ].join('; '),
-          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "Permissions-Policy", value: "camera=(), microphone=()" },
+          { key: "Service-Worker-Allowed", value: "/" },
         ],
       },
     ];
   },
-  experimental: {
-    reactCompiler: true,
-    optimizePackageImports: ['lucide-react', 'recharts', 'canvas-confetti'],
-  },
 };
-
-const withPWA = require('@ducanh2912/next-pwa').default({
-  dest: 'public',
-  disable: process.env.NODE_ENV === 'development',
-  register: true,
-  skipWaiting: true,
-});
-
-export default withPWA(nextConfig);
+export default nextConfig;

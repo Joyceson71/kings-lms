@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { Capacitor } from '@capacitor/core';
+
 import { App } from '@capacitor/app';
 import { Geolocation } from '@capacitor/geolocation';
 import { Haptics, NotificationType } from '@capacitor/haptics';
@@ -90,29 +90,10 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
     const syncOfflineData = async () => {
       if (!navigator.onLine) return;
       try {
-        const db = await new Promise<IDBDatabase>((resolve, reject) => {
-          const req = indexedDB.open('iv-offline', 1);
-          req.onupgradeneeded = () => req.result.createObjectStore('pings', {autoIncrement:true});
-          req.onsuccess = () => resolve(req.result);
-          req.onerror = () => reject(req.error);
-        });
-
-        const tx = db.transaction('pings', 'readwrite');
-        const store = tx.objectStore('pings');
-        const getAllReq = store.getAll();
-        
-        getAllReq.onsuccess = async () => {
-          const pings = getAllReq.result;
-          if (pings && pings.length > 0) {
-            const latest = pings.reverse().find((p: any) => p.user_id === userId && p.iv_trip_id === tripId);
-            if (latest) {
-              latest.is_online = true; 
-              await supabase.from('iv_locations').upsert(latest, { onConflict: 'user_id,iv_trip_id' });
-            }
-            const clearTx = db.transaction('pings', 'readwrite');
-            clearTx.objectStore('pings').clear();
-          }
-        };
+        const q = JSON.parse(localStorage.getItem('iv_ping_queue') || '[]');
+        if (!q.length) return;
+        const { error } = await supabase.from('iv_locations').upsert(q, { onConflict: 'user_id,iv_trip_id' });
+        if (!error) localStorage.removeItem('iv_ping_queue');
       } catch (err) {
         console.error('Manual sync error:', err);
       }
@@ -172,21 +153,10 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         sendLoc().catch(err => console.error('Failed to update location', err));
       } else {
         try {
-          const db = await new Promise<IDBDatabase>((resolve, reject) => {
-            const req = indexedDB.open('iv-offline', 1);
-            req.onupgradeneeded = () => req.result.createObjectStore('pings', {autoIncrement:true});
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = () => reject(req.error);
-          });
-
-          await new Promise((resolve, reject) => {
-            const tx = db.transaction('pings', 'readwrite');
-            const store = tx.objectStore('pings');
-            const req = store.add(ping);
-            req.onsuccess = resolve;
-            req.onerror = reject;
-          });
-
+          const q = JSON.parse(localStorage.getItem('iv_ping_queue') || '[]');
+          q.push({ ...ping, queued_at: new Date().toISOString() });
+          localStorage.setItem('iv_ping_queue', JSON.stringify(q));
+          
           if ('serviceWorker' in navigator && 'SyncManager' in window) {
             const sw = await navigator.serviceWorker.ready;
             await (sw as any).sync.register('iv-location-sync');
@@ -263,10 +233,10 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         }
         
         const id = await Geolocation.watchPosition({
-          enableHighAccuracy: !batterySaver,
-          maximumAge: batterySaver ? 30000 : 10000,
-          timeout: batterySaver ? 15000 : 20000
-        }, (position, err) => {
+          enableHighAccuracy: true,
+          maximumAge: 5000,
+          timeout: 10000
+        }, (position, err: any) => {
           if (err) {
             console.warn('Capacitor Geolocation error:', err);
             return;
@@ -285,13 +255,19 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
             (position) => {
               processLocation(position.coords.latitude, position.coords.longitude, position.coords.accuracy);
             },
-            (error) => {
+            (error: any) => {
               console.warn('Geolocation error:', error);
+              if (error.code === 1) toast.error("Location permission denied. Enable in browser settings.");
+              else if (error.code === 2) toast.error("Location unavailable. Try moving outdoors.");
+              else if (error.code === 3) {
+                toast.error("GPS timeout. Retrying...");
+                // Note: The browser API or interval below handles the retry automatically
+              }
             },
             { 
-              enableHighAccuracy: !batterySaver, 
-              maximumAge: batterySaver ? 30000 : 10000, 
-              timeout: batterySaver ? 15000 : 20000 
+              enableHighAccuracy: true, 
+              maximumAge: 5000, 
+              timeout: 10000 
             }
           );
         }
@@ -312,8 +288,13 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
            if ('geolocation' in navigator) {
              navigator.geolocation.getCurrentPosition(
                (pos) => processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
-               (err) => { console.warn(err); },
-               { enableHighAccuracy: !batterySaver, timeout: 10000 }
+               (error: any) => {
+                  console.warn('Geolocation error:', error);
+                  if (error.code === 1) toast.error("Location permission denied. Enable in browser settings.");
+                  else if (error.code === 2) toast.error("Location unavailable. Try moving outdoors.");
+                  else if (error.code === 3) toast.error("GPS timeout. Retrying...");
+               },
+               { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
              );
            }
         }

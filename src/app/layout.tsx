@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Outfit, IBM_Plex_Mono } from "next/font/google";
-import { AIAssistant } from "@/components/layout/ai-assistant";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "sonner";
 import { SWRegistrar } from "@/components/layout/sw-registrar";
@@ -54,9 +53,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden w-full">
-        <ThemeProvider attribute="class" defaultTheme="dark" forcedTheme="dark" disableTransitionOnChange>
+        <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
           {children}
-          <AIAssistant />
           <Toaster position="top-right" richColors closeButton />
           <SWRegistrar />
           <CapacitorInit />

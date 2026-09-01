@@ -90,7 +90,6 @@ export function MarksTable({ courseId, students, initialMarks, isFaculty, examTy
             {students.map(student => {
               const studentMarks = marks.filter(m => m.student_id === student.id);
               const totalObtained = studentMarks.reduce((acc, m) => acc + (m.marks_obtained || 0), 0);
-              const maxPossible = examTypes.length * 100;
               const avg = studentMarks.length > 0 ? (totalObtained / studentMarks.length).toFixed(1) : '-';
 
               return (

@@ -1,12 +1,7 @@
 import React from 'react';
-import { Progress } from '@/components/ui/progress';
 import { AlertTriangle } from 'lucide-react';
 import { CourseWithAttendance } from './types';
-import { getAttendanceColor, getAttendanceStatus } from './utils';
-
 export function CourseAttendanceCard({ course }: { course: CourseWithAttendance }) {
-  const status = getAttendanceStatus(course.rate);
-  const color = getAttendanceColor(course.rate);
   const isLow = course.rate < 75;
   const hexColor = course.rate >= 80 ? '#39FF14' : course.rate >= 75 ? '#FFD700' : '#FF006E';
 

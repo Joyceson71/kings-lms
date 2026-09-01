@@ -86,13 +86,12 @@ export default function AssignmentsClient({ initialAssignments, isFaculty }: { i
     setIsSavingGrade(true);
     try {
       const supabase = createClient();
-      const { error } = await supabase.from('submissions').upsert({
-        assignment_id: assignment.id,
-        grade,
+      const { error } = await supabase.from('assignment_submissions').update({
+        score: grade,
         feedback: feedbackInput.trim() || null,
         status: 'graded',
         graded_at: new Date().toISOString(),
-      }, { onConflict: 'assignment_id' });
+      }).eq('id', assignment.id);
       if (error) throw error;
       setAssignments(prev => prev.map(a =>
         a.id === assignment.id

@@ -57,16 +57,30 @@ export async function middleware(request: NextRequest) {
     return redirect;
   }
 
-  // Admin route guard — fetch the user's role and block non-admins at the edge.
-  // This runs BEFORE any page component so client-side tricks can't bypass it.
-  if (user && pathname.startsWith('/dashboard/admin')) {
+  // Global profile fetch for role and onboarding status
+  if (user) {
     const { data: profile } = await supabase
       .from('profiles')
-      .select('role')
+      .select('role, onboarding_complete')
       .eq('id', user.id)
       .maybeSingle();
 
-    if (!profile || profile.role !== 'admin') {
+    const isSpecialRoute = pathname.startsWith('/api') || pathname.startsWith('/logout');
+
+    // Onboarding guard
+    if (profile && !profile.onboarding_complete && !pathname.startsWith('/onboarding') && !isAuthRoute && !isSpecialRoute) {
+      const onboardUrl = request.nextUrl.clone();
+      onboardUrl.pathname = '/onboarding';
+      onboardUrl.search = '';
+      const redirect = NextResponse.redirect(onboardUrl);
+      request.cookies.getAll().forEach(({ name, value }) =>
+        redirect.cookies.set(name, value)
+      );
+      return redirect;
+    }
+
+    // Admin route guard
+    if (pathname.startsWith('/dashboard/admin') && (!profile || profile.role !== 'admin')) {
       const dashboardUrl = request.nextUrl.clone();
       dashboardUrl.pathname = '/dashboard';
       dashboardUrl.search = '';

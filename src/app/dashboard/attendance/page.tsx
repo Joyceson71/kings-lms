@@ -375,10 +375,23 @@ function AttendanceContent() {
     if (!userLoading && profile?.id) {
       fetchData();
       
+      const channel = supabase
+        .channel('attendance_changes')
+        .on(
+          'postgres_changes',
+          { event: '*', schema: 'public', table: 'attendance_logs' },
+          () => fetchData()
+        )
+        .subscribe();
+
       if (qrTokenFromUrl && isStudent) {
         // Automatically try to mark attendance if a token is in URL
         handleScanSuccess(qrTokenFromUrl);
       }
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoading, profile?.id, isStudent, qrTokenFromUrl]);

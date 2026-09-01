@@ -54,6 +54,18 @@ function AttendClient() {
 
             navigator.geolocation.getCurrentPosition(
               (position) => {
+                const campusDist = getDistanceInMeters(
+                  position.coords.latitude,
+                  position.coords.longitude,
+                  13.0475,
+                  79.9693
+                );
+
+                if (campusDist > 500) {
+                  reject(new Error(`You are not on campus! You are ${Math.round(campusDist)}m away.`));
+                  return;
+                }
+
                 const dist = getDistanceInMeters(
                   position.coords.latitude,
                   position.coords.longitude,

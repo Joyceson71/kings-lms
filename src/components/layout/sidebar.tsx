@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
-  LogOut, CheckCircle, GraduationCap,
+  LogOut, CheckCircle, GraduationCap, CheckSquare, QrCode, Zap, Shield,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
   Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, MapPin, X
 } from 'lucide-react';
@@ -22,47 +22,29 @@ type NavItem = {
   roles?: ('student' | 'faculty' | 'admin')[];
 };
 
-type NavSection = {
-  label: string;
-  items: NavItem[];
-};
-
-const navSections: NavSection[] = [
-  {
-    label: 'MAIN',
-    items: [
-      { name: 'Dashboard',     href: '/dashboard',               icon: LayoutDashboard },
-      { name: 'IV Tracker',    href: '/dashboard/iv-tracker',    icon: MapPin },
-      { name: 'Global Chat',   href: '/dashboard/chat',          icon: MessageSquare },
-      { name: 'Announcements', href: '/dashboard/announcements',  icon: Bell },
-      { name: 'Calendar',      href: '/dashboard/calendar',       icon: CalendarIcon },
-    ],
-  },
-  {
-    label: 'ACADEMICS',
-    items: [
-      { name: 'Attendance',    href: '/dashboard/attendance',    icon: CheckCircle },
-      { name: 'Internal Marks',href: '/dashboard/internal-marks',icon: FileText },
-      { name: 'Timetable',     href: '/dashboard/timetable',     icon: CalendarIcon },
-      { name: 'Courses',       href: '/dashboard/courses',       icon: BookOpen },
-      { name: 'Assignments',   href: '/dashboard/assignments',   icon: ClipboardList },
-      { name: 'Resources',     href: '/dashboard/resources',     icon: Library },
-      { name: 'Leaderboard',   href: '/dashboard/leaderboard',   icon: Trophy,      roles: ['student'] },
-    ],
-  },
-  {
-    label: 'MANAGEMENT',
-    items: [
-      { name: 'Students',      href: '/dashboard/students',      icon: Users,       roles: ['faculty', 'admin'] },
-      { name: 'Admin Panel',   href: '/dashboard/admin',         icon: ShieldCheck, roles: ['admin'] },
-      { name: 'Settings',      href: '/dashboard/settings',      icon: Settings },
-    ],
-  },
+const studentNav: NavItem[] = [
+  { href: '/dashboard', name: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard/attendance', name: 'Attendance', icon: CheckSquare },
+  { href: '/dashboard/courses', name: 'My Courses', icon: BookOpen },
+  { href: '/dashboard/assignments', name: 'Assignments', icon: FileText },
+  { href: '/dashboard/quizzes', name: 'Quizzes', icon: Zap },
+  { href: '/dashboard/leaderboard', name: 'Leaderboard', icon: Trophy },
 ];
 
+const facultyNav: NavItem[] = [
+  { href: '/dashboard', name: 'Overview', icon: LayoutDashboard },
+  { href: '/dashboard/attendance', name: 'Sessions', icon: QrCode },
+  { href: '/dashboard/courses', name: 'My Courses', icon: BookOpen },
+  { href: '/dashboard/assignments', name: 'Assignments', icon: FileText },
+  { href: '/dashboard/quizzes', name: 'Quizzes', icon: Zap },
+  { href: '/dashboard/students', name: 'Students', icon: Users },
+  { href: '/dashboard/analytics', name: 'Analytics', icon: BarChart2 },
+];
+
+const adminNav: NavItem[] = [...facultyNav, { href: '/dashboard/admin', name: 'Admin Panel', icon: Shield }];
+
 const bottomNavigation: NavItem[] = [
-  { name: 'Reports', href: '/dashboard/reports', icon: BarChart2, roles: ['faculty', 'admin'] },
-  { name: 'Reports', href: '/dashboard/reports', icon: FileText,  roles: ['student'] },
+  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 const roleColors: Record<string, { bg: string; text: string; border: string; badgeClass: string }> = {
@@ -225,43 +207,26 @@ export function Sidebar() {
 
         {/* Nav */}
         <nav className={cn('flex flex-1 flex-col overflow-y-auto overflow-x-hidden py-4 gap-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]', expanded ? 'px-2' : 'px-1')}>
-          {navSections.map((section) => {
-            const visible = section.items.filter(i => !i.roles || i.roles.includes(role));
-            if (visible.length === 0) return null;
-
-            return (
-              <div key={section.label} className="mb-4">
-                {expanded ? (
-                  <p className="px-4 mb-2 text-[10px] font-bold tracking-[0.15em] uppercase text-muted-foreground/70">
-                    {section.label}
-                  </p>
-                ) : (
-                  <div className="my-3 mx-auto h-[3px] w-6 rounded-full bg-secondary" />
-                )}
-
-                <div className="flex flex-col gap-0.5">
-                {visible.map((item) => {
-                  const active = isActive(item.href);
-                  const isAdmin = item.roles?.length === 1 && item.roles[0] === 'admin';
-                  const showBadge = item.name === 'IV Tracker' && hasActiveIV;
-                  return (
-                    <div key={item.name + item.href} className="relative">
-                      <NavLink
-                        item={item}
-                        active={active}
-                        isAdmin={isAdmin}
-                        expanded={expanded || isOpen}
-                      />
-                      {showBadge && (
-                        <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+          <div className="flex flex-col gap-0.5">
+            {(role === 'admin' ? adminNav : role === 'faculty' ? facultyNav : studentNav).map((item) => {
+              const active = isActive(item.href);
+              const isAdmin = item.roles?.length === 1 && item.roles[0] === 'admin';
+              const showBadge = item.name === 'IV Tracker' && hasActiveIV;
+              return (
+                <div key={item.name + item.href} className="relative">
+                  <NavLink
+                    item={item}
+                    active={active}
+                    isAdmin={isAdmin}
+                    expanded={expanded || isOpen}
+                  />
+                  {showBadge && (
+                    <span className="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+                  )}
+                </div>
+              );
+            })}
+          </div>
 
         <div className="flex-1" />
 

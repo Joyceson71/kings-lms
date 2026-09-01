@@ -76,21 +76,32 @@ export default async function AssignmentsPage() {
   } else {
     const { data: assignmentData } = await supabase
       .from('assignments')
-      .select('*, courses(title, code)')
-      .eq('created_by', user.id)
-      .order('due_date', { ascending: true });
+      .select('id, title, due_date, description, courses(title, code)')
+      .eq('created_by', user.id);
 
     if (assignmentData) {
-      assignments = assignmentData.map(a => ({
-        id: a.id,
-        title: a.title,
-        course: (a.courses as { title: string } | null)?.title || 'Unknown Course',
-        code: (a.courses as { code: string } | null)?.code || '---',
-        due: a.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date',
-        status: 'pending' as const,
-        description: a.description || '',
-        icon: '📝',
-      }));
+      const assignmentIds = assignmentData.map(a => a.id);
+      const { data: submissions } = await supabase
+        .from('assignment_submissions')
+        .select('*, profiles(full_name)')
+        .in('assignment_id', assignmentIds);
+
+      if (submissions) {
+        assignments = submissions.map(s => {
+          const a = assignmentData.find(x => x.id === s.assignment_id);
+          return {
+            id: s.id,
+            title: `${a?.title} (${(s.profiles as any)?.full_name || 'Unknown'})`,
+            course: (a?.courses as any)?.title || 'Unknown Course',
+            code: (a?.courses as any)?.code || '---',
+            due: a?.due_date ? new Date(a.due_date).toLocaleDateString() : 'No Due Date',
+            status: s.status as AssignmentStatus,
+            grade: s.score ? `${s.score}%` : undefined,
+            description: s.text_content || a?.description || '',
+            icon: '📝',
+          };
+        });
+      }
     }
   }
 

@@ -160,23 +160,23 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       </button>
 
       {/* SPATIAL SIDEBAR */}
-      <div className={`absolute top-8 left-8 z-[3500] w-[calc(100vw-64px)] md:w-[360px] max-h-[calc(100vh-64px)] glass-card backdrop-blur-2xl bg-black/40 border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-500 ease-out ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
+      <div className={`absolute top-8 left-8 z-[3500] w-[calc(100vw-64px)] md:w-[360px] max-h-[calc(100vh-64px)] backdrop-blur-2xl bg-background/80 border border-border shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-500 ease-out ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
         <div className="p-8 flex flex-col flex-1 overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-black text-3xl tracking-tight bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent drop-shadow-sm">IV Tracker</h2>
-            <button className="md:hidden text-white/50 hover:text-white bg-black/20 p-2.5 rounded-full backdrop-blur-md transition-colors" onClick={() => setShowSidebar(false)}>
+            <h2 className="font-black text-3xl tracking-tight text-foreground drop-shadow-sm">IV Tracker</h2>
+            <button className="md:hidden text-muted-foreground hover:text-foreground bg-muted p-2.5 rounded-full transition-colors" onClick={() => setShowSidebar(false)}>
               <X size={20} />
             </button>
           </div>
           
           {(role === 'faculty' || role === 'admin') && (
-            <div className="mb-8 p-6 neo-inset bg-black/20 rounded-[1.5rem] border border-white/5 shadow-inner flex flex-col items-center justify-center">
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-2">Live Headcount</p>
+            <div className="mb-8 p-6 bg-muted/50 rounded-[1.5rem] border border-border shadow-inner flex flex-col items-center justify-center">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2">Live Headcount</p>
               <div className="flex items-baseline gap-2">
-                <p className="text-5xl font-black text-white drop-shadow-md">
+                <p className="text-5xl font-black text-foreground drop-shadow-md">
                   {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length}
                 </p>
-                <span className="text-white/30 text-2xl font-bold">/ {students.length}</span>
+                <span className="text-muted-foreground text-2xl font-bold">/ {students.length}</span>
               </div>
             </div>
           )}
@@ -301,35 +301,35 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       </div>
 
       {/* FULL SCREEN MAP */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         {isOffline && (
           <div className="absolute top-6 left-1/2 -translate-x-1/2 bg-yellow-400 text-black px-6 py-2 rounded-full text-sm z-[3000] font-black tracking-wider flex items-center gap-2 shadow-[0_0_20px_rgba(250,204,21,0.6)]">
             <WifiOff size={18} /> OFFLINE - QUEUING GPS
           </div>
         )}
-        {/* TOP RIGHT - SOS BUTTON */}
-        <div className="absolute top-8 right-8 z-[2000] pointer-events-auto">
+        {/* TOP RIGHT - SOS BUTTON (Lowered slightly to avoid Leaflet layer control) */}
+        <div className="absolute top-24 right-4 z-[2000] pointer-events-auto">
           <SOSButton tripId={tripId} studentId={currentUserId} />
         </div>
 
-        {/* BOTTOM CENTER - GLASS DOCK */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2000] flex items-center gap-4 p-3 glass-card backdrop-blur-2xl bg-black/40 border border-white/10 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.6)] pointer-events-auto transition-transform hover:scale-105">
+        {/* BOTTOM LEFT - MAP TOOLS DOCK */}
+        <div className="absolute bottom-10 left-8 z-[2000] flex flex-col items-center gap-4 p-3 backdrop-blur-xl bg-background/80 border border-border rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.4)] pointer-events-auto">
           <button 
             onClick={() => setShowItinerary(!showItinerary)}
-            className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-white relative group"
+            className="w-12 h-12 bg-muted hover:bg-muted/80 rounded-full flex items-center justify-center transition-colors text-foreground relative group"
           >
-            <CalendarClock size={24} />
-            <span className="absolute -top-10 bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <CalendarClock size={20} />
+            <span className="absolute left-16 bg-foreground text-background text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Itinerary
             </span>
           </button>
           
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-white relative group"
+            className="w-12 h-12 bg-muted hover:bg-muted/80 rounded-full flex items-center justify-center transition-colors text-foreground relative group"
           >
-            <ImageIcon size={24} />
-            <span className="absolute -top-10 bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+            <ImageIcon size={20} />
+            <span className="absolute left-16 bg-foreground text-background text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
               Gallery
             </span>
           </button>

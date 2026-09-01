@@ -222,15 +222,15 @@ ALTER TABLE student_progress ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "enrolled or faculty view modules" ON modules FOR SELECT USING (
   course_id IN (SELECT course_id FROM course_enrollments WHERE student_id = auth.uid())
-  OR course_id IN (SELECT id FROM courses WHERE faculty_id = auth.uid())
+  OR course_id IN (SELECT id FROM courses WHERE created_by = auth.uid())
 );
 CREATE POLICY "faculty manage modules" ON modules FOR ALL USING (
-  course_id IN (SELECT id FROM courses WHERE faculty_id = auth.uid())
+  course_id IN (SELECT id FROM courses WHERE created_by = auth.uid())
 );
 CREATE POLICY "view resources same as module" ON resources FOR SELECT USING (
   module_id IN (SELECT id FROM modules WHERE course_id IN (
     SELECT course_id FROM course_enrollments WHERE student_id = auth.uid()
-    UNION SELECT id FROM courses WHERE faculty_id = auth.uid()
+    UNION SELECT id FROM courses WHERE created_by = auth.uid()
   ))
 );
 CREATE POLICY "faculty upload resources" ON resources FOR INSERT WITH CHECK (auth.uid() = uploaded_by);

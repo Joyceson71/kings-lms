@@ -160,21 +160,24 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
       </button>
 
       {/* SPATIAL SIDEBAR */}
-      <div className={`absolute top-6 left-6 z-[3500] w-[calc(100vw-48px)] md:w-[380px] max-h-[calc(100vh-100px)] md:max-h-[calc(100vh-48px)] clay-card flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-300 ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-4 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
-        <div className="p-6 flex flex-col flex-1 overflow-y-auto">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-extrabold text-2xl tracking-tight text-foreground">IV Tracker</h2>
-            <button className="md:hidden text-muted-foreground hover:text-foreground bg-muted p-2 rounded-full" onClick={() => setShowSidebar(false)}>
+      <div className={`absolute top-8 left-8 z-[3500] w-[calc(100vw-64px)] md:w-[360px] max-h-[calc(100vh-64px)] glass-card backdrop-blur-2xl bg-black/40 border border-white/10 shadow-[0_12px_40px_rgba(0,0,0,0.6)] rounded-[2.5rem] flex flex-col overflow-hidden text-foreground pointer-events-auto transition-transform duration-500 ease-out ${showSidebar ? 'translate-y-0 opacity-100' : '-translate-y-8 opacity-0 pointer-events-none md:translate-y-0 md:opacity-100 md:pointer-events-auto'}`}>
+        <div className="p-8 flex flex-col flex-1 overflow-y-auto">
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-black text-3xl tracking-tight bg-gradient-to-br from-white to-white/60 bg-clip-text text-transparent drop-shadow-sm">IV Tracker</h2>
+            <button className="md:hidden text-white/50 hover:text-white bg-black/20 p-2.5 rounded-full backdrop-blur-md transition-colors" onClick={() => setShowSidebar(false)}>
               <X size={20} />
             </button>
           </div>
           
           {(role === 'faculty' || role === 'admin') && (
-            <div className="mb-6 p-4 bg-muted/50 rounded-2xl border border-border">
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Live Headcount</p>
-              <p className="text-4xl font-black text-foreground">
-                {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length} <span className="text-muted-foreground text-2xl">/ {students.length}</span>
-              </p>
+            <div className="mb-8 p-6 neo-inset bg-black/20 rounded-[1.5rem] border border-white/5 shadow-inner flex flex-col items-center justify-center">
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-[0.3em] mb-2">Live Headcount</p>
+              <div className="flex items-baseline gap-2">
+                <p className="text-5xl font-black text-white drop-shadow-md">
+                  {students.filter(s => (Date.now() - new Date(s.updated_at).getTime()) < 30000).length}
+                </p>
+                <span className="text-white/30 text-2xl font-bold">/ {students.length}</span>
+              </div>
             </div>
           )}
           
@@ -182,16 +185,16 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <div className="flex flex-col gap-3 mb-8">
               <button
                 onClick={() => setSharing(!sharing)}
-                className={`w-full py-4 rounded-full font-bold text-lg tracking-wider transition-all duration-300 shadow-xl ${
+                className={`w-full py-4 rounded-full font-black text-lg tracking-widest transition-all duration-300 shadow-xl ${
                   sharing 
-                    ? 'clay-card text-destructive hover:scale-[1.02]'
-                    : 'bg-primary text-primary-foreground hover:scale-[1.02] shadow-[0_10px_30px_rgba(79,70,229,0.4)]'
+                    ? 'bg-black/40 text-destructive border border-destructive/30 hover:bg-destructive/10'
+                    : 'bg-gradient-to-r from-primary to-accent text-white hover:scale-[1.03] shadow-[0_8px_30px_rgba(79,70,229,0.5)] border border-white/20'
                 }`}
               >
                 {sharing ? (
                   <span className="flex items-center justify-center gap-3">
-                    <span className="w-3 h-3 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]" />
-                    LIVE — STOP SHARING
+                    <span className="w-2.5 h-2.5 bg-destructive rounded-full animate-pulse shadow-[0_0_12px_#ef4444]" />
+                    STOP SHARING
                   </span>
                 ) : (
                   'JOIN TRIP'
@@ -223,7 +226,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
                 setQrUrl(await QRCode.toDataURL(url));
                 setShowQrModal(true);
               }} 
-              className="w-full clay-card text-primary py-3 rounded-full font-bold text-sm transition-transform hover:scale-[1.02] mb-6 shadow-md"
+              className="w-full bg-white/5 backdrop-blur-md border border-white/10 text-white py-3.5 rounded-full font-bold text-sm transition-all hover:bg-white/10 hover:scale-[1.02] mb-8 shadow-lg flex items-center justify-center gap-2"
             >
               Share QR Link
             </button>

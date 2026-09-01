@@ -6,6 +6,11 @@ import { Toaster } from "sonner";
 import { SWRegistrar } from "@/components/layout/sw-registrar";
 import { CapacitorInit } from "@/components/layout/capacitor-init";
 import "./globals.css";
+import 'leaflet/dist/leaflet.css';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import 'leaflet.markercluster/dist/MarkerCluster.css';
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit", display: "swap", preload: false });

@@ -5,12 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { MapPin, Download, CheckCircle, Crosshair, X, Info } from 'lucide-react';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
-import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import 'leaflet-draw/dist/leaflet.draw.css';
-
 import GeofenceManager from '@/components/iv/GeofenceManager';
 import { IVGlobe } from '@/components/iv/IVGlobe';
 

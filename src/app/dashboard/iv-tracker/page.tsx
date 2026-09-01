@@ -40,7 +40,7 @@ export default async function IVTrackerPage({ searchParams }: { searchParams: Pr
       </div>
 
       {(role === 'faculty' || role === 'admin') ? (
-        <div className="bg-card border border-border p-6 rounded-2xl mb-8">
+        <div className="clay-card p-8 mb-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold">Active IV Trips</h2>
             <Link href="/dashboard/iv-tracker/create">
@@ -49,28 +49,28 @@ export default async function IVTrackerPage({ searchParams }: { searchParams: Pr
           </div>
           
           {(!trips || trips.length === 0) ? (
-            <div className="text-center py-12 bg-secondary/20 rounded-xl">
-              <p className="text-muted-foreground mb-4">No active trips right now.</p>
+            <div className="text-center py-16 neo-inset rounded-[2rem]">
+              <p className="text-muted-foreground font-medium">No active trips right now.</p>
             </div>
           ) : (
             <div className="grid gap-4">
               {trips.map(trip => (
-                <Link key={trip.id} href={`/dashboard/iv-tracker/${trip.id}`} className="bg-secondary/20 p-4 rounded-xl flex justify-between items-center hover:bg-secondary/40 transition">
+                <Link key={trip.id} href={`/dashboard/iv-tracker/${trip.id}`} className="neo-btn p-6 rounded-[2rem] flex justify-between items-center transition-all">
                   <div>
-                    <h3 className="font-bold">{trip.name}</h3>
-                    <p className="text-sm text-muted-foreground">Code: <span className="font-mono text-primary">{trip.trip_code}</span></p>
+                    <h3 className="font-bold text-lg">{trip.name}</h3>
+                    <p className="text-sm text-muted-foreground">Code: <span className="font-mono font-bold text-primary px-2 py-0.5 bg-primary/10 rounded-md ml-1">{trip.trip_code}</span></p>
                   </div>
-                  <Button variant="secondary">Manage Trip</Button>
+                  <Button className="rounded-full px-6 font-bold shadow-md">Manage Trip</Button>
                 </Link>
               ))}
             </div>
           )}
         </div>
       ) : (
-        <div className="bg-card border border-border p-6 rounded-2xl text-center py-12 max-w-md mx-auto">
-          <MapPin size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
-          <h2 className="text-xl font-bold mb-2">Join an IV Trip</h2>
-          <p className="text-muted-foreground mb-6">Ask your faculty for the 6-character trip code to join the live map.</p>
+        <div className="clay-card p-10 text-center max-w-md mx-auto">
+          <MapPin size={56} className="mx-auto text-primary mb-6 animate-float" />
+          <h2 className="text-2xl font-black mb-3">Join an IV Trip</h2>
+          <p className="text-muted-foreground mb-8">Ask your faculty for the 6-character trip code to join the live map.</p>
           {errorParam && (
             <div className="bg-red-500/10 text-red-500 p-3 rounded-lg mb-6 text-sm font-medium border border-red-500/20">
               {errorParam}
@@ -89,15 +89,17 @@ export default async function IVTrackerPage({ searchParams }: { searchParams: Pr
               redirect('/dashboard/iv-tracker?error=Invalid or expired trip code.');
             }
           }} className="flex flex-col gap-2">
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-4">
               <input 
                 name="code" 
                 placeholder="e.g. ABC123" 
-                className="flex-1 bg-background border border-border rounded-lg px-4 uppercase text-center font-mono tracking-widest font-bold"
+                className="w-full neo-input rounded-2xl px-6 py-4 uppercase text-center font-mono tracking-[0.2em] font-black text-lg"
                 maxLength={6}
                 required
               />
-              <Button type="submit">Join</Button>
+              <Button type="submit" className="w-full rounded-2xl py-6 font-black text-lg shadow-[0_10px_30px_rgba(79,70,229,0.4)] hover:scale-[1.02] transition-transform">
+                Join Trip
+              </Button>
             </div>
           </form>
         </div>

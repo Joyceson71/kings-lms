@@ -1,8 +1,28 @@
+-- 0028_core_features.sql
+-- Fixes dashboard mock tables and properly alters existing schema
+
 -- 0. Profiles setup
 ALTER TABLE profiles ADD COLUMN IF NOT EXISTS onboarding_complete BOOLEAN DEFAULT FALSE;
 
+-- Cleanup any mock tables created via dashboard that clash with our schema
+DROP TABLE IF EXISTS modules CASCADE;
+DROP TABLE IF EXISTS resources CASCADE;
+DROP TABLE IF EXISTS student_progress CASCADE;
+DROP TABLE IF EXISTS quizzes CASCADE;
+DROP TABLE IF EXISTS questions CASCADE;
+DROP TABLE IF EXISTS question_options CASCADE;
+DROP TABLE IF EXISTS quiz_attempts CASCADE;
+DROP TABLE IF EXISTS quiz_answers CASCADE;
+DROP TABLE IF EXISTS messages CASCADE;
+DROP TABLE IF EXISTS library_resources CASCADE;
+DROP TABLE IF EXISTS user_xp CASCADE;
+DROP TABLE IF EXISTS xp_logs CASCADE;
+DROP TABLE IF EXISTS achievements CASCADE;
+DROP TABLE IF EXISTS user_achievements CASCADE;
+DROP TABLE IF EXISTS attendance_summary CASCADE;
+
 -- 1. Modules (course sections)
-CREATE TABLE IF NOT EXISTS modules (
+CREATE TABLE modules (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
@@ -12,20 +32,20 @@ CREATE TABLE IF NOT EXISTS modules (
 );
 
 -- 2. Resources (course files / links)
-CREATE TABLE IF NOT EXISTS resources (
+CREATE TABLE resources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   module_id UUID REFERENCES modules(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   description TEXT,
   type TEXT CHECK (type IN ('pdf','video','ppt','link','code','markdown')) NOT NULL,
-  file_url TEXT,  -- Supabase Storage path or external URL
+  file_url TEXT,  
   uploaded_by UUID REFERENCES profiles(id),
   file_size_bytes BIGINT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- 3. Student progress per module
-CREATE TABLE IF NOT EXISTS student_progress (
+CREATE TABLE student_progress (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   module_id UUID REFERENCES modules(id) ON DELETE CASCADE,
@@ -34,40 +54,22 @@ CREATE TABLE IF NOT EXISTS student_progress (
   UNIQUE(student_id, module_id)
 );
 
--- 4. Assignments
-CREATE TABLE IF NOT EXISTS assignments (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
-  created_by UUID REFERENCES profiles(id),
-  title TEXT NOT NULL,
-  description TEXT,
-  rubric JSONB,
-  due_date TIMESTAMPTZ NOT NULL,
-  max_score INT DEFAULT 100,
-  late_submission_allowed BOOLEAN DEFAULT TRUE,
-  late_penalty_percent INT DEFAULT 0,
-  file_url TEXT,  -- Attachment from faculty
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- 4. Assignments (Alter existing)
+ALTER TABLE public.assignments
+  ADD COLUMN IF NOT EXISTS rubric JSONB,
+  ADD COLUMN IF NOT EXISTS max_score INT DEFAULT 100,
+  ADD COLUMN IF NOT EXISTS late_submission_allowed BOOLEAN DEFAULT TRUE,
+  ADD COLUMN IF NOT EXISTS late_penalty_percent INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS file_url TEXT;
 
--- 5. Assignment Submissions
-CREATE TABLE IF NOT EXISTS assignment_submissions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  assignment_id UUID REFERENCES assignments(id) ON DELETE CASCADE,
-  student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  file_url TEXT,
-  text_content TEXT,
-  submitted_at TIMESTAMPTZ,
-  graded_at TIMESTAMPTZ,
-  score INT,
-  feedback TEXT,
-  is_late BOOLEAN DEFAULT FALSE,
-  status TEXT CHECK (status IN ('pending','submitted','graded')) DEFAULT 'pending',
-  UNIQUE(assignment_id, student_id)
-);
+-- 5. Assignment Submissions (Alter existing)
+ALTER TABLE public.assignment_submissions
+  ADD COLUMN IF NOT EXISTS text_content TEXT,
+  ADD COLUMN IF NOT EXISTS score INT,
+  ADD COLUMN IF NOT EXISTS is_late BOOLEAN DEFAULT FALSE;
 
 -- 6. Quizzes
-CREATE TABLE IF NOT EXISTS quizzes (
+CREATE TABLE quizzes (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
   created_by UUID REFERENCES profiles(id),
@@ -85,7 +87,7 @@ CREATE TABLE IF NOT EXISTS quizzes (
 );
 
 -- 7. Questions
-CREATE TABLE IF NOT EXISTS questions (
+CREATE TABLE questions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   quiz_id UUID REFERENCES quizzes(id) ON DELETE CASCADE,
   question_text TEXT NOT NULL,
@@ -97,7 +99,7 @@ CREATE TABLE IF NOT EXISTS questions (
 );
 
 -- 8. Question Options (for MCQ)
-CREATE TABLE IF NOT EXISTS question_options (
+CREATE TABLE question_options (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   question_id UUID REFERENCES questions(id) ON DELETE CASCADE,
   option_text TEXT NOT NULL,
@@ -106,7 +108,7 @@ CREATE TABLE IF NOT EXISTS question_options (
 );
 
 -- 9. Quiz Attempts
-CREATE TABLE IF NOT EXISTS quiz_attempts (
+CREATE TABLE quiz_attempts (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   quiz_id UUID REFERENCES quizzes(id) ON DELETE CASCADE,
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -118,7 +120,7 @@ CREATE TABLE IF NOT EXISTS quiz_attempts (
 );
 
 -- 10. Quiz Answers
-CREATE TABLE IF NOT EXISTS quiz_answers (
+CREATE TABLE quiz_answers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   attempt_id UUID REFERENCES quiz_attempts(id) ON DELETE CASCADE,
   question_id UUID REFERENCES questions(id) ON DELETE CASCADE,
@@ -129,24 +131,16 @@ CREATE TABLE IF NOT EXISTS quiz_answers (
   answered_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 11. Notifications
-CREATE TABLE IF NOT EXISTS notifications (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  type TEXT NOT NULL, -- 'assignment_due', 'grade_posted', 'quiz_available', 'attendance_marked'
-  title TEXT NOT NULL,
-  body TEXT,
-  related_id UUID,    -- assignment_id, quiz_id, etc.
-  read BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
+-- 11. Notifications (Alter existing from 0005/0023)
+ALTER TABLE public.notifications
+  ADD COLUMN IF NOT EXISTS related_id UUID;
 
 -- 12. Messages (chat)
-CREATE TABLE IF NOT EXISTS messages (
+CREATE TABLE messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  recipient_id UUID REFERENCES profiles(id),  -- NULL if group
-  course_id UUID REFERENCES courses(id),       -- NULL if DM
+  recipient_id UUID REFERENCES profiles(id),  
+  course_id UUID REFERENCES courses(id),      
   content TEXT NOT NULL,
   file_url TEXT,
   read_at TIMESTAMPTZ,
@@ -154,7 +148,7 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 
 -- 13. Library Resources
-CREATE TABLE IF NOT EXISTS library_resources (
+CREATE TABLE library_resources (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
   description TEXT,
@@ -169,7 +163,7 @@ CREATE TABLE IF NOT EXISTS library_resources (
 );
 
 -- 14. XP / Gamification
-CREATE TABLE IF NOT EXISTS user_xp (
+CREATE TABLE user_xp (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE UNIQUE,
   total_xp INT DEFAULT 0,
@@ -177,25 +171,25 @@ CREATE TABLE IF NOT EXISTS user_xp (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS xp_logs (
+CREATE TABLE xp_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
-  action TEXT NOT NULL,  -- 'attendance', 'assignment_submitted', 'quiz_score', 'course_complete'
+  action TEXT NOT NULL,  
   xp_gained INT NOT NULL,
   related_id UUID,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS achievements (
+CREATE TABLE achievements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  slug TEXT UNIQUE NOT NULL,  -- 'perfect_attendance', 'quiz_master', etc.
+  slug TEXT UNIQUE NOT NULL,  
   title TEXT NOT NULL,
   description TEXT,
-  icon TEXT,   -- emoji or icon name
+  icon TEXT,   
   criteria JSONB
 );
 
-CREATE TABLE IF NOT EXISTS user_achievements (
+CREATE TABLE user_achievements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   achievement_id UUID REFERENCES achievements(id),
@@ -203,8 +197,8 @@ CREATE TABLE IF NOT EXISTS user_achievements (
   UNIQUE(student_id, achievement_id)
 );
 
--- 15. Attendance summary (denormalized for fast queries)
-CREATE TABLE IF NOT EXISTS attendance_summary (
+-- 15. Attendance summary
+CREATE TABLE attendance_summary (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   student_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
@@ -217,9 +211,7 @@ CREATE TABLE IF NOT EXISTS attendance_summary (
 
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_resources_module ON resources(module_id);
-CREATE INDEX IF NOT EXISTS idx_submissions_assignment ON assignment_submissions(assignment_id);
 CREATE INDEX IF NOT EXISTS idx_quiz_attempts_student ON quiz_attempts(student_id, quiz_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id, read);
 CREATE INDEX IF NOT EXISTS idx_messages_course ON messages(course_id, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_xp_logs_student ON xp_logs(student_id, created_at DESC);
 
@@ -244,18 +236,6 @@ CREATE POLICY "view resources same as module" ON resources FOR SELECT USING (
 CREATE POLICY "faculty upload resources" ON resources FOR INSERT WITH CHECK (auth.uid() = uploaded_by);
 CREATE POLICY "student manage own progress" ON student_progress FOR ALL USING (auth.uid() = student_id);
 
-ALTER TABLE assignments ENABLE ROW LEVEL SECURITY;
-ALTER TABLE assignment_submissions ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "student view assignments" ON assignments FOR SELECT USING (
-  course_id IN (SELECT course_id FROM course_enrollments WHERE student_id = auth.uid())
-);
-CREATE POLICY "faculty manage assignments" ON assignments FOR ALL USING (auth.uid() = created_by);
-CREATE POLICY "student manage submissions" ON assignment_submissions FOR ALL USING (auth.uid() = student_id);
-CREATE POLICY "faculty view submissions" ON assignment_submissions FOR SELECT USING (
-  assignment_id IN (SELECT id FROM assignments WHERE created_by = auth.uid())
-);
-
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE questions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE question_options ENABLE ROW LEVEL SECURITY;
@@ -275,9 +255,6 @@ CREATE POLICY "student manage own attempts" ON quiz_attempts FOR ALL USING (auth
 CREATE POLICY "student manage own answers" ON quiz_answers FOR ALL USING (
   attempt_id IN (SELECT id FROM quiz_attempts WHERE student_id = auth.uid())
 );
-
-ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "users see own notifications" ON notifications FOR ALL USING (auth.uid() = user_id);
 
 -- Update attendance summary trigger
 CREATE OR REPLACE FUNCTION update_attendance_summary() RETURNS trigger AS $$

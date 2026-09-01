@@ -307,20 +307,32 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
             <WifiOff size={18} /> OFFLINE - QUEUING GPS
           </div>
         )}
-        <div className="absolute bottom-24 right-4 md:bottom-10 md:right-10 z-[2000] flex flex-col gap-4 md:gap-6 pointer-events-auto items-end">
+        {/* TOP RIGHT - SOS BUTTON */}
+        <div className="absolute top-8 right-8 z-[2000] pointer-events-auto">
+          <SOSButton tripId={tripId} studentId={currentUserId} />
+        </div>
+
+        {/* BOTTOM CENTER - GLASS DOCK */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2000] flex items-center gap-4 p-3 glass-card backdrop-blur-2xl bg-black/40 border border-white/10 rounded-full shadow-[0_12px_40px_rgba(0,0,0,0.6)] pointer-events-auto transition-transform hover:scale-105">
           <button 
             onClick={() => setShowItinerary(!showItinerary)}
-            className="w-14 h-14 md:w-16 md:h-16 clay-card rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
+            className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-white relative group"
           >
             <CalendarClock size={24} />
+            <span className="absolute -top-10 bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Itinerary
+            </span>
           </button>
+          
           <button 
             onClick={() => setShowGallery(true)}
-            className="w-14 h-14 md:w-16 md:h-16 clay-card rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform"
+            className="w-14 h-14 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors text-white relative group"
           >
             <ImageIcon size={24} />
+            <span className="absolute -top-10 bg-black/80 text-white text-xs font-bold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              Gallery
+            </span>
           </button>
-          <SOSButton tripId={tripId} studentId={currentUserId} />
         </div>
         {(role === 'faculty' || role === 'admin') && <AdminSOSPanel tripId={tripId} currentUserId={currentUserId} />}
         <IVMap 

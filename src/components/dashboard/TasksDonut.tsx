@@ -1,6 +1,8 @@
+'use client';
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { CheckCircle } from 'lucide-react';
-import { SpatialChart } from '@/components/3d/SpatialChart';
+const SpatialChart = dynamic(() => import('@/components/3d/SpatialChart').then(mod => mod.SpatialChart), { ssr: false });
 import { AssignmentBreakdown } from './types';
 
 export function TasksDonut({ breakdown, isStudent }: { breakdown: AssignmentBreakdown; isStudent: boolean }) {

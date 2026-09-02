@@ -1,6 +1,6 @@
+import { InteractiveBackgroundDynamic as InteractiveBackground } from '@/components/3d/InteractiveBackgroundDynamic';
 import { Suspense } from 'react';
 import { GraduationCap, CheckCircle2, Zap, Shield, BarChart3, Bell } from 'lucide-react';
-import { InteractiveBackground } from '@/components/3d/InteractiveBackground';
 import { TiltCard } from '@/components/ui/tilt-card';
 
 const features = [

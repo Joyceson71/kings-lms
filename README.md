@@ -266,7 +266,7 @@ All tables have RLS enabled with the following policies:
 | **Smart Sort (Assignments)** | Students can now auto-sort Kanban columns by urgency/deadline |
 | **Dashboard Analytics** | Added interactive 3D spatial charts and Recharts Area charts for attendance/study scores |
 | **UI Polish** | Added buttery-smooth fade animations to sidebar expansion and maximalist tilt cards |
-| **Web & App Performance** | Enabled Next.js React Compiler and aggressive dynamic imports for Recharts & Canvas Confetti (reduced initial JS bundle size by ~40% for faster dashboard load and app startup). |
+| **Web & App Performance** | Enabled Next.js React Compiler and implemented extensive dynamic imports for heavy libraries (Three.js, jsPDF, html5-qrcode) to drastically reduce initial JS bundle sizes and improve LCP/TTI metrics across critical routes. |
 | **Settings Profile Sync** | Wired the settings form directly to the Supabase `profiles` table |
 | **Auth Fixes** | Purged split-brain mock auth, fully migrated to Supabase SSR sessions |
 | **Login Rate Limiting & OAuth** | Fixed the login issue by wiring up the rate-limited Next.js API endpoint and correctly configuring Capacitor web fallback URL for OAuth. |

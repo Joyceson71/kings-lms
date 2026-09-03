@@ -83,3 +83,10 @@ CREATE POLICY "Users view own attendance summary" ON public.attendance_summary
   );
 -- Updates are handled by triggers which bypass RLS (since triggers run as the table owner by default or SECURITY DEFINER). 
 -- No direct update policies needed for students.
+
+-- 8. Question Options
+ALTER TABLE public.question_options ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Everyone can view question options" ON public.question_options;
+CREATE POLICY "Everyone can view question options" ON public.question_options 
+  FOR SELECT USING (true);

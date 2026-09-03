@@ -6,19 +6,14 @@ import Link from 'next/link';
 import { AlertCircle, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
+import { Capacitor } from '@capacitor/core';
 
 /* ── Reusable focused-input style helper ── */
 const inputBase =
   'w-full h-10 px-3 rounded-md text-[13px] text-foreground placeholder:text-muted-foreground transition-all duration-200 disabled:opacity-50 neo-input ' +
   'focus:border-primary';
 
-/**
- * Detect whether we are running inside a Capacitor WebView.
- * window.Capacitor is injected by the Capacitor runtime on Android/iOS.
- */
-function isCapacitor(): boolean {
-  return typeof window !== 'undefined' && !!(window as unknown as { Capacitor?: unknown }).Capacitor;
-}
+
 
 /**
  * The deployed web URL used as the OAuth redirect base.
@@ -42,8 +37,29 @@ export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    setIsNativeApp(isCapacitor());
-  }, []);
+    const native = Capacitor.isNativePlatform();
+    setIsNativeApp(native);
+    
+    if (native) {
+      let listener: any = null;
+      import('@capacitor/app').then(({ App }) => {
+        App.addListener('appUrlOpen', async (event: any) => {
+          try {
+            const { Browser } = await import('@capacitor/browser');
+            await Browser.close();
+          } catch {}
+          
+          if (event.url && event.url.includes('?')) {
+            const queryParams = event.url.substring(event.url.indexOf('?'));
+            window.location.href = `/auth/callback${queryParams}&next=${encodeURIComponent(nextPath)}`;
+          }
+        }).then(l => listener = l);
+      });
+      return () => {
+        if (listener) listener.remove();
+      };
+    }
+  }, [nextPath]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -89,12 +105,9 @@ export default function LoginPage() {
     try {
       const supabase = createClient();
 
-      if (isCapacitor()) {
+      if (Capacitor.isNativePlatform()) {
         // ── Capacitor path ────────────────────────────────────────────────────
-        const { Browser, App } = await Promise.all([
-          import('@capacitor/browser'),
-          import('@capacitor/app'),
-        ]).then(([b, a]) => ({ Browser: b.Browser, App: a.App }));
+        const { Browser } = await import('@capacitor/browser');
 
         const redirectTo = 'com.kingslms.app://login-callback';
 
@@ -111,23 +124,6 @@ export default function LoginPage() {
           setOauthLoading(null);
           return;
         }
-
-        // Listen for the deep-link callback (com.kingslms.app://login-callback)
-        const listener = await App.addListener('appUrlOpen', async (event: any) => {
-          try {
-            await listener.remove();
-            await Browser.close();
-          } catch {
-            // Browser might already be closed by user
-          }
-          
-          if (event.url && event.url.includes('?')) {
-            const queryParams = event.url.substring(event.url.indexOf('?'));
-            window.location.href = `/auth/callback${queryParams}&next=${encodeURIComponent(nextPath)}`;
-          } else {
-            router.push(nextPath);
-          }
-        });
 
         // Open in-app browser
         await Browser.open({ url: data.url });

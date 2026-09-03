@@ -13,6 +13,7 @@ import { Loader2, Eye, EyeOff, AlertCircle, Mail, Lock, User, ArrowRight, CheckC
 import { createClient } from '@/lib/supabase/client';
 import { getURL } from '@/lib/utils';
 import { toast } from 'sonner';
+import { Capacitor } from '@capacitor/core';
 
 const signupSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters' }),
@@ -46,13 +47,7 @@ function getPasswordStrength(password: string): { score: number; label: string; 
   return { score, label: 'Excellent', color: 'bg-emerald-400' };
 }
 
-/**
- * Detect whether we are running inside a Capacitor WebView.
- * window.Capacitor is injected by the Capacitor runtime on Android/iOS.
- */
-function isCapacitor(): boolean {
-  return typeof window !== 'undefined' && !!(window as unknown as { Capacitor?: unknown }).Capacitor;
-}
+
 
 export default function SignupPage() {
   const router = useRouter();
@@ -93,7 +88,29 @@ export default function SignupPage() {
         }, 100);
       }
     });
-    return () => subscription.unsubscribe();
+    const native = Capacitor.isNativePlatform();
+    let listener: any = null;
+
+    if (native) {
+      import('@capacitor/app').then(({ App }) => {
+        App.addListener('appUrlOpen', async (event: any) => {
+          try {
+            const { Browser } = await import('@capacitor/browser');
+            await Browser.close();
+          } catch {}
+          
+          if (event.url && event.url.includes('?')) {
+            const queryParams = event.url.substring(event.url.indexOf('?'));
+            window.location.href = `/auth/callback${queryParams}&next=${encodeURIComponent('/dashboard')}`;
+          }
+        }).then(l => listener = l);
+      });
+    }
+
+    return () => {
+      subscription.unsubscribe();
+      if (listener) listener.remove();
+    };
   }, [router]);
 
   const {
@@ -162,11 +179,8 @@ export default function SignupPage() {
       setError(null);
       const supabase = createClient();
 
-      if (isCapacitor()) {
-        const { Browser, App } = await Promise.all([
-          import('@capacitor/browser'),
-          import('@capacitor/app'),
-        ]).then(([b, a]) => ({ Browser: b.Browser, App: a.App }));
+      if (Capacitor.isNativePlatform()) {
+        const { Browser } = await import('@capacitor/browser');
 
         const redirectTo = 'com.kingslms.app://login-callback';
 
@@ -183,22 +197,6 @@ export default function SignupPage() {
           setIsLoading(false);
           return;
         }
-
-        const listener = await App.addListener('appUrlOpen', async (event: any) => {
-          try {
-            await listener.remove();
-            await Browser.close();
-          } catch {
-            // Browser might already be closed by user
-          }
-          
-          if (event.url && event.url.includes('?')) {
-            const queryParams = event.url.substring(event.url.indexOf('?'));
-            window.location.href = `/auth/callback${queryParams}&next=${encodeURIComponent('/dashboard')}`;
-          } else {
-            router.push('/dashboard');
-          }
-        });
 
         await Browser.open({ url: data.url });
       } else {

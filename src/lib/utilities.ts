@@ -92,11 +92,19 @@ export const escapeHTML = (str: string) => str.replace(/[&<>'"]/g, tag => ({'&':
 
 export const unescapeHTML = (str: string) => str.replace(/&amp;|&lt;|&gt;|&#39;|&quot;/g, tag => ({'&amp;': '&', '&lt;': '<', '&gt;': '>', '&#39;': '\'', '&quot;': '"'})[tag] || tag);
 
-export const copyToClipboard = (text: string) => navigator.clipboard.writeText(text);
+export const copyToClipboard = (text: string) => {
+  if (typeof navigator === 'undefined') return Promise.reject(new Error('Not in browser'));
+  return navigator.clipboard.writeText(text);
+};
 
-export const getSelectedText = () => window.getSelection()?.toString() || '';
+export const getSelectedText = () => {
+  if (typeof window === 'undefined') return '';
+  return window.getSelection()?.toString() || '';
+};
 
-export const isDarkMode = () => window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+export const isDarkMode = () =>
+  typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
 
-export const scrollToTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
-
+export const scrollToTop = () => {
+  if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'smooth' });
+};

@@ -15,7 +15,7 @@ export default async function AdminPage() {
 
   const { data: users } = await supabase
     .from('profiles')
-    .select('*')
+    .select('id, email, full_name, role, department, year_of_study, college, roll_number, created_at, status')
     .order('created_at', { ascending: false });
 
   const { count: studentCount } = await supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'student');

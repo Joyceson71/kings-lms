@@ -3,47 +3,60 @@ import DashboardClient from './dashboard-client';
 import { getDashboardStats, getProfile } from '@/lib/supabase/queries';
 import { redirect } from 'next/navigation';
 
-// Compute attendance trend for the last N days
+// Compute attendance trend for the last N days (2 queries, not 14)
 async function getAttendanceTrend(
   supabase: Awaited<ReturnType<typeof createClient>>,
   userId: string,
   role: string,
   days = 7
 ): Promise<{ date: string; rate: number; present: number; total: number }[]> {
-  const result: { date: string; rate: number; present: number; total: number }[] = [];
   const now = new Date();
+  const windowStart = new Date(now);
+  windowStart.setDate(now.getDate() - (days - 1));
+  windowStart.setHours(0, 0, 0, 0);
 
+  // Query 1: all sessions in the window
+  const { data: sessions } = await supabase
+    .from('course_sessions')
+    .select('id, started_at')
+    .gte('started_at', windowStart.toISOString());
+
+  const allSessions = sessions ?? [];
+  const allSessionIds = allSessions.map((s: any) => s.id);
+
+  // Query 2: attendance logs for those sessions
+  let logs: { session_id: string; status: string }[] = [];
+  if (allSessionIds.length > 0) {
+    let logQuery = supabase
+      .from('attendance_logs')
+      .select('session_id, status')
+      .in('session_id', allSessionIds);
+    if (role === 'student') logQuery = logQuery.eq('student_id', userId);
+    const { data: logData } = await logQuery;
+    logs = logData ?? [];
+  }
+
+  // Group in memory by calendar day
+  const result: { date: string; rate: number; present: number; total: number }[] = [];
   for (let i = days - 1; i >= 0; i--) {
     const day = new Date(now);
     day.setDate(now.getDate() - i);
-    const dayStart = new Date(day.setHours(0, 0, 0, 0)).toISOString();
-    const dayEnd = new Date(day.setHours(23, 59, 59, 999)).toISOString();
+    const dayStr = day.toDateString();
 
-    const { data: sessions } = await supabase
-      .from('course_sessions')
-      .select('id')
-      .gte('started_at', dayStart)
-      .lte('started_at', dayEnd);
-
-    const sessionIds = (sessions ?? []).map((s: any) => s.id);
-    let present = 0;
-    const total = sessionIds.length;
-
-    if (total > 0) {
-      let logQuery = supabase
-        .from('attendance_logs')
-        .select('status')
-        .in('session_id', sessionIds);
-      if (role === 'student') logQuery = logQuery.eq('student_id', userId);
-      const { data: logs } = await logQuery;
-      present = (logs ?? []).filter((l: any) => l.status === 'Present').length;
-    }
+    const daySessions = allSessions.filter(
+      (s: any) => new Date(s.started_at).toDateString() === dayStr
+    );
+    const daySessionIds = new Set(daySessions.map((s: any) => s.id));
+    const total = daySessions.length;
+    const present = logs.filter(
+      (l) => daySessionIds.has(l.session_id) && l.status === 'Present'
+    ).length;
 
     result.push({
       date: day.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric' }),
       present,
       total,
-      rate: total > 0 ? Math.round((present / (role === 'student' ? total : Math.max(total, 1))) * 100) : 0,
+      rate: total > 0 ? Math.round((present / total) * 100) : 0,
     });
   }
   return result;

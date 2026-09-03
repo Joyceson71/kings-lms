@@ -44,6 +44,7 @@ function AttendanceContent() {
   const [isQRDisplayOpen, setIsQRDisplayOpen] = useState(false);
   const [selectedQRToken, setSelectedQRToken] = useState('');
   const [selectedCourseName, setSelectedCourseName] = useState('');
+  const [selectedCourseId, setSelectedCourseId] = useState<string>('');
 
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   const [scanError, setScanError] = useState<string | null>(null);
@@ -61,7 +62,13 @@ function AttendanceContent() {
           .select('id, title, code')
           .eq('created_by', profile?.id);
 
-        if (coursesData) setMyCourses(coursesData);
+        if (coursesData) {
+          setMyCourses(coursesData);
+          // Auto-select the first course if none is selected yet
+          if (coursesData.length > 0 && !selectedCourseId) {
+            setSelectedCourseId(coursesData[0].id);
+          }
+        }
 
         // Faculty: Get their active sessions
         const { data: sessionsData } = await supabase
@@ -73,14 +80,24 @@ function AttendanceContent() {
 
         if (sessionsData) setActiveSessions(sessionsData);
 
-        // Faculty: Recent history
-        const { data: historyData } = await supabase
-          .from('attendance_logs')
-          .select('*, profiles(full_name), course_sessions(courses(title, code))')
-          .order('marked_at', { ascending: false })
-          .limit(10);
+        // Faculty: Recent history — only from their own sessions
+        const { data: facultySessionIds } = await supabase
+          .from('course_sessions')
+          .select('id')
+          .eq('created_by', profile?.id);
 
-        if (historyData) setHistoryRecords(historyData);
+        const facultySessionIdList = (facultySessionIds ?? []).map((s: any) => s.id);
+
+        if (facultySessionIdList.length > 0) {
+          const { data: historyData } = await supabase
+            .from('attendance_logs')
+            .select('*, profiles(full_name), course_sessions(courses(title, code))')
+            .in('session_id', facultySessionIdList)
+            .order('marked_at', { ascending: false })
+            .limit(50);
+
+          if (historyData) setHistoryRecords(historyData);
+        }
 
       } else if (isStudent) {
         // Student: Get active sessions for enrolled courses
@@ -101,12 +118,13 @@ function AttendanceContent() {
           if (sessionsData) setActiveSessions(sessionsData);
         }
 
-        // Student: Get own history
+        // Student: Get own history (limited)
         const { data: historyData } = await supabase
           .from('attendance_logs')
           .select('*, course_sessions(courses(title, code))')
           .eq('student_id', profile?.id)
-          .order('marked_at', { ascending: false });
+          .order('marked_at', { ascending: false })
+          .limit(50);
 
         if (historyData) {
           setHistoryRecords(historyData);
@@ -141,7 +159,12 @@ function AttendanceContent() {
 
     const createSessionInDB = async (lat?: number, lng?: number) => {
       try {
-        const courseId = myCourses[0].id;
+        const courseId = selectedCourseId || myCourses[0]?.id;
+        if (!courseId) {
+          toast.error('No course selected.');
+          setIsCreatingSession(false);
+          return;
+        }
         const token = crypto.randomUUID();
 
         const insertData: any = {
@@ -309,20 +332,16 @@ function AttendanceContent() {
         );
       });
 
-      // Check if already enrolled in this course
+      // Verify the student is enrolled in this course
       const { data: enrollmentData } = await supabase
         .from('course_enrollments')
-        .select('*')
+        .select('student_id')
         .eq('course_id', sessionData.course_id)
         .eq('student_id', profile?.id)
-        .single();
+        .maybeSingle();
 
       if (!enrollmentData) {
-        // Auto-enroll for demo purposes
-        await supabase.from('course_enrollments').insert({
-          course_id: sessionData.course_id,
-          student_id: profile?.id
-        });
+        throw new Error('You are not enrolled in this course. Please contact your faculty to enroll.');
       }
 
       // Mark attendance
@@ -422,6 +441,20 @@ function AttendanceContent() {
         </div>
         {isFaculty && (
           <div className="flex items-center gap-2 flex-wrap">
+            {/* Course selector — only shown when faculty has multiple courses */}
+            {myCourses.length > 1 && (
+              <select
+                value={selectedCourseId}
+                onChange={(e) => setSelectedCourseId(e.target.value)}
+                id="course-select"
+                aria-label="Select course for session"
+                className="h-10 px-3 rounded-xl border border-border/40 bg-background text-foreground text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+              >
+                {myCourses.map((c: any) => (
+                  <option key={c.id} value={c.id}>{c.code}: {c.title}</option>
+                ))}
+              </select>
+            )}
             <Button
               id="new-session-btn"
               onClick={handleCreateSession}

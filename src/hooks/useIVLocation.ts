@@ -47,10 +47,17 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
     }
 
     let geofences: any[] = [];
+    let geofenceChannel: any = null;
 
     const fetchGeofences = async () => {
       const { data } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
       if (data) geofences = data;
+      
+      geofenceChannel = supabase.channel(`geofences-${tripId}`)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_geofence_zones', filter: `iv_trip_id=eq.${tripId}` }, async () => {
+          const { data: refreshed } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
+          if (refreshed) geofences = refreshed;
+        }).subscribe();
       
       const { data: tripData } = await supabase.from('iv_trips').select('attendance_session_id').eq('id', tripId).single();
       if (tripData?.attendance_session_id && !localStorage.getItem(`iv-attendance-${tripData.attendance_session_id}`)) {
@@ -91,9 +98,33 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       if (!navigator.onLine) return;
       try {
         const q = JSON.parse(localStorage.getItem('iv_ping_queue') || '[]');
-        if (!q.length) return;
-        const { error } = await supabase.from('iv_locations').upsert(q, { onConflict: 'user_id,iv_trip_id' });
-        if (!error) localStorage.removeItem('iv_ping_queue');
+        if (q.length) {
+          const { error } = await supabase.from('iv_locations').upsert(q, { onConflict: 'user_id,iv_trip_id' });
+          if (!error) localStorage.removeItem('iv_ping_queue');
+        }
+
+        const bq = JSON.parse(localStorage.getItem('iv_breach_queue') || '[]');
+        if (bq.length) {
+           const events = bq.map((b: any) => ({
+              zone_id: b.zone_id,
+              user_id: b.user_id,
+              event_type: b.event_type,
+              lat: b.lat,
+              lng: b.lng,
+              created_at: b.queued_at
+           }));
+           const { error: bErr } = await supabase.from('iv_geofence_events').insert(events);
+           if (!bErr) {
+              localStorage.removeItem('iv_breach_queue');
+              bq.forEach((b: any) => {
+                 fetch('/api/iv/geofence-alert', {
+                   method: 'POST',
+                   headers: { 'Content-Type': 'application/json' },
+                   body: JSON.stringify({ iv_trip_id: b.iv_trip_id, user_id: b.user_id, zone_id: b.zone_id, lat: b.lat, lng: b.lng })
+                 }).catch(() => {});
+              });
+           }
+        }
       } catch (err) {
         console.error('Manual sync error:', err);
       }
@@ -193,29 +224,82 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       }
 
       if (geofences.length > 0) {
-        for (const zone of geofences) {
-          const inside = isPointInPolygon({lat, lng}, zone.polygon);
-          const isBreach = (zone.zone_type === 'permitted' && !inside) || (zone.zone_type !== 'permitted' && inside);
-          
-          if (isBreach) {
-            const lastBreach = localStorage.getItem(`iv-breach-${zone.id}`);
-            if (!lastBreach || Date.now() - Number(lastBreach) > 60000 * 5) {
-              localStorage.setItem(`iv-breach-${zone.id}`, Date.now().toString());
-              
-              await supabase.from('iv_geofence_events').insert({
-                zone_id: zone.id,
-                user_id: userId,
-                event_type: zone.zone_type === 'permitted' ? 'exit' : 'enter',
-                lat, lng
-              });
-              
-              fetch('/api/iv/geofence-alert', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ iv_trip_id: tripId, user_id: userId, zone_id: zone.id, lat, lng })
-              });
-            }
+        let isInsideAnyPermitted = false;
+        let hasPermittedZones = false;
+        const permittedZones = geofences.filter(z => z.zone_type === 'permitted');
+        
+        if (permittedZones.length > 0) {
+          hasPermittedZones = true;
+          for (const zone of permittedZones) {
+             if (isPointInPolygon({lat, lng}, zone.polygon)) {
+                isInsideAnyPermitted = true;
+                break;
+             }
           }
+        }
+        
+        const activeBreaches: any[] = [];
+        
+        if (hasPermittedZones && !isInsideAnyPermitted) {
+           let closestZone = permittedZones[0];
+           let minDistance = Infinity;
+           
+           for (const zone of permittedZones) {
+             if (zone.polygon && zone.polygon.length > 0) {
+               const pt = zone.polygon[0];
+               const dist = Math.pow(pt.lat - lat, 2) + Math.pow(pt.lng - lng, 2);
+               if (dist < minDistance) {
+                 minDistance = dist;
+                 closestZone = zone;
+               }
+             }
+           }
+           activeBreaches.push(closestZone);
+        }
+        
+        const dangerZones = geofences.filter(z => z.zone_type !== 'permitted');
+        for (const zone of dangerZones) {
+           if (isPointInPolygon({lat, lng}, zone.polygon)) {
+             activeBreaches.push(zone);
+           }
+        }
+        
+        const queueBreach = (zoneId: string, zoneType: string) => {
+          try {
+            const bq = JSON.parse(localStorage.getItem('iv_breach_queue') || '[]');
+            bq.push({
+              iv_trip_id: tripId, user_id: userId, zone_id: zoneId,
+              event_type: zoneType === 'permitted' ? 'exit' : 'enter',
+              lat, lng, queued_at: new Date().toISOString()
+            });
+            localStorage.setItem('iv_breach_queue', JSON.stringify(bq));
+          } catch (err) {}
+        };
+
+        for (const zone of activeBreaches) {
+           const lastBreach = localStorage.getItem(`iv-breach-${zone.id}`);
+           if (!lastBreach || Date.now() - Number(lastBreach) > 60000 * 5) {
+             localStorage.setItem(`iv-breach-${zone.id}`, Date.now().toString());
+             
+             if (isOnline) {
+                supabase.from('iv_geofence_events').insert({
+                  zone_id: zone.id,
+                  user_id: userId,
+                  event_type: zone.zone_type === 'permitted' ? 'exit' : 'enter',
+                  lat, lng
+                }).then();
+                
+                fetch('/api/iv/geofence-alert', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ iv_trip_id: tripId, user_id: userId, zone_id: zone.id, lat, lng })
+                }).catch(() => {
+                   queueBreach(zone.id, zone.zone_type);
+                });
+             } else {
+                queueBreach(zone.id, zone.zone_type);
+             }
+           }
         }
       }
     };
@@ -321,6 +405,10 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
         intervalRef.current = null;
+      }
+
+      if (geofenceChannel) {
+        supabase.removeChannel(geofenceChannel);
       }
 
       if (wakeLockRef.current) {

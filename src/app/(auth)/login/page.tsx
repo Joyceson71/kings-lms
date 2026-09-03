@@ -276,6 +276,9 @@ export default function LoginPage() {
             onChange={e => setEmail(e.target.value)}
             placeholder="you@kingsecc.in"
             autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
             disabled={isProcessing}
             className={inputBase}
           />
@@ -299,6 +302,9 @@ export default function LoginPage() {
               onChange={e => setPassword(e.target.value)}
               placeholder="••••••••••"
               autoComplete="current-password"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               disabled={isProcessing}
               className={`${inputBase} pr-10`}
             />

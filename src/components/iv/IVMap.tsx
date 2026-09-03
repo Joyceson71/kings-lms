@@ -5,7 +5,6 @@ import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { MapPin, Download, CheckCircle, Crosshair, X, Info } from 'lucide-react';
-import GeofenceManager from '@/components/iv/GeofenceManager';
 import { IVGlobe } from '@/components/iv/IVGlobe';
 import iconUrl from 'leaflet/dist/images/marker-icon.png';
 import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
@@ -29,7 +28,12 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const poiMarkersRef = useRef<{ [key: string]: any }>({});
   const gatherMarkerRef = useRef<any>(null);
   const profilesRef = useRef<{ [userId: string]: any }>({});
+  const drawnItemsRef = useRef<any>(null);
+  const heatLayerRef = useRef<any>(null);
   
+  const [zones, setZones] = useState<any[]>([]);
+
+
   const [gatherPoint, setGatherPoint] = useState<{lat: number, lng: number, message: string} | null>(null);
   const [showGatherModal, setShowGatherModal] = useState(false);
   const [gatherLatLng, setGatherLatLng] = useState<{lat: number, lng: number} | null>(null);
@@ -78,9 +82,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       if (!mapInstance.current) {
         mapInstance.current = L.map(mapContainer.current, { drawControl: false }).setView([13.0827, 80.2707], 13);
         
-        // Store the map globally so GeofenceManager can access it if needed
-        (window as any)._ivMapInstance = mapInstance.current;
-        (window as any).L = L;
+        // Map instance stored in ref
         
         const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
         const satellite = L.tileLayer(process.env.NEXT_PUBLIC_ESRI_TILES || 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
@@ -93,7 +95,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
         const drawnItems = new (L as any).FeatureGroup();
         mapInstance.current.addLayer(drawnItems);
-        (window as any)._drawnItems = drawnItems;
+        drawnItemsRef.current = drawnItems;
 
         if (role === 'faculty' || role === 'admin') {
           const drawControl = new (L as any).Control.Draw({
@@ -127,14 +129,27 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         tripData.pois.forEach((poi: any) => renderPoi(poi, L));
       }
 
-      const { data: zones } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
-      if (zones && (window as any)._drawnItems) {
-        zones.forEach(zone => {
-          const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
-          const polygon = L.polygon(zone.polygon.map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
-          (window as any)._drawnItems.addLayer(polygon);
-        });
-      }
+      const fetchZones = async () => {
+        const { data: fetchedZones } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
+        if (fetchedZones && drawnItemsRef.current) {
+          setZones(fetchedZones);
+          drawnItemsRef.current.clearLayers();
+          fetchedZones.forEach((zone: any) => {
+            try {
+              const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
+              const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
+              const polygon = L.polygon(points.map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
+              drawnItemsRef.current.addLayer(polygon);
+            } catch (err) {
+              console.warn('Invalid polygon data for zone', zone.id);
+            }
+          });
+        }
+      };
+      await fetchZones();
+
+      // Expose fetchZones so it can be called on delete
+      (mapInstance.current as any).fetchZones = fetchZones;
 
       const { data: profiles } = await supabase.from('profiles').select('id, full_name, avatar_url');
       if (profiles) {
@@ -357,9 +372,9 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
   useEffect(() => {
     if (!mapInstance.current || !showHeatmap) {
-      if ((window as any)._heatLayer && mapInstance.current) {
-        mapInstance.current.removeLayer((window as any)._heatLayer);
-        (window as any)._heatLayer = null;
+      if (heatLayerRef.current && mapInstance.current) {
+        mapInstance.current.removeLayer(heatLayerRef.current);
+        heatLayerRef.current = null;
       }
       return;
     }
@@ -391,19 +406,19 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           return [lat, lng, (counts[k] / max)];
         });
 
-        if ((window as any)._heatLayer) {
-          mapInstance.current.removeLayer((window as any)._heatLayer);
+        if (heatLayerRef.current) {
+          mapInstance.current.removeLayer(heatLayerRef.current);
         }
-        (window as any)._heatLayer = L.heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
+        heatLayerRef.current = L.heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
       }
     };
     
     loadHeatmap();
 
     return () => {
-      if ((window as any)._heatLayer && mapInstance.current) {
-        mapInstance.current.removeLayer((window as any)._heatLayer);
-        (window as any)._heatLayer = null;
+      if (heatLayerRef.current && mapInstance.current) {
+        mapInstance.current.removeLayer(heatLayerRef.current);
+        heatLayerRef.current = null;
       }
     };
   }, [showHeatmap, tripId]);
@@ -464,14 +479,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     if (!mapBounds) return 0;
     let total = 0;
     for (let z = offlineMinZoom; z <= offlineMaxZoom; z++) {
-      const centerLat = (mapBounds.north + mapBounds.south) / 2;
-      const centerLng = (mapBounds.east + mapBounds.west) / 2;
-      const latRad = centerLat * Math.PI / 180;
-      const n = Math.pow(2, z);
-      // Tile position approximation for count estimate
-      Math.floor(n * ((centerLng + 180) / 360));
-      Math.floor(n * (1 - (Math.log(Math.tan(latRad) + 1 / Math.cos(latRad)) / Math.PI)) / 2);
-      
+
       const range = z === 12 ? 1 : z === 13 ? 2 : z === 14 ? 4 : 8; // Approximation based on zoom
       total += Math.pow((range * 2 + 1), 2) * 2; // * 2 for both street and satellite
     }
@@ -579,8 +587,31 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           </button>
         </div>
         
-        {viewMode === '2d' && mapInstance.current && (
-          <GeofenceManager tripId={tripId} role={role} mapInstance={mapInstance.current} />
+        {viewMode === '2d' && mapInstance.current && (role === 'faculty' || role === 'admin') && (
+          <div className="absolute top-24 left-4 z-[2000] bg-background/80 backdrop-blur-md p-4 rounded-2xl border border-border pointer-events-auto shadow-lg max-w-xs">
+            <h3 className="font-bold text-sm tracking-widest uppercase text-muted-foreground mb-2">Zone Manager</h3>
+            <p className="text-xs text-foreground mb-3">Draw polygons on the map to define zones.</p>
+            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+              {zones.map(z => (
+                <div key={z.id} className="flex justify-between items-center bg-card p-2 rounded-lg border border-border">
+                  <span className="text-sm font-medium truncate">{z.name}</span>
+                  <button 
+                    onClick={async () => {
+                      const supabase = createClient();
+                      await supabase.from('iv_geofence_zones').delete().eq('id', z.id);
+                      if (mapInstance.current && (mapInstance.current as any).fetchZones) {
+                        (mapInstance.current as any).fetchZones();
+                      }
+                    }} 
+                    className="text-destructive hover:text-red-700 text-xs font-bold ml-4 shrink-0"
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
+              {zones.length === 0 && <p className="text-xs italic text-muted-foreground">No zones created.</p>}
+            </div>
+          </div>
         )}
       </div>
 
@@ -714,8 +745,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
                 }
                 const color = zoneType === 'permitted' ? '#10b981' : zoneType === 'danger' ? '#ef4444' : '#f59e0b';
                 pendingZoneLayer.setStyle({ color }).bindTooltip(zoneName);
-                (window as any)._drawnItems.addLayer(pendingZoneLayer);
+                drawnItemsRef.current.addLayer(pendingZoneLayer);
                 toast.success('Zone saved');
+                if (mapInstance.current && (mapInstance.current as any).fetchZones) {
+                  (mapInstance.current as any).fetchZones();
+                }
                 setShowZoneModal(false);
                 setPendingZoneLayer(null);
                 setZoneName('');

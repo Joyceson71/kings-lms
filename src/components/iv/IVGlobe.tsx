@@ -3,6 +3,7 @@
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { createClient } from '@/lib/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 
 // Dynamically import react-globe.gl to avoid SSR issues
@@ -31,11 +32,11 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
 
   useEffect(() => {
     const supabase = createClient();
-    let channel: any;
+    let channel: RealtimeChannel;
 
     const initGlobe = async () => {
       const { data: profilesData } = await supabase.from('profiles').select('id, full_name, avatar_url, role');
-      const profiles: Record<string, any> = {};
+      const profiles: Record<string, { id: string; full_name: string; avatar_url: string; role: string; }> = {};
       if (profilesData) {
         profilesData.forEach(p => { profiles[p.id] = p; });
       }
@@ -114,14 +115,15 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
         bumpImageUrl="//unpkg.com/three-globe/example/img/earth-topology.png"
         backgroundImageUrl="//unpkg.com/three-globe/example/img/night-sky.png"
         htmlElementsData={globeData}
-        htmlElement={(d: any) => {
+        htmlElement={(d: object) => {
+          const point = d as { lat: number; lng: number; size: number; color: string; name: string; id: string; avatar?: string };
           const el = document.createElement('div');
           el.innerHTML = `
             <div style="transform: translate(-50%, -100%); pointer-events: none; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 4px;">
-              <div style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); padding: 2px 8px; border-radius: 4px; border: 1px solid ${d.color}; font-size: 10px; font-weight: bold; color: white; white-space: nowrap;">
-                ${d.name}
+              <div style="background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px); padding: 2px 8px; border-radius: 4px; border: 1px solid ${point.color}; font-size: 10px; font-weight: bold; color: white; white-space: nowrap;">
+                ${point.name}
               </div>
-              <div style="width: 12px; height: 12px; background: ${d.color}; border-radius: 50%; box-shadow: 0 0 10px ${d.color}; border: 2px solid white;"></div>
+              <div style="width: 12px; height: 12px; background: ${point.color}; border-radius: 50%; box-shadow: 0 0 10px ${point.color}; border: 2px solid white;"></div>
             </div>
           `;
           return el;

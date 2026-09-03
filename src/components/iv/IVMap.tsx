@@ -30,9 +30,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const profilesRef = useRef<{ [userId: string]: any }>({});
   const drawnItemsRef = useRef<any>(null);
   const heatLayerRef = useRef<any>(null);
+  const userTrailsRef = useRef<Record<string, {lat: number, lng: number}[]>>({});
+  const trailLayersRef = useRef<Record<string, any>>({});
   
   const [zones, setZones] = useState<any[]>([]);
-
+  const [, setTrackedUserId] = useState<string | null>(null);
 
   const [gatherPoint, setGatherPoint] = useState<{lat: number, lng: number, message: string} | null>(null);
   const [showGatherModal, setShowGatherModal] = useState(false);
@@ -119,6 +121,16 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
         mapInstance.current.on('click', () => {
           // Handled below due to closure
+        });
+
+        mapInstance.current.on('dragstart', () => {
+           setTrackedUserId(prev => {
+              if (prev) {
+                 toast.info("Follow mode disabled");
+                 return null;
+              }
+              return prev;
+           });
         });
       }
 
@@ -263,6 +275,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         const icon = L.divIcon({ html, className: 'bg-transparent', iconSize: [40, 40], iconAnchor: [20, 20] });
         const marker = L.marker([loc.lat, loc.lng], { icon }).bindTooltip(name, { permanent: false, direction: 'top', offset: [0, -20] });
         
+        marker.on('click', () => {
+           setTrackedUserId(loc.user_id);
+           toast.info(`Following ${name}`);
+        });
+
         markerClusterRef.current.addLayer(marker);
         markersRef.current[loc.user_id] = marker;
         
@@ -270,12 +287,25 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           mapInstance.current.setView([loc.lat, loc.lng], 16);
         }
       }
+
+      if (!userTrailsRef.current[loc.user_id]) userTrailsRef.current[loc.user_id] = [];
+      userTrailsRef.current[loc.user_id].push({ lat: loc.lat, lng: loc.lng });
       
-      if (isMe && mapBounds) {
-        if (loc.lat > mapBounds.north || loc.lat < mapBounds.south || loc.lng > mapBounds.east || loc.lng < mapBounds.west) {
-          toast.warning("⚠️ You have left the IV area.");
-        }
+      if (trailLayersRef.current[loc.user_id]) {
+         trailLayersRef.current[loc.user_id].setLatLngs(userTrailsRef.current[loc.user_id]);
+      } else {
+         const trailColor = isMe ? '#10b981' : (loc.role === 'faculty' ? '#ef4444' : '#3b82f6');
+         const polyline = L.polyline(userTrailsRef.current[loc.user_id], { color: trailColor, weight: 3, opacity: 0.6, dashArray: '5, 10' });
+         trailLayersRef.current[loc.user_id] = polyline;
+         mapInstance.current.addLayer(polyline);
       }
+
+      setTrackedUserId(prev => {
+         if (prev === loc.user_id && mapInstance.current) {
+            mapInstance.current.setView([loc.lat, loc.lng]);
+         }
+         return prev;
+      });
     }
     
     async function renderPoi(poi: any, L: any) {

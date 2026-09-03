@@ -100,7 +100,11 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
         const q = JSON.parse(localStorage.getItem('iv_ping_queue') || '[]');
         if (q.length) {
           const { error } = await supabase.from('iv_locations').upsert(q, { onConflict: 'user_id,iv_trip_id' });
-          if (!error) localStorage.removeItem('iv_ping_queue');
+          if (!error) {
+             const history = q.map((p: any) => ({ iv_trip_id: p.iv_trip_id, user_id: p.user_id, lat: p.lat, lng: p.lng, recorded_at: p.queued_at || p.updated_at }));
+             await supabase.from('iv_location_history').insert(history).then();
+             localStorage.removeItem('iv_ping_queue');
+          }
         }
 
         const bq = JSON.parse(localStorage.getItem('iv_breach_queue') || '[]');
@@ -180,6 +184,12 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
           } else {
             await supabase.from('iv_locations').insert(ping);
           }
+          await supabase.from('iv_location_history').insert({
+             iv_trip_id: tripId,
+             user_id: userId,
+             lat,
+             lng
+          });
         };
         sendLoc().catch(err => console.error('Failed to update location', err));
       } else {
@@ -373,10 +383,7 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
              navigator.geolocation.getCurrentPosition(
                (pos) => processLocation(pos.coords.latitude, pos.coords.longitude, pos.coords.accuracy),
                (error: any) => {
-                  console.warn('Geolocation error:', error);
-                  if (error.code === 1) toast.error("Location permission denied. Enable in browser settings.");
-                  else if (error.code === 2) toast.error("Location unavailable. Try moving outdoors.");
-                  else if (error.code === 3) toast.error("GPS timeout. Retrying...");
+                  console.warn('Geolocation error fallback polling:', error);
                },
                { enableHighAccuracy: true, timeout: 10000, maximumAge: 5000 }
              );

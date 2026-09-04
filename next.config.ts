@@ -7,8 +7,21 @@ const withPWA = withPWAInit({
   aggressiveFrontEndNavCaching: true,
   reloadOnOnline: true,
   disable: false,
+  cacheStartUrl: false,
+  dynamicStartUrl: false,
   workboxOptions: {
     disableDevLogs: true,
+    manifestTransforms: [
+      async (manifestEntries) => {
+        const manifest = manifestEntries.filter(
+          (entry) =>
+            !entry.url.includes("marker-icon") &&
+            !entry.url.includes("marker-shadow") &&
+            !entry.url.includes("routing-icon")
+        );
+        return { manifest, warnings: [] };
+      },
+    ],
   },
 });
 

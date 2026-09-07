@@ -235,7 +235,7 @@ export default function AssistantPage() {
                     remarkPlugins={[remarkGfm]}
                     components={{
                       code(props) {
-                        const {children, className, node, ...rest} = props
+                        const {children, className, node, ref, ...rest} = props
                         const match = /language-(\w+)/.exec(className || '')
                         return match ? (
                           <SyntaxHighlighter
@@ -248,7 +248,7 @@ export default function AssistantPage() {
                             {String(children).replace(/\n$/, '')}
                           </SyntaxHighlighter>
                         ) : (
-                          <code {...rest} className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md">
+                          <code ref={ref as any} {...rest} className="bg-primary/10 text-primary px-1.5 py-0.5 rounded-md">
                             {children}
                           </code>
                         )

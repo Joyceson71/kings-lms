@@ -70,6 +70,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
     const initMap = async () => {
       L = (await import('leaflet')).default;
+      (window as any).L = L;
       await import('leaflet.markercluster');
       delete (L.Icon.Default.prototype as any)._getIconUrl;
       L.Icon.Default.mergeOptions({ iconUrl: iconUrl.src, iconRetinaUrl: iconRetinaUrl.src, shadowUrl: shadowUrl.src });

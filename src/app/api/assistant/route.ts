@@ -48,10 +48,10 @@ export async function POST(request: Request) {
     const payload = validation.data;
     
     // We are now using GEMINI_API_KEY for the real AI model
-    const apiKey = process.env.GEMINI_API_KEY || process.env.BOB_API_KEY; 
-    if (!apiKey) {
+    const apiKey = process.env.GEMINI_API_KEY; 
+    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
       return NextResponse.json(
-        { error: 'AI model is not configured. Please add GEMINI_API_KEY to your environment variables.' },
+        { error: 'AI model is not configured. Please add a valid GEMINI_API_KEY to your environment variables.' },
         { status: 503 }
       );
     }

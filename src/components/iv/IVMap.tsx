@@ -36,7 +36,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const markerClusterRef = useRef<MarkerClusterGroup | null>(null);
   const drawnItemsRef = useRef<FeatureGroup | null>(null);
   const heatLayerRef = useRef<Layer | null>(null);
-  const routingControl = useRef<any>(null);
+  const routingControl = useRef<unknown>(null);
 
   const [zones, setZones] = useState<IVGeofenceZone[]>([]);
   const [viewMode, setViewMode] = useState<'2d' | '3d'>('2d');
@@ -62,13 +62,17 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   useEffect(() => {
     if (typeof window === 'undefined' || !mapContainer.current) return;
 
-    let L: any;
+    let L: typeof import('leaflet');
 
     const initMap = async () => {
       L = (await import('leaflet')).default;
-      (window as any).L = L;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: Leaflet assigns it to window
+      window.L = L;
       await import('leaflet.markercluster');
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore: internal leaflet property
+      delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({ iconUrl: iconUrl.src, iconRetinaUrl: iconRetinaUrl.src, shadowUrl: shadowUrl.src });
       
       try {
@@ -79,7 +83,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       }
 
       if (!mapInstance.current) {
-        mapInstance.current = L.map(mapContainer.current, { drawControl: false }).setView([13.0827, 80.2707], 13);
+        mapInstance.current = L.map(mapContainer.current!, { drawControl: false }).setView([13.0827, 80.2707], 13);
         
         const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 });
         const satellite = L.tileLayer(process.env.NEXT_PUBLIC_ESRI_TILES || 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19 });
@@ -90,7 +94,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         markerClusterRef.current = (L as any).markerClusterGroup({ disableClusteringAtZoom: 16 });
         mapInstance.current?.addLayer(markerClusterRef.current!);
 
-        const drawnItems = new (L as any).FeatureGroup();
+        const drawnItems = new L.FeatureGroup();
         mapInstance.current?.addLayer(drawnItems);
         drawnItemsRef.current = drawnItems;
 
@@ -108,7 +112,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           });
           mapInstance.current?.addControl(drawControl);
 
-          mapInstance.current?.on((L as any).Draw.Event.CREATED, (e: any) => {
+          mapInstance.current?.on((L as any).Draw.Event.CREATED, (e: { layer: Polygon }) => {
             setPendingZoneLayer(e.layer);
             setShowZoneModal(true);
           });
@@ -129,11 +133,11 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       setZones(fetchedZones as IVGeofenceZone[]);
       drawnItemsRef.current.clearLayers();
       import('leaflet').then((L) => {
-        fetchedZones.forEach((zone: any) => {
+        fetchedZones.forEach((zone: IVGeofenceZone) => {
           try {
             const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
             const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
-            const polygon = L.default.polygon(points.map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
+            const polygon = L.default.polygon((points as {lat: number, lng: number}[]).map((p) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
             drawnItemsRef.current?.addLayer(polygon);
           } catch (err) {
             console.warn('Invalid polygon data for zone', zone.id);
@@ -176,8 +180,8 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     }
 
     const loadHeatmap = async () => {
-      const L = (await import('leaflet')).default as any;
-      if (!L.heatLayer) {
+      const L = (await import('leaflet')).default;
+      if (!(L as any).heatLayer) {
         await new Promise((resolve) => {
           const script = document.createElement('script');
           script.src = 'https://unpkg.com/leaflet.heat/dist/leaflet-heat.js';
@@ -190,7 +194,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       const { data } = await supabase.from('iv_location_history').select('lat, lng').eq('iv_trip_id', tripId);
       
       if (data && data.length > 0) {
-        const counts: any = {};
+        const counts: Record<string, number> = {};
         data.forEach(d => {
           const k = `${d.lat.toFixed(4)},${d.lng.toFixed(4)}`;
           counts[k] = (counts[k] || 0) + 1;
@@ -205,7 +209,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         if (heatLayerRef.current) {
           mapInstance.current?.removeLayer(heatLayerRef.current);
         }
-        heatLayerRef.current = L.heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
+        heatLayerRef.current = (L as any).heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
       }
     };
     
@@ -228,7 +232,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       await import('leaflet-routing-machine');
       
       if (routingControl.current) {
-        mapInstance.current.removeControl(routingControl.current);
+        mapInstance.current.removeControl(routingControl.current as any);
       }
       
       routingControl.current = (L as any).Routing.control({

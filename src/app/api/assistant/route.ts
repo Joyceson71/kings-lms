@@ -1,8 +1,28 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { z } from 'zod';
 
 export const maxDuration = 30;
+
+// Simple in-memory rate limiter for the Assistant API
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const MAX_REQUESTS = 20; // 20 requests per minute
+const WINDOW_MS = 60 * 1000; 
+
+const RequestSchema = z.object({
+  messages: z.array(z.object({
+    id: z.string(),
+    role: z.enum(['user', 'assistant']),
+    content: z.string()
+  })),
+  context: z.object({
+    currentPage: z.string().optional(),
+    enrolledCourses: z.string().optional(),
+    attendancePercentage: z.number().optional(),
+    weakSubjects: z.string().optional()
+  }).optional()
+});
 
 export async function POST(req: Request) {
   try {
@@ -10,6 +30,21 @@ export async function POST(req: Request) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     if (authError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // 1. Rate Limiting based on user ID
+    const now = Date.now();
+    const rateLimitEntry = rateLimitMap.get(user.id);
+    if (!rateLimitEntry || now > rateLimitEntry.resetAt) {
+      rateLimitMap.set(user.id, { count: 1, resetAt: now + WINDOW_MS });
+    } else {
+      rateLimitEntry.count += 1;
+      if (rateLimitEntry.count > MAX_REQUESTS) {
+        return NextResponse.json(
+          { error: 'Too many requests. Please wait a moment before asking again.' },
+          { status: 429 }
+        );
+      }
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
@@ -20,7 +55,24 @@ export async function POST(req: Request) {
       );
     }
 
-    const { messages, context } = await req.json();
+    // 2. Strict Request Parsing & Validation
+    const bodyText = await req.text();
+    let bodyJson;
+    try {
+      bodyJson = JSON.parse(bodyText);
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+
+    const validation = RequestSchema.safeParse(bodyJson);
+    if (!validation.success) {
+      return NextResponse.json(
+        { error: 'Invalid request payload', details: validation.error.format() },
+        { status: 400 }
+      );
+    }
+
+    const { messages, context } = validation.data;
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); 
@@ -35,13 +87,12 @@ export async function POST(req: Request) {
     ].filter(Boolean).join('\n');
 
     // Filter out the welcome message if it exists so we don't confuse the model with fake history
-    const filteredMessages = (messages || []).filter((m: any) => m.id !== 'welcome');
-    
+    const filteredMessages = messages.filter((m) => m.id !== 'welcome');
     if (filteredMessages.length === 0) {
        return NextResponse.json({ error: 'No messages provided.' }, { status: 400 });
     }
 
-    const history = filteredMessages.slice(0, -1).map((msg: any) => ({
+    const history = filteredMessages.slice(0, -1).map((msg) => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }],
     }));

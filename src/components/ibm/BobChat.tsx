@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
-import { Bot, X, Send, User, Sparkles, Loader2 } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { Bot, X, Send, User, Sparkles, Loader2, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -18,11 +18,18 @@ interface BobChatProps {
   };
 }
 
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+}
+
 export function BobChat({ userRole, userName, context }: BobChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
   
-  const [messages, setMessages] = useState<any[]>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: 'welcome',
       role: 'assistant',
@@ -32,16 +39,26 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  const stopGenerating = useCallback(() => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+      setIsLoading(false);
+    }
+  }, []);
+
   const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { id: Date.now().toString(), role: 'user', content: input };
+    const userMessage: Message = { id: Date.now().toString(), role: 'user', content: input };
     const newMessages = [...messages, userMessage];
     
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
+
+    abortControllerRef.current = new AbortController();
 
     try {
       const res = await fetch('/api/assistant', {
@@ -54,9 +71,13 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
             enrolledCourses: context?.courses?.join(', '),
           }
         }),
+        signal: abortControllerRef.current.signal,
       });
 
       if (!res.ok) {
+        if (res.status === 429) {
+          throw new Error('Too many requests. Please wait a moment.');
+        }
         throw new Error('Failed to get response');
       }
 
@@ -80,11 +101,19 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
           return updated;
         });
       }
-    } catch (error) {
-      console.error(error);
-      setMessages((prev) => [...prev, { id: Date.now().toString(), role: 'assistant', content: '❌ Sorry, I encountered an error while processing your request.' }]);
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('Stream aborted');
+      } else {
+        console.error(error);
+        setMessages((prev) => [
+          ...prev, 
+          { id: Date.now().toString(), role: 'assistant', content: `❌ ${error.message || 'Sorry, I encountered an error.'}` }
+        ]);
+      }
     } finally {
       setIsLoading(false);
+      abortControllerRef.current = null;
     }
   };
 
@@ -93,6 +122,15 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
   }, [messages, isOpen]);
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   return (
     <>
@@ -246,14 +284,25 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
                     <Sparkles className="h-4 w-4" />
                   </div>
                 </div>
-                <Button
-                  type="submit"
-                  disabled={!input.trim() || isLoading}
-                  size="icon"
-                  className="h-[44px] w-[44px] rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 transition-all duration-200"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
+                {isLoading ? (
+                  <Button
+                    type="button"
+                    onClick={stopGenerating}
+                    size="icon"
+                    className="h-[44px] w-[44px] rounded-xl bg-destructive hover:bg-destructive/90 text-destructive-foreground shrink-0 transition-all duration-200"
+                  >
+                    <StopCircle className="h-4 w-4" />
+                  </Button>
+                ) : (
+                  <Button
+                    type="submit"
+                    disabled={!input.trim()}
+                    size="icon"
+                    className="h-[44px] w-[44px] rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shrink-0 transition-all duration-200"
+                  >
+                    <Send className="h-4 w-4" />
+                  </Button>
+                )}
               </form>
             </div>
           </motion.div>

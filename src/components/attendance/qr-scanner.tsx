@@ -1,14 +1,15 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw, MapPin } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
 // avoid SSR crash
 let Html5Qrcode: any;
 if (typeof window !== 'undefined') {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   Html5Qrcode = require('html5-qrcode').Html5Qrcode;
 }
-import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw, MapPin } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 
 
 interface QRScannerModalProps {

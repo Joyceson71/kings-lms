@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { createOpenAI } from '@ai-sdk/openai';
+import { streamText } from 'ai';
 import { z } from 'zod';
 
 export const maxDuration = 30;
 
-// Simple in-memory rate limiter for the Assistant API
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
-const MAX_REQUESTS = 20; // 20 requests per minute
-const WINDOW_MS = 60 * 1000; 
+const MAX_REQUESTS = 20;
+const WINDOW_MS = 60 * 1000;
 
 const RequestSchema = z.object({
   messages: z.array(z.object({
@@ -32,7 +32,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // 1. Rate Limiting based on user ID
     const now = Date.now();
     const rateLimitEntry = rateLimitMap.get(user.id);
     if (!rateLimitEntry || now > rateLimitEntry.resetAt) {
@@ -47,16 +46,15 @@ export async function POST(req: Request) {
       }
     }
 
-    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-      console.warn('GOOGLE_GENAI_API_KEY not set — AI features disabled');
+    const apiKey = process.env.BOB_API_KEY;
+    if (!apiKey) {
+      console.warn('BOB_API_KEY not set — AI features disabled');
       return NextResponse.json(
-        { error: 'AI features disabled. GOOGLE_GENAI_API_KEY not set.' },
+        { error: 'AI features disabled. BOB_API_KEY not set.' },
         { status: 503 }
       );
     }
 
-    // 2. Strict Request Parsing & Validation
     const bodyText = await req.text();
     let bodyJson;
     try {
@@ -75,9 +73,6 @@ export async function POST(req: Request) {
 
     const { messages, context } = validation.data;
 
-    const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' }); 
-
     const systemPrompt = [
       'You are "IBM Bob", an academic study assistant helping a student.',
       context?.currentPage ? `The student is currently viewing the following page: ${context.currentPage}. Provide contextually relevant advice for this page if they ask about it.` : '',
@@ -87,43 +82,23 @@ export async function POST(req: Request) {
       'Provide concise, supportive, and helpful academic advice using Markdown.'
     ].filter(Boolean).join('\n');
 
-    // Filter out the welcome message if it exists so we don't confuse the model with fake history
     const filteredMessages = messages.filter((m) => m.id !== 'welcome');
     if (filteredMessages.length === 0) {
        return NextResponse.json({ error: 'No messages provided.' }, { status: 400 });
     }
 
-    const history = filteredMessages.slice(0, -1).map((msg) => ({
-      role: msg.role === 'assistant' ? 'model' : 'user',
-      parts: [{ text: msg.content }],
-    }));
-
-    const chat = model.startChat({
-      history: [
-        { role: 'user', parts: [{ text: `System Context: ${systemPrompt}` }] },
-        { role: 'model', parts: [{ text: 'Understood. I am IBM Bob, the study assistant.' }] },
-        ...history
-      ]
+    const bobOpenAI = createOpenAI({
+      apiKey: apiKey,
+      baseURL: process.env.BOB_API_BASE_URL || 'https://api.openai.com/v1',
     });
 
-    const userMessage = filteredMessages[filteredMessages.length - 1].content;
-    const result = await chat.sendMessageStream(userMessage);
-
-    const stream = new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const chunk of result.stream) {
-            const chunkText = chunk.text();
-            controller.enqueue(new TextEncoder().encode(chunkText));
-          }
-          controller.close();
-        } catch (e) {
-          controller.error(e);
-        }
-      }
+    const result = await streamText({
+      model: bobOpenAI(process.env.BOB_API_MODEL || 'gpt-4o-mini'),
+      system: systemPrompt,
+      messages: filteredMessages as any,
     });
 
-    return new Response(stream, { headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error('[assistant] Error:', error);
     return NextResponse.json({ error: 'Failed to process request.' }, { status: 500 });

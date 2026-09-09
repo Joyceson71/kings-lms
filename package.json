@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.65",
+    "@ai-sdk/openai": "^4.0.64",
     "@ai-sdk/react": "^4.0.98",
     "@base-ui/react": "^1.6.0",
     "@capacitor/android": "^8.4.2",
@@ -24,7 +25,6 @@
     "@capacitor/splash-screen": "^8.0.2",
     "@capacitor/status-bar": "^8.0.3",
     "@ducanh2912/next-pwa": "^10.2.9",
-    "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^5.4.0",
     "@ibm-watson/assistant-web-chat-react": "^2.0.1",
     "@react-three/drei": "^10.7.7",

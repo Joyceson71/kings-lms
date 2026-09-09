@@ -5,13 +5,15 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { createClient } from '@/lib/supabase/client';
 
+import type { Polygon, FeatureGroup } from 'leaflet';
+
 interface ZoneManagerModalProps {
   show: boolean;
   onClose: () => void;
   tripId: string;
   currentUserId: string;
-  pendingZoneLayer: any;
-  drawnItemsRef: React.MutableRefObject<any>;
+  pendingZoneLayer: Polygon | null;
+  drawnItemsRef: React.MutableRefObject<FeatureGroup | null>;
   onZoneSaved: () => void;
 }
 
@@ -33,7 +35,8 @@ export function ZoneManagerModal({
     if (!zoneName || !pendingZoneLayer) return;
     
     // In Leaflet, polygons are accessed via getLatLngs()[0]
-    const polygon = pendingZoneLayer.getLatLngs()[0].map((p: any) => ({ lat: p.lat, lng: p.lng }));
+    const latlngs = pendingZoneLayer.getLatLngs()[0] as any[];
+    const polygon = latlngs.map((p: any) => ({ lat: p.lat, lng: p.lng }));
     
     const supabase = createClient();
     const { error } = await supabase.from('iv_geofence_zones').insert({

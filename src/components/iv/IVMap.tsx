@@ -11,6 +11,7 @@ import iconRetinaUrl from 'leaflet/dist/images/marker-icon-2x.png';
 import shadowUrl from 'leaflet/dist/images/marker-shadow.png';
 
 // Custom Hooks
+import type { Map, MarkerClusterGroup, FeatureGroup, Layer, Polygon, LeafletMouseEvent } from 'leaflet';
 import { useIVMapOffline } from '@/hooks/useIVMapOffline';
 import { useIVMapRealtime } from '@/hooks/useIVMapRealtime';
 
@@ -31,10 +32,10 @@ interface IVMapProps {
 
 export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeatmap }: IVMapProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<any>(null);
-  const markerClusterRef = useRef<any>(null);
-  const drawnItemsRef = useRef<any>(null);
-  const heatLayerRef = useRef<any>(null);
+  const mapInstance = useRef<Map | null>(null);
+  const markerClusterRef = useRef<MarkerClusterGroup | null>(null);
+  const drawnItemsRef = useRef<FeatureGroup | null>(null);
+  const heatLayerRef = useRef<Layer | null>(null);
   const routingControl = useRef<any>(null);
 
   const [zones, setZones] = useState<IVGeofenceZone[]>([]);
@@ -45,7 +46,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   const [gatherLatLng, setGatherLatLng] = useState<{lat: number, lng: number} | null>(null);
   
   const [showZoneModal, setShowZoneModal] = useState(false);
-  const [pendingZoneLayer, setPendingZoneLayer] = useState<any>(null);
+  const [pendingZoneLayer, setPendingZoneLayer] = useState<Polygon | null>(null);
 
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
@@ -87,10 +88,10 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         streetMap.addTo(mapInstance.current);
 
         markerClusterRef.current = (L as any).markerClusterGroup({ disableClusteringAtZoom: 16 });
-        mapInstance.current.addLayer(markerClusterRef.current);
+        mapInstance.current?.addLayer(markerClusterRef.current!);
 
         const drawnItems = new (L as any).FeatureGroup();
-        mapInstance.current.addLayer(drawnItems);
+        mapInstance.current?.addLayer(drawnItems);
         drawnItemsRef.current = drawnItems;
 
         if (role === 'faculty' || role === 'admin') {
@@ -105,9 +106,9 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
               circlemarker: false
             }
           });
-          mapInstance.current.addControl(drawControl);
+          mapInstance.current?.addControl(drawControl);
 
-          mapInstance.current.on((L as any).Draw.Event.CREATED, (e: any) => {
+          mapInstance.current?.on((L as any).Draw.Event.CREATED, (e: any) => {
             setPendingZoneLayer(e.layer);
             setShowZoneModal(true);
           });
@@ -133,7 +134,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
             const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
             const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
             const polygon = L.default.polygon(points.map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
-            drawnItemsRef.current.addLayer(polygon);
+            drawnItemsRef.current?.addLayer(polygon);
           } catch (err) {
             console.warn('Invalid polygon data for zone', zone.id);
           }
@@ -145,7 +146,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
   // Add click handler for Gather Alert and POI
   useEffect(() => {
     if (!mapInstance.current) return;
-    const handler = async (e: any) => {
+    const handler = async (e: LeafletMouseEvent) => {
       if (poiMode) {
         const supabase = createClient();
         const { data } = await supabase.from('iv_trips').select('pois').eq('id', tripId).single();
@@ -202,7 +203,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         });
 
         if (heatLayerRef.current) {
-          mapInstance.current.removeLayer(heatLayerRef.current);
+          mapInstance.current?.removeLayer(heatLayerRef.current);
         }
         heatLayerRef.current = L.heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
       }

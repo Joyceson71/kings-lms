@@ -3,18 +3,20 @@ import { createClient } from '@/lib/supabase/client';
 import { toast } from 'sonner';
 import { IVAlert, IVSosEvent, IVPoi } from '@/types/iv';
 
-export function useIVMapRealtime(tripId: string, currentUserId: string, role: string, mapInstanceRef: React.MutableRefObject<any>, markerClusterRef: React.MutableRefObject<any>) {
+import type { Map, MarkerClusterGroup, Marker, Polyline, CircleMarker } from 'leaflet';
+
+export function useIVMapRealtime(tripId: string, currentUserId: string, role: string, mapInstanceRef: React.MutableRefObject<Map | null>, markerClusterRef: React.MutableRefObject<MarkerClusterGroup | null>) {
   const [gatherPoint, setGatherPoint] = useState<{lat: number, lng: number, message: string} | null>(null);
   const [poiMode, setPoiMode] = useState<'Meeting' | 'Restrooms' | 'Exit' | 'Custom' | null>(null);
   const [, setTrackedUserId] = useState<string | null>(null);
 
-  const markersRef = useRef<{ [key: string]: any }>({});
-  const messageMarkersRef = useRef<{ [key: string]: any }>({});
-  const poiMarkersRef = useRef<{ [key: string]: any }>({});
+  const markersRef = useRef<{ [key: string]: Marker }>({});
+  const messageMarkersRef = useRef<{ [key: string]: Marker }>({});
+  const poiMarkersRef = useRef<{ [key: string]: Marker }>({});
   const profilesRef = useRef<{ [userId: string]: any }>({});
   const userTrailsRef = useRef<Record<string, {lat: number, lng: number}[]>>({});
-  const trailLayersRef = useRef<Record<string, any>>({});
-  const gatherMarkerRef = useRef<any>(null);
+  const trailLayersRef = useRef<Record<string, Polyline>>({});
+  const gatherMarkerRef = useRef<CircleMarker | null>(null);
 
   useEffect(() => {
     let L: any;
@@ -68,8 +70,8 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
         .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_sos_events', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
           const sos = payload.new as IVSosEvent;
           if (!sos.resolved_at && markersRef.current[sos.student_id] && mapInstanceRef.current) {
-            markersRef.current[sos.student_id].setStyle({ fillColor: '#dc2626', className: 'animate-pulse' });
-            mapInstanceRef.current.flyTo([sos.lat, sos.lng], 16);
+            (markersRef.current[sos.student_id] as any).setStyle({ fillColor: '#dc2626', className: 'animate-pulse' });
+            mapInstanceRef.current?.flyTo([sos.lat, sos.lng], 16);
           }
         })
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'iv_trips', filter: `id=eq.${tripId}` }, (payload) => {
@@ -152,7 +154,7 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
         markersRef.current[loc.user_id] = marker;
         
         if (isMe) {
-          mapInstanceRef.current.setView([loc.lat, loc.lng], 16);
+          mapInstanceRef.current?.setView([loc.lat, loc.lng], 16);
         }
       }
 
@@ -165,12 +167,12 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
          const trailColor = isMe ? '#10b981' : (loc.role === 'faculty' ? '#ef4444' : '#3b82f6');
          const polyline = L.polyline(userTrailsRef.current[loc.user_id], { color: trailColor, weight: 3, opacity: 0.6, dashArray: '5, 10' });
          trailLayersRef.current[loc.user_id] = polyline;
-         mapInstanceRef.current.addLayer(polyline);
+         mapInstanceRef.current?.addLayer(polyline);
       }
 
       setTrackedUserId(prev => {
          if (prev === loc.user_id && mapInstanceRef.current) {
-            mapInstanceRef.current.setView([loc.lat, loc.lng]);
+            mapInstanceRef.current?.setView([loc.lat, loc.lng]);
          }
          return prev;
       });
@@ -200,7 +202,7 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
        marker.bindTooltip(type, { permanent: true, direction: 'top', offset: [0, -12] });
        
        if (role !== 'student') {
-         marker.on('dragend', async (e: any) => {
+         marker.on('dragend', async (e: import('leaflet').DragEndEvent) => {
             const newPos = e.target.getLatLng();
             const supabase = createClient();
             const { data } = await supabase.from('iv_trips').select('pois').eq('id', tripId).single();
@@ -224,7 +226,7 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
     
     import('leaflet').then((L) => {
       if (gatherMarkerRef.current) {
-        mapInstanceRef.current.removeLayer(gatherMarkerRef.current);
+        mapInstanceRef.current?.removeLayer(gatherMarkerRef.current);
       }
       
       gatherMarkerRef.current = L.default.circleMarker([gatherPoint.lat, gatherPoint.lng], {
@@ -237,7 +239,7 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
         className: 'animate-pulse'
       }).bindTooltip('Gather Here', { permanent: true, direction: 'top' });
       
-      gatherMarkerRef.current.addTo(mapInstanceRef.current);
+      gatherMarkerRef.current.addTo(mapInstanceRef.current!);
     });
   }, [gatherPoint, mapInstanceRef]);
 

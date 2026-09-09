@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { Html5Qrcode } from 'html5-qrcode';
+// avoid SSR crash
+let Html5Qrcode: any;
+if (typeof window !== 'undefined') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  Html5Qrcode = require('html5-qrcode').Html5Qrcode;
+}
 import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -22,7 +27,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isFlashlightOn, setIsFlashlightOn] = useState(false);
   const [isStarting, setIsStarting] = useState(false);
-  const html5QrCodeRef = useRef<Html5Qrcode | null>(null);
+  const html5QrCodeRef = useRef<any>(null);
 
   // Initialize and get cameras
   useEffect(() => {
@@ -30,19 +35,20 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
 
     let mounted = true;
     
-    Html5Qrcode.getCameras().then(devices => {
+    if (!Html5Qrcode) return;
+    Html5Qrcode.getCameras().then((devices: any[]) => {
       if (devices && devices.length) {
         if (mounted) {
           setCameras(devices);
           // Prefer back camera if available by guessing label
-          const backCamera = devices.find(c => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear'));
+          const backCamera = devices.find((c: any) => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear'));
           setActiveCameraId(backCamera ? backCamera.id : devices[0].id);
           setHasPermission(true);
         }
       } else {
         if (mounted) setHasPermission(false);
       }
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error("Error getting cameras", err);
       if (mounted) setHasPermission(false);
     });
@@ -67,7 +73,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
     html5QrCode.start(
       activeCameraId,
       { fps: 10, qrbox: { width: 250, height: 250 } },
-      (decodedText) => {
+      (decodedText: string) => {
         if (html5QrCode.isScanning) {
           html5QrCode.pause(true);
         }
@@ -78,7 +84,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
       }
     ).then(() => {
       setIsStarting(false);
-    }).catch(err => {
+    }).catch((err: any) => {
       console.error("Failed to start scanner", err);
       setIsStarting(false);
     });
@@ -101,7 +107,7 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
         advanced: [{ torch: state } as any]
       });
       setIsFlashlightOn(state);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Flashlight not supported", err);
     }
   };

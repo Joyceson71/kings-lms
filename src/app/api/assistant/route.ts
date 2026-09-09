@@ -47,10 +47,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GOOGLE_GENAI_API_KEY || process.env.GEMINI_API_KEY;
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
+      console.warn('GOOGLE_GENAI_API_KEY not set — AI features disabled');
       return NextResponse.json(
-        { error: 'AI model is not configured. Please add a valid GEMINI_API_KEY to your environment variables.' },
+        { error: 'AI features disabled. GOOGLE_GENAI_API_KEY not set.' },
         { status: 503 }
       );
     }

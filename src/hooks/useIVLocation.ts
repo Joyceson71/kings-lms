@@ -50,13 +50,20 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
     let geofenceChannel: any = null;
 
     const fetchGeofences = async () => {
+      const parsePolygons = (zones: any[]) => {
+        return zones.map((z: any) => ({
+          ...z,
+          polygon: typeof z.polygon === 'string' ? JSON.parse(z.polygon) : z.polygon
+        }));
+      };
+
       const { data } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
-      if (data) geofences = data;
+      if (data) geofences = parsePolygons(data);
       
       geofenceChannel = supabase.channel(`geofences-${tripId}`)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_geofence_zones', filter: `iv_trip_id=eq.${tripId}` }, async () => {
           const { data: refreshed } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
-          if (refreshed) geofences = refreshed;
+          if (refreshed) geofences = parsePolygons(refreshed);
         }).subscribe();
       
       const { data: tripData } = await supabase.from('iv_trips').select('attendance_session_id').eq('id', tripId).single();
@@ -290,6 +297,15 @@ export function useIVLocation(tripId: string, userId: string, active: boolean, b
            const lastBreach = localStorage.getItem(`iv-breach-${zone.id}`);
            if (!lastBreach || Date.now() - Number(lastBreach) > 60000 * 5) {
              localStorage.setItem(`iv-breach-${zone.id}`, Date.now().toString());
+             
+             if (zone.zone_type === 'permitted') {
+               toast.error(`⚠️ You have exited the permitted zone: ${zone.name || 'Safe Area'}`);
+             } else {
+               toast.error(`⚠️ You have entered a restricted zone: ${zone.name || 'Danger Zone'}`);
+             }
+             try {
+               Haptics.notification({ type: NotificationType.Error });
+             } catch {}
              
              if (isOnline) {
                 supabase.from('iv_geofence_events').insert({

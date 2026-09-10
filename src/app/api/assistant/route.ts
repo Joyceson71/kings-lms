@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { createOpenAI } from '@ai-sdk/openai';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import { z } from 'zod';
 
@@ -46,11 +46,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const apiKey = process.env.BOB_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.warn('BOB_API_KEY not set — AI features disabled');
+      console.warn('GEMINI_API_KEY not set — AI features disabled');
       return NextResponse.json(
-        { error: 'AI features disabled. BOB_API_KEY not set.' },
+        { error: 'AI features disabled. GEMINI_API_KEY not set.' },
         { status: 503 }
       );
     }
@@ -87,13 +87,12 @@ export async function POST(req: Request) {
        return NextResponse.json({ error: 'No messages provided.' }, { status: 400 });
     }
 
-    const bobOpenAI = createOpenAI({
+    const google = createGoogleGenerativeAI({
       apiKey: apiKey,
-      baseURL: process.env.BOB_API_BASE_URL || 'https://api.openai.com/v1',
     });
 
     const result = await streamText({
-      model: bobOpenAI(process.env.BOB_API_MODEL || 'gpt-4o-mini'),
+      model: google('gemini-2.5-flash'),
       system: systemPrompt,
       messages: filteredMessages as any,
     });

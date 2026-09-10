@@ -258,49 +258,58 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       
       <POIToolbar role={role} poiMode={poiMode} setPoiMode={setPoiMode} />
 
+      {gatherPoint && (
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-[1000] bg-primary/90 backdrop-blur-md text-primary-foreground px-6 py-3 rounded-full shadow-2xl font-semibold flex items-center gap-3 border border-white/20 animate-in slide-in-from-top-4 duration-300">
+          <span className="tracking-wide">Gathering point active!</span>
+          <Button onClick={navigateToGather} variant="secondary" className="h-8 rounded-full font-bold shadow-md hover:scale-105 transition-transform text-xs px-4">
+            Navigate
+          </Button>
+        </div>
+      )}
+
       <div className="absolute bottom-6 left-6 z-[1000] flex flex-col gap-2">
-        <Button onClick={() => setShowOfflineModal(true)} variant="secondary" className="clay-card font-bold py-2 px-4 shadow-xl">
-          <Download className="mr-2" size={16} /> Offline Map Cache
+        <Button onClick={() => setShowOfflineModal(true)} variant="secondary" className="bg-background/80 backdrop-blur-md border border-white/10 font-bold py-3 px-5 shadow-2xl hover:shadow-primary/20 hover:scale-105 transition-all duration-300 rounded-2xl">
+          <Download className="mr-2 text-primary" size={18} /> Offline Cache
         </Button>
       </div>
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2000] flex flex-col items-center">
-        <div className="clay-card rounded-full p-2 flex shadow-2xl mb-2 items-center">
+        <div className="bg-background/70 backdrop-blur-md border border-white/10 rounded-full p-1.5 flex shadow-2xl mb-2 items-center gap-1">
           <button 
             onClick={() => setViewMode('2d')} 
-            className={`px-5 py-2.5 text-sm font-bold rounded-full transition-all ${viewMode === '2d' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
+            className={`px-6 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${viewMode === '2d' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'text-foreground/70 hover:bg-white/10 hover:text-foreground'}`}
           >
             2D Map
           </button>
           <button 
             onClick={() => setViewMode('3d')} 
-            className={`px-5 py-2.5 text-sm font-bold rounded-full transition-all ${viewMode === '3d' ? 'bg-primary text-primary-foreground shadow-lg' : 'text-muted-foreground hover:bg-secondary'}`}
+            className={`px-6 py-2.5 text-sm font-bold rounded-full transition-all duration-300 ${viewMode === '3d' ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/30' : 'text-foreground/70 hover:bg-white/10 hover:text-foreground'}`}
           >
             3D Globe
           </button>
         </div>
         
         {viewMode === '2d' && mapInstance.current && (role === 'faculty' || role === 'admin') && (
-          <div className="absolute top-24 left-4 z-[2000] bg-background/80 backdrop-blur-md p-4 rounded-2xl border border-border pointer-events-auto shadow-lg max-w-xs">
-            <h3 className="font-bold text-sm tracking-widest uppercase text-muted-foreground mb-2">Zone Manager</h3>
-            <p className="text-xs text-foreground mb-3">Draw polygons on the map to define zones.</p>
-            <div className="space-y-2 max-h-40 overflow-y-auto pr-2">
+          <div className="absolute top-24 left-6 z-[2000] bg-background/70 backdrop-blur-xl p-5 rounded-3xl border border-white/10 pointer-events-auto shadow-2xl max-w-sm w-72">
+            <h3 className="font-bold text-xs tracking-widest uppercase text-primary mb-1">Zone Manager</h3>
+            <p className="text-sm text-foreground/80 mb-4 leading-relaxed">Draw polygons on the map to define zones.</p>
+            <div className="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
               {zones.map(z => (
-                <div key={z.id} className="flex justify-between items-center bg-card p-2 rounded-lg border border-border">
-                  <span className="text-sm font-medium truncate">{z.name}</span>
+                <div key={z.id} className="flex justify-between items-center bg-black/20 p-3 rounded-xl border border-white/5 group transition-colors hover:bg-black/30">
+                  <span className="text-sm font-semibold truncate text-foreground/90">{z.name}</span>
                   <button 
                     onClick={async () => {
                       const supabase = createClient();
                       await supabase.from('iv_geofence_zones').delete().eq('id', z.id);
                       fetchZones();
                     }} 
-                    className="text-destructive hover:text-red-700 text-xs font-bold ml-4 shrink-0"
+                    className="text-destructive hover:text-red-400 text-xs font-bold ml-4 shrink-0 opacity-80 hover:opacity-100 transition-opacity bg-destructive/10 px-2 py-1 rounded"
                   >
                     Delete
                   </button>
                 </div>
               ))}
-              {zones.length === 0 && <p className="text-xs italic text-muted-foreground">No zones created.</p>}
+              {zones.length === 0 && <p className="text-sm italic text-foreground/50 text-center py-4 bg-black/10 rounded-xl border border-dashed border-white/10">No zones created.</p>}
             </div>
           </div>
         )}

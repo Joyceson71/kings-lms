@@ -5,6 +5,7 @@ import { Toaster } from "sonner";
 import { SWRegistrar } from "@/components/layout/sw-registrar";
 import { CapacitorInit } from "@/components/layout/capacitor-init";
 import { LeafletStylesLoader } from "@/components/layout/leaflet-styles-loader";
+import { IBMWatsonAssistant } from "@/components/layout/ibm-watson-assistant";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
@@ -55,6 +56,7 @@ export default function RootLayout({
           <SWRegistrar />
           <CapacitorInit />
           <LeafletStylesLoader />
+          <IBMWatsonAssistant />
         </ThemeProvider>
       </body>
     </html>

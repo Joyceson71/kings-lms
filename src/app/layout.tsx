@@ -51,7 +51,15 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground overflow-x-hidden w-full">
         <ThemeProvider attribute="class" defaultTheme="dark" disableTransitionOnChange>
-          {children}
+          {/* Ambient Background Layers */}
+          <div className="fixed inset-0 z-[-1] bg-anime-orbs animate-spin-slow opacity-20 pointer-events-none" />
+          <div className="fixed inset-0 z-[-1] bg-scanlines opacity-[0.15] pointer-events-none" />
+          <div className="fixed inset-0 z-[-1] bg-mesh opacity-30 pointer-events-none" />
+          
+          <main className="flex-1 flex flex-col relative z-0 w-full h-full min-h-screen">
+            {children}
+          </main>
+          
           <Toaster position="top-right" richColors closeButton />
           <SWRegistrar />
           <CapacitorInit />

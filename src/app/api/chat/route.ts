@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       system: 'You are IBM Bob, a helpful AI development partner and coding assistant integrated into the Kings EC Platform.',
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
   } catch (error) {
     console.error("Error communicating with IBM Bob API:", error);
     return new Response(JSON.stringify({ error: "Failed to communicate with IBM Bob" }), {

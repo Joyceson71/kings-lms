@@ -1,21 +1,31 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import Script from "next/script";
+
+// Define the shape of the Watson Assistant instance
+interface WatsonAssistantInstance {
+  render: () => Promise<void>;
+  on: (event: string, handler: (e: any) => void) => void;
+  // Add other methods as needed from the Watson Assistant API
+}
 
 declare global {
   interface Window {
-    watsonAssistantChatOptions?: any;
+    watsonAssistantChatOptions?: {
+      integrationID: string;
+      region: string;
+      serviceInstanceID: string;
+      onLoad: (instance: WatsonAssistantInstance) => Promise<void>;
+      clientVersion?: string;
+    };
   }
 }
 
 export function IBMWatsonAssistant() {
-  const initialized = useRef(false);
+  const [shouldLoad, setShouldLoad] = useState(false);
 
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
-
-    // These should ideally be set in your .env.local file
     const integrationID = process.env.NEXT_PUBLIC_IBM_WATSON_INTEGRATION_ID;
     const region = process.env.NEXT_PUBLIC_IBM_WATSON_REGION || "us-south";
     const serviceInstanceID = process.env.NEXT_PUBLIC_IBM_WATSON_SERVICE_INSTANCE_ID;
@@ -25,23 +35,28 @@ export function IBMWatsonAssistant() {
       return;
     }
 
+    // Configure the global options before the script is loaded
     window.watsonAssistantChatOptions = {
-      integrationID: integrationID,
-      region: region,
-      serviceInstanceID: serviceInstanceID,
-      onLoad: async (instance: any) => {
-        await instance.render();
+      integrationID,
+      region,
+      serviceInstanceID,
+      onLoad: async (instance: WatsonAssistantInstance) => {
+        try {
+          await instance.render();
+        } catch (error) {
+          console.error("IBM Watson Assistant failed to render:", error);
+        }
       }
     };
 
-    setTimeout(function() {
-      const t = document.createElement('script');
-      t.src = "https://web-chat.global.assistant.watson.appdomain.cloud/versions/" +
-        (window.watsonAssistantChatOptions.clientVersion || 'latest') +
-        "/WatsonAssistantChatEntry.js";
-      document.head.appendChild(t);
-    });
+    // Trigger the script load
+    setShouldLoad(true);
   }, []);
 
-  return null;
+  if (!shouldLoad) return null;
+
+  const version = window.watsonAssistantChatOptions?.clientVersion || "latest";
+  const scriptSrc = `https://web-chat.global.assistant.watson.appdomain.cloud/versions/${version}/WatsonAssistantChatEntry.js`;
+
+  return <Script src={scriptSrc} strategy="afterInteractive" />;
 }

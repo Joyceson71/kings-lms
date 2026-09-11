@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -59,19 +59,41 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
 
   const { gatherPoint, poiMode, setPoiMode, markersRef } = useIVMapRealtime(tripId, currentUserId, role, mapInstance, markerClusterRef);
 
+  const fetchZones = useCallback(async () => {
+    const supabase = createClient();
+    const { data: fetchedZones } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
+    if (fetchedZones && drawnItemsRef.current) {
+      setZones(fetchedZones as IVGeofenceZone[]);
+      drawnItemsRef.current.clearLayers();
+      const leafletModule = await import('leaflet');
+      const leafletInstance: any = leafletModule.default;
+      
+      fetchedZones.forEach((zone: IVGeofenceZone) => {
+        try {
+          const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
+          const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
+          const polygon = leafletInstance.polygon((points as {lat: number, lng: number}[]).map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
+          drawnItemsRef.current?.addLayer(polygon);
+        } catch (err) {
+          console.warn('Invalid polygon data for zone', zone.id);
+        }
+      });
+    }
+  }, [tripId]);
+
   useEffect(() => {
     if (typeof window === 'undefined' || !mapContainer.current) return;
 
-    let L: typeof import('leaflet');
+    let L: any;
 
     const initMap = async () => {
-      L = (await import('leaflet')).default;
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: Leaflet assigns it to window
+      const leafletModule = await import('leaflet');
+      L = leafletModule.default;
       window.L = L;
+      
       await import('leaflet.markercluster');
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore: internal leaflet property
+      
+      // @ts-expect-error: internal leaflet property
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({ iconUrl: iconUrl.src, iconRetinaUrl: iconRetinaUrl.src, shadowUrl: shadowUrl.src });
       
@@ -91,7 +113,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         L.control.layers({ "Street Map": streetMap, "Satellite": satellite }).addTo(mapInstance.current);
         streetMap.addTo(mapInstance.current);
 
-        markerClusterRef.current = (L as any).markerClusterGroup({ disableClusteringAtZoom: 16 });
+        markerClusterRef.current = L.markerClusterGroup({ disableClusteringAtZoom: 16 });
         mapInstance.current?.addLayer(markerClusterRef.current!);
 
         const drawnItems = new L.FeatureGroup();
@@ -99,7 +121,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         drawnItemsRef.current = drawnItems;
 
         if (role === 'faculty' || role === 'admin') {
-          const drawControl = new (L as any).Control.Draw({
+          const drawControl = new L.Control.Draw({
             edit: { featureGroup: drawnItems },
             draw: {
               polygon: true,
@@ -112,7 +134,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
           });
           mapInstance.current?.addControl(drawControl);
 
-          mapInstance.current?.on((L as any).Draw.Event.CREATED, (e: { layer: Polygon }) => {
+          mapInstance.current?.on(L.Draw.Event.CREATED, (e: { layer: Polygon }) => {
             setPendingZoneLayer(e.layer);
             setShowZoneModal(true);
           });
@@ -123,29 +145,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     };
 
     initMap();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [role, tripId]);
-
-  const fetchZones = async () => {
-    const supabase = createClient();
-    const { data: fetchedZones } = await supabase.from('iv_geofence_zones').select('*').eq('iv_trip_id', tripId);
-    if (fetchedZones && drawnItemsRef.current) {
-      setZones(fetchedZones as IVGeofenceZone[]);
-      drawnItemsRef.current.clearLayers();
-      import('leaflet').then((L) => {
-        fetchedZones.forEach((zone: IVGeofenceZone) => {
-          try {
-            const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
-            const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
-            const polygon = L.default.polygon((points as {lat: number, lng: number}[]).map((p) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
-            drawnItemsRef.current?.addLayer(polygon);
-          } catch (err) {
-            console.warn('Invalid polygon data for zone', zone.id);
-          }
-        });
-      });
-    }
-  };
+  }, [role, fetchZones]);
 
   // Add click handler for Gather Alert and POI
   useEffect(() => {

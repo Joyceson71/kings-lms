@@ -112,79 +112,79 @@
   --glass-shadow: 0 4px 20px rgb(0 0 0 / 0.04), inset 0 1px 0 rgb(255 255 255 / 1);
 }
 
-/* ─── ANIME × NEO × BRUTALISM × SPATIAL — Dark Theme ──────────────────── */
+/* ─── MIDNIGHT AURORA — Premium Dark Theme ──────────────────── */
 .dark {
-  /* ─ Core Surfaces — Deep space indigo-black ─ */
-  --background:         #0A0A14;
-  --foreground:         #F0F0FF;
-  --card:               #111120;
-  --card-foreground:    #F0F0FF;
-  --popover:            #16162A;
-  --popover-foreground: #F0F0FF;
+  /* ─ Core Surfaces — Deep Obsidian ─ */
+  --background:         #030712;
+  --foreground:         #f9fafb;
+  --card:               #111827;
+  --card-foreground:    #f9fafb;
+  --popover:            #1f2937;
+  --popover-foreground: #f9fafb;
 
-  /* ─ Anime Pink — Primary energy ─ */
-  --primary:            #FF006E;
+  /* ─ Aurora Teal — Primary ─ */
+  --primary:            #14b8a6;
   --primary-foreground: #ffffff;
 
-  /* ─ Secondary — Neomorphic raised surface ─ */
-  --secondary:          #1A1A2E;
-  --secondary-foreground: #C0C0F0;
+  /* ─ Secondary — Subdued gray ─ */
+  --secondary:          #1f2937;
+  --secondary-foreground: #d1d5db;
 
   /* ─ Muted ─ */
-  --muted:              #16162A;
-  --muted-foreground:   #6060A0;
+  --muted:              #1f2937;
+  --muted-foreground:   #9ca3af;
 
-  /* ─ Cyber Cyan — Accent ─ */
-  --accent:             #00F5FF;
-  --accent-foreground:  #0A0A14;
+  /* ─ Cosmic Violet — Accent ─ */
+  --accent:             #8b5cf6;
+  --accent-foreground:  #ffffff;
 
   /* ─ Destructive ─ */
-  --destructive:        #FF006E;
+  --destructive:        #ef4444;
 
   /* ─ Structure ─ */
-  --border:   #252545;
-  --input:    #16162A;
-  --ring:     #FF006E;
+  --border:   #374151;
+  --input:    #1f2937;
+  --ring:     #14b8a6;
   --radius:   1.5rem;
 
-  /* ─ Extended Anime Tokens ─ */
-  --gold:        #FFD700;
-  --gold-muted:  rgb(255 215 0 / 0.18);
-  --violet:      #BF00FF;
-  --violet-glow: rgb(191 0 255 / 0.3);
-  --emerald-glow:rgb(57 255 20 / 0.25);
-  --cyan:        #00F5FF;
-  --cyan-glow:   rgb(0 245 255 / 0.3);
+  /* ─ Extended Tokens ─ */
+  --gold:        #fbbf24;
+  --gold-muted:  rgb(251 191 36 / 0.15);
+  --violet:      #8b5cf6;
+  --violet-glow: rgb(139 92 246 / 0.25);
+  --emerald-glow:rgb(16 185 129 / 0.2);
+  --cyan:        #06b6d4;
+  --cyan-glow:   rgb(6 182 212 / 0.25);
 
   /* ─ Sidebar ─ */
-  --sidebar:                    #0D0D1E;
-  --sidebar-foreground:         #F0F0FF;
-  --sidebar-primary:            #FF006E;
+  --sidebar:                    #030712;
+  --sidebar-foreground:         #f9fafb;
+  --sidebar-primary:            #14b8a6;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent:             #16162A;
-  --sidebar-accent-foreground:  #C0C0F0;
-  --sidebar-border:             #252545;
-  --sidebar-ring:               #FF006E;
+  --sidebar-accent:             #1f2937;
+  --sidebar-accent-foreground:  #d1d5db;
+  --sidebar-border:             #1f2937;
+  --sidebar-ring:               #14b8a6;
 
   /* ─ Charts ─ */
-  --chart-1: #FF006E;
-  --chart-2: #39FF14;
-  --chart-3: #FFD700;
-  --chart-4: #BF00FF;
-  --chart-5: #00F5FF;
+  --chart-1: #14b8a6;
+  --chart-2: #8b5cf6;
+  --chart-3: #fbbf24;
+  --chart-4: #ef4444;
+  --chart-5: #06b6d4;
 
   /* ─ Neomorphism Dark Tokens ─ */
-  --neo-bg:           #111120;
-  --neo-shadow-dark:  #06060F;
-  --neo-shadow-light: #1E1E38;
-  --neo-inset-dark:   #080812;
-  --neo-inset-light:  #1A1A32;
+  --neo-bg:           #111827;
+  --neo-shadow-dark:  #0a0f18;
+  --neo-shadow-light: #182236;
+  --neo-inset-dark:   #0a0f18;
+  --neo-inset-light:  #182236;
 
   /* ─ Glow & Glass ─ */
-  --primary-glow:  rgb(255 0 110 / 0.35);
-  --glass-bg:      rgb(17 17 32 / 0.88);
-  --glass-border:  rgb(255 255 255 / 0.07);
-  --glass-shadow:  0 10px 40px rgb(0 0 0 / 0.7), inset 0 1px 0 rgb(255 255 255 / 0.08);
+  --primary-glow:  rgb(20 184 166 / 0.3);
+  --glass-bg:      rgb(17 24 39 / 0.85);
+  --glass-border:  rgb(255 255 255 / 0.05);
+  --glass-shadow:  0 10px 40px rgb(0 0 0 / 0.5), inset 0 1px 0 rgb(255 255 255 / 0.05);
 }
 
 

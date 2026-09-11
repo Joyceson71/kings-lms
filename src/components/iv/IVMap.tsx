@@ -93,7 +93,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       
       await import('leaflet.markercluster');
       
-      // @ts-expect-error: internal leaflet property
+      // internal leaflet property
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({ iconUrl: iconUrl.src, iconRetinaUrl: iconRetinaUrl.src, shadowUrl: shadowUrl.src });
       

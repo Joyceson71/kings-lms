@@ -19,6 +19,13 @@ const IBM = {
   danger: '#DA1E28',
 } as const;
 
+const SUGGESTIONS = [
+  "Summarize my weak subjects",
+  "Help me plan a study schedule",
+  "Quiz me on my courses",
+  "Check my attendance risk",
+];
+
 export default function BobAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [context, setContext] = useState<BobStudentContext | null>(null);
@@ -55,13 +62,16 @@ export default function BobAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = useCallback(async () => {
-    if (!input.trim() || isLoading || !context) return;
-    const userMsg: ChatMessage = { role: 'user', text: input.trim() };
+  const sendMessage = useCallback(async (textOverride?: string) => {
+    const textToSend = (typeof textOverride === 'string' ? textOverride : input).trim();
+    if (!textToSend || isLoading || !context) return;
+    
+    const userMsg: ChatMessage = { role: 'user', text: textToSend };
     const newHistory = [...messages, userMsg];
     setMessages(newHistory);
-    setInput('');
+    if (typeof textOverride !== 'string') setInput('');
     setIsLoading(true);
+
     try {
       const reply = await askBob(userMsg.text, context, newHistory);
       setMessages(prev => [...prev, { role: 'model', text: reply }]);
@@ -79,23 +89,34 @@ export default function BobAssistant() {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   };
 
+  const clearChat = () => {
+    if (!context) return;
+    const proactive = getBobProactiveMessage(context);
+    setMessages([{ role: 'model', text: proactive }]);
+  };
+
   const panelStyle: React.CSSProperties = {
     position: 'fixed',
     bottom: '84px',
     right: '24px',
     zIndex: 1001,
-    width: '360px',
-    height: '520px',
+    width: '380px',
+    maxWidth: 'calc(100vw - 32px)',
+    height: '540px',
     maxHeight: 'calc(100vh - 120px)',
     background: IBM.dark,
     border: '1px solid ' + IBM.border,
-    borderRadius: '2px',
+    borderRadius: '4px',
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '0 16px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(15,98,254,0.15)',
+    boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(15,98,254,0.2)',
     fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
     overflow: 'hidden',
   };
+
+  const overallAttendance = context && context.attendanceByCourse.length > 0
+    ? Math.round(context.attendanceByCourse.reduce((s, c) => s + c.attendancePercentage, 0) / context.attendanceByCourse.length)
+    : null;
 
   return (
     <>
@@ -108,23 +129,24 @@ export default function BobAssistant() {
           onKeyDown={e => e.key === 'Enter' && setIsOpen(true)}
           style={{
             position: 'fixed',
-            bottom: '92px',
-            right: '84px',
+            bottom: '88px',
+            right: '24px',
             zIndex: 1000,
-            maxWidth: '240px',
+            maxWidth: '260px',
             background: IBM.dark2,
             border: '1px solid ' + IBM.border,
-            borderRadius: '2px',
+            borderRadius: '4px',
             padding: '10px 14px',
             cursor: 'pointer',
             borderLeft: '3px solid ' + IBM.blue,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
           }}
         >
           <p style={{ fontSize: '12px', color: IBM.textPrimary, margin: 0, lineHeight: 1.4 }}>
             {alertMessage}
           </p>
           <p style={{ fontSize: '10px', color: IBM.textSecondary, margin: '4px 0 0', fontFamily: "'IBM Plex Mono', monospace" }}>
-            BOB · Click to chat
+            BOB · Click to open chat
           </p>
         </div>
       )}
@@ -140,7 +162,7 @@ export default function BobAssistant() {
           zIndex: 1001,
           width: '52px',
           height: '52px',
-          borderRadius: '2px',
+          borderRadius: '4px',
           background: IBM.blue,
           border: 'none',
           cursor: 'pointer',
@@ -150,7 +172,7 @@ export default function BobAssistant() {
           boxShadow: isOpen
             ? '0 0 0 3px rgba(15,98,254,0.5), 0 0 32px rgba(15,98,254,0.6)'
             : '0 0 0 2px rgba(15,98,254,0.2), 0 0 24px rgba(15,98,254,0.4)',
-          transition: 'box-shadow 0.2s',
+          transition: 'all 0.2s ease',
           fontFamily: "'IBM Plex Mono', monospace",
           fontSize: '18px',
           fontWeight: 700,
@@ -161,12 +183,12 @@ export default function BobAssistant() {
         {isOpen ? '✕' : 'B'}
       </button>
 
-      {/* Chat panel */}
+      {/* Unified Chat panel */}
       {isOpen && (
         <div style={panelStyle} role="dialog" aria-label="BOB AI Learning Assistant">
           {/* Header */}
           <div style={{
-            padding: '14px 16px',
+            padding: '12px 16px',
             borderBottom: '1px solid ' + IBM.border,
             display: 'flex',
             alignItems: 'center',
@@ -179,13 +201,13 @@ export default function BobAssistant() {
                 width: '32px',
                 height: '32px',
                 background: IBM.blue,
-                borderRadius: '2px',
+                borderRadius: '3px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontWeight: 700,
-                fontSize: '14px',
+                fontSize: '15px',
                 color: '#fff',
               }}>B</div>
               <div>
@@ -195,16 +217,48 @@ export default function BobAssistant() {
                 </div>
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              {overallAttendance !== null && (
+                <span style={{
+                  fontSize: '10px',
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  padding: '2px 6px',
+                  borderRadius: '2px',
+                  background: overallAttendance < 60 ? 'rgba(218,30,40,0.2)' : overallAttendance < 75 ? 'rgba(241,194,27,0.2)' : 'rgba(36,161,72,0.2)',
+                  color: overallAttendance < 60 ? IBM.danger : overallAttendance < 75 ? IBM.warning : IBM.success,
+                  border: '1px solid ' + (overallAttendance < 60 ? IBM.danger : overallAttendance < 75 ? IBM.warning : IBM.success),
+                }}>
+                  {overallAttendance}% Att.
+                </span>
+              )}
               <div style={{
                 width: '8px',
                 height: '8px',
                 borderRadius: '50%',
                 background: contextLoading ? IBM.warning : IBM.success,
-                boxShadow: contextLoading
-                  ? '0 0 6px ' + IBM.warning
-                  : '0 0 6px ' + IBM.success,
+                boxShadow: contextLoading ? '0 0 6px ' + IBM.warning : '0 0 6px ' + IBM.success,
               }} />
+              
+              <button
+                onClick={clearChat}
+                aria-label="Clear chat history"
+                title="Clear chat"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: IBM.textSecondary,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  padding: '4px 6px',
+                  borderRadius: '2px',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = IBM.textPrimary; }}
+                onMouseLeave={e => { e.currentTarget.style.color = IBM.textSecondary; }}
+              >
+                🗑
+              </button>
+
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Hide BOB Assistant"
@@ -213,11 +267,11 @@ export default function BobAssistant() {
                   background: 'transparent',
                   border: 'none',
                   color: IBM.textSecondary,
-                  fontSize: '18px',
+                  fontSize: '16px',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
+                  padding: '4px 8px',
+                  borderRadius: '2px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -271,14 +325,14 @@ export default function BobAssistant() {
                   }}>B</div>
                 )}
                 <div style={{
-                  maxWidth: '80%',
+                  maxWidth: '82%',
                   padding: '10px 12px',
                   borderRadius: '2px',
                   fontSize: '13px',
                   lineHeight: 1.5,
                   color: IBM.textPrimary,
-                  background: msg.role === 'user' ? 'rgba(15,98,254,0.15)' : IBM.dark3,
-                  border: '1px solid ' + (msg.role === 'user' ? 'rgba(15,98,254,0.3)' : IBM.border),
+                  background: msg.role === 'user' ? 'rgba(15,98,254,0.18)' : IBM.dark3,
+                  border: '1px solid ' + (msg.role === 'user' ? 'rgba(15,98,254,0.4)' : IBM.border),
                   whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                 }}>
@@ -286,6 +340,39 @@ export default function BobAssistant() {
                 </div>
               </div>
             ))}
+
+            {/* Quick Suggestion Chips */}
+            {messages.length === 1 && !isLoading && (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '6px' }}>
+                {SUGGESTIONS.map((s, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => sendMessage(s)}
+                    style={{
+                      fontSize: '11px',
+                      padding: '5px 10px',
+                      borderRadius: '2px',
+                      background: IBM.dark2,
+                      border: '1px solid ' + IBM.border,
+                      color: IBM.textSecondary,
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.borderColor = IBM.blue;
+                      e.currentTarget.style.color = IBM.textPrimary;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.borderColor = IBM.border;
+                      e.currentTarget.style.color = IBM.textSecondary;
+                    }}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
+            )}
 
             {isLoading && (
               <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
@@ -312,7 +399,7 @@ export default function BobAssistant() {
 
             {contextLoading && messages.length === 0 && (
               <div style={{ textAlign: 'center', color: IBM.textSecondary, fontSize: '12px', marginTop: '24px' }}>
-                Loading your data...
+                Loading student context...
               </div>
             )}
 
@@ -333,7 +420,7 @@ export default function BobAssistant() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder={contextLoading ? 'Loading...' : 'Ask BOB anything...'}
+              placeholder={contextLoading ? 'Loading context...' : 'Ask BOB anything...'}
               disabled={isLoading || contextLoading}
               style={{
                 flex: 1,
@@ -351,7 +438,7 @@ export default function BobAssistant() {
               onBlur={e => { e.currentTarget.style.borderColor = IBM.border; }}
             />
             <button
-              onClick={sendMessage}
+              onClick={() => sendMessage()}
               disabled={isLoading || contextLoading || !input.trim()}
               style={{
                 background: IBM.blue,

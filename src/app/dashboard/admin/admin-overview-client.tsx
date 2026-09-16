@@ -67,7 +67,7 @@ export default function AdminOverviewClient() {
       const formattedDeptData = (depts || []).map((d: any) => ({
         name: d.name,
         users: deptCounts[d.id] || 0
-      })).sort((a, b) => b.users - a.users).slice(0, 5);
+      })).sort((a: any, b: any) => b.users - a.users).slice(0, 5);
 
       setStats({
         totalUsers: userCount || 0,

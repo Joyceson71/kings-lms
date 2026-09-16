@@ -3,7 +3,7 @@
 <div align="center">
 
 ![Kings EC Platform](https://img.shields.io/badge/Kings%20EC-Campus%20LMS-7c3aed?style=for-the-badge&logo=graduation-cap)
-![Next.js](https://img.shields.io/badge/Next.js-16.2.9-black?style=for-the-badge&logo=next.js)
+![Next.js](https://img.shields.io/badge/Next.js-15.5.20-black?style=for-the-badge&logo=next.js)
 ![React](https://img.shields.io/badge/React-19-61dafb?style=for-the-badge&logo=react)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript)
 ![Supabase](https://img.shields.io/badge/Supabase-Auth%20%2B%20DB-3ecf8e?style=for-the-badge&logo=supabase)
@@ -40,7 +40,7 @@ Features 3D spatial UI, interactive data visualizations, real-time attendance, a
 
 | Layer | Technology |
 |---|---|
-| **Framework** | Next.js 16 (App Router) |
+| **Framework** | Next.js 15 (App Router) |
 | **UI Library** | React 19 with Server & Client Components |
 | **Language** | TypeScript 5 |
 | **Styling** | Tailwind CSS v4 + Custom CSS Animations |

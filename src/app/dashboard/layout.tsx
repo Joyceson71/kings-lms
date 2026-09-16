@@ -15,11 +15,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('department, college')
+    .select('department, onboarding_complete')
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile?.department || !profile?.college) redirect('/onboarding');
+  if (!profile?.department && !profile?.onboarding_complete) redirect('/onboarding');
 
   return (
     <SidebarProvider>

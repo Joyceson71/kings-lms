@@ -2,9 +2,10 @@
 
 import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { AlertOctagon, RotateCcw, Home } from 'lucide-react';
+import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
+import Link from 'next/link';
 
-export default function Error({
+export default function GlobalError({
   error,
   reset,
 }: {
@@ -12,45 +13,44 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
+    console.error('Global application error:', error);
   }, [error]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-background">
-      <div className="absolute inset-0 bg-dot opacity-30 pointer-events-none" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-red-500/5 rounded-full blur-[120px] pointer-events-none" />
-
-      <div className="w-full max-w-lg z-10 animate-slide-in-up">
-        <div className="bg-card border border-border rounded-3xl p-8 md:p-12 text-center relative overflow-hidden border-red-500/20">
-            <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-80" />
-            
-            <div className="flex justify-center mb-6">
-              <div className="h-20 w-20 rounded-full bg-red-500/10 flex items-center justify-center border border-red-500/20">
-                <AlertOctagon className="h-10 w-10 text-red-500" />
-              </div>
-            </div>
-
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3" >
-              Something went wrong
-            </h2>
-            <p className="text-muted-foreground mb-8 max-w-sm mx-auto text-sm">
-              We encountered an unexpected error while trying to load this page. Our team has been notified.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Button onClick={reset} variant="outline" className="w-full sm:w-auto h-11 px-6 rounded-xl border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300">
-                <RotateCcw className="mr-2 h-4 w-4" />
-                Try Again
-              </Button>
-              <Button onClick={() => window.location.href = '/dashboard'} className="w-full sm:w-auto h-11 px-6 rounded-xl bg-primary hover:bg-primary/90 hover:shadow-[0_8px_24px_oklch(0.65_0.26_285/0.4)] transition-all">
-                <Home className="mr-2 h-4 w-4" />
-                Dashboard
-              </Button>
-            </div>
+    <html>
+      <body className="bg-[#0A0A14] text-foreground min-h-screen flex items-center justify-center p-6 text-center font-sans">
+        <div className="max-w-md w-full p-8 rounded-2xl border border-white/10 bg-card/40 backdrop-blur-xl shadow-2xl">
+          <div className="h-16 w-16 mx-auto rounded-2xl bg-destructive/10 border border-destructive/20 flex items-center justify-center text-destructive mb-4">
+            <AlertTriangle className="h-8 w-8" />
           </div>
-        
-      </div>
-    </div>
+
+          <h1 className="text-2xl font-bold tracking-tight mb-2">Unexpected Error</h1>
+          <p className="text-sm text-muted-foreground mb-6 leading-relaxed">
+            An unexpected error occurred. You can retry or head back to the home page.
+          </p>
+
+          <div className="flex justify-center gap-3">
+            <Button
+              onClick={() => reset()}
+              className="gap-2 bg-primary text-primary-foreground font-semibold px-5"
+            >
+              <RefreshCw className="h-4 w-4" />
+              Reload Page
+            </Button>
+            
+            <Button
+              asChild
+              variant="outline"
+              className="gap-2"
+            >
+              <Link href="/">
+                <Home className="h-4 w-4" />
+                Home
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </body>
+    </html>
   );
 }

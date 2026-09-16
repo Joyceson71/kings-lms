@@ -43,7 +43,7 @@ export default function GlobalChatClient({
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'global_messages' },
-        async (payload) => {
+        async (payload: any) => {
           // We need to fetch the profile data for the new message
           const { data: profile } = await supabase
             .from('profiles')
@@ -72,7 +72,7 @@ export default function GlobalChatClient({
       .on(
         'postgres_changes',
         { event: 'DELETE', schema: 'public', table: 'global_messages' },
-        (payload) => {
+        (payload: any) => {
           setMessages((prev) => prev.filter(m => m.id !== payload.old.id));
         }
       )

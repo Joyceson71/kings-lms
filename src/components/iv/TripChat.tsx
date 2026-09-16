@@ -69,7 +69,7 @@ export default function TripChat({ tripId, currentUserId, role, userName }: Trip
   useEffect(() => {
     fetchMessages();
     const channel = supabase.channel(`chat-${tripId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
         setMessages(prev => [...prev, payload.new]);
         if (!isOpen) setUnreadCount(c => c + 1);
         setTimeout(() => scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight), 100);

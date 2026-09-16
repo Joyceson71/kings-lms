@@ -32,10 +32,10 @@ export default function TripGallery({ tripId, currentUserId, onClose }: TripGall
     fetchPhotos();
 
     const channel = supabase.channel(`gallery-${tripId}`)
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
         if (payload.new.photo_url) {
           // We need to fetch the profile info for the new message to display the name
-          supabase.from('profiles').select('full_name').eq('id', payload.new.sender_id).single().then(({ data }) => {
+          supabase.from('profiles').select('full_name').eq('id', payload.new.sender_id).single().then(({ data }: { data: any }) => {
             const enriched = { ...payload.new, profiles: data };
             setPhotos(prev => [enriched, ...prev]);
           });

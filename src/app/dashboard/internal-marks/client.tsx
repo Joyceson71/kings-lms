@@ -43,7 +43,7 @@ export default function InternalMarksClient({ userId, isFaculty, courses }: Prop
           .eq('course_id', courseId);
         
         if (enrollments) {
-          const mapped = enrollments.map(e => e.profiles).filter(Boolean);
+          const mapped = enrollments.map((e: any) => e.profiles).filter(Boolean);
           setStudents(mapped);
           enrolledIds = mapped.map((m: any) => m.id);
         }
@@ -79,7 +79,7 @@ export default function InternalMarksClient({ userId, isFaculty, courses }: Prop
           
         const attMap: { [id: string]: number } = {};
         enrolledIds.forEach(id => {
-          const studentLogs = logs?.filter(l => l.student_id === id) || [];
+          const studentLogs = logs?.filter((l: any) => l.student_id === id) || [];
           attMap[id] = (studentLogs.length / totalSessions) * 100;
         });
         setAttendance(attMap);

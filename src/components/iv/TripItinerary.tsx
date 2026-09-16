@@ -35,7 +35,7 @@ export default function TripItinerary({ tripId, role, currentUserId }: TripItine
     if (cp) setCheckpoints(cp);
 
     if (cp && cp.length > 0) {
-      const { data: arr } = await supabase.from('iv_checkpoint_arrivals').select('*').in('checkpoint_id', cp.map(c => c.id));
+      const { data: arr } = await supabase.from('iv_checkpoint_arrivals').select('*').in('checkpoint_id', cp.map((c: any) => c.id));
       if (arr) setArrivals(arr);
     }
     setLoading(false);

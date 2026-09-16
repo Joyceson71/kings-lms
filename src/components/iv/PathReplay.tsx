@@ -43,7 +43,7 @@ export default function PathReplay({ tripId, mapInstance, onClose }: PathReplayP
 
         const st: any = {};
         let colorIdx = 0;
-        data.forEach(row => {
+        data.forEach((row: any) => {
           if (!st[row.user_id]) {
             st[row.user_id] = {
               name: row.profiles?.full_name || 'Unknown',

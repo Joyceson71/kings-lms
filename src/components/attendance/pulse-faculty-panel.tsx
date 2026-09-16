@@ -82,7 +82,7 @@ export function PulseFacultyPanel({ sessionId }: PulseFacultyPanelProps) {
           table: 'pulse_signals',
           filter: `session_id=eq.${sessionId}`,
         },
-        (payload) => {
+        (payload: any) => {
           const newSignal = payload.new as { signal: Signal; sent_at: string };
           setRecentWindow(prev => {
             const updated = [newSignal, ...prev];

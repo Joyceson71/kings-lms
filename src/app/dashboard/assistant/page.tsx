@@ -71,7 +71,7 @@ export default function AssistantPage() {
 
         // Weak subjects
         const { data: marks } = await supabase.from('internal_marks').select('course_id, marks_obtained, courses(title)').eq('student_id', profile.id);
-        const weak = marks?.filter(m => (m.marks_obtained || 0) < 50).map(m => (m.courses as any)?.title).filter(Boolean).join(', ') || 'None';
+        const weak = marks?.filter((m: any) => (m.marks_obtained || 0) < 50).map((m: any) => (m.courses as any)?.title).filter(Boolean).join(', ') || 'None';
 
         setAiContext({
           enrolledCourses: titles,

@@ -38,16 +38,15 @@ export default function GlobalError({
               Reload Page
             </Button>
             
-            <Button
-              asChild
-              variant="outline"
-              className="gap-2"
-            >
-              <Link href="/">
+            <Link href="/">
+              <Button
+                variant="outline"
+                className="gap-2"
+              >
                 <Home className="h-4 w-4" />
                 Home
-              </Link>
-            </Button>
+              </Button>
+            </Link>
           </div>
         </div>
       </body>

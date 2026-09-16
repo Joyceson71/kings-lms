@@ -195,7 +195,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
       
       if (data && data.length > 0) {
         const counts: Record<string, number> = {};
-        data.forEach(d => {
+        data.forEach((d: any) => {
           const k = `${d.lat.toFixed(4)},${d.lng.toFixed(4)}`;
           counts[k] = (counts[k] || 0) + 1;
         });

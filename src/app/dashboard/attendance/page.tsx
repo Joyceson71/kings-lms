@@ -106,7 +106,7 @@ function AttendanceContent() {
           .select('course_id')
           .eq('student_id', profile?.id);
 
-        const courseIds = enrollments?.map(e => e.course_id) || [];
+        const courseIds = enrollments?.map((e: any) => e.course_id) || [];
 
         if (courseIds.length > 0) {
           const { data: sessionsData } = await supabase
@@ -128,7 +128,7 @@ function AttendanceContent() {
 
         if (historyData) {
           setHistoryRecords(historyData);
-          const attendedCount = historyData.filter(h => h.status === 'Present').length;
+          const attendedCount = historyData.filter((h: any) => h.status === 'Present').length;
           let totalSessions = attendedCount;
           if (courseIds.length > 0) {
             const { count } = await supabase

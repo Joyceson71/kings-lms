@@ -36,17 +36,17 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
 
       const { data: profiles } = await supabase.from('profiles').select('id, full_name, avatar_url');
       if (profiles) {
-        profiles.forEach(p => { profilesRef.current[p.id] = p; });
+        profiles.forEach((p: any) => { profilesRef.current[p.id] = p; });
       }
 
       const { data: initialLocs } = await supabase.from('iv_locations').select('*').eq('iv_trip_id', tripId);
       if (initialLocs) {
-        initialLocs.forEach(l => updateMarker(l));
+        initialLocs.forEach((l: any) => updateMarker(l));
       }
 
       const { data: existingPhotos } = await supabase.from('iv_messages').select('*').eq('iv_trip_id', tripId).not('photo_url', 'is', null);
       if (existingPhotos) {
-        existingPhotos.forEach(msg => renderMessage(msg, true));
+        existingPhotos.forEach((msg: any) => renderMessage(msg, true));
       }
       
       const { data: alerts } = await supabase.from('iv_alerts').select('*').eq('iv_trip_id', tripId).order('created_at', { ascending: false }).limit(1);
@@ -59,27 +59,27 @@ export function useIVMapRealtime(tripId: string, currentUserId: string, role: st
       }
 
       const channel = supabase.channel(`iv-trip-${tripId}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload) => updateMarker(payload.new))
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_alerts', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => updateMarker(payload.new))
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_alerts', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
           const al = payload.new as IVAlert;
           if (al.gather_lat && al.gather_lng) {
             setGatherPoint({ lat: al.gather_lat, lng: al.gather_lng, message: al.message });
             toast.info(`Gather Alert: ${al.message}`);
           }
         })
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_sos_events', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_sos_events', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
           const sos = payload.new as IVSosEvent;
           if (!sos.resolved_at && markersRef.current[sos.student_id] && mapInstanceRef.current) {
             (markersRef.current[sos.student_id] as any).setStyle({ fillColor: '#dc2626', className: 'animate-pulse' });
             mapInstanceRef.current?.flyTo([sos.lat, sos.lng], 16);
           }
         })
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'iv_trips', filter: `id=eq.${tripId}` }, (payload) => {
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'iv_trips', filter: `id=eq.${tripId}` }, (payload: any) => {
            if (payload.new.pois) {
              payload.new.pois.forEach((poi: any) => renderPoi(poi));
            }
         })
-        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'iv_messages', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
           renderMessage(payload.new as any, false);
         })
         .subscribe();

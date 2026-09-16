@@ -36,16 +36,15 @@ export default function DashboardError({
           Try Again
         </Button>
         
-        <Button
-          asChild
-          variant="outline"
-          className="gap-2 text-muted-foreground hover:text-foreground"
-        >
-          <Link href="/dashboard">
+        <Link href="/dashboard">
+          <Button
+            variant="outline"
+            className="gap-2 text-muted-foreground hover:text-foreground"
+          >
             <LayoutDashboard className="h-4 w-4" />
             Overview
-          </Link>
-        </Button>
+          </Button>
+        </Link>
       </div>
     </div>
   );

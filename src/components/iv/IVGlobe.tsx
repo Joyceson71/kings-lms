@@ -38,7 +38,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
       const { data: profilesData } = await supabase.from('profiles').select('id, full_name, avatar_url, role');
       const profiles: Record<string, { id: string; full_name: string; avatar_url: string; role: string; }> = {};
       if (profilesData) {
-        profilesData.forEach(p => { profiles[p.id] = p; });
+        profilesData.forEach((p: any) => { profiles[p.id] = p; });
       }
 
       // Fetch initial locations
@@ -49,7 +49,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
         
       if (data && !error) {
         const locMap: Record<string, LocationData> = {};
-        data.forEach((loc) => {
+        data.forEach((loc: any) => {
           const profile = profiles[loc.user_id];
           locMap[loc.user_id] = {
              ...loc,
@@ -63,7 +63,7 @@ export function IVGlobe({ tripId }: IVGlobeProps) {
 
       // Subscribe to real-time updates
       channel = supabase.channel(`iv-globe-${tripId}`)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload) => {
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, (payload: any) => {
           const newLoc = payload.new as LocationData;
           setLocations(prev => {
              const profile = profiles[newLoc.user_id];

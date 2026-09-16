@@ -89,7 +89,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
       const { data: zones } = await supabase.from('iv_geofence_zones').select('id').eq('iv_trip_id', tripId);
       if (zones && zones.length > 0) {
-        const { data: br } = await supabase.from('iv_geofence_events').select('*').in('zone_id', zones.map(z => z.id));
+        const { data: br } = await supabase.from('iv_geofence_events').select('*').in('zone_id', zones.map((z: any) => z.id));
         if (br) setBreaches(br);
       }
     };
@@ -99,7 +99,7 @@ export default function TripClient({ tripId, currentUserId, role, mapBounds, isA
 
     const channel = supabase.channel(`trip-sidebar-${tripId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'iv_locations', filter: `iv_trip_id=eq.${tripId}` }, 
-        (payload) => {
+        (payload: any) => {
           if (payload.eventType === 'UPDATE' || payload.eventType === 'INSERT') {
             const newLoc = payload.new as any;
             setStudents(prev => {

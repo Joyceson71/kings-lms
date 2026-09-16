@@ -5,7 +5,6 @@ import { Toaster } from "sonner";
 import { SWRegistrar } from "@/components/layout/sw-registrar";
 import { CapacitorInit } from "@/components/layout/capacitor-init";
 import { LeafletStylesLoader } from "@/components/layout/leaflet-styles-loader";
-import { BobChat } from "@/components/layout/bob-chat";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", preload: false });
@@ -64,7 +63,6 @@ export default function RootLayout({
           <SWRegistrar />
           <CapacitorInit />
           <LeafletStylesLoader />
-          <BobChat />
         </ThemeProvider>
       </body>
     </html>

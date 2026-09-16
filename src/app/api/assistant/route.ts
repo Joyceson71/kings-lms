@@ -46,11 +46,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.IBM_BOB_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY;
     if (!apiKey) {
-      console.warn('GEMINI_API_KEY not set — AI features disabled');
+      console.warn('AI API key not set — AI features disabled');
       return NextResponse.json(
-        { error: 'AI features disabled. GEMINI_API_KEY not set.' },
+        { error: 'AI features disabled. IBM_BOB_API_KEY or GEMINI_API_KEY not set.' },
         { status: 503 }
       );
     }

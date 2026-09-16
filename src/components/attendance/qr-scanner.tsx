@@ -4,12 +4,9 @@ import { useEffect, useState, useRef } from 'react';
 import { X, Loader2, CheckCircle2, AlertCircle, Camera, Zap, ZapOff, RefreshCcw, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-// avoid SSR crash
-let Html5Qrcode: any;
-if (typeof window !== 'undefined') {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  Html5Qrcode = require('html5-qrcode').Html5Qrcode;
-}
+// html5-qrcode touches window/navigator at import time — never load it on the server.
+// We import it lazily inside useEffect and cache the class in a ref.
+let Html5QrcodeClass: any = null;
 
 
 interface QRScannerModalProps {
@@ -30,30 +27,37 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
   const [isStarting, setIsStarting] = useState(false);
   const html5QrCodeRef = useRef<any>(null);
 
-  // Initialize and get cameras
+  // Initialize and get cameras — lazily import html5-qrcode (browser-only)
   useEffect(() => {
     if (!isOpen || scanSuccess) return;
 
     let mounted = true;
-    
-    if (!Html5Qrcode) return;
-    Html5Qrcode.getCameras().then((devices: any[]) => {
-      if (devices && devices.length) {
-        if (mounted) {
-          setCameras(devices);
-          // Prefer back camera if available by guessing label
-          const backCamera = devices.find((c: any) => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear'));
-          setActiveCameraId(backCamera ? backCamera.id : devices[0].id);
-          setHasPermission(true);
-        }
-      } else {
-        if (mounted) setHasPermission(false);
-      }
-    }).catch((err: any) => {
-      console.error("Error getting cameras", err);
-      if (mounted) setHasPermission(false);
-    });
 
+    const init = async () => {
+      if (!Html5QrcodeClass) {
+        const mod = await import('html5-qrcode');
+        Html5QrcodeClass = mod.Html5Qrcode;
+      }
+      if (!mounted) return;
+      Html5QrcodeClass.getCameras().then((devices: any[]) => {
+        if (devices && devices.length) {
+          if (mounted) {
+            setCameras(devices);
+            // Prefer back camera if available by guessing label
+            const backCamera = devices.find((c: any) => c.label.toLowerCase().includes('back') || c.label.toLowerCase().includes('rear'));
+            setActiveCameraId(backCamera ? backCamera.id : devices[0].id);
+            setHasPermission(true);
+          }
+        } else {
+          if (mounted) setHasPermission(false);
+        }
+      }).catch((err: any) => {
+        console.error("Error getting cameras", err);
+        if (mounted) setHasPermission(false);
+      });
+    };
+
+    init();
     return () => { mounted = false; };
   }, [isOpen, scanSuccess]);
 
@@ -66,9 +70,10 @@ export function QRScannerModal({ isOpen, onClose, onScanSuccess, isProcessing, s
       }
       return;
     }
+    if (!Html5QrcodeClass) return; // not yet loaded — the camera effect will set activeCameraId after load
 
     setIsStarting(true);
-    const html5QrCode = new Html5Qrcode("qr-reader");
+    const html5QrCode = new Html5QrcodeClass("qr-reader");
     html5QrCodeRef.current = html5QrCode;
 
     html5QrCode.start(

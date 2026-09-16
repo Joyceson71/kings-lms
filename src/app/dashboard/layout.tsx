@@ -6,6 +6,7 @@ import { BottomNav } from '@/components/layout/bottom-nav';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
 import { PomodoroTimer } from '@/components/ui/pomodoro-timer';
 import { BobChatWrapper } from '@/components/ibm/BobChatWrapper';
+import BobAssistant from '@/components/bob/bob-assistant';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -85,8 +86,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Floating Pomodoro Focus Timer */}
       <PomodoroTimer />
       
-      {/* IBM Bob AI Assistant */}
+      {/* IBM Bob AI Assistant (existing) */}
       <BobChatWrapper />
+
+      {/* BOB — Behaviour-Oriented Buddy with live Supabase context */}
+      <BobAssistant />
     </SidebarProvider>
   );
 }

@@ -4,6 +4,10 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { fetchBobContext, type BobStudentContext } from './bob-context';
 import { askBob, getBobProactiveMessage, type ChatMessage } from './bob-ai';
 import { createClient } from '@/lib/supabase/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 // IBM Carbon design tokens
 const IBM = {
@@ -19,21 +23,34 @@ const IBM = {
   danger: '#DA1E28',
 } as const;
 
+type TeachingMode = 'explain' | 'quiz' | 'coach' | 'challenge';
+
+const MODES: { id: TeachingMode; label: string; icon: string; prompt: string }[] = [
+  { id: 'explain', label: 'Socratic', icon: '💡', prompt: 'Explain the core concepts of my weak subjects step-by-step using Socratic questioning.' },
+  { id: 'quiz', label: 'Quiz Me', icon: '📝', prompt: 'Generate 3 short quiz questions based on my enrolled courses to test my understanding.' },
+  { id: 'coach', label: 'Coach', icon: '🛡️', prompt: 'Analyze my attendance and assignment deadlines, and give me a tactical 7-day study plan.' },
+  { id: 'challenge', label: 'Challenge', icon: '⚡', prompt: 'Give me an advanced coding/engineering challenge problem to solve!' },
+];
+
 const SUGGESTIONS = [
   "Summarize my weak subjects",
   "Help me plan a study schedule",
-  "Quiz me on my courses",
-  "Check my attendance risk",
+  "Quiz me on my enrolled courses",
+  "Check my attendance risk level",
 ];
 
 export default function BobAssistant() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [activeMode, setActiveMode] = useState<TeachingMode | null>(null);
   const [context, setContext] = useState<BobStudentContext | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -62,6 +79,17 @@ export default function BobAssistant() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Web Speech API for TTS
+  const speakText = useCallback((text: string) => {
+    if (isMuted || typeof window === 'undefined' || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const cleanText = text.replace(/[*#_`]/g, '').slice(0, 200);
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+    window.speechSynthesis.speak(utterance);
+  }, [isMuted]);
+
   const sendMessage = useCallback(async (textOverride?: string) => {
     const textToSend = (typeof textOverride === 'string' ? textOverride : input).trim();
     if (!textToSend || isLoading || !context) return;
@@ -75,6 +103,7 @@ export default function BobAssistant() {
     try {
       const reply = await askBob(userMsg.text, context, newHistory);
       setMessages(prev => [...prev, { role: 'model', text: reply }]);
+      speakText(reply);
     } catch {
       setMessages(prev => [...prev, {
         role: 'model',
@@ -83,7 +112,7 @@ export default function BobAssistant() {
     } finally {
       setIsLoading(false);
     }
-  }, [input, isLoading, context, messages]);
+  }, [input, isLoading, context, messages, speakText]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
@@ -95,23 +124,38 @@ export default function BobAssistant() {
     setMessages([{ role: 'model', text: proactive }]);
   };
 
+  const handleModeClick = (mode: typeof MODES[0]) => {
+    setActiveMode(mode.id);
+    sendMessage(mode.prompt);
+  };
+
+  const copyToClipboard = (text: string, idx: number) => {
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(idx);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
+
+  const panelWidth = isExpanded ? '520px' : '390px';
+  const panelHeight = isExpanded ? '640px' : '540px';
+
   const panelStyle: React.CSSProperties = {
     position: 'fixed',
     bottom: '84px',
     right: '24px',
     zIndex: 1001,
-    width: '380px',
+    width: panelWidth,
     maxWidth: 'calc(100vw - 32px)',
-    height: '540px',
+    height: panelHeight,
     maxHeight: 'calc(100vh - 120px)',
     background: IBM.dark,
     border: '1px solid ' + IBM.border,
     borderRadius: '4px',
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(15,98,254,0.2)',
+    boxShadow: '0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(15,98,254,0.25)',
     fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
     overflow: 'hidden',
+    transition: 'width 0.2s ease, height 0.2s ease',
   };
 
   const overallAttendance = context && context.attendanceByCourse.length > 0
@@ -132,26 +176,31 @@ export default function BobAssistant() {
             bottom: '88px',
             right: '24px',
             zIndex: 1000,
-            maxWidth: '260px',
+            maxWidth: '280px',
             background: IBM.dark2,
             border: '1px solid ' + IBM.border,
             borderRadius: '4px',
-            padding: '10px 14px',
+            padding: '12px 14px',
             cursor: 'pointer',
             borderLeft: '3px solid ' + IBM.blue,
-            boxShadow: '0 8px 24px rgba(0,0,0,0.5)',
+            boxShadow: '0 12px 32px rgba(0,0,0,0.6)',
           }}
         >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '4px' }}>
+            <span style={{ fontSize: '10px', fontWeight: 700, color: IBM.blue, fontFamily: "'IBM Plex Mono', monospace" }}>
+              BOB ALERT
+            </span>
+          </div>
           <p style={{ fontSize: '12px', color: IBM.textPrimary, margin: 0, lineHeight: 1.4 }}>
             {alertMessage}
           </p>
-          <p style={{ fontSize: '10px', color: IBM.textSecondary, margin: '4px 0 0', fontFamily: "'IBM Plex Mono', monospace" }}>
-            BOB · Click to open chat
+          <p style={{ fontSize: '10px', color: IBM.textSecondary, margin: '6px 0 0', fontFamily: "'IBM Plex Mono', monospace" }}>
+            Click to open interactive session →
           </p>
         </div>
       )}
 
-      {/* Floating trigger */}
+      {/* Floating trigger button */}
       <button
         onClick={() => setIsOpen(o => !o)}
         aria-label="Open BOB Learning Assistant"
@@ -160,8 +209,8 @@ export default function BobAssistant() {
           bottom: '24px',
           right: '24px',
           zIndex: 1001,
-          width: '52px',
-          height: '52px',
+          width: '54px',
+          height: '54px',
           borderRadius: '4px',
           background: IBM.blue,
           border: 'none',
@@ -174,7 +223,7 @@ export default function BobAssistant() {
             : '0 0 0 2px rgba(15,98,254,0.2), 0 0 24px rgba(15,98,254,0.4)',
           transition: 'all 0.2s ease',
           fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '18px',
+          fontSize: '20px',
           fontWeight: 700,
           color: '#fff',
           animation: !isOpen ? 'bob-pulse 3s ease-in-out infinite' : 'none',
@@ -198,8 +247,8 @@ export default function BobAssistant() {
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <div style={{
-                width: '32px',
-                height: '32px',
+                width: '34px',
+                height: '34px',
                 background: IBM.blue,
                 borderRadius: '3px',
                 display: 'flex',
@@ -207,7 +256,7 @@ export default function BobAssistant() {
                 justifyContent: 'center',
                 fontFamily: "'IBM Plex Mono', monospace",
                 fontWeight: 700,
-                fontSize: '15px',
+                fontSize: '16px',
                 color: '#fff',
               }}>B</div>
               <div>
@@ -218,7 +267,7 @@ export default function BobAssistant() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {overallAttendance !== null && (
                 <span style={{
                   fontSize: '10px',
@@ -232,14 +281,42 @@ export default function BobAssistant() {
                   {overallAttendance}% Att.
                 </span>
               )}
-              <div style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: contextLoading ? IBM.warning : IBM.success,
-                boxShadow: contextLoading ? '0 0 6px ' + IBM.warning : '0 0 6px ' + IBM.success,
-              }} />
               
+              {/* TTS Audio toggle */}
+              <button
+                onClick={() => setIsMuted(m => !m)}
+                title={isMuted ? "Enable Voice (TTS)" : "Disable Voice (TTS)"}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: isMuted ? IBM.textSecondary : IBM.blue,
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  padding: '4px 6px',
+                  borderRadius: '2px',
+                }}
+              >
+                {isMuted ? '🔇' : '🔊'}
+              </button>
+
+              {/* Expand toggle */}
+              <button
+                onClick={() => setIsExpanded(e => !e)}
+                title={isExpanded ? "Collapse width" : "Expand width"}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: IBM.textSecondary,
+                  fontSize: '13px',
+                  cursor: 'pointer',
+                  padding: '4px 6px',
+                  borderRadius: '2px',
+                }}
+              >
+                {isExpanded ? '⊡' : '🗖'}
+              </button>
+
+              {/* Clear chat */}
               <button
                 onClick={clearChat}
                 aria-label="Clear chat history"
@@ -253,12 +330,11 @@ export default function BobAssistant() {
                   padding: '4px 6px',
                   borderRadius: '2px',
                 }}
-                onMouseEnter={e => { e.currentTarget.style.color = IBM.textPrimary; }}
-                onMouseLeave={e => { e.currentTarget.style.color = IBM.textSecondary; }}
               >
                 🗑
               </button>
 
+              {/* Hide / Close panel */}
               <button
                 onClick={() => setIsOpen(false)}
                 aria-label="Hide BOB Assistant"
@@ -290,6 +366,40 @@ export default function BobAssistant() {
                 ✕
               </button>
             </div>
+          </div>
+
+          {/* Mode Selector Sub-header */}
+          <div style={{
+            display: 'flex',
+            gap: '4px',
+            padding: '8px 12px',
+            background: IBM.dark3,
+            borderBottom: '1px solid ' + IBM.border,
+            overflowX: 'auto',
+          }}>
+            {MODES.map(mode => (
+              <button
+                key={mode.id}
+                onClick={() => handleModeClick(mode)}
+                style={{
+                  fontSize: '11px',
+                  padding: '4px 8px',
+                  borderRadius: '2px',
+                  border: '1px solid ' + (activeMode === mode.id ? IBM.blue : IBM.border),
+                  background: activeMode === mode.id ? 'rgba(15,98,254,0.2)' : 'transparent',
+                  color: activeMode === mode.id ? '#fff' : IBM.textSecondary,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
+                }}
+              >
+                <span>{mode.icon}</span>
+                <span>{mode.label}</span>
+              </button>
+            ))}
           </div>
 
           {/* Messages */}
@@ -325,7 +435,7 @@ export default function BobAssistant() {
                   }}>B</div>
                 )}
                 <div style={{
-                  maxWidth: '82%',
+                  maxWidth: '85%',
                   padding: '10px 12px',
                   borderRadius: '2px',
                   fontSize: '13px',
@@ -333,10 +443,61 @@ export default function BobAssistant() {
                   color: IBM.textPrimary,
                   background: msg.role === 'user' ? 'rgba(15,98,254,0.18)' : IBM.dark3,
                   border: '1px solid ' + (msg.role === 'user' ? 'rgba(15,98,254,0.4)' : IBM.border),
-                  whiteSpace: 'pre-wrap',
                   wordBreak: 'break-word',
                 }}>
-                  {msg.text}
+                  {msg.role === 'model' ? (
+                    <div className="prose prose-invert prose-sm max-w-none">
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          code(props) {
+                            const {children, className, node, ref, ...rest} = props
+                            const match = /language-(\w+)/.exec(className || '')
+                            const codeString = String(children).replace(/\n$/, '');
+                            return match ? (
+                              <div style={{ position: 'relative', marginTop: '8px', marginBottom: '8px' }}>
+                                <button
+                                  onClick={() => copyToClipboard(codeString, i)}
+                                  style={{
+                                    position: 'absolute',
+                                    top: '6px',
+                                    right: '6px',
+                                    background: 'rgba(255,255,255,0.1)',
+                                    border: '1px solid rgba(255,255,255,0.2)',
+                                    color: IBM.textSecondary,
+                                    fontSize: '10px',
+                                    borderRadius: '2px',
+                                    padding: '2px 6px',
+                                    cursor: 'pointer',
+                                    zIndex: 10,
+                                  }}
+                                >
+                                  {copiedIndex === i ? 'Copied!' : 'Copy'}
+                                </button>
+                                <SyntaxHighlighter
+                                  {...rest}
+                                  PreTag="div"
+                                  language={match[1]}
+                                  style={vscDarkPlus}
+                                  customStyle={{ margin: 0, borderRadius: '2px', fontSize: '12px' }}
+                                >
+                                  {codeString}
+                                </SyntaxHighlighter>
+                              </div>
+                            ) : (
+                              <code ref={ref as any} {...rest} style={{ background: 'rgba(15,98,254,0.2)', color: IBM.textPrimary, padding: '2px 4px', borderRadius: '2px' }}>
+                                {children}
+                              </code>
+                            )
+                          }
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
+                    </div>
+                  ) : (
+                    <p style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{msg.text}</p>
+                  )}
                 </div>
               </div>
             ))}

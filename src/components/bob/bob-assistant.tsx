@@ -195,15 +195,47 @@ export default function BobAssistant() {
                 </div>
               </div>
             </div>
-            <div style={{
-              width: '8px',
-              height: '8px',
-              borderRadius: '50%',
-              background: contextLoading ? IBM.warning : IBM.success,
-              boxShadow: contextLoading
-                ? '0 0 6px ' + IBM.warning
-                : '0 0 6px ' + IBM.success,
-            }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '8px',
+                height: '8px',
+                borderRadius: '50%',
+                background: contextLoading ? IBM.warning : IBM.success,
+                boxShadow: contextLoading
+                  ? '0 0 6px ' + IBM.warning
+                  : '0 0 6px ' + IBM.success,
+              }} />
+              <button
+                onClick={() => setIsOpen(false)}
+                aria-label="Hide BOB Assistant"
+                title="Hide / Close BOB"
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  color: IBM.textSecondary,
+                  fontSize: '18px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  padding: '2px 8px',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  lineHeight: 1,
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.color = IBM.textPrimary;
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.color = IBM.textSecondary;
+                  e.currentTarget.style.background = 'transparent';
+                }}
+              >
+                ✕
+              </button>
+            </div>
           </div>
 
           {/* Messages */}

@@ -223,7 +223,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     };
   }, [showHeatmap, tripId]);
 
-  const navigateToGather = async () => {
+  const navigateToGather = useCallback(async () => {
     if (!gatherPoint || !markersRef.current[currentUserId] || !mapInstance.current) return;
     const myLoc = markersRef.current[currentUserId].getLatLng();
     
@@ -251,7 +251,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     } catch {
       toast.error("Routing not available");
     }
-  };
+  }, [gatherPoint, currentUserId]);
 
   return (
     <div className="relative w-full h-full flex flex-col select-none touch-none">

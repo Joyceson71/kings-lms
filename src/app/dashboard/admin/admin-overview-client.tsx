@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import { 
   Users, Building2, BookOpen, MapPin, 
@@ -86,14 +86,14 @@ export default function AdminOverviewClient() {
     fetchStats();
   }, []);
 
-  const statCards = [
+  const statCards = useMemo(() => [
     { title: 'Total Users', value: stats.totalUsers, icon: Users, color: 'text-blue-500', bg: 'bg-blue-500/10' },
     { title: 'Students', value: stats.students, icon: GraduationCap, color: 'text-indigo-500', bg: 'bg-indigo-500/10' },
     { title: 'Faculty', value: stats.faculty, icon: ShieldCheck, color: 'text-violet-500', bg: 'bg-violet-500/10' },
     { title: 'Departments', value: stats.departments, icon: Building2, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
     { title: 'Active Courses', value: stats.courses, icon: BookOpen, color: 'text-amber-500', bg: 'bg-amber-500/10' },
     { title: 'IV Trips', value: stats.trips, icon: MapPin, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-  ];
+  ], [stats]);
 
   return (
     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -123,9 +123,9 @@ export default function SignupPage() {
     mode: 'onBlur',
   });
 
-  const passwordStrength = getPasswordStrength(watchedPassword);
+  const passwordStrength = useMemo(() => getPasswordStrength(watchedPassword), [watchedPassword]);
 
-  const onSubmit = async (data: SignupFormValues) => {
+  const onSubmit = useCallback(async (data: SignupFormValues) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -172,9 +172,9 @@ export default function SignupPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [router]);
 
-  const handleOAuth = async (provider: 'google' | 'github') => {
+  const handleOAuth = useCallback(async (provider: 'google' | 'github') => {
     try {
       setIsLoading(true);
       setError(null);
@@ -214,7 +214,7 @@ export default function SignupPage() {
       setError(errorMsg);
       setIsLoading(false);
     }
-  };
+  }, []);
 
   if (success) {
     return (

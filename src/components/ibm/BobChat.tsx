@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Bot, X, Send, User, Sparkles, Loader2, StopCircle } from 'lucide-react';
+import { Bot, X, Send, User, Sparkles, Loader2, StopCircle, ChevronDown, MessageSquare, ListTodo, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -24,6 +24,8 @@ interface Message {
   content: string;
 }
 
+type ChatMode = 'ask' | 'plan' | 'agent';
+
 export function BobChat({ userRole, userName, context }: BobChatProps) {
   const [isOpen, setIsOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -38,6 +40,8 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [chatMode, setChatMode] = useState<ChatMode>('ask');
+  const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
 
   const stopGenerating = useCallback(() => {
     if (abortControllerRef.current) {
@@ -66,6 +70,7 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           messages: newMessages,
+          mode: chatMode,
           context: {
             currentPage: context?.currentPage,
             enrolledCourses: context?.courses?.join(', '),
@@ -160,14 +165,35 @@ export function BobChat({ userRole, userName, context }: BobChatProps) {
             className="fixed bottom-6 right-[140px] w-[380px] max-w-[calc(100vw-160px)] h-[600px] max-h-[80vh] bg-background border border-border shadow-2xl rounded-2xl flex flex-col z-[1000] overflow-hidden"
           >
             {/* Header */}
-            <div className="bg-primary/5 border-b border-border p-4 flex items-center justify-between shrink-0">
+            <div className="bg-primary/5 border-b border-border p-4 flex items-center justify-between shrink-0 relative">
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 rounded-xl bg-primary/20 flex items-center justify-center text-primary font-bold text-lg">
                   B
                 </div>
                 <div>
                   <h3 className="font-bold text-base leading-tight">IBM Bob</h3>
-                  <p className="text-xs text-muted-foreground">AI Study Assistant</p>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsModeDropdownOpen(!isModeDropdownOpen)}
+                      className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors mt-0.5"
+                    >
+                      <span className="capitalize">{chatMode} Mode</span>
+                      <ChevronDown className="h-3 w-3" />
+                    </button>
+                    {isModeDropdownOpen && (
+                      <div className="absolute top-full left-0 mt-1 w-32 bg-background border border-border rounded-lg shadow-lg overflow-hidden z-10">
+                        <button onClick={() => { setChatMode('ask'); setIsModeDropdownOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-secondary/50 flex items-center gap-2">
+                          <MessageSquare className="h-3 w-3" /> Ask
+                        </button>
+                        <button onClick={() => { setChatMode('plan'); setIsModeDropdownOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-secondary/50 flex items-center gap-2">
+                          <ListTodo className="h-3 w-3" /> Plan
+                        </button>
+                        <button onClick={() => { setChatMode('agent'); setIsModeDropdownOpen(false); }} className="w-full text-left px-3 py-2 text-xs hover:bg-secondary/50 flex items-center gap-2">
+                          <BrainCircuit className="h-3 w-3" /> Agent
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               <button 

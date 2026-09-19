@@ -7,8 +7,8 @@ export const buildBobTools = async (userId: string, role: string) => {
     get_user_profile: tool({
       description: 'Get the current user profile information.',
       parameters: z.object({}),
-      // @ts-ignore
-      execute: async (args: any) => {
+      // @ts-expect-error - Ignore execute type signature mismatch
+      execute: async (_args: any) => {
         const supabase = await createClient();
         const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
         if (error) return { error: error.message };
@@ -19,8 +19,8 @@ export const buildBobTools = async (userId: string, role: string) => {
     get_courses: tool({
       description: 'Get the courses the user is enrolled in (if student) or teaching (if faculty).',
       parameters: z.object({}),
-      // @ts-ignore
-      execute: async (args: any) => {
+      // @ts-expect-error - Ignore execute type signature mismatch
+      execute: async (_args: any) => {
         const supabase = await createClient();
         if (role === 'student') {
           const { data, error } = await supabase
@@ -44,8 +44,8 @@ export const buildBobTools = async (userId: string, role: string) => {
       parameters: z.object({
         status: z.enum(['pending', 'completed']).optional().describe('Filter by assignment status')
       }),
-      // @ts-ignore
-      execute: async ({ status }: { status?: 'pending' | 'completed' }) => {
+      // @ts-expect-error - Ignore execute type signature mismatch
+      execute: async ({ status: _status }: { status?: 'pending' | 'completed' }) => {
         const supabase = await createClient();
         if (role === 'student') {
           // Simplification for the hackathon/demo
@@ -71,7 +71,7 @@ export const buildBobTools = async (userId: string, role: string) => {
           dependencies: z.array(z.string()).optional().describe('IDs of steps that must be completed first'),
         }))
       }),
-      // @ts-ignore
+      // @ts-expect-error - Ignore execute type signature mismatch
       execute: async (plan: any) => {
         // Just return the plan so the UI can render it via toolInvocation
         return plan;

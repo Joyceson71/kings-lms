@@ -20,7 +20,7 @@ interface BobChatWorkspaceProps {
 }
 
 export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProps) {
-  const { mode, setMode } = useBobStore();
+  const { mode } = useBobStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const chat = useChat({

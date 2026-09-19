@@ -65,14 +65,14 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     if (fetchedZones && drawnItemsRef.current) {
       setZones(fetchedZones as IVGeofenceZone[]);
       drawnItemsRef.current.clearLayers();
-      const leafletModule = await import('leaflet');
-      const leafletInstance: any = leafletModule.default;
+      const L: any = window.L || (await import('leaflet')).default;
+      if (!window.L) window.L = L;
       
       fetchedZones.forEach((zone: IVGeofenceZone) => {
         try {
           const color = zone.zone_type === 'permitted' ? '#10b981' : zone.zone_type === 'danger' ? '#ef4444' : '#f59e0b';
           const points = typeof zone.polygon === 'string' ? JSON.parse(zone.polygon) : zone.polygon;
-          const polygon = leafletInstance.polygon((points as {lat: number, lng: number}[]).map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
+          const polygon = L.polygon((points as {lat: number, lng: number}[]).map((p: any) => [p.lat, p.lng]), { color }).bindTooltip(zone.name);
           drawnItemsRef.current?.addLayer(polygon);
         } catch (err) {
           console.warn('Invalid polygon data for zone', zone.id);
@@ -180,14 +180,18 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     }
 
     const loadHeatmap = async () => {
-      const L = (await import('leaflet')).default;
-      if (!(L as any).heatLayer) {
-        await new Promise((resolve) => {
-          const script = document.createElement('script');
-          script.src = 'https://unpkg.com/leaflet.heat/dist/leaflet-heat.js';
-          script.onload = resolve;
-          document.head.appendChild(script);
-        });
+      const L: any = window.L || (await import('leaflet')).default;
+      if (!window.L) window.L = L;
+      
+      if (!L.heatLayer) {
+        if (!document.querySelector('script[src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"]')) {
+          await new Promise((resolve) => {
+            const script = document.createElement('script');
+            script.src = 'https://unpkg.com/leaflet.heat/dist/leaflet-heat.js';
+            script.onload = resolve;
+            document.head.appendChild(script);
+          });
+        }
       }
 
       const supabase = createClient();
@@ -209,7 +213,7 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
         if (heatLayerRef.current) {
           mapInstance.current?.removeLayer(heatLayerRef.current);
         }
-        heatLayerRef.current = (L as any).heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
+        heatLayerRef.current = L.heatLayer(heatPoints, { radius: 25, blur: 15, max: 1 }).addTo(mapInstance.current);
       }
     };
     
@@ -228,19 +232,23 @@ export default function IVMap({ tripId, currentUserId, role, mapBounds, showHeat
     const myLoc = markersRef.current[currentUserId].getLatLng();
     
     try {
-      const L = (await import('leaflet')).default;
-      await import('leaflet-routing-machine');
+      const L: any = window.L || (await import('leaflet')).default;
+      if (!window.L) window.L = L;
+      
+      if (!L.Routing) {
+        await import('leaflet-routing-machine');
+      }
       
       if (routingControl.current) {
         mapInstance.current.removeControl(routingControl.current as any);
       }
       
-      routingControl.current = (L as any).Routing.control({
+      routingControl.current = L.Routing.control({
         waypoints: [
           L.latLng(myLoc.lat, myLoc.lng),
           L.latLng(gatherPoint.lat, gatherPoint.lng)
         ],
-        router: (L as any).Routing.osrmv1({
+        router: L.Routing.osrmv1({
           serviceUrl: 'https://router.project-osrm.org/route/v1'
         }),
         lineOptions: { styles: [{ color: '#3b82f6', weight: 4 }] },

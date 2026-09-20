@@ -101,14 +101,29 @@ export default function BobAssistant() {
     setIsLoading(true);
 
     try {
-      const reply = await askBob(userMsg.text, context, newHistory);
-      setMessages(prev => [...prev, { role: 'model', text: reply }]);
+      setMessages(prev => [...prev, { role: 'model', text: '' }]);
+      const reply = await askBob(userMsg.text, context, newHistory, (text) => {
+        setMessages(prev => {
+          const newMessages = [...prev];
+          newMessages[newMessages.length - 1] = { role: 'model', text };
+          return newMessages;
+        });
+      });
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = { role: 'model', text: reply };
+        return newMessages;
+      });
       speakText(reply);
     } catch {
-      setMessages(prev => [...prev, {
-        role: 'model',
-        text: 'Something went wrong on my end. Try again in a moment. - BOB',
-      }]);
+      setMessages(prev => {
+        const newMessages = [...prev];
+        newMessages[newMessages.length - 1] = {
+          role: 'model',
+          text: 'Something went wrong on my end. Try again in a moment. - BOB',
+        };
+        return newMessages;
+      });
     } finally {
       setIsLoading(false);
     }

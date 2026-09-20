@@ -56,7 +56,8 @@ Never give advice that ignores what you know about their situation.`;
 export async function askBob(
   userMessage: string,
   context: BobStudentContext,
-  history: ChatMessage[]
+  history: ChatMessage[],
+  onChunk?: (text: string) => void
 ): Promise<string> {
   try {
     const messages = [
@@ -112,6 +113,7 @@ export async function askBob(
       const { done, value } = await reader.read();
       if (done) break;
       result += decoder.decode(value, { stream: true });
+      if (onChunk) onChunk(result);
     }
     return result || "I got an empty response. Try again? - BOB";
   } catch (err) {

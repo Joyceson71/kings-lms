@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     let model;
     if (process.env.GEMINI_API_KEY) {
       const google = createGoogleGenerativeAI({ apiKey: process.env.GEMINI_API_KEY });
-      model = google('gemini-2.5-flash');
+      model = google('gemini-1.5-flash');
     } else if (process.env.IBM_BOB_API_KEY) {
       const ibmBob = createOpenAI({ apiKey: process.env.IBM_BOB_API_KEY, baseURL: 'https://bob.ibm.com/v1' });
       model = ibmBob('bob-agent');

@@ -76,6 +76,42 @@ export const buildBobTools = async (userId: string, role: string) => {
         // Just return the plan so the UI can render it via toolInvocation
         return plan;
       }
+    }),
+
+    search_materials: tool({
+      description: 'Search for course materials, syllabus, or lecture notes by query. Returns mocked results for the demo.',
+      parameters: z.object({
+        query: z.string().describe('Search query for the materials'),
+        course_id: z.string().optional().describe('Filter by specific course ID')
+      }),
+      // @ts-expect-error - Ignore execute type signature mismatch
+      execute: async ({ query, course_id }: { query: string; course_id?: string }) => {
+        // Mock response for demo purposes
+        return {
+          results: [
+            { title: `Lecture Notes on ${query}`, type: 'pdf', link: '/materials/notes.pdf' },
+            { title: `Syllabus Overview`, type: 'document', link: '/materials/syllabus.pdf' }
+          ],
+          query,
+          course_id
+        };
+      }
+    }),
+
+    schedule_reminder: tool({
+      description: 'Schedule a reminder for an upcoming assignment or exam.',
+      parameters: z.object({
+        task_name: z.string().describe('Name of the task to remind about'),
+        date: z.string().describe('Date of the reminder in YYYY-MM-DD format')
+      }),
+      // @ts-expect-error - Ignore execute type signature mismatch
+      execute: async ({ task_name, date }: { task_name: string; date: string }) => {
+        // Mock successful scheduling
+        return {
+          success: true,
+          message: `Reminder for "${task_name}" scheduled on ${date}.`
+        };
+      }
     })
   };
 };

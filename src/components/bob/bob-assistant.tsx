@@ -150,27 +150,27 @@ export default function BobAssistant() {
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
-  const panelWidth = isExpanded ? '520px' : '390px';
-  const panelHeight = isExpanded ? '640px' : '540px';
+  const panelWidth = isExpanded ? '55vw' : '420px';
+  const panelHeight = '100vh';
 
   const panelStyle: React.CSSProperties = {
     position: 'fixed',
-    bottom: '84px',
-    right: '24px',
+    top: 0,
+    bottom: 0,
+    right: 0,
     zIndex: 1001,
     width: panelWidth,
-    maxWidth: 'calc(100vw - 32px)',
+    maxWidth: '100vw',
     height: panelHeight,
-    maxHeight: 'calc(100vh - 120px)',
     background: IBM.dark,
-    border: '1px solid ' + IBM.border,
-    borderRadius: '4px',
+    borderLeft: '1px solid ' + IBM.border,
     display: 'flex',
     flexDirection: 'column',
-    boxShadow: '0 24px 64px rgba(0,0,0,0.8), 0 0 0 1px rgba(15,98,254,0.25)',
+    boxShadow: '-24px 0 64px rgba(0,0,0,0.8), -1px 0 0 rgba(15,98,254,0.25)',
     fontFamily: "'IBM Plex Sans', system-ui, sans-serif",
     overflow: 'hidden',
-    transition: 'width 0.2s ease, height 0.2s ease',
+    transition: 'width 0.25s cubic-bezier(0.2, 0.8, 0.2, 1)',
+    animation: 'bob-slide-in 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards',
   };
 
   const overallAttendance = context && context.attendanceByCourse.length > 0
@@ -644,6 +644,10 @@ export default function BobAssistant() {
         @keyframes bob-dot {
           0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
           40%            { transform: scale(1);   opacity: 1; }
+        }
+        @keyframes bob-slide-in {
+          0% { transform: translateX(100%); opacity: 0; }
+          100% { transform: translateX(0); opacity: 1; }
         }
       `}</style>
     </>

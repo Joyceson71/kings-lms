@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { streamText } from 'ai';
 import { z } from 'zod';
+import { buildBobTools } from '@/lib/bob/tools';
 
 export const maxDuration = 30;
 
@@ -91,10 +92,13 @@ export async function POST(req: Request) {
       apiKey: apiKey,
     });
 
+    const tools = await buildBobTools(user.id, 'student');
+
     const result = await streamText({
       model: google('gemini-1.5-flash'),
       system: systemPrompt,
       messages: filteredMessages as any,
+      tools: tools,
     });
 
     return result.toTextStreamResponse();

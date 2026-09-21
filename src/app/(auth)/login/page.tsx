@@ -258,7 +258,7 @@ export default function LoginPage() {
             e.preventDefault();
             const demoEmail = loginType === 'student' ? 'student@demo.com' : 'faculty@demo.com';
             setEmail(demoEmail);
-            setPassword('demo123');
+            setPassword('Demo@123!');
             toast.info(`Filled demo credentials for ${loginType}. Click LOGIN to continue.`);
           }}
           disabled={isProcessing}

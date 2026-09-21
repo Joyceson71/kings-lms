@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 import { z } from 'zod';
 import { buildBobTools } from '@/lib/bob/tools';
@@ -47,11 +48,11 @@ export async function POST(req: Request) {
       }
     }
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.IBM_BOB_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY;
+    const apiKey = process.env.GEMINI_API_KEY || process.env.BOB_API_KEY || process.env.IBM_BOB_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY;
     if (!apiKey) {
       console.warn('AI API key not set — AI features disabled');
       return NextResponse.json(
-        { error: 'AI features disabled. IBM_BOB_API_KEY or GEMINI_API_KEY not set.' },
+        { error: 'AI features disabled. BOB_API_KEY or GEMINI_API_KEY not set.' },
         { status: 503 }
       );
     }
@@ -88,14 +89,24 @@ export async function POST(req: Request) {
        return NextResponse.json({ error: 'No messages provided.' }, { status: 400 });
     }
 
-    const google = createGoogleGenerativeAI({
-      apiKey: apiKey,
-    });
-
     const tools = await buildBobTools(user.id, 'student');
 
+    let model;
+    if (process.env.BOB_API_KEY || process.env.IBM_BOB_API_KEY) {
+      const ibmBob = createOpenAI({
+        apiKey: (process.env.BOB_API_KEY || process.env.IBM_BOB_API_KEY)!,
+        baseURL: 'https://bob.ibm.com/v1',
+      });
+      model = ibmBob('bob-agent');
+    } else {
+      const google = createGoogleGenerativeAI({
+        apiKey: apiKey,
+      });
+      model = google('gemini-1.5-flash');
+    }
+
     const result = await streamText({
-      model: google('gemini-1.5-flash'),
+      model: model,
       system: systemPrompt,
       messages: filteredMessages as any,
       tools: tools,

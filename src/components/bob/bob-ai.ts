@@ -96,7 +96,7 @@ export async function askBob(
 
     if (!res.ok) {
       if (res.status === 503) {
-        return "My AI engine isn't configured yet - ask your admin to add the GEMINI_API_KEY. I can still show you your live dashboard stats though! - BOB";
+        return "My AI engine isn't configured yet - ask your admin to add the BOB_API_KEY. I can still show you your live dashboard stats though! - BOB";
       }
       if (res.status === 429) {
         return "You're on a roll! Give me a moment to catch up - too many messages in the last minute. - BOB";

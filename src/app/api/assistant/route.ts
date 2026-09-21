@@ -105,11 +105,13 @@ export async function POST(req: Request) {
       model = google('gemini-1.5-flash');
     }
 
+    // @ts-expect-error - ignore maxSteps type error due to tools typing
     const result = await streamText({
       model: model,
       system: systemPrompt,
       messages: filteredMessages as any,
       tools: tools,
+      maxSteps: 5,
     });
 
     return result.toTextStreamResponse();

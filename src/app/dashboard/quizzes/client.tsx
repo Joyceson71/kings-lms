@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Zap, Clock, Trophy, PlayCircle, Plus } from 'lucide-react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function QuizzesClient({ quizzes, isFaculty }: any) {
@@ -17,9 +18,11 @@ export default function QuizzesClient({ quizzes, isFaculty }: any) {
           </p>
         </div>
         {isFaculty && (
-          <Button className="glow-violet">
-            <Plus className="w-4 h-4 mr-2" /> New Quiz
-          </Button>
+          <Link href="/dashboard/quizzes/new">
+            <Button className="glow-violet">
+              <Plus className="w-4 h-4 mr-2" /> New Quiz
+            </Button>
+          </Link>
         )}
       </div>
 
@@ -48,17 +51,22 @@ export default function QuizzesClient({ quizzes, isFaculty }: any) {
             </div>
 
             {!isFaculty && (
-              <Button 
-                className="w-full bg-white/10 hover:bg-white/20 text-foreground border border-white/10"
-                onClick={() => router.push(`/dashboard/quizzes/${quiz.id}/attempt`)}
-                disabled={quiz.attempt?.status === 'submitted'}
-              >
-                {quiz.attempt?.status === 'submitted' ? (
-                  `Completed (Score: ${quiz.attempt.score}%)`
-                ) : (
-                  <><PlayCircle className="w-4 h-4 mr-2" /> Start Quiz</>
-                )}
-              </Button>
+              quiz.attempt?.status === 'submitted' ? (
+                <Button 
+                  className="w-full bg-white/10 hover:bg-white/20 text-foreground border border-white/10"
+                  disabled
+                >
+                  Completed (Score: {quiz.attempt.score}%)
+                </Button>
+              ) : (
+                <Link href={`/dashboard/quizzes/${quiz.id}/attempt`} className="w-full block">
+                  <Button 
+                    className="w-full bg-white/10 hover:bg-white/20 text-foreground border border-white/10"
+                  >
+                    <PlayCircle className="w-4 h-4 mr-2" /> Start Quiz
+                  </Button>
+                </Link>
+              )
             )}
           </div>
         ))}

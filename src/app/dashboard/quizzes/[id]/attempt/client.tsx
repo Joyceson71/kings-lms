@@ -13,7 +13,7 @@ export default function QuizAttemptClient({ quiz, questions, attemptId }: any) {
 
   const handleSubmit = async () => {
     if (Object.keys(answers).length < questions.length) {
-      if (!confirm('You have unanswered questions. Submit anyway?')) return;
+      if (!window.confirm('You have unanswered questions. Submit anyway?')) return;
     }
 
     setSubmitting(true);

@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
 import { MessageSquare, ListTodo, BrainCircuit } from 'lucide-react';
-import { useBobStore } from '@/lib/bob/store';
-import type { BobMode } from '@/lib/bob/types';
+import { useAssistantStore } from '@/lib/assistant/store';
+import type { AssistantMode } from '@/lib/assistant/types';
 
-export function BobModeSelector() {
-  const { mode, setMode } = useBobStore();
+export function AssistantModeSelector() {
+  const { mode, setMode } = useAssistantStore();
 
-  const modes: { id: BobMode; label: string; icon: React.ReactNode; desc: string }[] = [
+  const modes: { id: AssistantMode; label: string; icon: React.ReactNode; desc: string }[] = [
     { id: 'ask', label: 'Ask', icon: <MessageSquare className="h-4 w-4" />, desc: 'Chat & Learn' },
     { id: 'plan', label: 'Plan', icon: <ListTodo className="h-4 w-4" />, desc: 'Strategy' },
     { id: 'agent', label: 'Agent', icon: <BrainCircuit className="h-4 w-4" />, desc: 'Execution' }

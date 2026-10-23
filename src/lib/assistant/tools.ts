@@ -2,7 +2,7 @@ import { tool } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 
-export const buildBobTools = async (userId: string, role: string) => {
+export const buildAssistantTools = async (userId: string, role: string) => {
   return {
     get_user_profile: tool({
       description: 'Get the current user profile information.',
@@ -28,7 +28,10 @@ export const buildBobTools = async (userId: string, role: string) => {
           if (error) return { error: error.message };
           return { courses: data.map(d => d.courses) };
         } else if (role === 'faculty') {
-          // Assume faculty courses logic or all courses if admin
+          const { data, error } = await supabase.from('courses').select('*').eq('created_by', userId);
+          if (error) return { error: error.message };
+          return { courses: data };
+        } else if (role === 'admin') {
           const { data, error } = await supabase.from('courses').select('*');
           if (error) return { error: error.message };
           return { courses: data };
@@ -45,7 +48,27 @@ export const buildBobTools = async (userId: string, role: string) => {
       execute: async ({ status: _status }) => {
         const supabase = await createClient();
         if (role === 'student') {
-          // Simplification for the hackathon/demo
+          const { data: enrollments, error: enrollmentError } = await supabase
+            .from('course_enrollments').select('course_id').eq('student_id', userId);
+          if (enrollmentError) return { error: enrollmentError.message };
+          const courseIds = enrollments.map(enrollment => enrollment.course_id);
+          if (courseIds.length === 0) return { assignments: [] };
+          const { data, error } = await supabase
+            .from('assignments').select('*, courses(title)').in('course_id', courseIds);
+          if (error) return { error: error.message };
+          return { assignments: data };
+        }
+        if (role === 'faculty') {
+          const { data: courses, error: courseError } = await supabase
+            .from('courses').select('id').eq('created_by', userId);
+          if (courseError) return { error: courseError.message };
+          const courseIds = courses.map(course => course.id);
+          if (courseIds.length === 0) return { assignments: [] };
+          const { data, error } = await supabase.from('assignments').select('*, courses(title)').in('course_id', courseIds);
+          if (error) return { error: error.message };
+          return { assignments: data };
+        }
+        if (role === 'admin') {
           const { data, error } = await supabase.from('assignments').select('*, courses(title)');
           if (error) return { error: error.message };
           return { assignments: data };

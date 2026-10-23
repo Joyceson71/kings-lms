@@ -997,7 +997,7 @@
 .border {
   border-color: transparent !important;
 }
-.bob-trigger {
+.assistant-trigger {
     position: fixed;
     bottom: 24px;
     right: 24px;
@@ -1017,28 +1017,19 @@
     box-shadow: 0 4px 24px rgba(124,58,237,0.25);
     transition: all 0.2s ease;
 }
-.bob-trigger:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,0.4); }
-.bob-avatar {
+.assistant-trigger:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(124,58,237,0.4); }
+.assistant-avatar {
     width: 28px; height: 28px; border-radius: 50%;
     background: linear-gradient(135deg, #7c3aed, #10b981);
     display: flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 700; color: white;
 }
-.bob-badge {
+.assistant-badge {
     position: absolute; top: 6px; right: 6px;
     width: 10px; height: 10px; border-radius: 50%;
     background: #ef4444; border: 2px solid rgba(8,8,20,0.9);
 }
-.bob-label { font-size: 14px; }
-
-/* Override IBM web chat widget colours to match Kings dark theme */
-#WACWidget .WACWidget-main {
-    --WACTheme-primary: #7c3aed !important;
-    --WACTheme-primaryDark: #6d28d9 !important;
-    --WACTheme-headerBackground: #0d0d1a !important;
-    --WACTheme-background: #0a0a18 !important;
-    font-family: 'Inter', sans-serif !important;
-}
+.assistant-label { font-size: 14px; }
 
 .light {
     --background: oklch(0.97 0.005 265);

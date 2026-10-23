@@ -173,7 +173,7 @@ export default function DashboardClient({
           {isStudent && <Badge variant="student" className="anime-badge anime-badge-cyan">Student</Badge>}
           <div className="hidden sm:flex items-center ml-2 px-2 py-1 bg-secondary/50 rounded-full border border-border/50">
             <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-              Powered by <span className="text-primary">IBM watsonx</span>
+              Powered by <span className="text-primary">Kings Assistant</span>
             </span>
           </div>
         </div>

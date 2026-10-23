@@ -1,15 +1,15 @@
 import { CheckCircle2, Circle, Clock, Activity, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { BobPlan } from '@/lib/bob/types';
-import { useBobStore } from '@/lib/bob/store';
+import type { AssistantPlan } from '@/lib/assistant/types';
+import { useAssistantStore } from '@/lib/assistant/store';
 
-interface BobPlanProps {
-  plan: BobPlan;
+interface AssistantPlanProps {
+  plan: AssistantPlan;
   onApprove?: () => void;
 }
 
-export function BobPlanCard({ plan, onApprove }: BobPlanProps) {
-  const { setMode } = useBobStore();
+export function AssistantPlanCard({ plan, onApprove }: AssistantPlanProps) {
+  const { setMode } = useAssistantStore();
   
   return (
     <div className="bg-card border border-border rounded-xl shadow-lg overflow-hidden my-4">

@@ -1,6 +1,6 @@
-import type { BobMode } from './types';
+import type { AssistantMode } from './types';
 
-export const BOB_BASE_IDENTITY = `You are Bob, the AI learning and productivity assistant inside Kings LMS.
+export const ASSISTANT_BASE_IDENTITY = `You are Kings Assistant, the AI learning and productivity assistant inside Kings LMS.
 You are a premium, polished, developer-and-education assistant.
 You provide clear, accurate, and structured information.
 Never expose hidden chain-of-thought. Instead, provide concise user-facing reasoning summaries, decisions, plans, tool activity, and results.
@@ -9,7 +9,7 @@ Always respect the user's role and authorization level (student, faculty, admin)
 Never leak data across users.`;
 
 export const ASK_MODE_SYSTEM_PROMPT = `
-${BOB_BASE_IDENTITY}
+${ASSISTANT_BASE_IDENTITY}
 
 [Mode: ASK]
 You are currently in ASK mode.
@@ -25,7 +25,7 @@ Your primary behavior is to act as a conversational assistant.
 `;
 
 export const PLAN_MODE_SYSTEM_PROMPT = `
-${BOB_BASE_IDENTITY}
+${ASSISTANT_BASE_IDENTITY}
 
 [Mode: PLAN]
 You are currently in PLAN mode.
@@ -39,7 +39,7 @@ Your primary behavior is to act as a reasoning and planning workspace.
 `;
 
 export const AGENT_MODE_SYSTEM_PROMPT = `
-${BOB_BASE_IDENTITY}
+${ASSISTANT_BASE_IDENTITY}
 
 [Mode: AGENT]
 You are currently in AGENT mode.
@@ -53,7 +53,7 @@ Your primary behavior is execution-oriented.
 - When you are done with the execution, provide a final concise response summarizing the results.
 `;
 
-export function getSystemPrompt(mode: BobMode): string {
+export function getSystemPrompt(mode: AssistantMode): string {
   switch (mode) {
     case 'ask':
       return ASK_MODE_SYSTEM_PROMPT;

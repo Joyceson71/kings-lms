@@ -5,29 +5,29 @@ import { useChat } from '@ai-sdk/react';
 import { motion } from 'framer-motion';
 import { Sparkles, Trash2, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useBobStore } from '@/lib/bob/store';
-import { BobModeSelector } from './bob-mode-selector';
-import { BobMessage } from './bob-message';
-import { BobComposer } from './bob-composer';
-import type { BobPlan } from '@/lib/bob/types';
+import { useAssistantStore } from '@/lib/assistant/store';
+import { AssistantModeSelector } from './assistant-mode-selector';
+import { AssistantMessage } from './assistant-message';
+import { AssistantComposer } from './assistant-composer';
+import type { AssistantPlan } from '@/lib/assistant/types';
 import { toast } from 'sonner';
 
-interface BobChatWorkspaceProps {
+interface AssistantWorkspaceProps {
   userName: string;
   contextData?: {
     enrolledCourses?: string;
   };
 }
 
-export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProps) {
-  const { mode } = useBobStore();
+export function AssistantWorkspace({ userName, contextData }: AssistantWorkspaceProps) {
+  const { mode } = useAssistantStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const chat = useChat({
-    api: '/api/bob/chat',
+    api: '/api/assistant/chat',
     body: { mode },
     onError: (err: Error) => {
-      toast.error(err.message || 'Failed to connect to Bob.');
+      toast.error(err.message || 'Failed to connect to Assistant.');
     }
   } as any) as any;
 
@@ -50,7 +50,7 @@ export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProp
     setMessages([]);
   };
 
-  const handleApprovePlan = (plan: BobPlan) => {
+  const handleApprovePlan = (plan: AssistantPlan) => {
     // Send a message to agent mode telling it to execute the approved plan
     append({
       role: 'user',
@@ -65,7 +65,7 @@ export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProp
         <div>
           <h1 className="text-3xl font-black tracking-tight flex items-center gap-2">
             <span className="bg-gradient-to-r from-primary to-emerald-500 bg-clip-text text-transparent">
-              IBM Bob
+              Kings Assistant
             </span>
             <span className="px-2 py-0.5 rounded-md bg-primary/10 text-primary text-xs font-bold uppercase tracking-wider">
               Workspace
@@ -95,7 +95,7 @@ export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProp
         </div>
       </div>
 
-      <BobModeSelector />
+      <AssistantModeSelector />
 
       {/* Chat container */}
       <div className="flex-1 overflow-y-auto rounded-3xl border border-border/40 bg-card/50 backdrop-blur-xl p-4 sm:p-6 space-y-2 relative shadow-2xl flex flex-col custom-scrollbar">
@@ -119,7 +119,7 @@ export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProp
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <BobMessage 
+              <AssistantMessage 
                 message={msg} 
                 isLast={index === messages.length - 1} 
                 onApprovePlan={handleApprovePlan}
@@ -132,13 +132,13 @@ export function BobChatWorkspace({ userName, contextData }: BobChatWorkspaceProp
 
       {/* Input area */}
       <div className="mt-4">
-        <BobComposer 
+        <AssistantComposer 
           input={input}
           handleInputChange={handleInputChange}
           handleSubmit={handleSubmit}
           isLoading={isLoading}
           stop={stop}
-          placeholder={`Ask Bob in ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode...`}
+          placeholder={`Ask Assistant in ${mode.charAt(0).toUpperCase() + mode.slice(1)} Mode...`}
         />
       </div>
     </div>

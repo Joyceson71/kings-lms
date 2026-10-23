@@ -120,8 +120,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 # Supabase Service Role key — NEVER expose publicly
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 
-# IBM Bob API Key (for IBM Bob Study Assistant)
-BOB_API_KEY="your_bob_api_key"
+# Kings Assistant (Google Gemini)
+GEMINI_API_KEY="your_gemini_api_key"
+GEMINI_MODEL="gemini-2.0-flash"
 
 # Web Push Notifications (VAPID Keys)
 NEXT_PUBLIC_VAPID_PUBLIC_KEY="your_vapid_public_key"

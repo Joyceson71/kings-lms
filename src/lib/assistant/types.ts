@@ -1,4 +1,4 @@
-export type BobMode = 'ask' | 'plan' | 'agent';
+export type AssistantMode = 'ask' | 'plan' | 'agent';
 
 export interface PlanStep {
   id: string;
@@ -10,15 +10,15 @@ export interface PlanStep {
   status: 'pending' | 'completed' | 'in_progress';
 }
 
-export interface BobPlan {
+export interface AssistantPlan {
   title: string;
   summary: string;
   steps: PlanStep[];
 }
 
-export interface BobMessageMetadata {
-  mode: BobMode;
-  plan?: BobPlan;
+export interface AssistantMessageMetadata {
+  mode: AssistantMode;
+  plan?: AssistantPlan;
   toolActivity?: {
     toolName: string;
     status: 'running' | 'completed' | 'error';

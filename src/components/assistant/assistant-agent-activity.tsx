@@ -1,12 +1,12 @@
 import { CheckCircle2, Loader2, XCircle } from 'lucide-react';
 
-interface BobAgentActivityProps {
+interface AssistantAgentActivityProps {
   toolName: string;
   status: 'running' | 'completed' | 'error';
   summary?: string;
 }
 
-export function BobAgentActivity({ toolName, status, summary }: BobAgentActivityProps) {
+export function AssistantAgentActivity({ toolName, status, summary }: AssistantAgentActivityProps) {
   const isRunning = status === 'running';
   const isError = status === 'error';
   

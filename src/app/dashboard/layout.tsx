@@ -5,7 +5,7 @@ import { Header } from '@/components/layout/header';
 import { BottomNav } from '@/components/layout/bottom-nav';
 import { SidebarProvider } from '@/components/layout/sidebar-provider';
 import { PomodoroTimer } from '@/components/ui/pomodoro-timer';
-import BobAssistant from '@/components/bob/bob-assistant';
+import KingsAssistant from '@/components/assistant/kings-assistant';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -85,8 +85,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
       {/* Floating Pomodoro Focus Timer */}
       <PomodoroTimer />
       
-      {/* Single Unified BOB — Behaviour-Oriented Buddy with live Supabase context */}
-      <BobAssistant />
+      {/* Single Unified Assistant — academic learning assistant with live Supabase context */}
+      <KingsAssistant />
     </SidebarProvider>
   );
 }

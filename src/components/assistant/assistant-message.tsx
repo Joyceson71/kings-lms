@@ -4,16 +4,16 @@ import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
-import { BobPlanCard } from './bob-plan';
-import { BobAgentActivity } from './bob-agent-activity';
+import { AssistantPlanCard } from './assistant-plan';
+import { AssistantAgentActivity } from './assistant-agent-activity';
 
-interface BobMessageProps {
+interface AssistantMessageProps {
   message: any;
   isLast?: boolean;
   onApprovePlan?: (planData: any) => void;
 }
 
-export function BobMessage({ message, isLast, onApprovePlan }: BobMessageProps) {
+export function AssistantMessage({ message, isLast, onApprovePlan }: AssistantMessageProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -73,7 +73,7 @@ export function BobMessage({ message, isLast, onApprovePlan }: BobMessageProps) 
         {message.toolInvocations?.map((toolInv: any) => {
           if (toolInv.toolName === 'generate_study_plan') {
             if ('result' in toolInv) {
-               return <BobPlanCard key={toolInv.toolCallId} plan={toolInv.result} onApprove={() => onApprovePlan?.(toolInv.result)} />;
+               return <AssistantPlanCard key={toolInv.toolCallId} plan={toolInv.result} onApprove={() => onApprovePlan?.(toolInv.result)} />;
             }
             return (
                <div key={toolInv.toolCallId} className="italic text-muted-foreground my-2 animate-pulse">
@@ -83,7 +83,7 @@ export function BobMessage({ message, isLast, onApprovePlan }: BobMessageProps) 
           }
           
           return (
-            <BobAgentActivity
+            <AssistantAgentActivity
               key={toolInv.toolCallId}
               toolName={toolInv.toolName}
               status={'result' in toolInv ? 'completed' : 'running'}

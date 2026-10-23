@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, Loader2, Sparkles, StopCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
-interface BobComposerProps {
+interface AssistantComposerProps {
   input: string;
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent) => void;
@@ -11,7 +11,7 @@ interface BobComposerProps {
   placeholder?: string;
 }
 
-export function BobComposer({ input, handleInputChange, handleSubmit, isLoading, stop, placeholder }: BobComposerProps) {
+export function AssistantComposer({ input, handleInputChange, handleSubmit, isLoading, stop, placeholder }: AssistantComposerProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Auto-resize textarea
@@ -40,7 +40,7 @@ export function BobComposer({ input, handleInputChange, handleSubmit, isLoading,
             value={input}
             onChange={handleInputChange}
             onKeyDown={onKeyDown}
-            placeholder={placeholder || "Ask Bob anything... (Enter to send)"}
+            placeholder={placeholder || "Ask Assistant anything... (Enter to send)"}
             rows={1}
             disabled={isLoading}
             style={{ minHeight: '52px', overflowY: input.length > 100 ? 'auto' : 'hidden' }}

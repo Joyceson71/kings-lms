@@ -2,7 +2,7 @@
 
 import { createClient } from '@/lib/supabase/client';
 
-export interface BobStudentContext {
+export interface AssistantStudentContext {
   studentName: string;
   studentRole: 'student' | 'faculty' | 'admin';
   enrolledCourses: { id: string; name: string; code: string }[];
@@ -27,7 +27,7 @@ export interface BobStudentContext {
   hasOverdueWork: boolean;
 }
 
-export async function fetchBobContext(userId: string): Promise<BobStudentContext> {
+export async function fetchAssistantContext(userId: string): Promise<AssistantStudentContext> {
   const supabase = createClient();
 
   const { data: profile } = await supabase
@@ -79,7 +79,7 @@ export async function fetchBobContext(userId: string): Promise<BobStudentContext
     })
   );
 
-  const pendingAssignments: BobStudentContext['pendingAssignments'] = [];
+  const pendingAssignments: AssistantStudentContext['pendingAssignments'] = [];
 
   const hasCriticalAttendance = attendanceByCourse.some(c => c.attendancePercentage < 60);
   const hasLowAttendance = attendanceByCourse.some(
@@ -91,7 +91,7 @@ export async function fetchBobContext(userId: string): Promise<BobStudentContext
 
   return {
     studentName: profile?.full_name ?? 'Student',
-    studentRole: (profile?.role as BobStudentContext['studentRole']) ?? 'student',
+    studentRole: (profile?.role as AssistantStudentContext['studentRole']) ?? 'student',
     enrolledCourses,
     attendanceByCourse,
     pendingAssignments,

@@ -289,12 +289,12 @@ export function Sidebar() {
             (expanded || isOpen) ? 'px-4' : 'px-0 flex items-center'
           )}
         >
-          {/* IBM watsonx badge */}
+          {/* Kings Assistant badge */}
           <div className={cn(
             'mb-4 transition-all duration-300',
             (expanded || isOpen) ? 'text-center' : 'hidden'
           )}>
-            <span className="text-[10px] text-muted-foreground/60 font-medium">Bob AI • Powered by IBM watsonx</span>
+            <span className="text-[10px] text-muted-foreground/60 font-medium">Assistant AI • Kings Assistant</span>
           </div>
           {loading ? (
             <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-3' : 'justify-center')}>

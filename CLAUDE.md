@@ -8,6 +8,8 @@
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon/public key for client-side calls |
 | `SUPABASE_SERVICE_ROLE_KEY` | Service-role key for server-only admin operations |
 | `NEXT_PUBLIC_APP_URL` | Canonical app URL (used for OAuth redirects) |
+| `GEMINI_API_KEY` | Server-only Google Gemini API key for Kings Assistant |
+| `GEMINI_MODEL` | Google Gemini model identifier used by Kings Assistant |
 
 Copy `.env.example` → `.env.local` and fill in real values. Never commit `.env.local`.
 
@@ -28,7 +30,15 @@ Roles are stored in `profiles.role` (type `text`, values: `student` / `faculty` 
 - **faculty** — creates courses and attendance sessions
 - **admin** — full access; manages users, departments, reports
 
-Role is set during onboarding (`/dashboard/onboarding`) and enforced server-side via RLS policies.
+Role is set during onboarding (`/onboarding`) and enforced server-side via RLS policies.
+
+## Kings Assistant
+
+Kings Assistant is implemented in `src/components/assistant/` and `src/lib/assistant/`.
+Both `/api/assistant` and `/api/assistant/chat` use the shared handler, system prompts,
+role-scoped tools, and the Google provider in `src/lib/assistant/provider.ts`. Configure
+`GEMINI_API_KEY` and `GEMINI_MODEL`; the assistant reports a clear unavailable state when
+either is missing.
 
 ## Folder Conventions
 
@@ -52,5 +62,10 @@ src/
 
 - **Middleware**: `getUser()` must be called immediately after `createServerClient`; no logic in between. Authentication relies solely on `supabase.auth.getUser()` — there is no cookie fallback.
 - **Redirect cookies**: After a Supabase token refresh in middleware, copy cookies from `supabaseResponse` onto any redirect response you return, or the browser won't persist the refreshed session.
-- **`lucide-react`**: Still on `0.x` (e.g. `^0.441.0`) — never reached `1.x`.
-- **Next.js**: Project targets `^15` — not 16 (which does not exist).
+- **`lucide-react` version**: `^0.447.0`.
+- **Next.js**: Project targets `^15` (installed `15.5.20`). Read the installed guides in
+  `node_modules/next/dist/docs/` when present before using framework APIs.
+- **API handlers**: Route handlers in `src/app/api/` use `src/lib/api/handler.ts` for
+  authentication, Zod request validation, and sanitized error responses.
+- **Rate limits**: Shared limits use the `api_rate_limits` table and
+  `consume_api_rate_limit` RPC from migration `0032_api_rate_limits.sql`.

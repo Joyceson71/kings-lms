@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
-import { streamText } from 'ai';
+import { stepCountIs, streamText } from 'ai';
 import { z } from 'zod';
 import { buildBobTools } from '@/lib/bob/tools';
 
@@ -105,13 +105,12 @@ export async function POST(req: Request) {
       model = google('gemini-1.5-flash');
     }
 
-    // @ts-expect-error - ignore maxSteps type error due to tools typing
     const result = await streamText({
       model: model,
       system: systemPrompt,
-      messages: filteredMessages as any,
+      messages: filteredMessages.map(({ role, content }) => ({ role, content })),
       tools: tools,
-      maxSteps: 5,
+      stopWhen: stepCountIs(5),
     });
 
     return result.toTextStreamResponse();

@@ -6,11 +6,10 @@ export const buildBobTools = async (userId: string, role: string) => {
   return {
     get_user_profile: tool({
       description: 'Get the current user profile information.',
-      parameters: z.object({}),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async (_args: any) => {
+      inputSchema: z.object({}),
+      execute: async () => {
         const supabase = await createClient();
-        const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
+        const { data, error } = await supabase.from('profiles').select('id, full_name, role, department').eq('id', userId).single();
         if (error) return { error: error.message };
         return { profile: data };
       }
@@ -18,9 +17,8 @@ export const buildBobTools = async (userId: string, role: string) => {
     
     get_courses: tool({
       description: 'Get the courses the user is enrolled in (if student) or teaching (if faculty).',
-      parameters: z.object({}),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async (_args: any) => {
+      inputSchema: z.object({}),
+      execute: async () => {
         const supabase = await createClient();
         if (role === 'student') {
           const { data, error } = await supabase
@@ -41,11 +39,10 @@ export const buildBobTools = async (userId: string, role: string) => {
 
     get_assignments: tool({
       description: 'Get pending or completed assignments for the user.',
-      parameters: z.object({
+      inputSchema: z.object({
         status: z.enum(['pending', 'completed']).optional().describe('Filter by assignment status')
       }),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async ({ status: _status }: { status?: 'pending' | 'completed' }) => {
+      execute: async ({ status: _status }) => {
         const supabase = await createClient();
         if (role === 'student') {
           // Simplification for the hackathon/demo
@@ -59,7 +56,7 @@ export const buildBobTools = async (userId: string, role: string) => {
     
     generate_study_plan: tool({
       description: 'Emit a structured study plan. Use this tool specifically when in PLAN mode to output the structured JSON plan.',
-      parameters: z.object({
+      inputSchema: z.object({
         title: z.string().describe('Title of the study plan'),
         summary: z.string().describe('Short summary of what this plan aims to achieve'),
         steps: z.array(z.object({
@@ -71,8 +68,7 @@ export const buildBobTools = async (userId: string, role: string) => {
           dependencies: z.array(z.string()).optional().describe('IDs of steps that must be completed first'),
         }))
       }),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async (plan: any) => {
+      execute: async (plan) => {
         // Just return the plan so the UI can render it via toolInvocation
         return plan;
       }
@@ -80,12 +76,11 @@ export const buildBobTools = async (userId: string, role: string) => {
 
     search_materials: tool({
       description: 'Search for course materials, syllabus, or lecture notes by query. Returns mocked results for the demo.',
-      parameters: z.object({
+      inputSchema: z.object({
         query: z.string().describe('Search query for the materials'),
         course_id: z.string().optional().describe('Filter by specific course ID')
       }),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async ({ query, course_id }: { query: string; course_id?: string }) => {
+      execute: async ({ query, course_id }) => {
         // Mock response for demo purposes
         return {
           results: [
@@ -100,12 +95,11 @@ export const buildBobTools = async (userId: string, role: string) => {
 
     schedule_reminder: tool({
       description: 'Schedule a reminder for an upcoming assignment or exam.',
-      parameters: z.object({
+      inputSchema: z.object({
         task_name: z.string().describe('Name of the task to remind about'),
         date: z.string().describe('Date of the reminder in YYYY-MM-DD format')
       }),
-      // @ts-expect-error - Ignore execute type signature mismatch
-      execute: async ({ task_name, date }: { task_name: string; date: string }) => {
+      execute: async ({ task_name, date }) => {
         // Mock successful scheduling
         return {
           success: true,

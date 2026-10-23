@@ -35,6 +35,7 @@ function AttendanceContent() {
   const [myCourses, setMyCourses] = useState<any[]>([]);
   const [stats, setStats] = useState({ attended: 0, total: 0 });
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   // Geofencing UI State
   const [verificationStatus, setVerificationStatus] = useState<'idle' | 'verifying' | 'success' | 'error'>('idle');
@@ -54,6 +55,7 @@ function AttendanceContent() {
 
   const fetchData = async () => {
     setIsLoading(true);
+    setLoadError(false);
     try {
       if (isFaculty) {
         // Faculty: Get courses they teach
@@ -143,7 +145,10 @@ function AttendanceContent() {
       }
     } catch (error) {
       console.error('Error fetching attendance data:', error);
-      toast.error('Failed to load attendance data.');
+      setLoadError(true);
+      toast.error('Failed to load attendance data.', {
+        action: { label: 'Retry', onClick: () => { void fetchData(); } },
+      });
     } finally {
       setIsLoading(false);
     }
@@ -426,6 +431,12 @@ function AttendanceContent() {
 
   return (
     <div className="space-y-8">
+      {loadError && (
+        <div role="alert" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
+          <span>Attendance data could not be loaded.</span>
+          <Button variant="outline" size="sm" onClick={() => { void fetchData(); }}>Retry</Button>
+        </div>
+      )}
       {/* Page header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-slide-in-up opacity-0" style={{ animationFillMode: 'forwards' }}>
         <div>

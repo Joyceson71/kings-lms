@@ -1,7 +1,9 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -49,3 +51,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: err.message || 'Internal error' }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/onboarding POST', auth: true, bodySchema: z.object({ fullName: z.string().trim().min(1), department: z.string().min(1), rollNumber: z.string().optional(), employeeId: z.string().optional(), courses: z.array(z.string().uuid()).optional() }) });

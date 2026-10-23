@@ -8,6 +8,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import { toast } from 'sonner';
 
 // Assistant color palette
 const ASSISTANT_PALETTE = {
@@ -49,6 +50,7 @@ export default function KingsAssistant() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [alertMessage, setAlertMessage] = useState<string | null>(null);
+  const [requestError, setRequestError] = useState<string | null>(null);
   const [contextLoading, setContextLoading] = useState(true);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -90,13 +92,14 @@ export default function KingsAssistant() {
     window.speechSynthesis.speak(utterance);
   }, [isMuted]);
 
-  const sendMessage = useCallback(async (textOverride?: string) => {
+  const sendMessage = useCallback(async (textOverride?: string, retrying = false) => {
     const textToSend = (typeof textOverride === 'string' ? textOverride : input).trim();
     if (!textToSend || isLoading || !context) return;
     
     const userMsg: ChatMessage = { role: 'user', text: textToSend };
-    const newHistory = [...messages, userMsg];
+    const newHistory = retrying ? messages.slice(0, -1) : [...messages, userMsg];
     setMessages(newHistory);
+    setRequestError(null);
     if (typeof textOverride !== 'string') setInput('');
     setIsLoading(true);
 
@@ -115,12 +118,18 @@ export default function KingsAssistant() {
         return newMessages;
       });
       speakText(reply);
-    } catch {
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Kings Assistant is unavailable right now.';
+      setRequestError(message);
+      toast.error('Kings Assistant is unavailable.', {
+        description: message,
+        action: { label: 'Retry', onClick: () => { void sendMessage(textToSend, true); } },
+      });
       setMessages(prev => {
         const newMessages = [...prev];
         newMessages[newMessages.length - 1] = {
           role: 'model',
-          text: 'Something went wrong on my end. Try again in a moment. - Assistant',
+          text: 'Kings Assistant is unavailable. Retry your question when the service is ready.',
         };
         return newMessages;
       });
@@ -426,6 +435,11 @@ export default function KingsAssistant() {
             flexDirection: 'column',
             gap: '12px',
           }}>
+            {requestError && (
+              <div role="alert" style={{ color: '#fecaca', background: 'rgba(220,38,38,0.12)', border: '1px solid rgba(220,38,38,0.28)', borderRadius: '8px', padding: '10px 12px', fontSize: '12px' }}>
+                Kings Assistant is temporarily unavailable. <button type="button" onClick={() => { const lastUser = [...messages].reverse().find(message => message.role === 'user'); if (lastUser) void sendMessage(lastUser.text, true); }} style={{ color: '#fff', textDecoration: 'underline', marginLeft: '6px' }}>Retry</button>
+              </div>
+            )}
             {messages.map((msg, i) => (
               <div key={i} style={{
                 display: 'flex',

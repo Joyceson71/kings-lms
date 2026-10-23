@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
     .eq('id', user.id)
     .maybeSingle();
 
-  if (!profile?.department && !profile?.onboarding_complete) redirect('/onboarding');
+  if (profile && !profile.onboarding_complete) redirect('/onboarding');
 
   return (
     <SidebarProvider>

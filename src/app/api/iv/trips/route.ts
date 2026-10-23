@@ -1,8 +1,10 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import crypto from 'crypto';
 
-export async function GET() {
+async function handleGET() {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -27,7 +29,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -79,3 +81,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export const GET = withApiHandler(handleGET, { route: '/api/iv/trips GET', auth: true, querySchema: z.object({}).passthrough() });
+export const POST = withApiHandler(handlePOST, { route: '/api/iv/trips POST', auth: true, bodySchema: z.object({ name: z.string().trim().min(1), map_bounds: z.unknown().optional(), trip_code: z.string().optional() }) });

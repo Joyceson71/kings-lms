@@ -6,6 +6,7 @@ import { getRole } from '@/lib/getRole';
 import { buildAssistantTools } from '@/lib/assistant/tools';
 import { getSystemPrompt } from '@/lib/assistant/prompts';
 import { AssistantConfigurationError, createAssistantModel } from '@/lib/assistant/provider';
+import { checkRateLimit } from '@/lib/utils/rate-limit';
 
 const messageSchema = z.object({
   id: z.string().optional(),
@@ -25,11 +26,19 @@ const bodySchema = z.object({
   }).optional(),
 });
 
-export async function handleAssistantRequest(req: Request) {
+export async function handleAssistantRequest(req: Request, responseFormat: 'text' | 'ui' = 'text') {
   try {
     const supabase = await createClient();
     const { data: { user }, error } = await supabase.auth.getUser();
     if (error || !user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const rateLimit = await checkRateLimit(`assistant:${user.id}`, { limit: 20, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: { code: 'RATE_LIMITED', message: rateLimit.message } }, {
+        status: 429,
+        headers: { 'Retry-After': String(Math.max(1, Math.ceil((rateLimit.resetAt - Date.now()) / 1000))) },
+      });
+    }
 
     const rawBody: unknown = await req.json();
     const parsed = bodySchema.safeParse(rawBody);
@@ -63,7 +72,7 @@ export async function handleAssistantRequest(req: Request) {
       tools: mode === 'agent' || mode === 'plan' ? tools : undefined,
       stopWhen: stepCountIs(5),
     });
-    return result.toTextStreamResponse();
+    return responseFormat === 'ui' ? result.toUIMessageStreamResponse() : result.toTextStreamResponse();
   } catch (error) {
     if (error instanceof AssistantConfigurationError) {
       return NextResponse.json({ error: error.message, code: error.code }, { status: 503 });

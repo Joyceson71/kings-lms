@@ -1,7 +1,10 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { checkRateLimit } from '@/lib/utils/rate-limit';
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -9,6 +12,9 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const rateLimit = await checkRateLimit(`broadcast:${user.id}`, { limit: 5, windowMs: 60_000 });
+    if (!rateLimit.allowed) return NextResponse.json({ error: 'Too many broadcasts. Please wait before retrying.' }, { status: 429 });
 
     // Verify admin role
     const { data: profile } = await supabase
@@ -55,3 +61,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/admin/broadcast POST', auth: true, bodySchema: z.object({ title: z.string().trim().min(1).max(120), content: z.string().trim().min(1).max(1000) }) });

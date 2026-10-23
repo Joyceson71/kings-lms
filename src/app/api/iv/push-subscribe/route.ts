@@ -1,7 +1,9 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -30,3 +32,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/iv/push-subscribe POST', auth: true, bodySchema: z.object({ subscription: z.record(z.string(), z.unknown()) }) });

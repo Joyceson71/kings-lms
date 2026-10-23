@@ -46,16 +46,14 @@ export async function askAssistant(
     });
 
     if (!res.ok) {
-      if (res.status === 503) {
-        return "Kings Assistant is unavailable right now. You can still review your live dashboard stats.";
-      }
-      if (res.status === 429) {
-        return "You're on a roll! Give me a moment to catch up - too many messages in the last minute. - Assistant";
-      }
-      throw new Error(`HTTP ${res.status}`);
+      const body: unknown = await res.json().catch(() => null);
+      const message = typeof body === 'object' && body !== null && 'error' in body
+        ? typeof body.error === 'string' ? body.error : 'Kings Assistant is unavailable right now.'
+        : res.status === 429 ? 'Too many requests. Please try again shortly.' : 'Kings Assistant is unavailable right now.';
+      throw new Error(message);
     }
 
-    if (!res.body) return "Something went wrong on my end. Try again in a moment. - Assistant";
+    if (!res.body) throw new Error('Kings Assistant returned an empty response.');
 
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -66,10 +64,11 @@ export async function askAssistant(
       result += decoder.decode(value, { stream: true });
       if (onChunk) onChunk(result);
     }
-    return result || "I got an empty response. Try again? - Assistant";
+    if (!result) throw new Error('Kings Assistant returned an empty response.');
+    return result;
   } catch (err) {
     console.error('Assistant AI error:', err);
-    return "My neural pathways are temporarily offline. Give me a moment and try again. - Assistant";
+    throw err;
   }
 }
 

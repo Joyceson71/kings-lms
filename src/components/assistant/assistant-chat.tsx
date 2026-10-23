@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ChangeEvent } from 'react';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { motion } from 'framer-motion';
 import { Sparkles, Trash2, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,25 +23,35 @@ interface AssistantWorkspaceProps {
 export function AssistantWorkspace({ userName, contextData }: AssistantWorkspaceProps) {
   const { mode } = useAssistantStore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const retryRef = useRef<() => void>(() => {});
+  const [input, setInput] = useState('');
 
   const chat = useChat({
-    api: '/api/assistant/chat',
-    body: { mode },
-    onError: (err: Error) => {
-      toast.error(err.message || 'Failed to connect to Assistant.');
-    }
-  } as any) as any;
+    transport: new DefaultChatTransport({ api: '/api/assistant/chat', body: { mode } }),
+    onError: (error: Error) => {
+      toast.error('Kings Assistant is unavailable.', {
+        description: error.message,
+        action: { label: 'Retry', onClick: () => retryRef.current() },
+      });
+    },
+  });
+  retryRef.current = () => { void chat.regenerate(); };
 
   const {
     messages,
-    input,
-    handleInputChange,
-    handleSubmit,
-    isLoading,
+    status,
     stop,
     setMessages,
-    append
   } = chat;
+  const isLoading = status === 'submitted' || status === 'streaming';
+  const handleInputChange = (event: ChangeEvent<HTMLTextAreaElement>) => setInput(event.target.value);
+  const handleSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    const text = input.trim();
+    if (!text || isLoading) return;
+    setInput('');
+    void chat.sendMessage({ text });
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,10 +63,7 @@ export function AssistantWorkspace({ userName, contextData }: AssistantWorkspace
 
   const handleApprovePlan = (plan: AssistantPlan) => {
     // Send a message to agent mode telling it to execute the approved plan
-    append({
-      role: 'user',
-      content: `I approve the plan "${plan.title}". Please run it now.`,
-    });
+    void chat.sendMessage({ text: `I approve the plan "${plan.title}". Please run it now.` });
   };
 
   return (
@@ -99,6 +107,12 @@ export function AssistantWorkspace({ userName, contextData }: AssistantWorkspace
 
       {/* Chat container */}
       <div className="flex-1 overflow-y-auto rounded-3xl border border-border/40 bg-card/50 backdrop-blur-xl p-4 sm:p-6 space-y-2 relative shadow-2xl flex flex-col custom-scrollbar">
+        {status === 'error' && (
+          <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm">
+            <span>Kings Assistant is unavailable. {chat.error?.message}</span>
+            <Button variant="outline" size="sm" onClick={() => void chat.regenerate()}>Retry</Button>
+          </div>
+        )}
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground space-y-4 max-w-md mx-auto my-auto opacity-80">
             <div className="p-4 rounded-2xl bg-primary/10 border border-primary/20 text-primary">
@@ -112,7 +126,7 @@ export function AssistantWorkspace({ userName, contextData }: AssistantWorkspace
             </div>
           </div>
         ) : (
-          messages.map((msg: any, index: number) => (
+          messages.map((msg, index) => (
             <motion.div
               key={msg.id}
               initial={{ opacity: 0, y: 10 }}

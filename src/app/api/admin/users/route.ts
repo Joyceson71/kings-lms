@@ -1,3 +1,5 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
@@ -27,7 +29,7 @@ async function requireAdmin() {
  * Updates the target user's role and/or status.
  * Admins cannot change their own role (safety guard).
  */
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   const { error, status, user: admin } = await requireAdmin();
   if (error || !admin) {
     return NextResponse.json({ error }, { status });
@@ -83,3 +85,5 @@ export async function PATCH(request: Request) {
 
   return NextResponse.json({ success: true });
 }
+
+export const PATCH = withApiHandler(handlePATCH, { route: '/api/admin/users PATCH', auth: true, bodySchema: z.object({ id: z.string().uuid(), role: z.enum(['student', 'faculty', 'admin']).optional(), status: z.enum(['active', 'suspended']).optional() }) });

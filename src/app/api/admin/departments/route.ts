@@ -1,3 +1,5 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 
@@ -23,7 +25,7 @@ async function requireAdmin() {
  * POST /api/admin/departments
  * Body: { code: string, name: string, head_id?: string }
  */
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   const { error, status } = await requireAdmin();
   if (error) return NextResponse.json({ error }, { status });
 
@@ -56,7 +58,7 @@ export async function POST(request: Request) {
  * PATCH /api/admin/departments
  * Body: { id: string, code?: string, name?: string, head_id?: string }
  */
-export async function PATCH(request: Request) {
+async function handlePATCH(request: Request) {
   const { error, status } = await requireAdmin();
   if (error) return NextResponse.json({ error }, { status });
 
@@ -93,7 +95,7 @@ export async function PATCH(request: Request) {
  * DELETE /api/admin/departments
  * Body: { id: string }
  */
-export async function DELETE(request: Request) {
+async function handleDELETE(request: Request) {
   const { error, status } = await requireAdmin();
   if (error) return NextResponse.json({ error }, { status });
 
@@ -120,3 +122,7 @@ export async function DELETE(request: Request) {
   }
   return NextResponse.json({ success: true });
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/admin/departments POST', auth: true, bodySchema: z.object({ code: z.string().min(1), name: z.string().min(1), head_id: z.string().uuid().optional() }).strict() });
+export const PATCH = withApiHandler(handlePATCH, { route: '/api/admin/departments PATCH', auth: true, bodySchema: z.object({ id: z.string().uuid(), code: z.string().optional(), name: z.string().optional(), head_id: z.string().uuid().nullable().optional() }).strict().refine(value => Object.keys(value).some(key => key !== 'id'), { message: 'At least one update field is required' }) });
+export const DELETE = withApiHandler(handleDELETE, { route: '/api/admin/departments DELETE', auth: true, bodySchema: z.object({ id: z.string().uuid() }).strict() });

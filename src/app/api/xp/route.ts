@@ -1,8 +1,10 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import { awardXP } from '@/lib/xp';
 
-export async function POST(req: Request) {
+async function handlePOST(req: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -20,3 +22,5 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/xp POST', auth: true, bodySchema: z.object({ action: z.string().min(1), relatedId: z.string().optional() }) });

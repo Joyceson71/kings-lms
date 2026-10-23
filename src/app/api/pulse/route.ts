@@ -1,8 +1,10 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -56,3 +58,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/pulse POST', auth: true, bodySchema: z.object({ session_id: z.string().uuid(), signal: z.enum(['confused', 'got_it', 'question']) }) });

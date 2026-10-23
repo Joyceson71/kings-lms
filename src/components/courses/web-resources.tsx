@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { ExternalLink, Globe, PlaySquare, BookOpen, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ResourceViewer } from '@/components/ui/resource-viewer';
+import { toast } from 'sonner';
 
 interface WikiSummary {
   title: string;
@@ -20,6 +21,7 @@ export function WebResources({ topic }: { topic: string }) {
   const [wiki, setWiki] = useState<WikiSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   const [viewerUrl, setViewerUrl] = useState<{url: string, title: string, type: string} | null>(null);
 
   useEffect(() => {
@@ -37,12 +39,15 @@ export function WebResources({ topic }: { topic: string }) {
       } catch (err) {
         console.error(err);
         setError(true);
+        toast.error('Could not load the study summary.', {
+          action: { label: 'Retry', onClick: () => setRetryCount(count => count + 1) },
+        });
       } finally {
         setLoading(false);
       }
     }
     fetchWiki();
-  }, [topic]);
+  }, [topic, retryCount]);
 
   return (
     <div className="space-y-6">
@@ -61,6 +66,9 @@ export function WebResources({ topic }: { topic: string }) {
           <div className="text-center py-6">
             <BookOpen className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2" />
             <p className="text-xs text-muted-foreground">Could not fetch automatic summary for this topic.</p>
+            <Button variant="outline" size="sm" className="mt-3 text-xs h-7" onClick={() => setRetryCount(count => count + 1)}>
+              Try again
+            </Button>
             <Button variant="outline" size="sm" className="mt-3 text-xs h-7" onClick={() => setViewerUrl({
               url: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(topic)}`,
               title: `Search Wikipedia: ${topic}`,

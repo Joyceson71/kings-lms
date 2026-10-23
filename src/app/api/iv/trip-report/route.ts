@@ -1,8 +1,11 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { jsPDF } from 'jspdf';
+import { checkRateLimit } from '@/lib/utils/rate-limit';
 
-export async function GET(request: Request) {
+async function handleGET(request: Request) {
   const url = new URL(request.url);
   const trip_id = url.searchParams.get('trip_id');
   
@@ -16,6 +19,9 @@ export async function GET(request: Request) {
   if (!user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+
+  const rateLimit = await checkRateLimit(`trip-report:${user.id}`, { limit: 5, windowMs: 60_000 });
+  if (!rateLimit.allowed) return NextResponse.json({ error: 'Too many report requests. Please wait before retrying.' }, { status: 429 });
 
   const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
   if (!profile || (profile.role !== 'faculty' && profile.role !== 'admin')) {
@@ -88,3 +94,5 @@ export async function GET(request: Request) {
     }
   });
 }
+
+export const GET = withApiHandler(handleGET, { route: '/api/iv/trip-report GET', auth: true, querySchema: z.object({ trip_id: z.string().min(1) }) });

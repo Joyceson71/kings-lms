@@ -1,3 +1,5 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { createServiceClient, createClient } from '@/lib/supabase/server';
 import webpush from 'web-push';
@@ -10,7 +12,7 @@ if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && pro
   );
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -66,3 +68,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/iv/geofence-alert POST', auth: true, bodySchema: z.object({ iv_trip_id: z.string().uuid(), user_id: z.string().uuid(), zone_id: z.string().uuid() }) });

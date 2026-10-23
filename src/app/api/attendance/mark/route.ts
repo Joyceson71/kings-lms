@@ -1,3 +1,5 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
@@ -28,7 +30,7 @@ interface MarkAttendanceBody {
  * 6. Geofence check (campus or classroom radius)
  * 7. Duplicate prevention (unique constraint in DB)
  */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   try {
     const supabase = await createClient();
 
@@ -154,3 +156,5 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/attendance/mark POST', auth: true, bodySchema: z.object({ token: z.string().min(1), latitude: z.number().min(-90).max(90), longitude: z.number().min(-180).max(180), accuracy: z.number().nonnegative() }) });

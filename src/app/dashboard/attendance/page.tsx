@@ -23,6 +23,13 @@ const CAMPUS_LNG = 79.9868;
 const MAX_CAMPUS_RADIUS_METERS = 2000; // 2km IRCTC-style radius
 const MIN_ACCURACY_METERS = 100; // Require accurate GPS
 
+interface CourseAttendanceSafety {
+  courseId: string;
+  courseName: string;
+  attended: number;
+  total: number;
+}
+
 function AttendanceContent() {
   const { isFaculty, isStudent, profile, loading: userLoading } = useUser();
   const supabase = createClient();
@@ -34,6 +41,7 @@ function AttendanceContent() {
   const [historyRecords, setHistoryRecords] = useState<any[]>([]);
   const [myCourses, setMyCourses] = useState<any[]>([]);
   const [stats, setStats] = useState({ attended: 0, total: 0 });
+  const [courseSafety, setCourseSafety] = useState<CourseAttendanceSafety[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
 
@@ -130,18 +138,52 @@ function AttendanceContent() {
 
         if (historyData) {
           setHistoryRecords(historyData);
-          const attendedCount = historyData.filter((h: any) => h.status === 'Present').length;
-          let totalSessions = attendedCount;
-          if (courseIds.length > 0) {
-            const { count } = await supabase
-              .from('course_sessions')
-              .select('*', { count: 'exact', head: true })
-              .in('course_id', courseIds);
-            if (count !== null) totalSessions = count;
-          }
-
-          setStats({ attended: attendedCount, total: totalSessions });
         }
+
+        const { data: courseSessions, error: sessionsError } = courseIds.length > 0
+          ? await supabase
+              .from('course_sessions')
+              .select('id, course_id, courses(title, code)')
+              .in('course_id', courseIds)
+              .neq('status', 'active')
+          : { data: [], error: null };
+        if (sessionsError) throw sessionsError;
+
+        const courseSessionRows = (courseSessions ?? []) as Array<{
+          id: string;
+          course_id: string;
+          courses: { title: string; code: string | null } | Array<{ title: string; code: string | null }> | null;
+        }>;
+        const sessionIds = courseSessionRows.map(session => session.id);
+        const { data: marks, error: marksError } = sessionIds.length > 0
+          ? await supabase.from('attendance_logs').select('session_id, status').eq('student_id', profile?.id).in('session_id', sessionIds)
+          : { data: [], error: null };
+        if (marksError) throw marksError;
+
+        const markRows = (marks ?? []) as Array<{ session_id: string; status: string }>;
+        const attendedSessionIds = new Set(markRows
+          .filter(mark => String(mark.status).toLowerCase() === 'present')
+          .map(mark => mark.session_id));
+        const summaries = new Map<string, CourseAttendanceSafety>();
+        for (const session of courseSessionRows) {
+          const courseId = session.course_id;
+          const course = Array.isArray(session.courses) ? session.courses[0] : session.courses;
+          const summary = summaries.get(courseId) ?? {
+            courseId,
+            courseName: course?.code ? `${course.code}: ${course.title}` : course?.title ?? 'Course',
+            attended: 0,
+            total: 0,
+          };
+          summary.total += 1;
+          if (attendedSessionIds.has(session.id)) summary.attended += 1;
+          summaries.set(courseId, summary);
+        }
+        const safetyRows = [...summaries.values()];
+        setCourseSafety(safetyRows);
+        setStats({
+          attended: safetyRows.reduce((sum, course) => sum + course.attended, 0),
+          total: safetyRows.reduce((sum, course) => sum + course.total, 0),
+        });
       }
     } catch (error) {
       console.error('Error fetching attendance data:', error);
@@ -551,6 +593,50 @@ function AttendanceContent() {
             );
           })()}
         </div>
+      )}
+
+      {isStudent && (
+        <section aria-labelledby="attendance-safety-heading" className="space-y-3">
+          <div>
+            <h2 id="attendance-safety-heading" className="text-lg font-bold">Attendance safety by course</h2>
+            <p className="text-sm text-muted-foreground">Plan around the 75% minimum using your recorded classes.</p>
+          </div>
+          {courseSafety.length === 0 ? (
+            <div className="rounded-2xl border border-border/50 bg-card/40 p-5 text-sm text-muted-foreground">
+              No completed classes are recorded for your enrolled courses yet.
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+              {courseSafety.map(course => {
+                const percentage = course.total > 0 ? (course.attended / course.total) * 100 : 0;
+                const belowMinimum = percentage < 75;
+                const canMiss = Math.max(0, Math.floor((course.attended * 4) / 3 - course.total));
+                const recoveryClasses = Math.max(0, (3 * course.total) - (4 * course.attended));
+                return (
+                  <article key={course.courseId} className="rounded-2xl border border-border/50 bg-card/50 p-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="text-sm font-semibold leading-5">{course.courseName}</h3>
+                      <span className={`shrink-0 rounded-full px-2 py-1 text-xs font-bold ${belowMinimum ? 'bg-destructive/10 text-destructive' : 'bg-emerald-500/10 text-emerald-400'}`}>
+                        {Math.round(percentage)}%
+                      </span>
+                    </div>
+                    <Progress value={percentage} variant={belowMinimum ? 'red' : 'emerald'} size="sm" className="mt-3" />
+                    <p className="mt-3 text-xs text-muted-foreground">{course.attended} attended out of {course.total} completed classes</p>
+                    {belowMinimum ? (
+                      <p className="mt-2 text-sm font-medium text-amber-300">
+                        Attend the next {recoveryClasses} classes in a row to reach 75%.
+                      </p>
+                    ) : (
+                      <p className="mt-2 text-sm font-medium text-emerald-300">
+                        You can miss {canMiss} more {canMiss === 1 ? 'class' : 'classes'} and stay at or above 75%.
+                      </p>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+        </section>
       )}
 
       <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">

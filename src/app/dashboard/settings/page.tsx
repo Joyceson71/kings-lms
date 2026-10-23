@@ -27,7 +27,7 @@ const tabs: { key: SettingsTab; label: string; icon: React.ElementType<any> }[] 
 
 const notificationSettings = [
   { id: 'new-session', label: 'New attendance sessions', description: 'Alert when a faculty starts a session', enabled: true },
-  { id: 'assignment-due', label: 'Assignment deadlines', description: 'Reminders 24h and 1h before due date', enabled: true },
+  { id: 'assignment-due', label: 'Assignment deadlines', description: 'Reminders 24h and 2h before due date', enabled: true },
   { id: 'grade-posted', label: 'Grade updates', description: 'When an assignment is graded', enabled: true },
   { id: 'announcements', label: 'Course announcements', description: 'Faculty posts and course updates', enabled: false },
   { id: 'weekly-report', label: 'Weekly report', description: 'Summary of attendance and performance', enabled: false },
@@ -59,6 +59,28 @@ export default function SettingsPage() {
       if (profile.roll_number) setRollValue(profile.roll_number);
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    const loadPreference = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('notification_preferences')
+        .select('assignment_reminders')
+        .eq('user_id', profile.id)
+        .maybeSingle();
+      if (error) {
+        toast.error('Could not load notification preferences.');
+        return;
+      }
+      if (data) {
+        setNotifications(current => current.map(setting => setting.id === 'assignment-due'
+          ? { ...setting, enabled: data.assignment_reminders }
+          : setting));
+      }
+    };
+    void loadPreference();
+  }, [profile?.id]);
 
   const [isSaving, setIsSaving] = useState(false);
 
@@ -96,10 +118,26 @@ export default function SettingsPage() {
     }
   };
 
-  const toggleNotification = (id: string) => {
+  const toggleNotification = async (id: string) => {
+    const currentValue = notifications.find(setting => setting.id === id)?.enabled ?? false;
+    const nextValue = !currentValue;
     setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, enabled: !n.enabled } : n))
+      prev.map((n) => (n.id === id ? { ...n, enabled: nextValue } : n))
     );
+
+    if (id === 'assignment-due' && profile?.id) {
+      const supabase = createClient();
+      const { error } = await supabase.from('notification_preferences').upsert({
+        user_id: profile.id,
+        assignment_reminders: nextValue,
+      }, { onConflict: 'user_id' });
+      if (error) {
+        setNotifications(prev => prev.map(setting => setting.id === id ? { ...setting, enabled: currentValue } : setting));
+        toast.error('Could not save assignment reminder preference.');
+      } else {
+        toast.success(nextValue ? 'Assignment reminders enabled.' : 'Assignment reminders turned off.');
+      }
+    }
   };
 
   return (

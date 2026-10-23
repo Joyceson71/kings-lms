@@ -133,11 +133,7 @@ export function AssistantWorkspace({ userName, contextData }: AssistantWorkspace
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <AssistantMessage 
-                message={msg} 
-                isLast={index === messages.length - 1} 
-                onApprovePlan={handleApprovePlan}
-              />
+              <AssistantMessage message={msg} onApprovePlan={handleApprovePlan} />
             </motion.div>
           ))
         )}

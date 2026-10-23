@@ -10,6 +10,9 @@
 | `NEXT_PUBLIC_APP_URL` | Canonical app URL (used for OAuth redirects) |
 | `GEMINI_API_KEY` | Server-only Google Gemini API key for Kings Assistant |
 | `GEMINI_MODEL` | Google Gemini model identifier used by Kings Assistant |
+| `NEXT_PUBLIC_VAPID_PUBLIC_KEY` / `VAPID_PRIVATE_KEY` / `VAPID_SUBJECT` | Optional web push delivery configuration |
+| `RESEND_API_KEY` / `RESEND_FROM_EMAIL` | Optional assignment reminder email delivery |
+| `CRON_SECRET` | Secret header or bearer token for the assignment reminder cron route |
 
 Copy `.env.example` → `.env.local` and fill in real values. Never commit `.env.local`.
 
@@ -39,6 +42,16 @@ Both `/api/assistant` and `/api/assistant/chat` use the shared handler, system p
 role-scoped tools, and the Google provider in `src/lib/assistant/provider.ts`. Configure
 `GEMINI_API_KEY` and `GEMINI_MODEL`; the assistant reports a clear unavailable state when
 either is missing.
+
+Uploaded PDF, TXT, Markdown, and CSV materials are chunked and embedded through
+Gemini, then retrieved with the existing `course_material_chunks` RAG schema.
+Student retrieval is limited to enrolled courses; faculty retrieval is limited
+to courses they created. Citations link to the source material.
+
+Deadline reminders use the hourly Vercel cron in `vercel.json`, the
+`notification_preferences` opt-out, and the idempotency ledger in
+`reminders_sent` (migration `0034_assignment_reminders.sql`). The reminder
+route uses existing web-push and optional Resend delivery.
 
 ## Folder Conventions
 

@@ -1,8 +1,9 @@
 import { tool } from 'ai';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
+import { retrieveCourseMaterials } from '@/lib/assistant/retrieval';
 
-export const buildAssistantTools = async (userId: string, role: string) => {
+export const buildAssistantTools = async (userId: string, role: 'student' | 'faculty' | 'admin') => {
   return {
     get_user_profile: tool({
       description: 'Get the current user profile information.',
@@ -98,18 +99,17 @@ export const buildAssistantTools = async (userId: string, role: string) => {
     }),
 
     search_materials: tool({
-      description: 'Search for course materials, syllabus, or lecture notes by query. Returns mocked results for the demo.',
+      description: 'Search course materials the current user is authorized to access. Return excerpts with their material titles and links.',
       inputSchema: z.object({
         query: z.string().describe('Search query for the materials'),
         course_id: z.string().optional().describe('Filter by specific course ID')
       }),
       execute: async ({ query, course_id }) => {
-        // Mock response for demo purposes
+        const supabase = await createClient();
+        const retrieved = await retrieveCourseMaterials(supabase, userId, role, query, course_id);
         return {
-          results: [
-            { title: `Lecture Notes on ${query}`, type: 'pdf', link: '/materials/notes.pdf' },
-            { title: `Syllabus Overview`, type: 'document', link: '/materials/syllabus.pdf' }
-          ],
+          results: retrieved.sources.map(source => ({ title: source.title, link: source.url })),
+          excerpts: retrieved.context,
           query,
           course_id
         };

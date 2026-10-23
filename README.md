@@ -83,7 +83,7 @@ npm install
 2. Once your project is ready, navigate to:
    - **Project Settings → API** to get your keys
    
-3. Run the database migrations by going to **SQL Editor** in your Supabase dashboard. You must paste and run the contents of **all SQL files** in the migrations folder sequentially (from 0000 to 0023):
+3. Run the database migrations by going to **SQL Editor** in your Supabase dashboard. Apply all SQL files in `supabase/migrations/` sequentially, from the earliest migration through the latest one:
    ```
    supabase/migrations/
    ```
@@ -266,6 +266,8 @@ All tables have RLS enabled with the following policies:
 2. Go to [vercel.com](https://vercel.com/) → **New Project** → Import your repo
 3. Add all environment variables from `.env.local` in the Vercel project settings
 4. Deploy — Vercel auto-detects Next.js
+
+Vercel installs dependencies with `npm ci`, using the versions recorded in `package-lock.json`. If the Supabase GitHub check says preview branches are disabled, enable preview branches in the Supabase project's **Project Integrations** settings.
 
 ---
 

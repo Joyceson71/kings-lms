@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/lib/hooks/use-user';
+import { toast } from 'sonner';
 
 interface UploadModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
       }
 
       // Insert record
-      const { error: dbError } = await supabase
+      const { data: material, error: dbError } = await supabase
         .from('course_materials')
         .insert({
           title,
@@ -140,9 +141,26 @@ export function UploadModal({ isOpen, onClose, courses, onSuccess }: UploadModal
           file_path: filePath,
           size,
           uploaded_by: profile?.id
-        });
+        })
+        .select('id')
+        .single();
 
       if (dbError) throw dbError;
+
+      if (type !== 'Link') {
+        const indexingResponse = await fetch('/api/resources/ingest', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ material_id: material.id }),
+        });
+        if (!indexingResponse.ok) {
+          const responseBody: unknown = await indexingResponse.json().catch(() => null);
+          const message = typeof responseBody === 'object' && responseBody !== null && 'error' in responseBody
+            ? typeof responseBody.error === 'string' ? responseBody.error : 'The material could not be indexed.'
+            : 'The material could not be indexed.';
+          toast.error('Resource uploaded, but study indexing failed.', { description: message });
+        }
+      }
 
       // Premium UI: Fire confetti on successful upload!
       const confetti = (await import('canvas-confetti')).default;

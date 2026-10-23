@@ -1,20 +1,22 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 ﻿import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { checkRateLimit, resetRateLimit } from "@/lib/utils/rate-limit";
+import { checkRateLimit } from "@/lib/utils/rate-limit";
 
 /**
  * POST /api/auth/login
  * Rate-limited email/password authentication endpoint.
  * Max 5 attempts per IP per 15 minutes.
  */
-export async function POST(request: NextRequest) {
+async function handlePOST(request: NextRequest) {
   const ip =
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "127.0.0.1";
 
   // Check rate limit BEFORE attempting auth
-  const limit = checkRateLimit(ip);
+  const limit = await checkRateLimit(`login:${ip}`);
   if (!limit.allowed) {
     return NextResponse.json(
       { error: limit.message },
@@ -74,11 +76,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: msg }, { status: 401 });
   }
 
-  // Success — reset rate limit counter for this IP
-  resetRateLimit(ip);
-
   return NextResponse.json(
     { user: { id: data.user?.id, email: data.user?.email } },
     { status: 200 }
   );
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/auth/login POST', auth: false, bodySchema: z.object({ email: z.string().email(), password: z.string().min(1) }) });

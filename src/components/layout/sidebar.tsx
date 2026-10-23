@@ -6,7 +6,7 @@ import {
   LayoutDashboard, Users, BookOpen, FileText, Settings,
   LogOut, CheckCircle, GraduationCap, CheckSquare, QrCode, Zap, Shield,
   ClipboardList, ShieldCheck, BarChart2, Library, Trophy,
-  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, MapPin, X
+  Calendar as CalendarIcon, Bell, ChevronRight, MessageSquare, MapPin, X, Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar } from '@/components/ui/avatar';
@@ -38,6 +38,7 @@ const facultyNav: NavItem[] = [
   { href: '/dashboard/assignments', name: 'Assignments', icon: FileText },
   { href: '/dashboard/quizzes', name: 'Quizzes', icon: Zap },
   { href: '/dashboard/students', name: 'Students', icon: Users },
+  { href: '/dashboard/at-risk', name: 'At-Risk Students', icon: Activity },
   { href: '/dashboard/analytics', name: 'Analytics', icon: BarChart2 },
 ];
 
@@ -289,12 +290,12 @@ export function Sidebar() {
             (expanded || isOpen) ? 'px-4' : 'px-0 flex items-center'
           )}
         >
-          {/* IBM watsonx badge */}
+          {/* Kings Assistant badge */}
           <div className={cn(
             'mb-4 transition-all duration-300',
             (expanded || isOpen) ? 'text-center' : 'hidden'
           )}>
-            <span className="text-[10px] text-muted-foreground/60 font-medium">Bob AI • Powered by IBM watsonx</span>
+            <span className="text-[10px] text-muted-foreground/60 font-medium">Assistant AI • Kings Assistant</span>
           </div>
           {loading ? (
             <div className={cn('flex items-center', (expanded || isOpen) ? 'gap-3' : 'justify-center')}>

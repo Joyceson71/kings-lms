@@ -1,22 +1,5 @@
-﻿/**
- * Simple in-memory rate limiter.
- * State resets on cold starts (acceptable for Edge/Node deployments).
- *
- * Usage:
- *   const result = checkRateLimit(ip);
- *   if (!result.allowed) return Response.json({ error: result.message }, { status: 429 });
- */
-
-const MAX_ATTEMPTS = 5;
-const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
-
-interface RateLimitEntry {
-  count: number;
-  resetAt: number;
-}
-
-// Module-scope map — shared across requests in the same process
-const ipMap = new Map<string, RateLimitEntry>();
+import { createHash } from 'node:crypto';
+import { createClient } from '@/lib/supabase/server';
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -25,37 +8,34 @@ export interface RateLimitResult {
   message?: string;
 }
 
-export function checkRateLimit(ip: string): RateLimitResult {
-  const now = Date.now();
-  const entry = ipMap.get(ip);
+export async function checkRateLimit(
+  key: string,
+  options: { limit?: number; windowMs?: number } = {},
+): Promise<RateLimitResult> {
+  const limit = options.limit ?? 5;
+  const windowMs = options.windowMs ?? 15 * 60 * 1000;
+  const rateKey = createHash('sha256').update(key).digest('hex');
+  const supabase = await createClient();
+  const { data, error } = await supabase.rpc('consume_api_rate_limit', {
+    p_rate_key: rateKey,
+    p_max_requests: limit,
+    p_window_seconds: Math.ceil(windowMs / 1000),
+  });
 
-  if (!entry || now > entry.resetAt) {
-    // First attempt or window expired — reset
-    const resetAt = now + WINDOW_MS;
-    ipMap.set(ip, { count: 1, resetAt });
-    return { allowed: true, remaining: MAX_ATTEMPTS - 1, resetAt };
+  if (error) {
+    console.error('[rate-limit] Supabase check failed', { error: error.message });
+    throw new Error('Rate limit service unavailable');
   }
 
-  entry.count += 1;
-
-  if (entry.count > MAX_ATTEMPTS) {
-    const retryAfterSeconds = Math.ceil((entry.resetAt - now) / 1000);
-    return {
-      allowed: false,
-      remaining: 0,
-      resetAt: entry.resetAt,
-      message: `Too many login attempts. Please try again in ${Math.ceil(retryAfterSeconds / 60)} minute(s).`,
-    };
-  }
+  const result = data?.[0];
+  if (!result) throw new Error('Rate limit service returned no result');
+  const resetAt = new Date(result.reset_at).getTime();
+  const retryAfter = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
 
   return {
-    allowed: true,
-    remaining: MAX_ATTEMPTS - entry.count,
-    resetAt: entry.resetAt,
+    allowed: result.allowed,
+    remaining: result.remaining,
+    resetAt,
+    ...(!result.allowed ? { message: `Too many requests. Please retry in ${Math.ceil(retryAfter / 60)} minute(s).` } : {}),
   };
-}
-
-/** Reset the counter for a given IP (e.g. on successful login) */
-export function resetRateLimit(ip: string): void {
-  ipMap.delete(ip);
 }

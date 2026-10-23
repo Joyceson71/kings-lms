@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '@/lib/hooks/use-user';
 import { createClient } from '@/lib/supabase/client';
-import { BobChatWorkspace } from '@/components/bob/bob-chat';
+import { AssistantWorkspace } from '@/components/assistant/assistant-chat';
 
 export default function AssistantPage() {
   const { profile } = useUser();
@@ -31,7 +31,7 @@ export default function AssistantPage() {
   }, [profile?.id]);
 
   return (
-    <BobChatWorkspace 
+    <AssistantWorkspace 
       userName={profile?.full_name || 'Student'} 
       contextData={{ enrolledCourses: courseContext }} 
     />

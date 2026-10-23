@@ -1,6 +1,9 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { NextResponse } from 'next/server';
 import { createClient, createServiceClient } from '@/lib/supabase/server';
 import webpush from 'web-push';
+import { checkRateLimit } from '@/lib/utils/rate-limit';
 
 if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY) {
   webpush.setVapidDetails(
@@ -10,7 +13,7 @@ if (process.env.VAPID_SUBJECT && process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && pro
   );
 }
 
-export async function POST(request: Request) {
+async function handlePOST(request: Request) {
   try {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -18,6 +21,9 @@ export async function POST(request: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const rateLimit = await checkRateLimit(`broadcast:${user.id}`, { limit: 5, windowMs: 60_000 });
+    if (!rateLimit.allowed) return NextResponse.json({ error: 'Too many broadcasts. Please wait before retrying.' }, { status: 429 });
 
     const serviceClient = createServiceClient();
     
@@ -96,3 +102,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
+
+export const POST = withApiHandler(handlePOST, { route: '/api/iv/broadcast POST', auth: true, bodySchema: z.object({ iv_trip_id: z.string().uuid(), message: z.string().trim().min(1), gather_lat: z.number().optional(), gather_lng: z.number().optional() }) });

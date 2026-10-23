@@ -120,8 +120,9 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY="your_supabase_anon_key"
 # Supabase Service Role key — NEVER expose publicly
 SUPABASE_SERVICE_ROLE_KEY="your_supabase_service_role_key"
 
-# IBM Bob API Key (for IBM Bob Study Assistant)
-BOB_API_KEY="your_bob_api_key"
+# Kings Assistant (Google Gemini)
+GEMINI_API_KEY="your_gemini_api_key"
+GEMINI_MODEL="gemini-2.0-flash"
 
 # Web Push Notifications (VAPID Keys)
 NEXT_PUBLIC_VAPID_PUBLIC_KEY="your_vapid_public_key"
@@ -130,7 +131,21 @@ VAPID_SUBJECT="mailto:your_email@kingsedu.ac.in"
 
 # Resend API Key (for Emails)
 RESEND_API_KEY="your_resend_api_key"
+RESEND_FROM_EMAIL="Kings LMS <notifications@your-verified-domain.example>"
+
+# Vercel Cron authorization (required to run deadline reminders)
+CRON_SECRET="replace_with_a_long_random_secret"
 ```
+
+Assignment reminder email delivery requires `RESEND_API_KEY` and a verified
+`RESEND_FROM_EMAIL`. Push delivery uses the VAPID keys above. Set `CRON_SECRET`
+in the Vercel project environment to authorize `/api/cron/assignment-reminders`.
+The hourly schedule is declared in `vercel.json`; reminders are sent near 24h
+and 2h before an assignment deadline. Students can opt out in Settings → Notifications.
+
+Uploaded PDF, TXT, Markdown, and CSV course materials are indexed with Gemini
+embeddings for course-scoped assistant answers. Configure `GEMINI_API_KEY` to
+enable ingestion and grounded answers; source links are shown with citations.
 
 ### 3.5. OAuth Setup (Google & GitHub)
 To enable the "Continue with Google" and "Continue with GitHub" buttons on the Login and Signup pages, you need to configure OAuth providers in Supabase.

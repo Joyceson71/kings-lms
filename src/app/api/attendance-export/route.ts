@@ -1,7 +1,9 @@
+import { withApiHandler } from '@/lib/api/handler';
+import { z } from 'zod';
 import { createClient } from '@/lib/supabase/server';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+async function handleGET(request: NextRequest) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
@@ -74,3 +76,5 @@ export async function GET(request: NextRequest) {
     },
   });
 }
+
+export const GET = withApiHandler(handleGET, { route: '/api/attendance-export GET', auth: true, querySchema: z.object({ sessionId: z.string().uuid().optional(), courseId: z.string().optional() }) });

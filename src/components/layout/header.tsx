@@ -3,7 +3,7 @@
 import { useState, memo } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { Bell, Search, Settings, LogOut, User, Sparkles, Menu } from 'lucide-react';
+import { Bell, Settings, LogOut, User, Sparkles, Menu } from 'lucide-react';
 import { Avatar } from '@/components/ui/avatar';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/lib/hooks/use-user';
@@ -11,6 +11,7 @@ import { useSidebar } from '@/components/layout/sidebar-provider';
 import { cn } from '@/lib/utils';
 import { createClient } from '@/lib/supabase/client';
 import { NotificationsPopover } from '@/components/ui/notifications-popover';
+import { GlobalSearch } from '@/components/layout/global-search';
 
 const breadcrumbMap: Record<string, string> = {
   '/dashboard':               'Overview',
@@ -38,7 +39,6 @@ export const Header = memo(function Header() {
   const router   = useRouter();
   const [showUserMenu, setShowUserMenu]           = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [searchFocused, setSearchFocused]         = useState(false);
   const { profile, loading, displayName, role }   = useUser();
   const { setIsOpen }                             = useSidebar();
 
@@ -107,27 +107,8 @@ export const Header = memo(function Header() {
         </div>
 
         {/* Center: neomorphic search (desktop only) */}
-        <div className="hidden md:flex flex-1 max-w-sm">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-            <input
-              id="header-search"
-              type="search"
-              placeholder="Search…"
-              onFocus={() => setSearchFocused(true)}
-              onBlur={() => setSearchFocused(false)}
-              className={cn(
-                'w-full pl-9 pr-10 h-[34px] rounded-md text-[13px] text-foreground placeholder:text-muted-foreground transition-all duration-200 neo-input',
-                searchFocused ? 'border-primary' : '',
-              )}
-            />
-            <kbd
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground hidden sm:block"
-              style={{ fontFamily: 'IBM Plex Mono, monospace' }}
-            >
-              ⌘K
-            </kbd>
-          </div>
+        <div className="flex w-9 shrink-0 md:flex-1 md:max-w-sm">
+          <GlobalSearch />
         </div>
 
         {/* Right: actions */}

@@ -1,4 +1,4 @@
-# Kings LMS — Project Reference
+# Kings LMS — Project Reference.   
 
 ## Environment Variables
 
